@@ -1,6 +1,6 @@
 # React Hook Form example
 
-This example uses the published `dist` entry, React Hook Form's `useFieldArray`, and `standardSchemaResolver` from `@hookform/resolvers/standard-schema`. No loculus-specific resolver or field-name parser is required. The demo build now uses Rolldown and loculus/rolldown; its three static scalar fields are generated at build time, while object and array execution uses the ordinary implementation. The build asserts that generation actually occurred.
+This example uses the published `dist` entry, React Hook Form's `useFieldArray`, and `standardSchemaResolver` from `@hookform/resolvers/standard-schema`. No loculus-specific resolver or field-name parser is required. The demo build now uses Rolldown and @loculus/rolldown; its three static scalar fields are generated at build time, while object and array execution uses the ordinary implementation. The build asserts that generation actually occurred.
 
 ```ts
 const item = l.object({

@@ -1,6 +1,6 @@
 import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
 let source=readFileSync('bench/build-time/prepare.mjs','utf8');
-source=source.replace("'../../dist/rolldown.js'","'../../dist/rolldown.js'");
+source=source.replace("'../../packages/rolldown/dist/index.js'","'../../packages/rolldown/dist/index.js'");
 source=source.replaceAll('bench/build-time/generated','bench/whole-object/generated');
 source=source.replaceAll('bench/build-time/bundle-results.json','bench/whole-object/bundle-results.json');
 source=source.replaceAll('bench/build-time/fixtures.json','bench/whole-object/fixtures.json');

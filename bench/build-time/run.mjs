@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {cpus} from 'node:os';
 const hash=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
 const bundles=JSON.parse(readFileSync('bench/build-time/bundle-results.json'));
-assert.equal(hash('src/rolldown.ts'),bundles.pluginHash);
+assert.equal(hash('packages/rolldown/src/index.ts'),bundles.pluginHash);
 assert.equal(hash('src/index.ts'),bundles.sourceHash);
 const profiles=bundles.cases.filter(c=>c.timed);
 const libraries=['ordinary','generated','zod','valibot'];
@@ -45,7 +45,7 @@ for(const [runtime,bin]of Object.entries(runtimes))for(let pass=0;pass<9;pass++)
  writeFileSync('bench/build-time/settled-results.partial.json',JSON.stringify(report,null,2)+'\n');
 }
 for(const entry of Object.values(report.cases))for(const runtime of Object.values(entry.runtime))for(const data of Object.values(runtime))data.median=median(data.processMedians);
-assert.equal(hash('src/rolldown.ts'),report.environment.pluginHash);
+assert.equal(hash('packages/rolldown/src/index.ts'),report.environment.pluginHash);
 assert.equal(hash('src/index.ts'),report.environment.sourceHash);
 report.completed=true;
 writeFileSync('bench/build-time/settled-results.json',JSON.stringify(report,null,2)+'\n');

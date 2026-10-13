@@ -136,9 +136,9 @@ const serve = defineCommand({
 </section>
 <section id="performance" class="section performance"><div class="wrap">
 <div class="section-heading"><div><p class="eyebrow">05 / ENGINEERING</p><h2>小さく、速く。<br>主張は、測った範囲で。</h2></div><p>必要な保証を保ったうえで最適化します。<br>万能な最速という評価はしていません。</p></div>
-<div class="evidence-grid"><article><span class="stat">0</span><h3>実行時の依存パッケージ</h3><p>通常のエントリは単独で使えます。ESMとsideEffects設定、ツリーシェイキングの検証を用意しています。バンドルサイズは使うAPIとビルド設定で変わります。</p></article><article><span class="stat">96<span> profiles</span></span><h3>仕様を比較するケース群</h3><p>Node・Bunそれぞれで1,078ケースを比較。受理・拒否と成功時の値が、設定を合わせたZod・Valibotの少なくとも片方と一致しました。全入力やエラー表現の同一性を保証するものではありません。</p><a href="compatibility.html">比較コードと検証結果を見る ↗</a></article><article><span class="stat word-stat">build-time</span><h3>必要なら、ビルド時に最適化</h3><p>loculus/rolldownで静的なスキーマを専用コードにできます。通常APIを保ち、未対応の定義は通常処理に戻します。実行時のcompileやevalはありません。</p></article></div>
+<div class="evidence-grid"><article><span class="stat">0</span><h3>実行時の依存パッケージ</h3><p>通常のエントリは単独で使えます。ESMとsideEffects設定、ツリーシェイキングの検証を用意しています。バンドルサイズは使うAPIとビルド設定で変わります。</p></article><article><span class="stat">96<span> profiles</span></span><h3>仕様を比較するケース群</h3><p>Node・Bunそれぞれで1,078ケースを比較。受理・拒否と成功時の値が、設定を合わせたZod・Valibotの少なくとも片方と一致しました。全入力やエラー表現の同一性を保証するものではありません。</p><a href="compatibility.html">比較コードと検証結果を見る ↗</a></article><article><span class="stat word-stat">build-time</span><h3>必要なら、ビルド時に最適化</h3><p>@loculus/rolldownで静的なスキーマを専用コードにできます。通常APIを保ち、未対応の定義は通常処理に戻します。実行時のcompileやevalはありません。</p></article></div>
 <details class="performance-detail"><summary>性能を評価する条件と、プラグインの使い方 <span aria-hidden="true">＋</span></summary><div class="performance-detail-grid"><div><h3>単発と反復を分けて測る</h3><p>単発はスキーマ作成＋1回の検証。反復は作成済みスキーマの検証だけを測ります。過去の比較にはGitやCloudflareのcfコマンドを模した定義、行を持つフォームも含まれます。</p><p>ただし過去の速度・サイズ・型チェックの比較は、その時点の実装が対象です。strictの既定値や互換性を変更した現行実装の、全面的な優位を示すものではありません。</p><p>生成コードは大きくなる場合があり、エンジンや定義によって通常処理より遅くなる場合もあります。プラグインはTypeScriptの型チェックを速くする機能ではありません。</p></div><div><pre class="light-code"><code>import { defineConfig } from 'tsdown';
-import { loculusPlugin } from 'loculus/rolldown';
+import { loculusPlugin } from '@loculus/rolldown';
 
 export default defineConfig({
   entry: ['src/main.ts'],

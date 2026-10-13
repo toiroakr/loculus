@@ -5,14 +5,14 @@ import { inspect } from 'node:util';
 import { createHash } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
 import { rolldown } from 'rolldown';
-import { loculusPlugin } from '../../dist/rolldown.js';
+import { loculusPlugin } from '../../packages/rolldown/dist/index.js';
 import { profiles, prelude } from '../single-use/fixtures.mjs';
 
 const dir = 'bench/build-time/generated';
 mkdirSync(dir, { recursive:true });
 const entry = resolve(dir + '/consumer.ts');
 const hash = file => createHash('sha256').update(readFileSync(file)).digest('hex');
-const report = { completed:false, sourceHash:hash('src/index.ts'), pluginHash:hash('src/rolldown.ts'), bundler:'rolldown@1.2.13', cases:[] };
+const report = { completed:false, sourceHash:hash('src/index.ts'), pluginHash:hash('packages/rolldown/src/index.ts'), bundler:'rolldown@1.2.13', cases:[] };
 const timingIds = ['scalar-string-basic','scalar-string-trim','scalar-number-decimal','scalar-number-inclusive',
   'scalar-boolean','scalar-presence-optional','scalar-presence-target-both','string-pattern','array-number',
   'object-strict','width-100','cli-git-clone-full','cli-cf-deploy-full','cli-cf-dns-records-list-full',

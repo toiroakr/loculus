@@ -9,7 +9,7 @@ const read=file=>JSON.parse(readFileSync(file)),hash=file=>createHash('sha256').
 const manifest=read('bench/guarantees/ablation-manifest.json'),stats=read('bench/guarantees/ablation-statistics.json'),result=read('bench/guarantees/ablation-results.json');
 const node=read('bench/guarantees/ablation-behavior-node.json'),bun=read('bench/guarantees/ablation-behavior-bun.json');
 compareBehavior(node,bun);
-assert.equal(hash('src/index.ts'),manifest.sourceHash);assert.equal(hash('src/rolldown.ts'),manifest.pluginHash);
+assert.equal(hash('src/index.ts'),manifest.sourceHash);assert.equal(hash('packages/rolldown/src/index.ts'),manifest.pluginHash);
 assert.equal(hash('dist/index.js'),manifest.distHash);assert.equal(hash('bench/guarantees/ablation-variants.mjs'),manifest.variantHash);
 assert.equal(hash('bench/guarantees/ablation-results.json'),stats.policy.rawReportHash);
 assert.equal(hash('bench/guarantees/ablation-manifest.json'),result.environment.manifestHash);

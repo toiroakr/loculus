@@ -7,8 +7,8 @@ const initial=read('settled-results'),candidate=read('candidate-settled-results'
 const initialSizes=read('bundle-results'),currentSizes=read('current-bundle-results');
 assert.ok(initial.completed&&candidate.completed&&currentSizes.completed);
 assert.equal(initial.environment.sourceHash,hash('src/index.ts'));
-assert.equal(candidate.environment.pluginHash,hash('src/rolldown.ts'));
-assert.equal(currentSizes.pluginHash,hash('src/rolldown.ts'));
+assert.equal(candidate.environment.pluginHash,hash('packages/rolldown/src/index.ts'));
+assert.equal(currentSizes.pluginHash,hash('packages/rolldown/src/index.ts'));
 for(const name of ['settled-results','bundle-results','fixtures','timed-fixtures','significance-results'])copyFileSync('bench/whole-object/'+name+'.json','bench/whole-object/initial-'+name+'.json');
 const replaced=[];
 for(const [name,entry]of Object.entries(initial.cases)){
@@ -27,7 +27,7 @@ for(const [name,entry]of Object.entries(initial.cases)){
  const consumer=currentSizes.cases.find(c=>c.id===entry.id).libraries[library];
  if(!updated)assert.equal(consumer.consumerHash,initialSizes.cases.find(c=>c.id===entry.id).libraries[library].consumerHash,name+' unchanged consumer');
 }
-initial.codegenReverification={pluginHash:hash('src/rolldown.ts'),measuredPluginHash:initial.environment.pluginHash,date:new Date().toISOString(),reason:'Static array specialization; all changed conditions remeasured in eleven fresh processes on both engines. All other executed worker bytes and minified consumer hashes unchanged.',replacedConditions:replaced,unchangedConditions:Object.keys(initial.cases).length-replaced.length,candidateRawSha256:hash('bench/whole-object/candidate-settled-results.json'),filenameCommentsOnly:true};
+initial.codegenReverification={pluginHash:hash('packages/rolldown/src/index.ts'),measuredPluginHash:initial.environment.pluginHash,date:new Date().toISOString(),reason:'Static array specialization; all changed conditions remeasured in eleven fresh processes on both engines. All other executed worker bytes and minified consumer hashes unchanged.',replacedConditions:replaced,unchangedConditions:Object.keys(initial.cases).length-replaced.length,candidateRawSha256:hash('bench/whole-object/candidate-settled-results.json'),filenameCommentsOnly:true};
 initial.policy.remeasurement=candidate.policy;
 writeFileSync('bench/whole-object/settled-results.json',JSON.stringify(initial,null,2)+'\n');
 copyFileSync('bench/whole-object/current-bundle-results.json','bench/whole-object/bundle-results.json');

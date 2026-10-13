@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { rolldown } from 'rolldown';
-import { loculusPlugin } from '../../dist/rolldown.js';
+import { loculusPlugin } from '../../packages/rolldown/dist/index.js';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const dir = fileURLToPath(new URL('.', import.meta.url));

@@ -3,7 +3,7 @@ import {rolldown} from 'rolldown';
 import {readFileSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
-import {loculusPlugin} from '../../dist/rolldown.js';
+import {loculusPlugin} from '../../packages/rolldown/dist/index.js';
 const adapter=resolve(process.argv[2]??'../../../politty/feat/loculus-adapter/packages/loculus/dist/index.js');
 const entry=resolve('bench/build-time/generated/politty-consumer.ts');
 const source=`import * as l from 'loculus';import {arg,defineCommand,runCommand} from ${JSON.stringify(adapter)};

@@ -11,7 +11,7 @@ result=json.loads((folder/'ablation-results.json').read_text())
 assert result['completed'] and result['policy']['freshProcesses']==11
 assert result['environment']['manifestHash']==hashlib.sha256((folder/'ablation-manifest.json').read_bytes()).hexdigest()
 assert manifest['sourceHash']==hashlib.sha256((root/'src/index.ts').read_bytes()).hexdigest()
-assert manifest['pluginHash']==hashlib.sha256((root/'src/rolldown.ts').read_bytes()).hexdigest()
+assert manifest['pluginHash']==hashlib.sha256((root/'packages/rolldown/src/index.ts').read_bytes()).hexdigest()
 def lookup(c):
     return result['cases'][result['aliases'].get(c['id'],c['id'])]
 def row(current,reference,runtime,mode):

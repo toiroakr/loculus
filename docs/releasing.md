@@ -21,7 +21,10 @@ and releases. Release runs are serialized without cancelling an active publish.
 Manual runs are supported on `main` for retries; forks and other branches cannot
 run the release job. Already-published npm versions are skipped by Changesets.
 
-The root API and `loculus/rolldown` share one package version. Changes that affect
+The runtime `loculus` and `@loculus/rolldown` plugin are separate workspace
+packages with independent versions. Select only the affected packages when adding
+a changeset. Both are public; the plugin requires a compatible Loculus runtime
+and Rolldown as peer dependencies. Changes that affect
 only development tooling or documentation do not require a changeset.
 
 ## One-time GitHub setup
@@ -41,9 +44,8 @@ applicable repository rules. Keep CI required on the release PR before merging.
 
 ## One-time npm setup
 
-The package is public and currently has version `0.1.0`. A first npm publication
-must establish the package before its trusted publisher can be configured. If it
-does not exist yet, an authorized maintainer can publish it interactively:
+Both packages are public and start at version `0.1.0`. Publish each missing
+package interactively before configuring its trusted publisher:
 
 ```sh
 pnpm install --frozen-lockfile
@@ -52,13 +54,15 @@ pnpm test
 pnpm test:rhf
 npm login
 npm publish --access public
+npm publish ./packages/rolldown --access public
 ```
 
 `prepublishOnly` builds the package. Do not enable automated publishing until the
 package and trusted publisher are ready. No initial version bump is added by
 this workflow setup.
 
-In the npm package settings, add a GitHub Actions trusted publisher:
+Create the free npm organization `loculus` before publishing `@loculus/rolldown`.
+In each package's npm settings, add a GitHub Actions trusted publisher:
 
 | Field | Value |
 | --- | --- |
@@ -83,11 +87,14 @@ pnpm typecheck
 pnpm test
 pnpm test:rhf
 npm pack --dry-run
+npm pack ./packages/rolldown --dry-run
+pnpm check:packages
 ```
 
-Check that the tarball contains the JavaScript and declarations for both exported
-entry points, the README, and the license. Benchmarks and examples are excluded
-by the package's `files` allowlist.
+Check that each tarball contains its JavaScript, declarations, README, and license. The runtime tarball must contain no
+plugin code or Rolldown peer dependency. `pnpm check:packages` installs packed
+artifacts and checks the runtime alone and the plugin in an actual Rolldown build.
+Benchmarks and examples are excluded by each package's `files` allowlist.
 
 References: [Politty release workflow](https://github.com/toiroakr/politty/blob/main/.github/workflows/release.yml),
 [Lines DB release workflow](https://github.com/toiroakr/lines-db/blob/main/.github/workflows/release.yml),

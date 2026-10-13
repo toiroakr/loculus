@@ -42,5 +42,5 @@ for(const [runtime,bin]of Object.entries(bins))for(let pass=0;pass<11;pass++){
   writeFileSync('bench/guarantees/ablation-results.partial.json',JSON.stringify(report,null,2)+'\n');
 }
 for(const c of Object.values(report.cases))for(const runtime of Object.values(c.runtime))for(const mode of Object.values(runtime))mode.median=median(mode.processMedians);
-assert.equal(hash('src/index.ts'),manifest.sourceHash);assert.equal(hash('src/rolldown.ts'),manifest.pluginHash);
+assert.equal(hash('src/index.ts'),manifest.sourceHash);assert.equal(hash('packages/rolldown/src/index.ts'),manifest.pluginHash);
 report.completed=true;writeFileSync('bench/guarantees/ablation-results.json',JSON.stringify(report,null,2)+'\n');console.log('completed');

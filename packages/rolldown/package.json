@@ -1,0 +1,42 @@
+{
+  "name": "@loculus/rolldown",
+  "version": "0.1.0",
+  "description": "Build-time schema specialization for Loculus with Rolldown",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toiroakr/loculus.git",
+    "directory": "packages/rolldown"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "prepublishOnly": "pnpm build"
+  },
+  "peerDependencies": {
+    "rolldown": ">=1.2.13 <2",
+    "loculus": "^0.1.0"
+  },
+  "devDependencies": {
+    "tsdown": "^0.23.1"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

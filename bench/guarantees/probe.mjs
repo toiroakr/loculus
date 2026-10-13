@@ -29,7 +29,7 @@ const shared=Object.freeze({message:'shared',path:Object.freeze(['leaf'])});
 const custom=l.string();Reflect.set(custom['~standard'],'validate',()=>({issues:Object.freeze([shared])}));
 const errorSchema=l.object({left:custom,right:custom});details.sharedFrozenIssues={result:summary(l.safeParse(errorSchema,{left:'a',right:'b'})),originalPath:shared.path};
 const raw={a:'first',b:'before'};Object.defineProperty(raw,'a',{get(){raw.b='after';return 'first'},enumerable:true});details.getterOrdering=summary(l.safeParse(l.object({a:l.string(),b:l.string()}),raw));
-const codeHashes=Object.fromEntries(['src/index.ts','src/rolldown.ts','dist/index.js','node_modules/zod/v4/core/schemas.js','node_modules/zod/v4/classic/schemas.js','node_modules/valibot/dist/index.mjs'].map(p=>[p,createHash('sha256').update(readFileSync(p)).digest('hex')]));
+const codeHashes=Object.fromEntries(['src/index.ts','packages/rolldown/src/index.ts','dist/index.js','node_modules/zod/v4/core/schemas.js','node_modules/zod/v4/classic/schemas.js','node_modules/valibot/dist/index.mjs'].map(p=>[p,createHash('sha256').update(readFileSync(p)).digest('hex')]));
 const versions=Object.fromEntries(['zod','valibot'].map(name=>[name,JSON.parse(readFileSync(`node_modules/${name}/package.json`)).version]));
 assert.equal(cases.find(c=>c.id==='inherited-input').result.loculus.ok,false);
 assert.equal(cases.find(c=>c.id==='inherited-input').result.zod.ok,true);

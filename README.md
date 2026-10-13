@@ -53,11 +53,16 @@ Custom transforms and refinements are synchronous. Exceptions from user callback
 
 ## Build-time code generation
 
-`loculus/rolldown` exports an optional build plugin for Rolldown 1.2.13 and tsdown. The runtime entry stays independent of Rolldown.
+`@loculus/rolldown` is a separate, optional package for Rolldown 1.2.13 and tsdown. The `loculus` runtime does not include the plugin or declare a Rolldown peer dependency.
+
+```sh
+pnpm add loculus
+pnpm add -D @loculus/rolldown rolldown
+```
 
 ```ts
 import { defineConfig } from 'tsdown';
-import { loculusPlugin } from 'loculus/rolldown';
+import { loculusPlugin } from '@loculus/rolldown';
 
 export default defineConfig({
   entry: ['src/main.ts'],

@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import { rolldown } from 'rolldown';
 import { fileURLToPath } from 'node:url';
 import * as l from '../src/index.js';
-import { loculusPlugin, type LoculusPluginOptions } from '../src/rolldown.js';
+import { loculusPlugin, type LoculusPluginOptions } from '../packages/rolldown/src/index.js';
 import {z} from 'zod';
 import * as v from 'valibot';
 

@@ -12,7 +12,7 @@ try {
 await copyFile(root + 'README.md', output + 'README.md');
 await writeFile(output + 'compatibility.html', (await readFile(root + 'docs/compatibility.html', 'utf8')).replace('</head>', '<link rel="icon" href="assets/mark.svg"></head>'));
 await writeFile(output + 'rhf.html', (await readFile(root + 'examples/react-hook-form/generated/index.html', 'utf8')).replace('</head>', '<link rel="icon" href="assets/mark.svg"></head>'));
-const files = ['src/index.ts', 'src/rolldown.ts', 'dist/index.js'];
+const files = ['src/index.ts', 'packages/rolldown/src/index.ts', 'dist/index.js'];
 const sourceHashes = {};
 for (const file of files) sourceHashes[file] = createHash('sha256').update(await readFile(root + file)).digest('hex');
 const bunAudit = JSON.parse(await readFile(root + 'bench/guarantees/compatibility-audit-bun.json', 'utf8'));

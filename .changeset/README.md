@@ -1,18 +1,18 @@
 # Changesets
 
-Add a changeset when a change affects the published `loculus` package:
+Add a changeset when a change affects `loculus` or `@loculus/rolldown`:
 
 ```sh
 pnpm changeset
 ```
 
-Choose `patch` for fixes, `minor` for new features, and `major` for breaking changes.
-Describe the resulting behavior for library users. Both the root API and
-`loculus/rolldown` are released together.
+Select the affected package or both. They are independently versioned. Before 1.0,
+use `patch` for fixes and new compatible features, and `minor` for breaking changes.
+Describe the resulting behavior for library users.
 
 Documentation, benchmarks, and workflow-only changes do not need a changeset.
 Commit the generated Markdown file with the implementation; do not bump
 `package.json` by hand. The release workflow consumes changesets, updates the
-version and changelog in a release PR, and publishes after that PR is merged.
+versions and changelogs in a release PR, and publishes after that PR is merged.
 
 See [the release guide](../docs/releasing.md) for repository and npm setup.

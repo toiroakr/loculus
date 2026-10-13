@@ -7,7 +7,7 @@ assert.deepEqual(node.cases,bun.cases);assert.deepEqual(node.details,bun.details
 for(const [file,hash]of Object.entries(node.codeHashes))assert.equal(createHash('sha256').update(readFileSync(file)).digest('hex'),hash,file);
 const perf=read('bench/whole-object/significance-results.json'),bundles=read('bench/whole-object/bundle-results.json'),verification=read('bench/whole-object/verification.json');
 assert.equal(verification.sourceHash,node.codeHashes['src/index.ts']);
-assert.equal(verification.pluginSourceHash,node.codeHashes['src/rolldown.ts']);
+assert.equal(verification.pluginSourceHash,node.codeHashes['packages/rolldown/src/index.ts']);
 const losses=perf.peer.filter(x=>x.practicalLoss);
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const code=s=>`<pre><code>${esc(s)}</code></pre>`;

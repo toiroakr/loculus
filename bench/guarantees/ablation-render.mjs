@@ -13,7 +13,7 @@ const types=read('bench/guarantees/ablation-types.json');
 const trees=read('bench/guarantees/ablation-tree-shaking.json');
 compareBehavior(behavior,bun);
 const hash=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
-assert.equal(manifest.sourceHash,hash('src/index.ts'));assert.equal(manifest.pluginHash,hash('src/rolldown.ts'));
+assert.equal(manifest.sourceHash,hash('src/index.ts'));assert.equal(manifest.pluginHash,hash('packages/rolldown/src/index.ts'));
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 const code=s=>`<pre><code>${esc(s)}</code></pre>`;
 const names={

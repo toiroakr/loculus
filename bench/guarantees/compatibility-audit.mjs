@@ -42,7 +42,7 @@ const report = {
   completed: !unmatched.length,
   runtime: process.versions.bun ? `Bun ${process.versions.bun}` : `Node ${process.version}`,
   versions: Object.fromEntries(['zod', 'valibot'].map(name => [name, JSON.parse(readFileSync(`node_modules/${name}/package.json`)).version])),
-  sourceHashes: Object.fromEntries(['src/index.ts', 'src/rolldown.ts', 'dist/index.js'].map(path => [path, createHash('sha256').update(readFileSync(path)).digest('hex')])),
+  sourceHashes: Object.fromEntries(['src/index.ts', 'packages/rolldown/src/index.ts', 'dist/index.js'].map(path => [path, createHash('sha256').update(readFileSync(path)).digest('hex')])),
   profiles: profiles.length, cells: cells.length, unmatched, results: cells,
   scope: 'Acceptance and successful output equivalence for the existing composed fixtures, with Zod JIT on and off. Issue paths are recorded but not included in this equivalence gate. Arbitrary messages/codes and unsupported schema mutations are not parity claims. Numeric/boolean coercion and scalar wrapping use the explicit peer compositions recorded per case; native equivalent tests are in test/compatibility.test.ts.',
 };

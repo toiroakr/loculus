@@ -9,8 +9,8 @@ const sizes=read('bench/build-time/bundle-results.json');
 const politty=read('bench/build-time/politty-results.json');
 assert.ok(raw.completed&&stats.completed&&sizes.completed&&politty.completed);
 assert.equal(raw.environment.sourceHash,hash('src/index.ts'));
-assert.equal(raw.codegenReverification?.pluginHash??raw.environment.pluginHash,hash('src/rolldown.ts'));
-assert.equal(sizes.pluginHash,hash('src/rolldown.ts'));
+assert.equal(raw.codegenReverification?.pluginHash??raw.environment.pluginHash,hash('packages/rolldown/src/index.ts'));
+assert.equal(sizes.pluginHash,hash('packages/rolldown/src/index.ts'));
 assert.equal(stats.policy.rawReportSha256,hash('bench/build-time/settled-results.json'));
 for(const c of Object.values(raw.cases))assert.equal(c.fixtureHash,hash(c.file));
 const logs={
@@ -26,8 +26,9 @@ assert.match(readFileSync(logs.politty,'utf8'),/84 passed/);
 assert.match(readFileSync(logs.packed,'utf8'),/Packed runtime and loculus\/rolldown exports work/);
 assert.ok(!readFileSync('dist/index.js','utf8').includes('rolldown'));
 assert.ok(!readFileSync('dist/index.d.ts','utf8').includes('rolldown'));
-assert.equal(read('package.json').exports['./rolldown'].import,'./dist/rolldown.js');
-const verification={completed:true,date:new Date().toISOString(),sourceHash:hash('src/index.ts'),distHash:hash('dist/index.js'),declarationsHash:hash('dist/index.d.ts'),pluginSourceHash:hash('src/rolldown.ts'),pluginDistHash:hash('dist/rolldown.js'),pluginDeclarationsHash:hash('dist/rolldown.d.ts'),
+assert.equal(read('package.json').exports['./rolldown'],undefined);
+assert.equal(read('packages/rolldown/package.json').exports['.'].import,'./dist/index.js');
+const verification={completed:true,date:new Date().toISOString(),sourceHash:hash('src/index.ts'),distHash:hash('dist/index.js'),declarationsHash:hash('dist/index.d.ts'),pluginSourceHash:hash('packages/rolldown/src/index.ts'),pluginDistHash:hash('packages/rolldown/dist/index.js'),pluginDeclarationsHash:hash('packages/rolldown/dist/index.d.ts'),
  schemaTests:{passed:64,core:57,plugin:7,runtimes:['Node 24.13.0','Bun 1.4.3']},rhfTests:{passed:12,generatedFields:true,physicalSafari:false},
  polittyTests:{passed:84,files:18,typeErrors:0,generatedCommandIntegration:true},typecheck:{passed:true},
  reportBrowserCheck:{passed:true,htmlSha256:hash('docs/performance-tuning.html'),viewports:[{width:390,height:844},{width:1280,height:900}],speedRows:64,bundleRows:107,originalThreeLibraryExamples:107},

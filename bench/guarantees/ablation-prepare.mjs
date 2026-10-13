@@ -5,7 +5,7 @@ import {createHash} from 'node:crypto';
 import {gzipSync} from 'node:zlib';
 import {inspect} from 'node:util';
 import {rolldown} from 'rolldown';
-import {loculusPlugin} from '../../dist/rolldown.js';
+import {loculusPlugin} from '../../packages/rolldown/dist/index.js';
 import {profiles as all,prelude} from '../single-use/fixtures.mjs';
 import {variants,runtimeVariant,transformedVariant} from './ablation-variants.mjs';
 
@@ -16,7 +16,7 @@ const hash=file=>createHash('sha256').update(readFileSync(file)).digest('hex');
 const literal=value=>inspect(value,{depth:null,compact:true,breakLength:Infinity,maxArrayLength:null});
 const only=process.argv.find(x=>x.startsWith('--only='))?.slice(7).split(',');
 const report=only?JSON.parse(readFileSync('bench/guarantees/ablation-manifest.json')):{cases:[],modules:[]};
-Object.assign(report,{completed:false,sourceHash:hash('src/index.ts'),pluginHash:hash('src/rolldown.ts'),distHash:hash(runtimePath),variantHash:hash('bench/guarantees/ablation-variants.mjs'),variants});
+Object.assign(report,{completed:false,sourceHash:hash('src/index.ts'),pluginHash:hash('packages/rolldown/src/index.ts'),distHash:hash(runtimePath),variantHash:hash('bench/guarantees/ablation-variants.mjs'),variants});
 async function build(code,id,pipeline,minify){
   const plugin={name:'ablation',transform(code,path){if(path!==runtimePath&&path!==entry)return;return transformedVariant(code,id,text=>this.parse(text));}};
   const bundle=await rolldown({input:entry,platform:'node',plugins:[

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {rolldown} from 'rolldown';
-import {loculusPlugin} from 'loculus/rolldown';
+import {loculusPlugin} from '../../packages/rolldown/dist/index.js';
 
 const dir=fileURLToPath(new URL('.',import.meta.url));
 const bundle=await rolldown({input:dir+'schema.ts',plugins:[loculusPlugin()]});

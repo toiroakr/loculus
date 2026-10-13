@@ -1,6 +1,6 @@
 # Build-time scalar code generation
 
-`pnpm bench:build-time` bundles the same 107 cases used by the single-use suite through Rolldown 1.2.13, with and without `loculus/rolldown`, plus ordinary Zod and Valibot. All 428 minified consumers are executed. Generated versus ordinary Loculus values, full issues and paths are compared for every valid, invalid and probe input. Valid peer outputs are compared independently. Sizes include the live schema, createSchema export and public invocation helper; they are not directly comparable to the older esbuild size table.
+`pnpm bench:build-time` bundles the same 107 cases used by the single-use suite through Rolldown 1.2.13, with and without `@loculus/rolldown`, plus ordinary Zod and Valibot. All 428 minified consumers are executed. Generated versus ordinary Loculus values, full issues and paths are compared for every valid, invalid and probe input. Valid peer outputs are compared independently. Sizes include the live schema, createSchema export and public invocation helper; they are not directly comparable to the older esbuild size table.
 
 16 profiles were selected before timing: plain and constrained strings, optional and dual defaults, decimal/integer conversion, booleans, a regex fallback, arrays, strict objects, width 100, Git clone, cf deploy and DNS records list, RHF 1 and 100 rows. Only these profiles receive runtime performance claims. Each condition runs in nine fresh processes on Node 24.13.0 and Bun 1.4.3, with 30ms warmup and seven adaptive rounds targeting 8ms.
 
