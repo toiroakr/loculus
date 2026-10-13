@@ -1,6 +1,6 @@
 import {test} from "node:test";
 import assert from "node:assert/strict";
-import {median, geometricMean, runtimeMetrics, metricSet} from "../bench/ci/metrics.mjs";
+import {median, geometricMean, runtimeMetrics, metricSet, orderedEntries} from "../bench/ci/metrics.mjs";
 
 test("benchmark summaries use per-process paired ratios and equal case weights", () => {
   const samples = (values: number[]) => values.map(median => ({median}));
@@ -26,4 +26,12 @@ test("benchmark aggregates reject missing and invalid observations", () => {
   assert.throws(() => geometricMean([0]));
   assert.throws(() => metricSet("x", "X", {}, [{key: "x", value: Infinity}]));
   assert.throws(() => metricSet("x", "X", {}, [{key: "x", value: 1}, {key: "x", value: 2}]));
+});
+
+test("benchmark passes rotate both cases and peer order without dropping measurements", () => {
+  const entries = ["a", "b"].flatMap(id => ["loculus", "generated", "zod", "valibot"].map(library => ({id, library})));
+  const second = orderedEntries(entries, 1);
+  assert.deepEqual(second.map(entry => entry.id), ["b", "b", "b", "b", "a", "a", "a", "a"]);
+  assert.deepEqual(second.slice(0, 4).map(entry => entry.library), ["generated", "zod", "valibot", "loculus"]);
+  for (let pass = 0; pass < 5; pass++) assert.deepEqual(new Set(orderedEntries(entries, pass)), new Set(entries));
 });

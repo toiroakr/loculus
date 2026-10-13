@@ -37,7 +37,7 @@ const runtimes = {node: process.execPath, bun};
 const sourceHashes = Object.fromEntries(['src/index.ts', 'packages/rolldown/src/index.ts', 'dist/index.js', 'dist/index.d.ts'].map(file => [file, hash(readFileSync(file))]));
 const environment = {node: process.version, bun: execFileSync(bun, ['--version'], {encoding: 'utf8'}).trim(), versions, cpu: cpus()[0].model, platform: platform(), arch: arch(), commit: execFileSync('git', ['rev-parse', 'HEAD'], {encoding: 'utf8'}).trim()};
 const harnessHashes = Object.fromEntries(['bench/ci/run.mjs', 'bench/ci/worker.mjs', 'bench/ci/metrics.mjs'].map(file => [file, hash(readFileSync(file))]));
-const fingerprint = hash(literal({protocol, profiles, versions, harnessHashes, node: environment.node, bun: environment.bun})).slice(0, 12);
+const fingerprint = hash(literal({protocol, profiles, prelude, versions, harnessHashes, node: environment.node, bun: environment.bun})).slice(0, 12);
 const report = {completed: false, environment, protocol, fingerprint, sourceHashes, harnessHashes, cases: [], types: {}};
 const entries = [];
 const imports = {loculus: "import * as l from 'loculus';", generated: "import * as l from 'loculus';", zod: "import {z} from 'zod';", valibot: "import * as v from 'valibot';"};
@@ -68,7 +68,7 @@ for (const profile of profiles) {
     writeFileSync(resolve(dir, `${profile.id}-${library}-consumer.mjs`), consumer);
     item.bundle[library] = {bytes: Buffer.byteLength(consumer), gzipBytes: gzipSync(consumer).length};
     item.runtime.node[library] = {}; item.runtime.bun[library] = {};
-    entries.push({key: profile.id + '/' + library, file});
+    entries.push({id: profile.id, key: profile.id + '/' + library, file});
   }
   assert.deepEqual(peers.generated, peers.loculus, profile.id + '/generated parity');
   for (let i = 0; i < peers.loculus.length; i++) {
@@ -94,7 +94,7 @@ for (const [index, library] of ['loculus', 'zod', 'valibot'].entries()) {
   for (let copy = 0; copy < protocol.typeCopies; copy++) for (const profile of profiles) {
     const id = profile.id.replaceAll('-', '_') + '_' + copy;
     const out = new Function('l', prelude + '\nreturn ' + profile.expressions[0])(ordinary)['~standard'].validate(profile.valid[0]).value;
-    source += `export const ${id}=${profile.expressions[index]};export type I_${id}=${['l.Input', 'z.input', 'v.InferInput'][index]}<typeof ${id}>;export type O_${id}=${['l.Output', 'z.output', 'v.InferOutput'][index]}<typeof ${id}>;export const value_${id}:O_${id}=${literal(out)};\n`;
+    source += `export const ${id}=${profile.expressions[index]};export type I_${id}=${['l.Input', 'z.input', 'v.InferInput'][index]}<typeof ${id}>;export type O_${id}=${['l.Output', 'z.output', 'v.InferOutput'][index]}<typeof ${id}>;export const input_${id}:I_${id}=${literal(profile.valid[0])};export const value_${id}:O_${id}=${literal(out)};\n`;
   }
   const path = `${dir}/types-${library}.ts`;
   writeFileSync(path, source);
@@ -116,8 +116,8 @@ for (let pass = 0; pass < protocol.typePasses; pass++) for (let offset = 0; offs
 for (const [file, expected] of Object.entries({...sourceHashes, ...harnessHashes})) assert.equal(hash(readFileSync(file)), expected);
 report.completed = true;
 json(dir + '/results.json', report);
-const metadata = {protocol: JSON.stringify(protocol), environment: JSON.stringify(environment), fixtures: fingerprint, lowerIsBetter: '100% = peer; ratios are geometric means of per-case paired process ratios; observational, no statistical gate'};
-for (const runtime of Object.keys(runtimes)) json(`${dir}/metrics-${runtime}.json`, metricSet(`runtime-${runtime}-${fingerprint}`, `${runtime} validation: Loculus / peer`, metadata, runtimeMetrics(report, runtime)));
+const metadata = {protocol: JSON.stringify(protocol), environment: JSON.stringify(environment), fixtures: fingerprint};
+for (const runtime of Object.keys(runtimes)) json(`${dir}/metrics-${runtime}.json`, metricSet(`runtime-${runtime}-${fingerprint}`, `${runtime} validation: Loculus / peer`, {...metadata, interpretation: '100% = peer; lower favors Loculus; geometric mean of per-case paired process ratios; observational, no statistical gate'}, runtimeMetrics(report, runtime)));
 const sizes = report.cases.filter(item => ['scalar-string-basic', 'cli-git-clone-full', 'cli-cf-deploy-sparse', 'supplement-rhf-items-10'].includes(item.id)).flatMap(item => Object.entries(item.bundle).flatMap(([library, sizes]) => Object.entries(sizes).map(([unit, value]) => ({key: `${item.id}/${library}/${unit}`, name: `${item.id} / ${library} / ${unit}`, value, unit: 'B'}))));
 json(`${dir}/metrics-size.json`, metricSet(`size-${fingerprint}`, 'Browser ESM bundles', metadata, sizes));
 const types = Object.entries(report.types).flatMap(([library, samples]) => ['wallMs', 'checkSeconds', 'instantiations', 'memoryKiB'].map(key => ({key: `${library}/${key}`, name: `${library} / ${key}`, value: median(samples.map(sample => sample[key])), unit: {wallMs: 'ms', checkSeconds: 's', memoryKiB: 'KiB'}[key] ?? 'count'})));

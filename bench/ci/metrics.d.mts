@@ -8,3 +8,4 @@ export function runtimeMetrics(report: {
 export function metricSet(key: string, name: string, metadata: Record<string, unknown>, metrics: Metric[]): {
   key: string; name: string; metadata: {key: string; value: string}[]; metrics: Metric[];
 };
+export function orderedEntries<T extends {id: string}>(entries: readonly T[], pass: number): T[];

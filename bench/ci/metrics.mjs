@@ -26,3 +26,11 @@ export function metricSet(key, name, metadata, metrics) {
   assert.ok(metrics.every(item => item.key && Number.isFinite(item.value)));
   return {key, name, metadata: Object.entries(metadata).map(([key, value]) => ({key, value: String(value)})), metrics};
 }
+
+export function orderedEntries(entries, pass) {
+  const ids = [...new Set(entries.map(entry => entry.id))];
+  return ids.flatMap((_, index) => {
+    const group = entries.filter(entry => entry.id === ids[(index + pass) % ids.length]);
+    return group.map((_, index) => group[(index + pass) % group.length]);
+  });
+}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync, writeFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
-import {median} from './metrics.mjs';
+import {median, orderedEntries} from './metrics.mjs';
 
 const [manifestFile, outputFile, passText] = process.argv.slice(2);
 const manifest = JSON.parse(readFileSync(manifestFile, 'utf8'));
@@ -17,8 +17,7 @@ function consume(value) {
   return sum;
 }
 const output = {};
-for (let index = 0; index < manifest.entries.length; index++) {
-  const entry = manifest.entries[(index + pass) % manifest.entries.length];
+for (const entry of orderedEntries(manifest.entries, pass)) {
   const module = await import(pathToFileURL(entry.file));
   output[entry.key] = {};
   for (const mode of manifest.protocol.modes) {

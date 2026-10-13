@@ -27,7 +27,7 @@ The Actions summary and octocov comment group timing by scalars, arrays, objects
 
 Bundle metrics use a live exported schema and Standard Schema validator, with minified ESM and gzip. The comment includes a scalar, git, cf, and form consumer for all four library modes; the artifact contains all twelve. These consumers contain the needed exports and no benchmark datasets or timing loop.
 
-Type metrics compile twenty copies of each selected schema and infer both input/output plus a checked output assignment. Three rotated compiler processes record wall time, check time, instantiations, and memory for Loculus, Zod, and Valibot. Generated Loculus shares the ordinary type definitions.
+Type metrics compile twenty copies of each selected schema and infer both input/output with checked input and output assignments. Three rotated compiler processes record wall time, check time, instantiations, and memory for Loculus, Zod, and Valibot. Generated Loculus shares the ordinary type definitions.
 
 The `measure` job has read-only repository access. A separate `report` job downloads its artifact and gives octocov permission to comment on same-repository PRs. Fork PRs still get measurements/artifacts and the job summary; the privileged reporter is skipped. Raw artifacts are retained for fourteen days.
 
