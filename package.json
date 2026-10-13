@@ -57,6 +57,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "esbuild": "^0.28.2",
+    "pkg-pr-new": "0.0.91",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-hook-form": "^7.89.0",

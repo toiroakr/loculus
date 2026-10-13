@@ -32,6 +32,9 @@ importers:
       esbuild:
         specifier: ^0.28.2
         version: 0.28.2
+      pkg-pr-new:
+        specifier: 0.0.91
+        version: 0.0.91
       react:
         specifier: ^19.3.0
         version: 19.3.0
@@ -805,6 +808,10 @@ packages:
     resolution: {integrity: sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA==}
     engines: {node: '>=12'}
 
+  pkg-pr-new@0.0.91:
+    resolution: {integrity: sha512-FQPmjspKRKYV4MlHQnun9snJqlYm6Yhmo12x1O3pgE2Akim/y/BZjMOppK//BFdh222WOj6WGqlmeZfrtUtfgQ==}
+    hasBin: true
+
   playwright-core@1.64.0:
     resolution: {integrity: sha512-T9r+MZkTECl2+oUcZ26YgZzTrYidTsIhYYkJix+6iDOymOb1FB2RLLSOxRGnZGv5DStt+aduIVbt+E8WygXYpg==}
     engines: {node: '>=20'}
@@ -1460,6 +1467,8 @@ snapshots:
   picocolors@1.1.1: {}
 
   picomatch@4.0.7: {}
+
+  pkg-pr-new@0.0.91: {}
 
   playwright-core@1.64.0: {}
 

@@ -79,6 +79,23 @@ required. Do not add a `registry-url` token placeholder that interferes with OID
 The first interactive publication does not create a GitHub release automatically.
 Subsequent releases are handled by Changesets.
 
+## Package previews
+
+The `Package preview` job in `ci.yml` publishes both `loculus` and
+`@loculus/rolldown` to [pkg.pr.new](https://pkg.pr.new/~/toiroakr/loculus)
+after the Node 24/26 checks and React Hook Form tests pass. It runs on branch
+pushes and pull requests, excluding tag pushes and workflows in fork repositories.
+
+Install the [pkg.pr.new GitHub App](https://github.com/apps/pkg-pr-new) on
+`toiroakr/loculus` before using previews. The job uses the CLI version pinned in
+the lockfile, with no npm token or release environment. The App provides preview
+links in PR comments using commit SHAs.
+
+Both packages are published in one invocation with pnpm packing. Preview versions
+use `0.0.0-preview-<sha>`, and the plugin's Loculus peer dependency is rewritten
+to that preview version. Install both URLs from the preview output together.
+These packages do not change npm's published versions or Changesets release state.
+
 ## Local verification
 
 ```sh
