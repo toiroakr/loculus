@@ -37,7 +37,7 @@ Run the browser checks:
 pnpm test:rhf
 ```
 
-Local checks use installed Google Chrome. CI installs Playwright Chromium. Desktop and an iPhone 13 viewport each run six tests:
+Local checks use installed Google Chrome. CI installs Playwright Chromium. Desktop and an iPhone 13 viewport each run seven tests:
 
 - Required field and nested numeric errors prevent submission; corrections clear errors and produce trimmed strings and numeric output.
 - Moving a row preserves its values, identity and the reassigned error paths.
@@ -45,9 +45,10 @@ Local checks use installed Google Chrome. CI installs Playwright Chromium. Deskt
 - Empty and excessive arrays produce collection errors; adding or removing rows recovers.
 - Reset clears errors and restores defaults; the layout does not overflow the viewport.
 - Empty, fractional, and excessive quantities fail; the inclusive upper bound succeeds.
+- Opting into shipping validates a direct nested object and a two-dimensional time-window array. Corrected nested values submit as numbers; disabling shipping removes the optional container.
 
 Mobile checks emulate Chromium's viewport and touch behavior, rather than running on a physical iPhone or Safari. The example typecheck compiles against the generated package declarations. `test/object-array.test.ts` also covers optional/nullish/default arrays, row object modes, nested paths, ordinary/generated scalar parity, and validator snapshot behavior.
 
 `array(object(...))` originally widened array element types without changing the emitted runtime JS. Subsequent performance changes are measured in `bench/optimization-2/` and the latest full pass in `bench/optimization-3/`. The pre-extension JS is retained in `bench/coverage/array-object-before/`; compare it with a freshly built `dist/index.js`. The original extension retained the same flat validation and browser bundle bytes with the same dependencies and bundler. Type instantiations have a small additional cost, measured separately in `bench/coverage/array-object-type-results.json`. `verification.json` records the latest installed runtime hash and browser checks.
 
-Direct nested object fields, arrays of arrays, circular/lazy schemas, and parsing dotted/bracketed names from native `FormData` are outside this extension. `fromEntries()` continues to preserve literal field names; it does not reconstruct nested data. Object-array fields target structured form values, not CLI token decoding. Default row arrays follow existing defaults: their elements are output values, constraints are bypassed, and the array is reused by reference.
+Direct nested object fields and arrays of arrays are supported. The optional `shipping` container in `schema.ts` contains a ZIP string and `windows: number[][]`, with strict array inputs at both levels by default. RHF's `register('shipping.windows.0.0')` supplies structured values to the resolver, and errors retain that full path. Circular/lazy schemas and parsing dotted/bracketed names from native `FormData` remain outside this extension. `fromEntries()` preserves literal field names; it does not reconstruct nested data. Defaults are output values, bypass constraints, and reuse the same object or array reference.

@@ -11,7 +11,7 @@ const manifest = JSON.parse(readFileSync(`${dir}/mixed-compile-manifest.json`));
 const names = ['mixed-compile-baseline3', ...manifest.candidates.map(c => c.name)];
 const profiles = ['transform-100', 'default-100', 'query-12'];
 const expressions = Object.fromEntries(profiles.map(profile => [profile, profile === 'query-12'
-  ? "l.object({page:l.number({integer:true,gte:1,default:1}),limit:l.number({integer:true,gte:1,lte:100,default:20}),q:l.string({optional:true,max:200}),sort:l.enum(['new','old']),tags:l.array(l.string(),{default:[]}),expanded:l.boolean({default:false}),locale:l.string(),category:l.string(),owner:l.string(),view:l.string(),format:l.string(),source:l.string()})"
+  ? "l.object({page:l.number({integer:true,gte:1,default:1}),limit:l.number({integer:true,gte:1,lte:100,default:20}),q:l.string({optional:true,max:200}),sort:l.enum(['new','old']),tags:l.array(l.string(),{wrapScalar:true,default:[]}),expanded:l.boolean({default:false}),locale:l.string(),category:l.string(),owner:l.string(),view:l.string(),format:l.string(),source:l.string()})"
   : `l.object({${Array.from({length:100}, (_, i) => `f${i}:${i ? 'l.string()' : profile === 'transform-100' ? "l.transform(l.string(),value=>value+'!')" : "l.string({default:'fallback'})"}`).join(',')}})`]));
 const median = values => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)];
 const hash = path => createHash('sha256').update(readFileSync(path)).digest('hex');

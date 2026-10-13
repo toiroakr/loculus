@@ -28,6 +28,7 @@
     "bench/optimization-4/generated",
     "bench/single-use/generated",
     "bench/build-time/generated",
-    "bench/whole-object/generated"
+    "bench/whole-object/generated",
+    "bench/nesting/generated"
   ]
 }

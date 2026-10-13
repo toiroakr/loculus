@@ -7,7 +7,13 @@ export const itemSchema = l.object({
 
 export const formSchema = l.object({
   title: l.string({ trim: true, min: 1 }),
-  items: l.array(itemSchema, { wrapScalar: false, min: 1, max: 3 }),
+  items: l.array(itemSchema, { min: 1, max: 3 }),
+  shipping: l.object({
+    zip: l.string({ trim: true, min: 3 }),
+    windows: l.array(l.array(l.number({ integer: true, gte: 0, lte: 23 }), {
+      min: 2, max: 2,
+    }), { min: 1, max: 1 }),
+  }, { optional: true }),
 });
 
 export type FormInput = l.Input<typeof formSchema>;

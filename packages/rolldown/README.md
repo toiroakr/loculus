@@ -18,9 +18,9 @@ export default defineConfig({
 });
 ```
 
-Requires Node 24 or newer, Rolldown 1.2.13 or newer within version 1, and Loculus 0.1.x.
+Requires Node 24 or newer, Rolldown 1.2.13 or newer within version 1, and the matching Loculus minor version.
 Static imported string, number, boolean, supported scalar arrays, and static object
-schemas can be specialized. Unsupported or dynamic definitions use ordinary validation.
+schemas can be specialized. Arrays require arrays by default; `wrapScalar: true` opts into single-value wrapping. Unsupported or dynamic definitions use ordinary validation.
 The plugin does not execute user schemas during the build and introduces no runtime
 `compile`, `eval`, or `new Function`.
 

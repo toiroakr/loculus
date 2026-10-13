@@ -5,7 +5,7 @@ import * as before from "../bench/single-use/before/index.js";
 
 test("wide objects preserve changing Result accessors and exceptions", () => {
   for (const mode of ["changing", "missing", "throw", "issues"]) {
-    const run = (library: typeof l) => {
+    const run = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => {
       const events: string[] = [];
       let values = 0;
       let issues = 0;
@@ -36,7 +36,7 @@ test("wide objects preserve changing Result accessors and exceptions", () => {
 
 test("wide defaults and transforms preserve mutations and fallback paths", () => {
   for (const invalid of [false, true]) {
-    const run = (library: typeof l) => {
+    const run = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => {
       const events: string[] = [];
       const raw: Record<string, unknown> = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`s${i}`, "v"]));
       const schema = library.object({
@@ -62,7 +62,7 @@ test("wide defaults and transforms preserve mutations and fallback paths", () =>
 });
 
 test("fields preserve presence, conversions, bounds and issue details", () => {
-  const create = (library: typeof l) => [
+  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => [
     library.string(), library.string({ min: 1, max: 3 }), library.string({ trim: true, pattern: /^a/g }),
     library.string({ nullish: true }), library.string({ default: { undefined: "u", null: "n" } }),
     library.string({ default: { undefined: undefined } } as any),
@@ -72,11 +72,11 @@ test("fields preserve presence, conversions, bounds and issue details", () => {
     library.number({ gt: -Infinity, gte: -Infinity, lt: Infinity, lte: Infinity }),
     library.number({ default: { nullish: 1 } }), library.boolean(), library.boolean({ optional: true }),
     library.enum(["a", "b"]), library.date(), library.transform(library.string(), () => undefined),
-    library.array(library.string()), library.array(library.number({ integer: true })),
+    library.array(library.string(), { wrapScalar: true }), library.array(library.number({ integer: true }), { wrapScalar: true }),
     library.array(library.boolean(), { wrapScalar: false, min: 1, max: 2 }),
-    library.array(library.string({ min: 1 }), { default: { nullish: ["a"] } }),
-    library.array(library.string({ nullish: true }), { nullish: true }),
-    library.array(library.transform(library.string(), (value) => value.toUpperCase())),
+    library.array(library.string({ min: 1 }), { wrapScalar: true, default: { nullish: ["a"] } }),
+    library.array(library.string({ nullish: true }), { wrapScalar: true, nullish: true }),
+    library.array(library.transform(library.string(), (value) => value.toUpperCase()), { wrapScalar: true }),
   ];
   const values = [undefined, null, "", "a", "abcd", " a ", "0", "1", "2", "9", "-0", "-1",
     "+1", "1e2", "1.", ".5", " 1", "0x1", "Infinity", "NaN", "٠", " ", true, false,

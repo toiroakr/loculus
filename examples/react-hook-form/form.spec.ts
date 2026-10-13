@@ -7,6 +7,25 @@ async function submitted(page: Page) {
 
 test.beforeEach(async ({ page }) => { await page.goto("/"); });
 
+test("direct nested objects and multidimensional arrays validate through the resolver", async ({ page }) => {
+  await page.getByLabel("注文名").fill("Order");
+  await page.getByLabel("商品名 1", { exact: true }).fill("Apple");
+  await page.getByLabel("配送先を指定する").check();
+  await page.getByLabel("開始時刻").fill("-1");
+  await page.getByRole("button", { name: "送信して検証" }).click();
+  await expect(page.getByLabel("郵便番号")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByLabel("開始時刻")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByTestId("submitted")).toHaveCount(0);
+  await page.getByLabel("郵便番号").fill(" 100 ");
+  await page.getByLabel("開始時刻").fill("9");
+  await page.getByRole("button", { name: "送信して検証" }).click();
+  expect(await submitted(page)).toEqual({ title: "Order", items: [{ name: "Apple", quantity: 1 }], shipping: { zip: "100", windows: [[9, 17]] } });
+  await expect(page.getByRole("alert")).toHaveCount(0);
+  await page.getByLabel("配送先を指定する").uncheck();
+  await page.getByRole("button", { name: "送信して検証" }).click();
+  expect(await submitted(page)).toEqual({ title: "Order", items: [{ name: "Apple", quantity: 1 }] });
+});
+
 test("nested errors block submission and clear after converted values are valid", async ({ page }) => {
   const runtimeErrors: string[] = [];
   page.on("pageerror", error => runtimeErrors.push(error.message));

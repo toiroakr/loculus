@@ -16,7 +16,7 @@ const decimalNumber=[
 const page=["l.number({integer:true,gte:1,default:1})",`${decimalNumber[1]}.default(1)`,`v.optional(${decimalNumber[2]},1)`];
 const limit=["l.number({integer:true,gte:1,lte:100,default:20})",`${decimalNumber[1]}.pipe(z.number().lte(100)).default(20)`,`v.optional(v.pipe(${decimalNumber[2]},v.maxValue(100)),20)`];
 const query=["l.string({optional:true,max:200})","z.string().refine(x=>x.length<=200).optional()","v.optional(v.pipe(v.string(),v.maxLength(200)))"];
-const tags=["l.array(l.string(),{default:[]})","z.union([z.array(z.string()),z.string().transform(x=>[x])]).default([])","v.optional(v.union([v.array(v.string()),v.pipe(v.string(),v.transform(x=>[x]))]),[])"];
+const tags=["l.array(l.string(),{wrapScalar:true,default:[]})","z.union([z.array(z.string()),z.string().transform(x=>[x])]).default([])","v.optional(v.union([v.array(v.string()),v.pipe(v.string(),v.transform(x=>[x]))]),[])"];
 const expanded=["l.boolean({default:false})","z.union([z.boolean(),z.enum(['true','false','1','0']).transform(x=>x==='true'||x==='1')]).default(false)","v.optional(v.union([v.boolean(),v.pipe(v.picklist(['true','false','1','0']),v.transform(x=>x==='true'||x==='1'))]),false)"];
 const sort=["l.enum(['new','old'])","z.enum(['new','old'])","v.picklist(['new','old'])"];
 const queryExpressions=prefixes.map((prefix,i)=>`${prefix}.object({page:${page[i]},limit:${limit[i]},q:${query[i]},sort:${sort[i]},tags:${tags[i]},expanded:${expanded[i]},${['locale','category','owner','view','format','source'].map(key=>`${key}:${basic[i]}`).join(',')}})`);

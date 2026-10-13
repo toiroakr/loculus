@@ -61,10 +61,12 @@ export type ObjectOutput<S extends Shape> =
 export type ObjectInput<S extends Shape> = {
   [K in keyof S as undefined extends S[K]["_input"] ? never : K]: S[K]["_input"];
 } & { [K in keyof S]?: S[K]["_input"] };
-export interface ObjectSchema<S extends Shape = Shape> extends Schema<
-  ObjectInput<S>,
-  ObjectOutput<S>
-> {
+export interface ObjectSchema<
+  S extends Shape = Shape,
+  I = ObjectInput<S>,
+  O = ObjectOutput<S>,
+  Optional extends boolean = undefined extends O ? true : false,
+> extends Field<I, O, Optional> {
   readonly shape: S;
 }
 function schema<I, O>(meta: Meta, validate: (value: unknown) => Result<O>): Schema<I, O> {
@@ -458,44 +460,43 @@ export function date(options: FieldOptions<Date> = emptyOptions): Field<any, any
     validateDate,
   );
 }
-export interface ArrayOptions<WrapScalar extends boolean = boolean> {
+export interface ArrayOptions<WrapScalar extends boolean | undefined = boolean> {
   readonly min?: number;
   readonly max?: number;
   readonly wrapScalar?: WrapScalar;
 }
-type ArrayInput<I, WrapScalar extends boolean> = WrapScalar extends false
-  ? readonly I[]
-  : I | readonly I[];
+type ArrayInput<I, WrapScalar extends boolean | undefined> = WrapScalar extends true
+  ? I | readonly I[]
+  : readonly I[];
 type ArrayElement<I, O> = Field<I, O> | (Schema<I, O> & { readonly shape: Shape });
-export function array<I, O, WrapScalar extends boolean = true>(
+export function array<I, O, WrapScalar extends boolean | undefined = false>(
   s: ArrayElement<I, O>,
   options: ArrayOptions<WrapScalar> & BasicPresence & { optional: true },
 ): Field<ArrayInput<I, WrapScalar> | undefined, O[] | undefined, true>;
-export function array<I, O, WrapScalar extends boolean = true>(
+export function array<I, O, WrapScalar extends boolean | undefined = false>(
   s: ArrayElement<I, O>,
   options?: ArrayOptions<WrapScalar> & BasicPresence & { optional?: false },
 ): Field<ArrayInput<I, WrapScalar>, O[], false>;
-export function array<I, O, WrapScalar extends boolean = true>(
+export function array<I, O, WrapScalar extends boolean | undefined = false>(
   s: ArrayElement<I, O>,
   options: ArrayOptions<WrapScalar> & BasicPresence & { optional: boolean },
 ): Field<ArrayInput<I, WrapScalar> | undefined, O[] | undefined, true>;
 export function array<I, O, const P extends ArrayOptions & FieldOptions<O[]>>(
   s: ArrayElement<I, O>,
   options: P,
-): ConfiguredField<ArrayInput<I, P extends { wrapScalar: false } ? false : true>, O[], P>;
+): ConfiguredField<ArrayInput<I, true extends FlagValue<P, "wrapScalar"> ? true : false>, O[], P>;
 /* @__NO_SIDE_EFFECTS__ */
 export function array<I, O>(
   s: ArrayElement<I, O>,
   options: ArrayOptions & FieldOptions<O[]> = emptyOptions,
 ): Field<any, any, boolean> {
   if (options !== emptyOptions) options = { ...options };
-  if (s.meta.kind === "array") throw new TypeError("Nested arrays are unsupported");
   const innerValidate = s["~standard"].validate;
   return configuredField<I | readonly I[], O[]>(
     { kind: "array", inner: s, enumValues: s.meta.enumValues, description: options.description },
     options,
     (value) => {
-      if (options.wrapScalar === false && !Array.isArray(value))
+      if (options.wrapScalar !== true && !Array.isArray(value))
         return fail("Expected an array", "invalid_type");
       const inputs = Array.isArray(value) ? value : [value];
       const output: O[] = [];
@@ -540,17 +541,52 @@ export function refine<S extends AnySchema>(
   return { ...s, "~standard": { ...s["~standard"], validate }, meta: { ...s.meta, enumValues: s.meta.enumValues, inner: s } };
 }
 const own = Object.hasOwn;
+export interface ObjectOptions<T> extends Omit<FieldOptions<T>, "default"> {
+  readonly unknownKeys?: "strip" | "strict" | "passthrough";
+  readonly default?: DefaultTargets<T>;
+}
+function objectPresence<S extends Shape>(
+  result: ObjectSchema<S>,
+  options: ObjectOptions<ObjectOutput<S>>,
+): ObjectSchema<S, any, any, boolean> {
+  const optional = options.optional;
+  const nullable = options.nullable;
+  const nullish = options.nullish;
+  if (!optional && !nullable && !nullish && !("default" in options)) return result;
+  const defaultValue = own(options, "default") ? options.default : undefined;
+  if (!optional && !nullable && !nullish && defaultValue === undefined) return result;
+  return {
+    ...configuredField<ObjectInput<S>, ObjectOutput<S>>(result.meta, { optional, nullable, nullish, default: defaultValue }, result["~standard"].validate),
+    shape: result.shape,
+  };
+}
+export function object<S extends Shape>(
+  shape: S,
+  options: ObjectOptions<ObjectOutput<S>> & BasicPresence & { optional: true },
+): ObjectSchema<S, ObjectInput<S> | undefined, ObjectOutput<S> | undefined, true>;
+export function object<S extends Shape>(
+  shape: S,
+  options?: ObjectOptions<ObjectOutput<S>> & BasicPresence & { optional?: false },
+): ObjectSchema<S>;
+export function object<S extends Shape>(
+  shape: S,
+  options: ObjectOptions<ObjectOutput<S>> & BasicPresence & { optional: boolean },
+): ObjectSchema<S, ObjectInput<S> | undefined, ObjectOutput<S> | undefined, true>;
+export function object<S extends Shape, const P extends ObjectOptions<ObjectOutput<S>>>(
+  shape: S,
+  options: P,
+): ObjectSchema<S, ConfiguredInput<ObjectInput<S>, P>, ConfiguredOutput<ObjectOutput<S>, P>>;
 /* @__NO_SIDE_EFFECTS__ */
 export function object<S extends Shape>(
   shape: S,
-  options: { unknownKeys?: "strip" | "strict" | "passthrough"; description?: string } = emptyOptions,
-): ObjectSchema<S> {
+  options: ObjectOptions<ObjectOutput<S>> = emptyOptions,
+): ObjectSchema<S, any, any, boolean> {
   const fields = { ...shape };
   const keys = Object.keys(fields);
   const validators: ((value: unknown) => Result<any>)[] = [];
   for (const key of keys) {
     const s = fields[key]!;
-    if (s.field !== true) throw new TypeError(`Expected field: ${key}`);
+    if (s.field !== true && !("shape" in s)) throw new TypeError(`Expected field: ${key}`);
     validators.push(s["~standard"].validate);
   }
   const mode = options.unknownKeys ?? "strict";
@@ -592,11 +628,13 @@ export function object<S extends Shape>(
     }
     return issues ? { issues } : { value: output as ObjectOutput<S> };
   };
-  return {
+  const result = {
     meta: { kind: "object", shape: fields, unknownKeys: mode, description: options.description },
     "~standard": { version: 1, vendor: "loculus", validate },
     shape: fields as S,
+    field: true,
   } as unknown as ObjectSchema<S>;
+  return options === emptyOptions ? result : objectPresence(result, options);
 }
 /* @__NO_SIDE_EFFECTS__ */
 export function union<const S extends readonly [AnySchema, AnySchema, ...AnySchema[]]>(

@@ -4,7 +4,7 @@ const query = object({
   q: string({ trim: true, min: 1 }),
   page: number({ integer: true, gte: 1, default: 1 }),
   draft: boolean({ default: false }),
-  tag: array(enum_(['docs', 'code']), { optional: true }),
+  tag: array(enum_(['docs', 'code']), { wrapScalar: true, optional: true }),
 });
 const samples = {
   valid: ['q=loculus&page=2&draft=false&tag=docs&tag=code', 'pageはnumber、draftはboolean、繰り返したtagは配列になります。'],

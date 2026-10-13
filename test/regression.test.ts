@@ -60,7 +60,7 @@ function inputFor(profile: Profile, input: unknown): unknown {
 test("representative API profiles match at least one equivalent peer configuration", () => {
   for (const profile of profiles) {
     const create = new Function("l", prelude + "\nreturn " + profile.expressions[0]) as
-      (library: typeof l | typeof before) => l.AnySchema;
+      (library: Omit<typeof before, "compile" | "discriminatedUnion">) => l.AnySchema;
     const current = create(l);
     const peers = profile.expressions.slice(1).map(expression => new Function("z", "v", prelude + "\nreturn " + expression)(z, v));
     const variants = [current];
@@ -85,7 +85,7 @@ test("representative API profiles match at least one equivalent peer configurati
 });
 
 test("seeded heterogeneous rows preserve values, issue order and paths", () => {
-  const create = (library: typeof l | typeof before) => library.object({
+  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => library.object({
     title: library.string({ trim: true, min: 1 }),
     items: library.array(library.object({
       name: library.string({ min: 1 }),
@@ -266,7 +266,7 @@ test("passthrough checks inherited setters after reading each unknown getter", (
 });
 
 test("numeric failures retain raw coercion semantics and field order", () => {
-  const create = (library: typeof l | typeof before) => library.object({
+  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => library.object({
     first: library.number({ integer: true, gt: 0, lte: 99 }),
     second: library.number({ gte: 1, lt: 100 }),
     optional: library.string({ optional: true }),
@@ -299,9 +299,9 @@ test("passthrough retains non-enumerable known inputs and ignores unknown symbol
 });
 
 test("boolean arrays do not share presence configuration between schemas", () => {
-  const create = (library: typeof l) => library.object({
+  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => library.object({
     required: library.array(library.boolean(), { wrapScalar: false }),
-    optional: library.array(library.boolean({ nullish: true }), { optional: true }),
+    optional: library.array(library.boolean({ nullish: true }), { wrapScalar: true, optional: true }),
   });
   const expected = create(before);
   const schema = create(l);

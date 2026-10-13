@@ -19,8 +19,6 @@ test("Standard Schema and output inference", () => {
   output.verbose satisfies boolean | undefined;
   assert.deepEqual(output, { name: "app", port: 80 });
   if (false) {
-    // @ts-expect-error Nested objects are outside the flat input model.
-    l.object({ nested: l.object({ x: l.string() }) });
     // @ts-expect-error Defaults must have the field's output type.
     l.number({ default: "80" });
   }
@@ -91,7 +89,7 @@ test("explicit boolean parsing", () => {
 
 test("strings, enum, repeated values and paths", () => {
   const s = l.object({
-    tags: l.array(l.enum(["a", "b"])),
+    tags: l.array(l.enum(["a", "b"]), { wrapScalar: true }),
     name: l.string({ trim: true, min: 1, max: 3 }),
   });
   assert.deepEqual(l.parse(s, { tags: "a", name: " hi " }), { tags: ["a"], name: "hi" });
@@ -108,8 +106,21 @@ test("strings, enum, repeated values and paths", () => {
   assert.equal(pattern.lastIndex, 1);
 });
 
-test("scalar wrapping can be disabled without disabling element conversion", () => {
-  assert.deepEqual(l.parse(l.array(l.number()), "42"), [42]);
+test("arrays require arrays by default and only explicit wrapping accepts scalars", () => {
+  const plain = l.array(l.number());
+  const plainInput: l.Input<typeof plain> = ["42"];
+  assert.deepEqual(l.parse(plain, plainInput), [42]);
+  for (const options of [undefined, {}, { wrapScalar: undefined }, { wrapScalar: false }]) {
+    const schema = l.array(l.number(), options);
+    for (const value of ["42", 42, null, undefined]) assert.deepEqual(l.safeParse(schema, value), {
+      issues: [{ message: "Expected an array", code: "invalid_type" }],
+    });
+  }
+  if (false) {
+    // @ts-expect-error Omitted wrapping excludes scalar input.
+    const scalar: l.Input<typeof plain> = "42";
+    void scalar;
+  }
   assert.deepEqual(l.parse(l.array(l.number(), { wrapScalar: true }), "42"), [42]);
   const strict = l.array(l.number(), { wrapScalar: false, min: 1, max: 2 });
   assert.deepEqual(l.parse(strict, ["42", 43]), [42, 43]);
@@ -120,7 +131,7 @@ test("scalar wrapping can be disabled without disabling element conversion", () 
   assert.ok(l.safeParse(strict, [1, 2, 3]).issues);
   assert.deepEqual(l.safeParse(strict, ["42", "bad"]).issues?.[0]?.path, [1]);
   assert.deepEqual(l.parse(l.array(l.string(), { wrapScalar: false }), []), []);
-  const optional = l.array(l.string(), { wrapScalar: false, optional: true });
+  const optional = l.array(l.string(), { optional: true });
   assert.deepEqual(l.parse(l.object({ tags: optional }), {}), {});
   assert.ok(l.safeParse(optional, "a").issues);
   const input: l.Input<typeof strict> = ["42", 43];
@@ -138,6 +149,35 @@ test("scalar wrapping can be disabled without disabling element conversion", () 
     const optionalScalar: l.Input<typeof optional> = "a";
     void scalar;
     void optionalScalar;
+  }
+});
+
+test("default array structure is independent of container and element presence", () => {
+  const schema = l.array(l.number({ nullable: true }), { nullish: true, default: [] });
+  const input: l.Input<typeof schema> = ["42", null];
+  assert.deepEqual(l.parse(schema, input), [42, null]);
+  assert.deepEqual(l.parse(schema, undefined), []);
+  assert.equal(l.parse(schema, null), null);
+  assert.ok(l.safeParse(schema, "42").issues);
+  const wrapped = l.array(l.number({ nullable: true }), { nullish: true, wrapScalar: true });
+  const scalar: l.Input<typeof wrapped> = "42";
+  assert.deepEqual(l.parse(wrapped, scalar), [42]);
+  const emptyOptions = l.array(l.string(), {});
+  const undefinedOption = l.array(l.string(), { wrapScalar: undefined });
+  for (const flag of [true, false] as boolean[]) {
+    const dynamic = l.array(l.string(), { nullable: true, wrapScalar: flag });
+    const dynamicInput: l.Input<typeof dynamic> = "a";
+    if (flag) assert.deepEqual(l.parse(dynamic, dynamicInput), ["a"]);
+    else assert.ok(l.safeParse(dynamic, dynamicInput).issues);
+  }
+  if (false) {
+    // @ts-expect-error Presence and defaults do not enable scalar wrapping.
+    const invalid: l.Input<typeof schema> = "42";
+    // @ts-expect-error Empty options preserve array-only input.
+    const emptyScalar: l.Input<typeof emptyOptions> = "a";
+    // @ts-expect-error An undefined option preserves array-only input.
+    const undefinedScalar: l.Input<typeof undefinedOption> = "a";
+    void [invalid, emptyScalar, undefinedScalar];
   }
 });
 
@@ -162,7 +202,7 @@ test("unknown keys and prototype safety", () => {
 });
 
 test("URLSearchParams and FormData preserve duplicates and reject files", () => {
-  const s = l.object({ tag: l.array(l.string()), page: l.number({ default: 1 }) });
+  const s = l.object({ tag: l.array(l.string(), { wrapScalar: true }), page: l.number({ default: 1 }) });
   assert.deepEqual(l.parse(s, l.fromEntries(new URLSearchParams("tag=a&tag=b"))), {
     tag: ["a", "b"],
     page: 1,
@@ -237,7 +277,7 @@ test("native optional constructors preserve output types and validate supplied v
     flag: l.boolean({ optional: true }),
     mode: l.enum(["dev", "prod"], { optional: true }),
     day: l.date({ optional: true }),
-    tags: l.array(l.enum(["a", "b"]), { optional: true, min: 1 }),
+    tags: l.array(l.enum(["a", "b"]), { wrapScalar: true, optional: true, min: 1 }),
   });
   const omitted: l.Output<typeof schema> = {};
   assert.deepEqual(l.parse(schema, {}), omitted);
