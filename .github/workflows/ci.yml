@@ -1,14 +1,14 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
 permissions:
   contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    strategy:
-      matrix:
-        node: [24, 26]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -18,7 +18,7 @@ jobs:
           standalone: true
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 26
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
@@ -36,7 +36,7 @@ jobs:
           standalone: true
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 24
+          node-version: 26
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
@@ -59,7 +59,7 @@ jobs:
           standalone: true
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: 24
+          node-version: 26
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
