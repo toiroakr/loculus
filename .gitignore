@@ -27,4 +27,7 @@ examples/codegen/generated/
 bench/whole-object/generated/
 bench/whole-object/*.generated.mjs
 bench/guarantees/generated/
+bench/nesting/generated/
+bench/nesting/prepare.generated.mjs
+bench/nesting/settled.generated.mjs
 docs/generated/

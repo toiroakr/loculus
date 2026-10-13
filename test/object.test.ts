@@ -2,9 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as l from "../src/index.js";
 
-test("object construction identifies an unsupported nested field", () => {
+test("object construction identifies an unsupported schema field", () => {
   assert.throws(
-    () => l.object({ nested: l.object({ name: l.string() }) } as never),
+    () => l.object({ nested: l.union([l.string(), l.number()]) } as never),
     { name: "TypeError", message: "Expected field: nested" },
   );
 });

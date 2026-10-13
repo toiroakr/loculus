@@ -26,15 +26,15 @@ Use `l.fromEntries(formData)` for FormData. Repeated keys become arrays. Scalar 
 - `boolean({ optional })`: accepts true/false booleans and the strings `"true"`, `"false"`, `"1"`, `"0"`.
 - `enum(values, { optional })`, `literal(value)`: string choices.
 - `date({ optional })`: ISO calendar dates or ISO date-time strings. Returns a Date. Date-time strings permit local time, `Z`, or a colon-separated UTC offset. Hours are 00–23; `24:00` and offsets such as `+0900` are rejected, matching Zod's ISO schemas.
-- `array(fieldOrObject, { min, max, optional, wrapScalar })`: repeated values, or one value. Object schemas can describe rows in a form. Set `wrapScalar: false` to require an array; element conversion still applies. Arrays of arrays and direct object fields are unsupported.
-- `{ optional: true }` is supported by string, number, boolean, enum, date and array constructors. Omitted optional object keys are omitted from the output.
+- `array(fieldOrObject, { min, max, optional, wrapScalar })`: repeated values, or one value. Object schemas can describe rows in a form, and nested arrays are supported. Set `wrapScalar: false` at each level to require arrays; element conversion still applies.
+- `{ optional: true }` is supported by string, number, boolean, enum, date, array and object constructors. Omitted optional object keys are omitted from the output.
 - All field constructors, including `literal(value, options)`, support `nullable`, `nullish` and `default`. `nullable: true` preserves null, `optional: true` preserves undefined, and `nullish: true` permits both. Null is never implicitly treated as missing.
 - `description` is available in all field constructor options, object options and the final options argument of union, xor, discriminatedUnion and intersection.
 - `transform(schema, fn)`, `refine(schema, predicate, message)`.
 - Field constructors snapshot their options and array element validators when the schema is created. Later changes to the supplied options do not change an existing schema; referenced regular expressions and default values retain their own identity. Pattern validation resets `lastIndex` before each check, matching Zod; the regular expression retains the cursor left by that check.
 
 Build with `pnpm build` using tsdown (Rolldown), producing ES2022 ESM and bundled declarations. Schema factories carry `@__NO_SIDE_EFFECTS__` annotations. With Rolldown minification, unused schema construction can disappear without consumer annotations, including nested object fields. This permits skipping construction-time option getters and errors when the schema is unused; do not rely on unused schema construction for side effects. Validation calls (`parse`, `safeParse`, and Standard Schema validation) are not marked pure. `pnpm test` checks the published entry with both esbuild and Rolldown; esbuild still requires call-site `@__PURE__` annotations to remove unused construction. Rolldown without minification retains unannotated construction in the tested cases. Used schemas retain the factories they need.
-- `object(shape, { unknownKeys, description })`: `strict` by default, rejecting extra keys and reporting the first unknown key like Valibot's `strictObject`. Set `unknownKeys: 'strip'` to discard extra keys or `unknownKeys: 'passthrough'` to retain enumerable extra keys, including inherited ones, like Zod's `looseObject`. Declared fields read ordinary JavaScript properties, including inherited values. Nested object fields are rejected. Like Zod, declared `__proto__` fields are skipped and that key is excluded from passthrough output; an undeclared `__proto__` is still an error in strict mode. Outputs are ordinary objects, not objects with a null prototype. Array row objects use the same strict default. When intersecting objects with disjoint fields, explicitly use `unknownKeys: 'strip'` on each branch and row that should discard the other branch's fields.
+- `object(shape, { unknownKeys, description, optional, nullable, nullish, default })`: `strict` by default, rejecting extra keys and reporting the first unknown key like Valibot's `strictObject`. Set `unknownKeys: 'strip'` to discard extra keys or `unknownKeys: 'passthrough'` to retain enumerable extra keys, including inherited ones, like Zod's `looseObject`. Declared fields read ordinary JavaScript properties, including inherited values. Finite nested objects are supported, with independent unknown-key policies at each level. Like Zod, declared `__proto__` fields are skipped and that key is excluded from passthrough output; an undeclared `__proto__` is still an error in strict mode. Outputs are ordinary objects, not objects with a null prototype. Array row objects use the same strict default. When intersecting objects with disjoint fields, explicitly use `unknownKeys: 'strip'` on each branch and row that should discard the other branch's fields.
 - Object shapes, enum choices and branch arrays are not frozen at runtime. Treat schemas and their introspection metadata as immutable after creation, as Valibot documents. Create another schema when definitions change; directly replacing fields, validators or choices is unsupported and can make metadata disagree with validation. Runtime and build-time validation may capture their definitions. Shape copies still isolate caller-owned definitions.
 
 For forms with editable rows, compose an object schema inside an array:
@@ -49,7 +49,7 @@ Use `standardSchemaResolver(form)` with React Hook Form, and distinguish `Input<
 - `safeParse(schema, unknown)`: `{ value }` or `{ issues }`; `parse` throws `ValidationError`. Issues carry paths, including repeated-value indices.
 - `Input<typeof schema>` and `Output<typeof schema>` infer types. `_input`, `_output`, and `_optional` are type-only markers, absent at runtime.
 
-Custom transforms and refinements are synchronous. Exceptions from user callbacks propagate to the caller. Default arrays and Dates are shared references; use a transform to produce a fresh value when needed.
+Custom transforms and refinements are synchronous. Exceptions from user callbacks propagate to the caller. Default objects, arrays and Dates are shared references; use a transform to produce a fresh value when needed.
 
 ## Build-time code generation
 
@@ -102,6 +102,37 @@ l.array(l.string(), { default: ['general'] });
 Defaults take precedence over presence flags and apply before conversion. They are output values and bypass the field's constraints, outer transforms/refinements still run. Invalid non-nullish inputs and empty strings never trigger a default. `nullish` default targets cannot be combined with `undefined` or `null` targets; conflicting configurations are rejected by types and at construction.
 
 An undefined default makes an object property optional on input and required on output. A null-only default still requires the property on input. Defaults remove null/undefined from the output type only for the targets they replace. Omitting optional/nullish object properties omits them from the output; explicit null is preserved unless a null default replaces it. Array element presence is configured on the element schema separately.
+
+## Nested form values
+
+Objects can be fields in other objects, and arrays can contain other arrays:
+
+```ts
+const form = l.object({
+  address: l.object({ zip: l.string({ min: 3 }) }, { optional: true }),
+  windows: l.array(l.array(l.number({ integer: true, gte: 0, lte: 23 }), {
+    wrapScalar: false, min: 2, max: 2,
+  }), { wrapScalar: false }),
+});
+```
+
+`address` may be omitted, but a supplied address must contain `zip`. A nested
+failure has a full path such as `['windows', 0, 1]`. Each array layer independently
+controls scalar wrapping; `array(array(number()))` turns `['1', '2']` into
+`[[1], [2]]`. Use `wrapScalar: false` at each layer to require the declared shape.
+
+Object defaults require explicit targets: `object(shape, { default: { undefined:
+{ count: 1 } } })` or `{ default: { nullish: { count: 1 } } }`. This avoids confusing
+object fields named `undefined`, `null`, or `nullish` with default targets. Defaults
+are output values, bypass child constraints, and retain the same object reference.
+Use an outer transform when a fresh object is needed. Optional, nullable, and
+default settings on the parent are independent of settings on its children.
+
+Self-recursive/lazy schemas and native FormData dotted/bracketed field-name decoding
+are not supported. RHF supplies structured nested values directly. Nested object
+containers, multidimensional arrays, and object presence options use normal runtime
+validation when the build-time plugin cannot specialize them; eligible children
+can still be optimized.
 
 ## politty
 

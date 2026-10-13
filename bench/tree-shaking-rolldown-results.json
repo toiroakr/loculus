@@ -3,16 +3,16 @@
   "bundler": "rolldown",
   "results": {
     "named/readable": {
-      "bytes": 4897,
-      "gzipBytes": 1646
+      "bytes": 5578,
+      "gzipBytes": 1802
     },
     "namespace/readable": {
-      "bytes": 4897,
-      "gzipBytes": 1646
+      "bytes": 5578,
+      "gzipBytes": 1802
     },
     "unusedImports/readable": {
-      "bytes": 4897,
-      "gzipBytes": 1646
+      "bytes": 5578,
+      "gzipBytes": 1802
     },
     "unusedPackage/readable": {
       "bytes": 95,
@@ -23,36 +23,36 @@
       "gzipBytes": 103
     },
     "unusedSchema/readable": {
-      "bytes": 5792,
-      "gzipBytes": 1938
+      "bytes": 6473,
+      "gzipBytes": 2093
     },
     "unusedObject/readable": {
-      "bytes": 5813,
-      "gzipBytes": 1944
+      "bytes": 6494,
+      "gzipBytes": 2098
     },
     "pureUnusedSchema/readable": {
-      "bytes": 4897,
-      "gzipBytes": 1646
+      "bytes": 5578,
+      "gzipBytes": 1802
     },
     "pureUnusedObject/readable": {
-      "bytes": 4897,
-      "gzipBytes": 1646
+      "bytes": 5578,
+      "gzipBytes": 1802
     },
     "pureWithArgumentEffect/readable": {
-      "bytes": 4981,
-      "gzipBytes": 1677
+      "bytes": 5662,
+      "gzipBytes": 1832
     },
     "named/minified": {
-      "bytes": 2701,
-      "gzipBytes": 1224
+      "bytes": 3009,
+      "gzipBytes": 1332
     },
     "namespace/minified": {
-      "bytes": 2701,
-      "gzipBytes": 1224
+      "bytes": 3009,
+      "gzipBytes": 1332
     },
     "unusedImports/minified": {
-      "bytes": 2701,
-      "gzipBytes": 1224
+      "bytes": 3009,
+      "gzipBytes": 1332
     },
     "unusedPackage/minified": {
       "bytes": 31,
@@ -63,24 +63,24 @@
       "gzipBytes": 51
     },
     "unusedSchema/minified": {
-      "bytes": 2701,
-      "gzipBytes": 1224
+      "bytes": 3009,
+      "gzipBytes": 1332
     },
     "unusedObject/minified": {
-      "bytes": 2701,
-      "gzipBytes": 1224
+      "bytes": 3009,
+      "gzipBytes": 1332
     },
     "pureUnusedSchema/minified": {
-      "bytes": 2701,
-      "gzipBytes": 1224
+      "bytes": 3009,
+      "gzipBytes": 1332
     },
     "pureUnusedObject/minified": {
-      "bytes": 2701,
-      "gzipBytes": 1224
+      "bytes": 3009,
+      "gzipBytes": 1332
     },
     "pureWithArgumentEffect/minified": {
-      "bytes": 2753,
-      "gzipBytes": 1252
+      "bytes": 3061,
+      "gzipBytes": 1358
     }
   }
 }

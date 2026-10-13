@@ -35,6 +35,28 @@ async function bundle(source: string, optimized = true, extension = 'ts', direct
   } finally { await build.close(); }
 }
 
+test('nested objects and arrays preserve generated children and ordinary container fallback', async () => {
+  const source = `import * as l from 'loculus'; export const create=()=>l.object({
+    address:l.object({zip:l.string({trim:true,min:1}),floor:l.number({default:1})}),
+    optional:l.object({name:l.string()},{optional:true}),
+    defaulted:l.object({count:l.number()},{default:{nullish:{count:2}}}),
+    rows:l.array(l.array(l.object({count:l.number({gte:1})}),{wrapScalar:false,min:1}),{wrapScalar:false,min:1}),
+  });`;
+  const before = await bundle(source, false);
+  const after = await bundle(source);
+  assert.match(after.transformed, /function __loculus_/);
+  for (const input of [
+    {address:{zip:' 100 '},rows:[[{count:'2'}]]},
+    {address:{zip:'100'},defaulted:null,rows:[[{count:2}]]},
+    {address:{zip:'',extra:1},optional:{name:1},rows:[[{count:'bad'}, {count:'0'}],[]]},
+    {address:{zip:'100'},rows:['1']}, {}, null, [],
+  ]) assert.deepEqual(after.exports.create()['~standard'].validate(input), before.exports.create()['~standard'].validate(input));
+  const schema = after.exports.create();
+  assert.equal(schema.shape.address.field, true);
+  assert.equal(schema.shape.optional.field, true);
+  assert.deepEqual(Object.keys(schema.shape.address), Object.keys(before.exports.create().shape.address));
+});
+
 test('generated scalar validators preserve values, issues, metadata and fresh identities', async () => {
   const expressions = [
     'l.string()', 'l.string({})', 'l.string(undefined)',
@@ -170,7 +192,7 @@ test('whole-object validation preserves presence, boundaries, errors and metadat
 test('generated object constructors retain opaque option effects and snapshots', async () => {
   const source=`import * as l from 'loculus';let calls=0;const opts={get min(){calls++;return 2}};
     export const create=()=>l.object({a:l.string(opts),b:l.refine(l.number(),x=>x>0,'positive'),c:l.enum(['x','y'])});
-    export const count=()=>calls;export const invalid=()=>l.object({x:l.transform(l.object({a:l.string()}),x=>x)});`;
+    export const count=()=>calls;export const nested=()=>l.object({x:l.transform(l.object({a:l.string()}),x=>x)});`;
   const before=await bundle(source,false),after=await bundle(source);
   assert.equal(after.exports.count(),0);
   const a=before.exports.create(),b=after.exports.create();
@@ -178,7 +200,7 @@ test('generated object constructors retain opaque option effects and snapshots',
   for(const input of [{a:'ok',b:'2',c:'x'},{a:'a',b:'0',c:'z'}])assert.deepEqual(b['~standard'].validate(input),a['~standard'].validate(input));
   b.shape.a['~standard'].validate=()=>({value:'changed'});
   assert.equal(b['~standard'].validate({a:'ok',b:'2',c:'x'}).value.a,'ok');
-  assert.throws(after.exports.invalid,/Expected field: x/);
+  assert.deepEqual(after.exports.nested()['~standard'].validate({x:{a:'nested'}}), {value:{x:{a:'nested'}}});
 });
 
 test('object generation preserves numeric keys, own __proto__, getters and proxy order', async () => {
@@ -301,18 +323,18 @@ test('generated arrays keep sparse values, proxy access order and captured child
   assert.deepEqual(run(after.exports.create),run(before.exports.create));
 });
 
-test('dynamic array options, outer defaults and invalid nested arrays keep ordinary behavior', async () => {
+test('dynamic array options, outer defaults and nested arrays keep ordinary behavior', async () => {
   const source=`import * as l from 'loculus';let calls=0;const options={get wrapScalar(){calls++;return false}};
     export const create=()=>l.array(l.string(),options);export const count=()=>calls;
     export const defaulted=()=>l.array(l.string(),{wrapScalar:false,default:[]});
-    export const invalid=()=>l.array(l.array(l.string()));`;
+    export const nested=()=>l.array(l.array(l.string()));`;
   const before=await bundle(source,false),after=await bundle(source);
   assert.match(after.transformed,/l\.array\([\s\S]*?options\)/);
   const a=before.exports.create(),b=after.exports.create();
   assert.equal(after.exports.count(),1);
   for(const value of [[],['a'],'a',null])assert.deepEqual(b['~standard'].validate(value),a['~standard'].validate(value));
   assert.deepEqual(after.exports.defaulted()['~standard'].validate(undefined),{value:[]});
-  assert.throws(after.exports.invalid,/Nested arrays are unsupported/);
+  assert.deepEqual(after.exports.nested()['~standard'].validate(['a','b']), {value:[['a'],['b']]});
 });
 
 test('every object generation strategy matches peers for inherited inputs, strict errors and __proto__', async () => {

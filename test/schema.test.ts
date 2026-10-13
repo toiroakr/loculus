@@ -19,8 +19,6 @@ test("Standard Schema and output inference", () => {
   output.verbose satisfies boolean | undefined;
   assert.deepEqual(output, { name: "app", port: 80 });
   if (false) {
-    // @ts-expect-error Nested objects are outside the flat input model.
-    l.object({ nested: l.object({ x: l.string() }) });
     // @ts-expect-error Defaults must have the field's output type.
     l.number({ default: "80" });
   }

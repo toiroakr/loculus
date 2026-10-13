@@ -501,7 +501,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       for (const helper of objectHelpers.values()) {
         const args = helper.captures.map((_,index)=>`v${index}`);
         generated += `function ${helper.validate}(input${args.length?','+args.join(','):''}){${helper.body}}\n`;
-        generated += `/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(shape){${helper.captures.map((key,index)=>`const v${index}=shape[${emit(key)}]["~standard"].validate;`).join('')}return {meta:{kind:"object",shape,unknownKeys:${emit(helper.spec.mode)},description:${emit(helper.spec.description)}},"~standard":{version:1,vendor:"loculus",validate:${args.length?`(input)=>${helper.validate}(input,${args.join(',')})`:helper.validate}},shape};}\n`;
+        generated += `/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(shape){${helper.captures.map((key,index)=>`const v${index}=shape[${emit(key)}]["~standard"].validate;`).join('')}return {meta:{kind:"object",shape,unknownKeys:${emit(helper.spec.mode)},description:${emit(helper.spec.description)}},"~standard":{version:1,vendor:"loculus",validate:${args.length?`(input)=>${helper.validate}(input,${args.join(',')})`:helper.validate}},shape,field:true};}\n`;
       }
       for (const replacement of replacements) output.overwrite(replacement.node.start,replacement.node.end,replacement.value);
       output.appendLeft(insert, generated);

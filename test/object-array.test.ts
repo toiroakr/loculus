@@ -52,7 +52,6 @@ test("object arrays retain nested paths, bounds and row object modes", () => {
 });
 
 test("object arrays preserve explicit wrapping and presence defaults", () => {
-  assert.throws(() => l.array(l.array(l.string())), { message: "Nested arrays are unsupported" });
   const row = { name: "apple", quantity: "2" };
   assert.deepEqual(l.parse(l.array(item), row), [{ name: "apple", quantity: 2, tags: [] }]);
   const optional = l.object({ items: l.array(item, { optional: true, wrapScalar: false }) });
@@ -74,7 +73,7 @@ test("object arrays preserve explicit wrapping and presence defaults", () => {
 });
 
 test("object arrays preserve row callbacks and results from before compiler removal", () => {
-  const create = (library: typeof l, events: string[]) => {
+  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">, events: string[]) => {
     const row = library.refine(library.object({ name: library.transform(library.string(), value => {
       events.push("transform");
       return value.toUpperCase();

@@ -8,7 +8,8 @@ const initialValues: FormInput = { title: "", items: [{ name: "", quantity: "1" 
 
 function App() {
   const [submitted, setSubmitted] = useState<FormOutput | null>(null);
-  const { register, control, handleSubmit, reset, formState: { errors } } = useForm<
+  const [shippingEnabled, setShippingEnabled] = useState(false);
+  const { register, control, handleSubmit, reset, setValue, unregister, formState: { errors } } = useForm<
     FormInput, undefined, FormOutput
   >({ resolver: standardSchemaResolver(formSchema), defaultValues: initialValues });
   const { fields, append, remove, move } = useFieldArray({ control, name: "items" });
@@ -23,6 +24,28 @@ function App() {
       <input id="title" {...register("title")} aria-invalid={!!errors.title}
         aria-describedby={errors.title ? "title-error" : undefined} placeholder="週末の買い物" />
       {errors.title && <p id="title-error" role="alert">{errors.title.message}</p>}
+      <label className="toggle"><input type="checkbox" checked={shippingEnabled} onChange={event => {
+        const enabled = event.target.checked;
+        setShippingEnabled(enabled);
+        if (enabled) setValue("shipping", { zip: "", windows: [["9", "17"]] });
+        else unregister("shipping");
+      }} />配送先を指定する</label>
+      {shippingEnabled && <fieldset>
+        <legend>配送先と時間帯</legend>
+        <label htmlFor="shipping-zip">郵便番号</label>
+        <input id="shipping-zip" {...register("shipping.zip")} aria-invalid={!!errors.shipping?.zip}
+          aria-describedby={errors.shipping?.zip ? "shipping-zip-error" : undefined} />
+        {errors.shipping?.zip && <p id="shipping-zip-error" role="alert">{errors.shipping.zip.message}</p>}
+        <div className="row">{[0, 1].map(index => <div key={index}>
+          <label htmlFor={`shipping-hour-${index}`}>{index === 0 ? "開始時刻" : "終了時刻"}</label>
+          <input id={`shipping-hour-${index}`} type="number" {...register(`shipping.windows.0.${index}` as const)}
+            aria-invalid={!!errors.shipping?.windows?.[0]?.[index]}
+            aria-describedby={errors.shipping?.windows?.[0]?.[index] ? `shipping-hour-${index}-error` : undefined} />
+          {errors.shipping?.windows?.[0]?.[index] && <p id={`shipping-hour-${index}-error`} role="alert">
+            {errors.shipping.windows[0]?.[index]?.message}
+          </p>}
+        </div>)}</div>
+      </fieldset>}
       <div className="section-title"><h2>商品</h2><span>{fields.length} / 3 行</span></div>
       <p className="hint">1〜3行。商品名は必須、数量は1〜99の整数です。</p>
       {fields.map((field, index) => <fieldset key={field.id} data-testid="item-row">
@@ -60,6 +83,8 @@ function App() {
       <div className="actions">
         <button type="submit">送信して検証</button>
         <button type="button" className="secondary" onClick={() => {
+          setShippingEnabled(false);
+          unregister("shipping");
           reset(initialValues);
           setSubmitted(null);
         }}>リセット</button>
@@ -81,6 +106,12 @@ function App() {
 const form = l.object({
   title: l.string({ trim: true, min: 1 }),
   items: l.array(item, { wrapScalar: false, min: 1, max: 3 }),
+  shipping: l.object({
+    zip: l.string({ trim: true, min: 3 }),
+    windows: l.array(l.array(l.number({ integer: true, gte: 0, lte: 23 }), {
+      wrapScalar: false, min: 2, max: 2,
+    }), { wrapScalar: false, min: 1, max: 1 }),
+  }, { optional: true }),
 });
 
 useForm({ resolver: standardSchemaResolver(form) });
