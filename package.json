@@ -46,7 +46,8 @@
     "bench:coverage:backends": "node bench/coverage/perry.mjs && node bench/coverage/perry-reference.mjs && node bench/coverage/perry.mjs --only-scalars && node bench/coverage/perry-reference.mjs --only-scalars && node bench/coverage/moonbit.mjs",
     "bench:single-use": "pnpm build && node bench/single-use/run.mjs",
     "bench:build-time": "pnpm build && node bench/build-time/prepare.mjs && node bench/build-time/run.mjs && python3 bench/coverage/significance.py --input=bench/build-time/settled-results.json --output=bench/build-time/significance-results.json --fixtures=bench/build-time/timed-fixtures.json --modes=construct,valid",
-    "check:packages": "node test/packages.mjs"
+    "check:packages": "node test/packages.mjs",
+    "bench:ci": "pnpm build && node bench/ci/run.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",

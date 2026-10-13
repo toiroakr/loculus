@@ -194,3 +194,9 @@ The API supports reuse with the same ordinary schema, while performance work pri
 The [compatibility audit](bench/guarantees/compatibility-audit.json) compares acceptance and successful outputs in 96 composed API profiles against Zod and Valibot, with Zod JIT enabled and disabled. Native comparisons and generated-mode regression cases are in `test/compatibility.test.ts` and `test/rolldown.test.ts`. Constraint checks stop at the first error within a field, corresponding to Valibot's `abortPipeEarly: true`; object and array siblings still collect their errors. Error messages, vendor-specific codes and union error representation are Loculus-specific. String conversion, scalar wrapping and targeted null defaults use the explicit peer compositions recorded in the audit. Earlier performance reports measure the previous contract and do not establish current performance after these compatibility changes.
 
 The [command option benchmarks](bench/cli/README.md) add selected schemas inspired by Git log/clone and Cloudflare cf deploy/DNS records list, each with sparse and densely specified inputs. Their ordinary schemas are included in the single-use measurements, with code for all three libraries, output checks and live browser bundles. Previous compiled measurements are historical.
+
+## Benchmark CI
+
+`Benchmarks` runs Node/Bun runtime, browser bundle, and TypeScript inference measurements on pull requests and main. Octocov groups the comparisons into scalars, arrays, objects, CLI, and forms, while raw results remain in Actions artifacts. Construction includes one validation; repeated validation excludes creation and build-time generation.
+
+Run `pnpm bench:ci` locally with Bun on PATH, or `pnpm bench:ci --quick` to verify the pipeline. See [benchmark CI](bench/ci/README.md) for the protocol, reporting permissions, and limits of comparisons across CI machines.
