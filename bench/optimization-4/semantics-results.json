@@ -1,0 +1,167 @@
+{
+  "date": "2026-10-12T01:09:09.383Z",
+  "baselineHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+  "results": [
+    {
+      "name": "baseline",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "string-fast",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "object-shared",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "shared-string-fast",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "capture-single",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "capture-single-fast",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "basic-result-elision",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "compact-field",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "keys-first",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "assign-shape",
+      "scenarioChecks": 46,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "presence-strip",
+          "compiled": false,
+          "message": "assign-shape/presence-strip/plain\n+ actual - expected\n... Skipped lines\n\n  [\n    {\n      keys: [\n        'b',\n        'c'\n...\n        'b',\n-       '__proto__',\n        'c'\n      ],\n      prototype: [Object: null prototype] {},\n      value: {\n-       ['__proto__']: null,\n        b: 3,\n        c: [\n  "
+        },
+        {
+          "scenario": "presence-strict",
+          "compiled": false,
+          "message": "assign-shape/presence-strict/plain\n+ actual - expected\n... Skipped lines\n\n  [\n    {\n      keys: [\n        'b',\n        'c'\n...\n          code: 'unrecognized_key',\n+         message: 'Unknown key: __proto__',\n+         path: [\n+           '__proto__'\n+         ]\n+       },\n+       {\n+         code: '"
+        },
+        {
+          "scenario": "presence-passthrough",
+          "compiled": false,
+          "message": "assign-shape/presence-passthrough/plain\n+ actual - expected\n... Skipped lines\n\n  [\n    {\n      keys: [\n        'b',\n        'c'\n...\n        'b',\n+       'c',\n        '__proto__',\n-       'c',\n        'extra'\n      ],\n      prototype: [Object: null prototype] {},\n      value: {\n        ['__proto__']:"
+        },
+        {
+          "scenario": "shape-snapshot-and-key-order",
+          "compiled": false,
+          "message": "assign-shape/shape-snapshot-and-key-order/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    frozen: true,\n    result: {\n      keys: [\n        '2',\n        '10',\n-       '__proto__',\n        'a\";throw Error(\"injected\");//',\n        'constructor',\n        '\\n'\n      ],\n      prototype: [Object: nul"
+        },
+        {
+          "scenario": "presence-strip",
+          "compiled": true,
+          "message": "assign-shape/presence-strip/compiled\n+ actual - expected\n... Skipped lines\n\n  [\n    {\n      keys: [\n        'b',\n        'c'\n...\n        'b',\n-       '__proto__',\n        'c'\n      ],\n      prototype: [Object: null prototype] {},\n      value: {\n-       ['__proto__']: null,\n        b: 3,\n        c: ["
+        },
+        {
+          "scenario": "presence-strict",
+          "compiled": true,
+          "message": "assign-shape/presence-strict/compiled\n+ actual - expected\n... Skipped lines\n\n  [\n    {\n      keys: [\n        'b',\n        'c'\n...\n          code: 'unrecognized_key',\n+         message: 'Unknown key: __proto__',\n+         path: [\n+           '__proto__'\n+         ]\n+       },\n+       {\n+         code"
+        },
+        {
+          "scenario": "presence-passthrough",
+          "compiled": true,
+          "message": "assign-shape/presence-passthrough/compiled\n+ actual - expected\n... Skipped lines\n\n  [\n    {\n      keys: [\n        'b',\n        'c'\n...\n        'b',\n+       'c',\n        '__proto__',\n-       'c',\n        'extra'\n      ],\n      prototype: [Object: null prototype] {},\n      value: {\n        ['__proto__"
+        },
+        {
+          "scenario": "shape-snapshot-and-key-order",
+          "compiled": true,
+          "message": "assign-shape/shape-snapshot-and-key-order/compiled\n+ actual - expected\n... Skipped lines\n\n  {\n    frozen: true,\n    result: {\n      keys: [\n        '2',\n        '10',\n-       '__proto__',\n        'a\";throw Error(\"injected\");//',\n        'constructor',\n        '\\n'\n      ],\n      prototype: [Object: "
+        }
+      ]
+    },
+    {
+      "name": "keys-first-indexed",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "keys-first-capture",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "indexed-capture",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "compact-keys-first",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "compact-indexed",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "compact-capture",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "agent-deferred-string",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "agent-single-string",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "agent-deferred-string-fast",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "agent-single-string-fast",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    }
+  ]
+}

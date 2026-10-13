@@ -1,0 +1,158 @@
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -154,25 +154,33 @@
+       : never)
+   | (AllowsNull<P> extends true ? (false extends HasDefault<P, "null"> ? null : never) : never);
+ type ConfiguredField<I, O, P> = Field<ConfiguredInput<I, P>, ConfiguredOutput<O, P>>;
+-type FieldPlan = { kind: Meta["kind"]; enum: boolean; options: object; inner?: (value: unknown) => Result<any> };
++type FieldPlan = { kind: Meta["kind"]; enumValues?: readonly string[]; options: object; innerValidate?: (value: unknown) => Result<any> };
+ const fieldPlan = Symbol();
+ type PlannedValidate = ((value: unknown) => Result<any>) & { [fieldPlan]?: FieldPlan };
+ function plannedField<I, O>(
+-  meta: Meta,
++  meta: Meta | Meta["kind"],
++  options: FieldOptions<O>,
++  validate: (value: unknown) => Result<O>,
++  innerValidate?: (value: unknown) => Result<any>,
++  optional = false,
++  nullable = false,
++  hasUndefinedDefault = false,
++  undefinedDefault?: O,
++): Field<any, any, boolean> {
++  const resolved = typeof meta === "string"
++    ? { kind: meta, description: options.description, optional, nullable }
++    : { ...meta, description: options.description, optional, nullable };
++  if (hasUndefinedDefault) (resolved as { defaultValue?: O }).defaultValue = undefinedDefault;
++  (validate as PlannedValidate)[fieldPlan] = { kind: resolved.kind, enumValues: (resolved as Meta).enumValues, options, innerValidate };
++  return field(resolved, validate);
++}
++function configuredField<I, O>(
++  meta: Meta | Meta["kind"],
+   options: FieldOptions<O>,
+   validate: (value: unknown) => Result<O>,
+   innerValidate?: (value: unknown) => Result<any>,
+ ): Field<any, any, boolean> {
+-  (validate as PlannedValidate)[fieldPlan] = { kind: meta.kind, enum: !!meta.enumValues, inner: innerValidate, options };
+-  return field(meta, validate);
+-}
+-function configuredField<I, O>(
+-  meta: Meta,
+-  options: FieldOptions<O>,
+-  validate: (value: unknown) => Result<O>,
+-  innerValidate?: (value: unknown) => Result<any>,
+-): Field<any, any, boolean> {
+-  if (!(options.optional || options.nullable || options.nullish || own(options, "default")))
++  if (!options.optional && !options.nullable && !options.nullish && !own(options, "default"))
+     return plannedField(meta, options, validate, innerValidate);
+   let hasUndefinedDefault = false;
+   let hasNullDefault = false;
+@@ -188,10 +196,10 @@
+     ) {
+       const targets = value as DefaultTargets<O>;
+       const keys = Object.keys(targets);
+-      if (!keys.length || keys.some((key) => key !== "undefined" && key !== "null" && key !== "nullish"))
++      if (!keys.length || keys.some((key) => !["undefined", "null", "nullish"].includes(key)))
+         throw new TypeError("Default targets must specify undefined, null or nullish");
+       const nullish = own(targets, "nullish");
+-      if (nullish && keys.length > 1)
++      if (nullish && keys.length !== 1)
+         throw new TypeError("nullish defaults cannot be combined with undefined or null defaults");
+       hasUndefinedDefault = nullish || own(targets, "undefined");
+       hasNullDefault = nullish || own(targets, "null");
+@@ -210,12 +218,9 @@
+     if (value === null && nullable) return { value: hasNullDefault ? nullDefault : null };
+     return validate(value);
+   };
+-  const resolved = meta as { -readonly [K in keyof Meta]: Meta[K] };
+-  resolved.optional = optional;
+-  resolved.nullable = nullable;
+-  if (hasUndefinedDefault) resolved.defaultValue = undefinedDefault;
+-  return plannedField(meta, options, run, innerValidate);
+-}
++  return plannedField(meta, options, run, innerValidate, optional, nullable, hasUndefinedDefault, undefinedDefault);
++}
++
+ 
+ export interface StringOptions {
+   readonly min?: number;
+@@ -242,7 +247,7 @@
+ ): Field<any, any, boolean> {
+   options = { ...options };
+   return configuredField<string, string>(
+-    { kind: "string", optional: false, nullable: false, description: options.description },
++    "string",
+     options,
+     (value) => {
+       if (typeof value !== "string") return fail("Expected a string", "invalid_type");
+@@ -290,7 +295,7 @@
+ ): Field<any, any, boolean> {
+   options = { ...options };
+   return configuredField<string | number, number>(
+-    { kind: "number", optional: false, nullable: false, description: options.description },
++    "number",
+     options,
+     (value) => {
+       if (typeof value !== "number") {
+@@ -329,7 +334,7 @@
+ export function boolean(options: FieldOptions<boolean> = {}): Field<any, any, boolean> {
+   options = { ...options };
+   return configuredField<string | boolean, boolean>(
+-    { kind: "boolean", optional: false, nullable: false, description: options.description },
++    "boolean",
+     options,
+     (value) => {
+       if (value === true || value === "true" || value === "1") return { value: true };
+@@ -363,7 +368,7 @@
+   const choices = Object.freeze([...values]);
+   const allowed = new Set<string>(choices);
+   return configuredField<T[number], T[number]>(
+-    { kind: "string", enumValues: choices, optional: false, nullable: false, description: options.description },
++    { kind: "string", enumValues: choices, optional: options.optional },
+     options,
+     (value) => {
+       return typeof value === "string" && allowed.has(value)
+@@ -399,7 +404,7 @@
+ export function date(options: FieldOptions<Date> = {}): Field<any, any, boolean> {
+   options = { ...options };
+   return configuredField<string, Date>(
+-    { kind: "date", optional: false, nullable: false, description: options.description },
++    "date",
+     options,
+     (value) => {
+       if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:T.*)?$/.test(value))
+@@ -448,7 +453,7 @@
+   if (s.meta.kind === "array") throw new TypeError("Nested arrays are unsupported");
+   const innerValidate = s["~standard"].validate;
+   return configuredField<I | readonly I[], O[]>(
+-    { kind: "array", inner: s, enumValues: s.meta.enumValues, optional: false, nullable: false, description: options.description },
++    { kind: "array", inner: s, enumValues: s.meta.enumValues },
+     options,
+     (value) => {
+       if (options.wrapScalar === false && !Array.isArray(value))
+@@ -506,7 +511,7 @@
+   const validators: ((value: unknown) => Result<any>)[] = [];
+   for (const key of keys) {
+     const s = fields[key]!;
+-    if (s.field !== true) throw new TypeError(`Expected field: ${key}`);
++    if (s.field !== true) throw new TypeError("Object fields must be flat field schemas");
+     validators.push(s["~standard"].validate);
+   }
+   const mode = options.unknownKeys ?? "strip";
+@@ -566,7 +571,7 @@
+   return issues;
+ }
+ function compiledCheck(plan: FieldPlan | undefined, value: string): string {
+-  if (!plan || plan.enum) return "false";
++  if (!plan || plan.enumValues) return "false";
+   const options = plan.options as StringOptions & NumberOptions;
+   const checks: string[] = [];
+   if (["min", "max", "gt", "gte", "lt", "lte"].some((key) => {
+@@ -603,7 +608,7 @@
+ }
+ function compileArray(plan: FieldPlan, validate: (value: unknown) => Result<any>): (value: unknown) => Result<any> {
+   const options = plan.options as ArrayOptions;
+-  const inner = plan.inner!;
++  const inner = plan.innerValidate!;
+   const innerPlan = (inner as PlannedValidate)[fieldPlan];
+   return new Function("base", "inner", "options", "fail", "decimal", "append", `return function(input){
+ if(input===undefined||input===null)return base(input);

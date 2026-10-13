@@ -1,0 +1,2809 @@
+{
+  "date": "2026-10-11T23:37:30.214Z",
+  "sourceHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+  "distHash": "17eb28fb24e095141a85e1bf6ba33b408d67e5e3ad4081a70a21d9074ef66ab4",
+  "scope": "Unchanged built JS split by element with one shared core, published as Rolldown multi-entry ESM; runtime-only prototype, not public package or declaration changes",
+  "cases": {
+    "string-basic": {
+      "original": {
+        "bytes": 2844,
+        "gzipBytes": 1279,
+        "codeHash": "ad6cfc475a62dc264daa3ca03d3f00c2f192acf74281bad2f4184587678076c8"
+      },
+      "barrel": {
+        "bytes": 2844,
+        "gzipBytes": 1278,
+        "codeHash": "5e8c1da4d1b214870c6da2fc166ecf51bd31b8492af03d1f883b7c4b9238ccd2"
+      },
+      "direct": {
+        "bytes": 2844,
+        "gzipBytes": 1283,
+        "codeHash": "f79922ba7a42bc89d84109ed788bf492026625e111799dabc74170eb40c1a7f9"
+      }
+    },
+    "string-trim": {
+      "original": {
+        "bytes": 2865,
+        "gzipBytes": 1295,
+        "codeHash": "6218ccc19b016f92d5047b3318bfda7f4aec80a3014cf510b2cfcebf10eed5cd"
+      },
+      "barrel": {
+        "bytes": 2865,
+        "gzipBytes": 1294,
+        "codeHash": "94c3e4682769593695e3b79b19a794673b7eeaf404f378c493af49f728cbc285"
+      },
+      "direct": {
+        "bytes": 2865,
+        "gzipBytes": 1298,
+        "codeHash": "e6459e6a6a222304f84d5d41fcf7c7885f96c8984184b69921ba522b4cb3e962"
+      }
+    },
+    "string-pattern": {
+      "original": {
+        "bytes": 2864,
+        "gzipBytes": 1295,
+        "codeHash": "1686c588c5e1a9813e4c7aa7ace2c46d436037c6788a9776fe9ade7b7eb7e118"
+      },
+      "barrel": {
+        "bytes": 2864,
+        "gzipBytes": 1294,
+        "codeHash": "c5c3a0dbb6b31f430b4a75513fa623fd10feaebe8af524c2719dcf47b19e7d00"
+      },
+      "direct": {
+        "bytes": 2864,
+        "gzipBytes": 1299,
+        "codeHash": "bd136eeefbbd4b1ae51ea5a52058c7e6ceea6dde5e7d40317b5090b4162902ab"
+      }
+    },
+    "number-decimal": {
+      "original": {
+        "bytes": 2843,
+        "gzipBytes": 1318,
+        "codeHash": "37244493224684feb705de4b358594c2969f128658174cd0b0e61d1a4d3be610"
+      },
+      "barrel": {
+        "bytes": 2843,
+        "gzipBytes": 1320,
+        "codeHash": "d99af7d32f9cae2e71788478728c48a6237a85ee639446d428ba0c8ad2e4845e"
+      },
+      "direct": {
+        "bytes": 2843,
+        "gzipBytes": 1315,
+        "codeHash": "b093a5cf7d43c13965be85224e7ccc23652a87566cd7f49c09f5478f2642a0a0"
+      }
+    },
+    "number-inclusive": {
+      "original": {
+        "bytes": 2869,
+        "gzipBytes": 1332,
+        "codeHash": "dd30e2c0ab0ccac1f9ae48bb40ef94b63e76045b7d72cf163f1a2ade1b0af496"
+      },
+      "barrel": {
+        "bytes": 2869,
+        "gzipBytes": 1333,
+        "codeHash": "328d67d585ca4f8a318b3f975f7ed4193a9e272f8eb97014f0b37e8aeda3df8d"
+      },
+      "direct": {
+        "bytes": 2869,
+        "gzipBytes": 1329,
+        "codeHash": "885268b97b393b3b0165aebc08cef05f4a8e120fbb2277911a215cb5bcfeb961"
+      }
+    },
+    "number-exclusive": {
+      "original": {
+        "bytes": 2854,
+        "gzipBytes": 1327,
+        "codeHash": "53935b2173cda518e04f6e64b960a5d267d83bcbcb41dc828cf36dfb89b0365e"
+      },
+      "barrel": {
+        "bytes": 2854,
+        "gzipBytes": 1328,
+        "codeHash": "1a03828b8879b8ec7f266c66e300fd58075b5997eeb3292a8dc93a457df5a54f"
+      },
+      "direct": {
+        "bytes": 2854,
+        "gzipBytes": 1323,
+        "codeHash": "b63bc7b6fa9a5e443b84ac27e8b40c997cfdd0568dabd20fef386a3f5f39f696"
+      }
+    },
+    "boolean": {
+      "original": {
+        "bytes": 2464,
+        "gzipBytes": 1172,
+        "codeHash": "eb2b8842896938665b3e8adbc731f1f28db7751f2f825e1c218b5e8e3aee081f"
+      },
+      "barrel": {
+        "bytes": 2464,
+        "gzipBytes": 1171,
+        "codeHash": "7043dd56e36eef67bc98806ca32b07646b8fb523e517dd20b943ad23feff02c8"
+      },
+      "direct": {
+        "bytes": 2464,
+        "gzipBytes": 1168,
+        "codeHash": "f1c477def9b376b703b4e68232bd63edfaa58e818d28625bfa72dd4642b07fed"
+      }
+    },
+    "enum-2": {
+      "original": {
+        "bytes": 2701,
+        "gzipBytes": 1296,
+        "codeHash": "592a2e227edb66eaeb4499be673ef13f3d6e7499673253a2ad5b719693969c70"
+      },
+      "barrel": {
+        "bytes": 2701,
+        "gzipBytes": 1297,
+        "codeHash": "48846a5ff476b86bd6f3c12baea696513e38d89e8cfb48e2ba7ba3835cd92b68"
+      },
+      "direct": {
+        "bytes": 2701,
+        "gzipBytes": 1294,
+        "codeHash": "166e3749365b10bbec28d991063efdabe4ec4a551b7b889b1b51e664cbd35bb7"
+      }
+    },
+    "enum-32": {
+      "original": {
+        "bytes": 3023,
+        "gzipBytes": 1379,
+        "codeHash": "ce8da66593aa10d081ffb35cf9efbf51e540ba42db33c177e2fec35efe059e49"
+      },
+      "barrel": {
+        "bytes": 3023,
+        "gzipBytes": 1379,
+        "codeHash": "6458050a395bce681f56ffa180fc44031cb256704e4c48990a2031ce7d100e58"
+      },
+      "direct": {
+        "bytes": 3023,
+        "gzipBytes": 1376,
+        "codeHash": "d03758eeefca9b3c518faad128e84e1d61f68324a1c3c1c1cda6adcba6dd0a9e"
+      }
+    },
+    "literal": {
+      "original": {
+        "bytes": 2555,
+        "gzipBytes": 1205,
+        "codeHash": "3057bd7456571d5ae41fa08cf85a6dd3a4e44c9bb45e4d9d6cc4a21711328ea3"
+      },
+      "barrel": {
+        "bytes": 2555,
+        "gzipBytes": 1205,
+        "codeHash": "faaca362b81dbe8d0ea24c44b48328eb85f74f6cc7e5816aa688cee8b3fdc078"
+      },
+      "direct": {
+        "bytes": 2555,
+        "gzipBytes": 1205,
+        "codeHash": "1f2ae80523de8b7deeac36f126d472d432a31b38ffa280932c6b2f9fbcc0cead"
+      }
+    },
+    "date": {
+      "original": {
+        "bytes": 2570,
+        "gzipBytes": 1259,
+        "codeHash": "189de0aad29b5d3d5af522329fa16dcbf0c0679e61c49979c7c4b0475313d8b1"
+      },
+      "barrel": {
+        "bytes": 2570,
+        "gzipBytes": 1259,
+        "codeHash": "25af10f5912e3d15ab3a4ea7cccd417abeb548a527a0b562511741ee33e572b5"
+      },
+      "direct": {
+        "bytes": 2570,
+        "gzipBytes": 1254,
+        "codeHash": "52ef816152c80db0d8310139cd3fc86f8dbcca2a0084a87321e4fb716a41d7ed"
+      }
+    },
+    "presence-required": {
+      "original": {
+        "bytes": 2846,
+        "gzipBytes": 1280,
+        "codeHash": "5c01cf6b9d314045eb435b641c9a571283f1066d2cd464a0280c17b7a9b2a429"
+      },
+      "barrel": {
+        "bytes": 2846,
+        "gzipBytes": 1280,
+        "codeHash": "4fd6c6fa701b49c6a50c83d8cb659b70f814e58efe08d82a2ec6dbe308332748"
+      },
+      "direct": {
+        "bytes": 2846,
+        "gzipBytes": 1284,
+        "codeHash": "7947f6c666b8f215dcc30ad3a1f4289808e1fa3735631b63c77f0642536bf1ed"
+      }
+    },
+    "presence-optional": {
+      "original": {
+        "bytes": 2857,
+        "gzipBytes": 1284,
+        "codeHash": "cca6a8de435977127ee7d1920c0957c18194c328b2a012b45f3a09a33c08d33c"
+      },
+      "barrel": {
+        "bytes": 2857,
+        "gzipBytes": 1283,
+        "codeHash": "22ed5216681eb648f629d3d39c1057201ab5971594bfb154119634dc503ef83a"
+      },
+      "direct": {
+        "bytes": 2857,
+        "gzipBytes": 1286,
+        "codeHash": "203751895d9d37bd8260d893b8106a0f457b4bedd709d2e86bc5f0b2bef4242c"
+      }
+    },
+    "presence-nullable": {
+      "original": {
+        "bytes": 2857,
+        "gzipBytes": 1284,
+        "codeHash": "40413475704ab82dbfc5d7e2439509c60de660a00ef0d5f5f8a2f1d11820cd26"
+      },
+      "barrel": {
+        "bytes": 2857,
+        "gzipBytes": 1283,
+        "codeHash": "c8fe9b31eb8256d7d53d44fe310eb0953e12a860c405e6e8fd1345c4d4b1dc18"
+      },
+      "direct": {
+        "bytes": 2857,
+        "gzipBytes": 1287,
+        "codeHash": "bc8f6b297e255ed28f496a67cea9c3235a9f7fecca33a49c41db109406eb4d90"
+      }
+    },
+    "presence-nullish": {
+      "original": {
+        "bytes": 2856,
+        "gzipBytes": 1284,
+        "codeHash": "7e5d7edd81920bf075712141699b72f8c90b7d8576de2e9edb70cf16681970b6"
+      },
+      "barrel": {
+        "bytes": 2856,
+        "gzipBytes": 1283,
+        "codeHash": "ddd08aa9b7f95dafa0a0391119d2ef3174932c08d173433d5a0424bc59c79b6c"
+      },
+      "direct": {
+        "bytes": 2856,
+        "gzipBytes": 1287,
+        "codeHash": "ede4a2ed23d508456348a685ae0d40b5756a97e7a1176c87ea8ee50de5cd9b7c"
+      }
+    },
+    "presence-optional-nullable": {
+      "original": {
+        "bytes": 2869,
+        "gzipBytes": 1288,
+        "codeHash": "40b9d7c368c89d585fdc6ce7600f838fb04ce65eb4ee654f9e6bdcbd7841ccbc"
+      },
+      "barrel": {
+        "bytes": 2869,
+        "gzipBytes": 1287,
+        "codeHash": "dd8bc969869eb4177953c51569619d09036fe040c5465d7b760192a94d65bf2f"
+      },
+      "direct": {
+        "bytes": 2869,
+        "gzipBytes": 1291,
+        "codeHash": "e65bebe95f3dd799b1268c1d9778bd9976c95f70680c3ceb0b3b1f4530ccfabf"
+      }
+    },
+    "presence-default": {
+      "original": {
+        "bytes": 2857,
+        "gzipBytes": 1286,
+        "codeHash": "db2e738b0409a7ef018594dd64201e5e42073711051d6bc787e66dfdf128cc6c"
+      },
+      "barrel": {
+        "bytes": 2857,
+        "gzipBytes": 1285,
+        "codeHash": "12daba9c80396a7da04a00422b98551990e42fa515a85f57e6565c1545de19e9"
+      },
+      "direct": {
+        "bytes": 2857,
+        "gzipBytes": 1289,
+        "codeHash": "4ba1f2fdf535b6deb5802124f244e7bb7730059b9f6194fa8196fb94f334b115"
+      }
+    },
+    "presence-optional-default": {
+      "original": {
+        "bytes": 2869,
+        "gzipBytes": 1290,
+        "codeHash": "0f63867ff3166b5bf96f32a891458b174ab0b7c902957bbb67d65ad9e9db82f9"
+      },
+      "barrel": {
+        "bytes": 2869,
+        "gzipBytes": 1289,
+        "codeHash": "be96ac41db24940600b48350c3c6f69fab5d61df05cdd74a031e2aaefd4113b2"
+      },
+      "direct": {
+        "bytes": 2869,
+        "gzipBytes": 1294,
+        "codeHash": "1b0be3e4d8b5aafdc57390cbc761810fac5b71032dbcaa103ec19a0c2499aaaf"
+      }
+    },
+    "presence-nullable-default": {
+      "original": {
+        "bytes": 2869,
+        "gzipBytes": 1290,
+        "codeHash": "cd83e2a5304183cfa26116167ce2b0fd39221580337402bab2d72b6f01d9e927"
+      },
+      "barrel": {
+        "bytes": 2869,
+        "gzipBytes": 1289,
+        "codeHash": "c2eb4d8c247cad5a27996de5bb12f3fdad66bed2b29339bef28dca542039df3d"
+      },
+      "direct": {
+        "bytes": 2869,
+        "gzipBytes": 1294,
+        "codeHash": "55c6dff4bed59e47c84d90219aa8b70aba8166cb0742b6fe3aa68fe067ab32c3"
+      }
+    },
+    "presence-nullish-default": {
+      "original": {
+        "bytes": 2868,
+        "gzipBytes": 1291,
+        "codeHash": "b3e1503c3510bbde83389cce53e2e0a5d61422369077bc5fd14c427ca15a8700"
+      },
+      "barrel": {
+        "bytes": 2868,
+        "gzipBytes": 1289,
+        "codeHash": "741ebd1562ae37a98be62bdc85f306c1e4a7dc202734c55eadeffdb335ee3784"
+      },
+      "direct": {
+        "bytes": 2868,
+        "gzipBytes": 1294,
+        "codeHash": "41e97e99a616ed8db8ebe56d6d4b78fcf760754fea9bf9fd12304753657a7404"
+      }
+    },
+    "presence-target-undefined": {
+      "original": {
+        "bytes": 2869,
+        "gzipBytes": 1290,
+        "codeHash": "ef9091b18f5a7cda4f04ffde73cfc2b38dd7082075476402d2aa2b31d52c4f6a"
+      },
+      "barrel": {
+        "bytes": 2869,
+        "gzipBytes": 1290,
+        "codeHash": "8b80e1cab49048d2e63c7681212a7e18dae857e73719c2b4a0f2cdbe1134c5b9"
+      },
+      "direct": {
+        "bytes": 2869,
+        "gzipBytes": 1294,
+        "codeHash": "f064d05d70ca0dee7a3af6efd96c059e83f6f309897f9a5a17451fa4226b2508"
+      }
+    },
+    "presence-target-null": {
+      "original": {
+        "bytes": 2864,
+        "gzipBytes": 1290,
+        "codeHash": "70a5aacf4a4d2f0e9304c3580a57089a2f05af59716f3585652df29026d7d40d"
+      },
+      "barrel": {
+        "bytes": 2864,
+        "gzipBytes": 1290,
+        "codeHash": "a66dae4fa0d85dfd81868ff8df1885d29d19ac182720b8aac6ef213c2334ae53"
+      },
+      "direct": {
+        "bytes": 2864,
+        "gzipBytes": 1294,
+        "codeHash": "2557b268ea25fe6448728b0c7404fc0a58b4b9daf195cb6d665111442aea2069"
+      }
+    },
+    "presence-optional-target-null": {
+      "original": {
+        "bytes": 2876,
+        "gzipBytes": 1294,
+        "codeHash": "e6a6b78603eb3edb322414e3b14412cf55b2628a31fd4bd550a7120c794049f6"
+      },
+      "barrel": {
+        "bytes": 2876,
+        "gzipBytes": 1293,
+        "codeHash": "a365d11944bdb4d5ce274ea5eb389ac449615dbef5068f2b76219d12b1238451"
+      },
+      "direct": {
+        "bytes": 2876,
+        "gzipBytes": 1299,
+        "codeHash": "9f2768a7122efaf17f824badc6a65573dcb7d085c18e49e525c765a0f01c4cc8"
+      }
+    },
+    "presence-nullable-target-undefined": {
+      "original": {
+        "bytes": 2881,
+        "gzipBytes": 1295,
+        "codeHash": "999bdb95ce8c6fe6f18b79ea8b2551608ab5da5655f7cadee08375bf6ee12046"
+      },
+      "barrel": {
+        "bytes": 2881,
+        "gzipBytes": 1294,
+        "codeHash": "937b4af539d571380ac6d63ac6a1cedb5c5b4f0936ec06acfe250196099803da"
+      },
+      "direct": {
+        "bytes": 2881,
+        "gzipBytes": 1299,
+        "codeHash": "9db08583d60ebe80481ed90a3ee6f9ec9a4951e2c5c1790f88869d16ff40924e"
+      }
+    },
+    "presence-target-both": {
+      "original": {
+        "bytes": 2878,
+        "gzipBytes": 1297,
+        "codeHash": "e5886e67da1e1b09e8585aaec3a198f1ccd54f6eeb02fae329e85961adab5477"
+      },
+      "barrel": {
+        "bytes": 2878,
+        "gzipBytes": 1297,
+        "codeHash": "014721e3e8a4c30ef7f5fcad93c11f160b63973d6d721836ab377e666f2010f5"
+      },
+      "direct": {
+        "bytes": 2878,
+        "gzipBytes": 1301,
+        "codeHash": "d17cd9e126026edcb9aa70a604b49834c16e76c23cabd420eb2599067f3016ac"
+      }
+    },
+    "presence-target-nullish": {
+      "original": {
+        "bytes": 2867,
+        "gzipBytes": 1290,
+        "codeHash": "c24ea0c8519f3a6e8ebefed8ead7b2379a69342e5573b606540c057405c5ec50"
+      },
+      "barrel": {
+        "bytes": 2867,
+        "gzipBytes": 1289,
+        "codeHash": "6e22cc4a3b849e1d2139a09df0b78f3d31baa1a83b17e12547b9b4d2b165a866"
+      },
+      "direct": {
+        "bytes": 2867,
+        "gzipBytes": 1293,
+        "codeHash": "44545dc3e6d1baa154cfd179a87cf57c563a4f8b733b95105ec2a7a6c6ff7097"
+      }
+    },
+    "presence-nullish-target-nullish": {
+      "original": {
+        "bytes": 2878,
+        "gzipBytes": 1293,
+        "codeHash": "877926c48352c14492054771ce07417cd9745884cdd7a981408522f03903ab6d"
+      },
+      "barrel": {
+        "bytes": 2878,
+        "gzipBytes": 1292,
+        "codeHash": "9a73932ebab93780dcedcc75a2a88e4e5f1c3d887b43c4b12e9b70b7e67a40a2"
+      },
+      "direct": {
+        "bytes": 2878,
+        "gzipBytes": 1297,
+        "codeHash": "7f183b5a7c0c16ffa797207440418aec90c3773d3c81969b1dc167432493eb32"
+      }
+    },
+    "number-nullish-default": {
+      "original": {
+        "bytes": 2864,
+        "gzipBytes": 1327,
+        "codeHash": "6ea296bb32803848a769b2c2801bd1dc2ebe8213cde7c7d039bf3b256a52cb2a"
+      },
+      "barrel": {
+        "bytes": 2864,
+        "gzipBytes": 1328,
+        "codeHash": "6b974530ac25356142ad28891f9205cdaf6ec04b6fab86e7a74c7ac1649ac94d"
+      },
+      "direct": {
+        "bytes": 2864,
+        "gzipBytes": 1325,
+        "codeHash": "1ca89f53861a8dea769876cab980ffa8e3d588dc6bcce97176f88fd86a1423ad"
+      }
+    },
+    "boolean-default": {
+      "original": {
+        "bytes": 2476,
+        "gzipBytes": 1178,
+        "codeHash": "65003ee6556ca7727a6ae63235abcb73fb9017fa0f5a1422e47921b062dac23b"
+      },
+      "barrel": {
+        "bytes": 2476,
+        "gzipBytes": 1177,
+        "codeHash": "b58b57f8be85826d7b8ce3f929a736b8874195d0624f5128f52c785df033c0f3"
+      },
+      "direct": {
+        "bytes": 2476,
+        "gzipBytes": 1175,
+        "codeHash": "2fe3091a65f35d5b3c8d03d0b19c2dc469b6f625077513f91d5acf53219e5369"
+      }
+    },
+    "enum-default": {
+      "original": {
+        "bytes": 2703,
+        "gzipBytes": 1298,
+        "codeHash": "4b533ba13fd268ec46bdd3a911285ff3bc96be0c1964114f5f1d565c1061069c"
+      },
+      "barrel": {
+        "bytes": 2703,
+        "gzipBytes": 1298,
+        "codeHash": "67301b588a9826512645b2197a6f5e8b9ea69760857c0d28785034dee12589f4"
+      },
+      "direct": {
+        "bytes": 2703,
+        "gzipBytes": 1296,
+        "codeHash": "868cc0f1988b5f28781b6cea77a54119e8af325d9c660f46147d5a08435d029f"
+      }
+    },
+    "date-default": {
+      "original": {
+        "bytes": 2612,
+        "gzipBytes": 1284,
+        "codeHash": "6cd5e6af9df2eb1dde8f22766623a4a09e14e043d02e9c0619a03027956fc60a"
+      },
+      "barrel": {
+        "bytes": 2612,
+        "gzipBytes": 1284,
+        "codeHash": "4de1ef5ee79c5a7aa6e3d6e7838dd7d38c8f41cc2fed5769e5d8a5371824ec3f"
+      },
+      "direct": {
+        "bytes": 2612,
+        "gzipBytes": 1280,
+        "codeHash": "c0a317ea2e645e9bd981fac72278b03cb1eb0d0815c4c7910001ca6186375191"
+      }
+    },
+    "array-wrap": {
+      "original": {
+        "bytes": 3622,
+        "gzipBytes": 1533,
+        "codeHash": "03060a08c12481b74f9d833ea2290464350a0819d87b6009a384529291d1d159"
+      },
+      "barrel": {
+        "bytes": 3622,
+        "gzipBytes": 1532,
+        "codeHash": "c8802d2031841bf4765b373899095bd9daf68414b277d0b0c1d4eec6409e230f"
+      },
+      "direct": {
+        "bytes": 3622,
+        "gzipBytes": 1534,
+        "codeHash": "9e350641289549bcc06b6559ed8d610bd3e64f543968ce6e0302e8fca4cc8479"
+      }
+    },
+    "array-strict": {
+      "original": {
+        "bytes": 3638,
+        "gzipBytes": 1540,
+        "codeHash": "2ec2c1f7b7adc4b75e5b261684c9e0e1f874dc1f3f174a20bbefc2b2b24ac4fe"
+      },
+      "barrel": {
+        "bytes": 3638,
+        "gzipBytes": 1539,
+        "codeHash": "bdbabc11622f9058f62cf05f30604e0bb7cba9de230bf508bcc110edcfe47daf"
+      },
+      "direct": {
+        "bytes": 3638,
+        "gzipBytes": 1541,
+        "codeHash": "9160b0a6a52812ca2ccc101aa39dbd85657d8a8af955aa597455c877b98f8145"
+      }
+    },
+    "array-bounds": {
+      "original": {
+        "bytes": 3636,
+        "gzipBytes": 1545,
+        "codeHash": "9777dcd388e0487991540e3f6ab738b2fa8653bd52732c273daab8fdf10b424c"
+      },
+      "barrel": {
+        "bytes": 3636,
+        "gzipBytes": 1544,
+        "codeHash": "632b401c986e7fbdaa3547dbdccaf2cd693bfcbe477db3840ecf358bf2bab49a"
+      },
+      "direct": {
+        "bytes": 3636,
+        "gzipBytes": 1545,
+        "codeHash": "49ad797b9daacea98a7097e74a1fec1684df6c92ad75609953d6e21ccfb49864"
+      }
+    },
+    "array-number": {
+      "original": {
+        "bytes": 3621,
+        "gzipBytes": 1572,
+        "codeHash": "0cef312a2342e953339b72a53e2f4e46d7bbdee306b98c9377ec753f54495206"
+      },
+      "barrel": {
+        "bytes": 3621,
+        "gzipBytes": 1572,
+        "codeHash": "d78288207496dc89c4886d01381a99d281619f7d434f0c69a33b131423215f2b"
+      },
+      "direct": {
+        "bytes": 3621,
+        "gzipBytes": 1572,
+        "codeHash": "39a42ef7fae3f280c2d631435706de655abe2b46bf944b7b5e923baad67c5613"
+      }
+    },
+    "array-inner-nullable": {
+      "original": {
+        "bytes": 3635,
+        "gzipBytes": 1537,
+        "codeHash": "bc4d5c8725a1d0f578a4e839812154ff5daf33d31b2158855afb45282d6305d1"
+      },
+      "barrel": {
+        "bytes": 3635,
+        "gzipBytes": 1536,
+        "codeHash": "544a21fe988b013074ca9f3d3bc7eb9bb69dfedaad131d3302d48e7c7a50dc17"
+      },
+      "direct": {
+        "bytes": 3635,
+        "gzipBytes": 1539,
+        "codeHash": "003edec904ce3fb7ee4aeba30cb9533dada6d471c0fd1827507503dac7066718"
+      }
+    },
+    "array-default": {
+      "original": {
+        "bytes": 3678,
+        "gzipBytes": 1560,
+        "codeHash": "eb545ca99d7b9adb901772ee7181e4a6d11e31e5cb148ac191b363596a5c50dc"
+      },
+      "barrel": {
+        "bytes": 3678,
+        "gzipBytes": 1560,
+        "codeHash": "1f37a978ff0c26977e0399a549637cc15ce2137198c3301eaacf8b03033f8317"
+      },
+      "direct": {
+        "bytes": 3678,
+        "gzipBytes": 1562,
+        "codeHash": "a00585fa749af8709b41fc1c2dd2190af49957ec2a691e1e8cc95f2ea3471b19"
+      }
+    },
+    "transform-field": {
+      "original": {
+        "bytes": 3221,
+        "gzipBytes": 1382,
+        "codeHash": "3cfeb5f4f6e4696a9a9e0795550c8beab71b84c6f1b81bc6a5ec576deb918789"
+      },
+      "barrel": {
+        "bytes": 3221,
+        "gzipBytes": 1377,
+        "codeHash": "51b13a17d8aa54bfe7090b068c2c7fccd956ae47adfeff1100a988b7928d50fc"
+      },
+      "direct": {
+        "bytes": 3221,
+        "gzipBytes": 1386,
+        "codeHash": "ad212eac4ca912566088cc258af7418be74f9dd1b99c7c247d50df7bfce3914b"
+      }
+    },
+    "refine-field": {
+      "original": {
+        "bytes": 3080,
+        "gzipBytes": 1409,
+        "codeHash": "d60ca25fbd432208296af5db2056842448221ba8a0d870871b88e646dbdf3f8e"
+      },
+      "barrel": {
+        "bytes": 3080,
+        "gzipBytes": 1411,
+        "codeHash": "46fc0a874ce7d18a63ecbc13873904d6d5ff7c1a6b0326e62499ea8a5dcf508b"
+      },
+      "direct": {
+        "bytes": 3080,
+        "gzipBytes": 1409,
+        "codeHash": "6d40c9047c5276b68e3767c7ffa6504f9c05a3f000b69d8618b0f550c9a2493e"
+      }
+    },
+    "object-strip": {
+      "original": {
+        "bytes": 2865,
+        "gzipBytes": 1287,
+        "codeHash": "ff291b6bd788901b95b1062a9c4f0a025283a86ad85571b72355884cacb4a15c"
+      },
+      "barrel": {
+        "bytes": 2865,
+        "gzipBytes": 1288,
+        "codeHash": "7e218469a436f62982fe1f7116665ad893062b09e7de843cd9a97574436dbfc8"
+      },
+      "direct": {
+        "bytes": 2865,
+        "gzipBytes": 1292,
+        "codeHash": "3eae26b0d36796766eb62288881390c1973595ab3987cabce42fb6247a7b0131"
+      }
+    },
+    "object-strict": {
+      "original": {
+        "bytes": 2866,
+        "gzipBytes": 1287,
+        "codeHash": "4aa82c9f507b5523bac482d15edb4847cec37024bb54ce06ed4754eba5685740"
+      },
+      "barrel": {
+        "bytes": 2866,
+        "gzipBytes": 1287,
+        "codeHash": "8c972caf32e9a64331c0391c45dc6de2d38bb0c7048dd1daeabd31039944529f"
+      },
+      "direct": {
+        "bytes": 2866,
+        "gzipBytes": 1292,
+        "codeHash": "4e2585bb9398c9af45e0c99e2b1a7525e39cd76dd76ab0cc394a2d18cafe3a3f"
+      }
+    },
+    "object-passthrough": {
+      "original": {
+        "bytes": 2871,
+        "gzipBytes": 1288,
+        "codeHash": "907be1fddca872203699ead80c65f2c5b9381d84b02a757852b0c1362293d64b"
+      },
+      "barrel": {
+        "bytes": 2871,
+        "gzipBytes": 1287,
+        "codeHash": "f5799fa4a6814dc44661240c401ed37c73e99b49ee5cd033903835cd3031d727"
+      },
+      "direct": {
+        "bytes": 2871,
+        "gzipBytes": 1291,
+        "codeHash": "fdff21ab5c0cb101cb2c5822fd52cb9a250154879dc6a6d0c21c7645bc2508d1"
+      }
+    },
+    "refine-object": {
+      "original": {
+        "bytes": 3083,
+        "gzipBytes": 1413,
+        "codeHash": "d32a4c092ecf20a8681d105d4c0a7815a287d0a0915ed9d51403bb05697eaa18"
+      },
+      "barrel": {
+        "bytes": 3083,
+        "gzipBytes": 1413,
+        "codeHash": "71ad3c31ccc6c4c7591d521c05ca4e99784f7a5c5c386bb779e80f8336390058"
+      },
+      "direct": {
+        "bytes": 3083,
+        "gzipBytes": 1412,
+        "codeHash": "68d6c2c6610e8ad7abf16e1258418d7933f8c9673dba0ac5e989e7c9368df862"
+      }
+    },
+    "transform-object": {
+      "original": {
+        "bytes": 3234,
+        "gzipBytes": 1389,
+        "codeHash": "2224308ab7f85a31130eb3b7163cedaf99ef1d2c1fe474f8e839a1573ff4c4cc"
+      },
+      "barrel": {
+        "bytes": 3234,
+        "gzipBytes": 1382,
+        "codeHash": "f6bc0be1a6cb29c3f688561fdaa3e1c77b6cc04953c6d055f392a637ec86227f"
+      },
+      "direct": {
+        "bytes": 3234,
+        "gzipBytes": 1392,
+        "codeHash": "1061b4ea71d2dea80d8de7678d007f1ee8e207261607395db5692e9416f8c184"
+      }
+    },
+    "union-first": {
+      "original": {
+        "bytes": 4343,
+        "gzipBytes": 1785,
+        "codeHash": "b7827d094345ed9449ac936a30033a7fa66c0691f1c30f319df2c40d7a287d4a"
+      },
+      "barrel": {
+        "bytes": 4343,
+        "gzipBytes": 1786,
+        "codeHash": "d22ffd51b2082a219044cc6cbd5efc0d9fd31a0d1e412df7ddc0b54097a434a4"
+      },
+      "direct": {
+        "bytes": 4345,
+        "gzipBytes": 1784,
+        "codeHash": "bda2bef20614efc40e3f1ec35f35083ec1b6906cd1e4e678cf133d8816f3ae3c"
+      }
+    },
+    "union-last": {
+      "original": {
+        "bytes": 4343,
+        "gzipBytes": 1785,
+        "codeHash": "b7827d094345ed9449ac936a30033a7fa66c0691f1c30f319df2c40d7a287d4a"
+      },
+      "barrel": {
+        "bytes": 4343,
+        "gzipBytes": 1786,
+        "codeHash": "d22ffd51b2082a219044cc6cbd5efc0d9fd31a0d1e412df7ddc0b54097a434a4"
+      },
+      "direct": {
+        "bytes": 4345,
+        "gzipBytes": 1784,
+        "codeHash": "bda2bef20614efc40e3f1ec35f35083ec1b6906cd1e4e678cf133d8816f3ae3c"
+      }
+    },
+    "discriminated-union": {
+      "original": {
+        "bytes": 4654,
+        "gzipBytes": 1911,
+        "codeHash": "ebae3bb2bd3839e44b54fc6934c24c0b9ab94816b8b8d21778358b5ce1a8bd6c"
+      },
+      "barrel": {
+        "bytes": 4654,
+        "gzipBytes": 1912,
+        "codeHash": "42be4840165bcc15611d1ebe8c072b223cc2522d28a32c4b5b499d4731a6281c"
+      },
+      "direct": {
+        "bytes": 4656,
+        "gzipBytes": 1905,
+        "codeHash": "f7ddfd6f3d725314e72cadc159d3e02abcc8f5e66b2990f4e4374714d8b958c6"
+      }
+    },
+    "xor": {
+      "original": {
+        "bytes": 4367,
+        "gzipBytes": 1796,
+        "codeHash": "a14e9c547b89ca8b7af44bc6f46ff3ef52cbd248f8d23bd9bde42fc962a6c301"
+      },
+      "barrel": {
+        "bytes": 4367,
+        "gzipBytes": 1798,
+        "codeHash": "73e08b1b0b06cb877ddb154d3d71ab5b48a9700a785f164e66cf55fb292bee2a"
+      },
+      "direct": {
+        "bytes": 4369,
+        "gzipBytes": 1797,
+        "codeHash": "fa5060b81867740738370743f0926e8e81b6d4ed95a195ee4572072d50349514"
+      }
+    },
+    "xor-overlap": {
+      "original": {
+        "bytes": 3238,
+        "gzipBytes": 1396,
+        "codeHash": "91ced391413769d7b7548f126abad62a3a3e7c0ad1df7bed197909e59951de47"
+      },
+      "barrel": {
+        "bytes": 3238,
+        "gzipBytes": 1396,
+        "codeHash": "f609e385a0dcd4f887d6de2bd15c6317b57c99aeff76036a2587f465fe9bd346"
+      },
+      "direct": {
+        "bytes": 3238,
+        "gzipBytes": 1398,
+        "codeHash": "34423dc3f218bc6cab8ee858e28eb498580510fae736f2ca2a24a4962b390d60"
+      }
+    },
+    "intersection": {
+      "original": {
+        "bytes": 3476,
+        "gzipBytes": 1476,
+        "codeHash": "2ccc6de33362813acec323fb55bcee72b5f0993073d2c0700b689549c738c4e0"
+      },
+      "barrel": {
+        "bytes": 3476,
+        "gzipBytes": 1474,
+        "codeHash": "ae550d27ad03eebfab0072b72bc9444a3d81e3ac922f2b29462fe79cf13447cb"
+      },
+      "direct": {
+        "bytes": 3476,
+        "gzipBytes": 1481,
+        "codeHash": "3a341c76998ceb800a6b8cd690e852d6b5d5db847d791450df745e90c238f925"
+      }
+    },
+    "entries-url": {
+      "original": {
+        "bytes": 3645,
+        "gzipBytes": 1547,
+        "codeHash": "bfdef417c2d6a8ac65df8459a344c407aba7d2a9ffdc95254fac5fd8e5debf7b"
+      },
+      "barrel": {
+        "bytes": 3645,
+        "gzipBytes": 1545,
+        "codeHash": "1ae6ed09c2ff7f2d30d69ec5791a9349a9190da0b7805f71bc6470f75a63a3e6"
+      },
+      "direct": {
+        "bytes": 3645,
+        "gzipBytes": 1551,
+        "codeHash": "5c1c19b241ae4d0402536c9804b0007524e17f48138a5770da79372001b5a8c6"
+      }
+    },
+    "entries-form": {
+      "original": {
+        "bytes": 3645,
+        "gzipBytes": 1547,
+        "codeHash": "bfdef417c2d6a8ac65df8459a344c407aba7d2a9ffdc95254fac5fd8e5debf7b"
+      },
+      "barrel": {
+        "bytes": 3645,
+        "gzipBytes": 1545,
+        "codeHash": "1ae6ed09c2ff7f2d30d69ec5791a9349a9190da0b7805f71bc6470f75a63a3e6"
+      },
+      "direct": {
+        "bytes": 3645,
+        "gzipBytes": 1551,
+        "codeHash": "5c1c19b241ae4d0402536c9804b0007524e17f48138a5770da79372001b5a8c6"
+      }
+    },
+    "entry-safeParse": {
+      "original": {
+        "bytes": 2843,
+        "gzipBytes": 1281,
+        "codeHash": "3b4bea9dceaa0975530550a3153b540b65e0e34255d8a926697df5d8364e94f2"
+      },
+      "barrel": {
+        "bytes": 2843,
+        "gzipBytes": 1280,
+        "codeHash": "59fd2107f266ce1173412907b144f7e90839d6e19cfbd0648a1947fc9fd92220"
+      },
+      "direct": {
+        "bytes": 2843,
+        "gzipBytes": 1286,
+        "codeHash": "31f03e254bd34be555745daaee8fbae0db05956e3d9e3c8aeee17b68366663ec"
+      }
+    },
+    "entry-parse": {
+      "original": {
+        "bytes": 2843,
+        "gzipBytes": 1281,
+        "codeHash": "3b4bea9dceaa0975530550a3153b540b65e0e34255d8a926697df5d8364e94f2"
+      },
+      "barrel": {
+        "bytes": 2843,
+        "gzipBytes": 1280,
+        "codeHash": "59fd2107f266ce1173412907b144f7e90839d6e19cfbd0648a1947fc9fd92220"
+      },
+      "direct": {
+        "bytes": 2843,
+        "gzipBytes": 1286,
+        "codeHash": "31f03e254bd34be555745daaee8fbae0db05956e3d9e3c8aeee17b68366663ec"
+      }
+    },
+    "width-0": {
+      "original": {
+        "bytes": 1276,
+        "gzipBytes": 711,
+        "codeHash": "1bd92a6ee60f120a7852978b12776ddf8a2eba879a29e184f5b5495d7d2a2f9a"
+      },
+      "barrel": {
+        "bytes": 1276,
+        "gzipBytes": 709,
+        "codeHash": "8878a353c63d11cabd8516f48662e5ef4bfa16a6e06c94dfdcba31446e29cca7"
+      },
+      "direct": {
+        "bytes": 1276,
+        "gzipBytes": 709,
+        "codeHash": "513dc6ec89272c4696970a9f4ed23370e704edfbfc887eab9ec81c728dbb5421"
+      }
+    },
+    "width-1": {
+      "original": {
+        "bytes": 2841,
+        "gzipBytes": 1280,
+        "codeHash": "dfa2e38a259c66d17e5b1cb9861d43d3498f0f91f1f69a9256938282fce76818"
+      },
+      "barrel": {
+        "bytes": 2841,
+        "gzipBytes": 1279,
+        "codeHash": "902ef4a4858b6bb62e61a8045be45a3ba6b7a8acb6d320dfd6d14d5dfea46968"
+      },
+      "direct": {
+        "bytes": 2841,
+        "gzipBytes": 1285,
+        "codeHash": "91616005764f283f43fb406f5e24424a58b9f50dbffff3641662979b2aa8a891"
+      }
+    },
+    "width-100": {
+      "original": {
+        "bytes": 3624,
+        "gzipBytes": 1530,
+        "codeHash": "711d48e47f96008c2c3dd7456ec24d6b8c61b3831ed8892eac0e0b28b54a211b"
+      },
+      "barrel": {
+        "bytes": 3624,
+        "gzipBytes": 1528,
+        "codeHash": "c329337581317bb42a25a278ddf54f83b84cb78b8a38d552f20ea3f247e63022"
+      },
+      "direct": {
+        "bytes": 3624,
+        "gzipBytes": 1537,
+        "codeHash": "434fd19e78b8ac8cf1de4298e42470c9fcc9e3572c5880d0dd1baebbb36f966d"
+      }
+    },
+    "scalar-string-basic": {
+      "original": {
+        "bytes": 1733,
+        "gzipBytes": 835,
+        "codeHash": "be8ec65717a2f8ea023c53a6ac73fd021e998f1e57df01abceba3ad7eeef1c6b"
+      },
+      "barrel": {
+        "bytes": 1733,
+        "gzipBytes": 836,
+        "codeHash": "928a7d3cbeb8763400a9071ea9e6b34b7b71795417f166b1e4382c864cc0c97b"
+      },
+      "direct": {
+        "bytes": 1733,
+        "gzipBytes": 834,
+        "codeHash": "e8dcbb3d7b3e2b157490e8351ef16bf377cc1be38ed8ef11822b94331ce17348"
+      }
+    },
+    "scalar-string-trim": {
+      "original": {
+        "bytes": 1754,
+        "gzipBytes": 851,
+        "codeHash": "6b9d6f4c0cdd662e142759361c702fe948bb30faa36febfa44cf6a34683b4708"
+      },
+      "barrel": {
+        "bytes": 1754,
+        "gzipBytes": 852,
+        "codeHash": "30fc9896be77ab89705efc4d5610456392535316c9a0097452cfc17e9943b583"
+      },
+      "direct": {
+        "bytes": 1754,
+        "gzipBytes": 850,
+        "codeHash": "db979b7a24888e0d9bcb2b6703b71d0f4eee7657f4d5460664a64b2582c816c6"
+      }
+    },
+    "scalar-string-pattern": {
+      "original": {
+        "bytes": 1753,
+        "gzipBytes": 852,
+        "codeHash": "758ed2139931773bae2fefa1a884bd392d6477b0c3b767205a7455c41ea898fc"
+      },
+      "barrel": {
+        "bytes": 1753,
+        "gzipBytes": 853,
+        "codeHash": "dcb81a906d91e00b88919981681b481563e3b6d43bee1568d203dcd13eac0e59"
+      },
+      "direct": {
+        "bytes": 1753,
+        "gzipBytes": 850,
+        "codeHash": "6b899f9050788f80c5c099a05360f2d3f22773aba8afbcc054b1275832d44ea1"
+      }
+    },
+    "scalar-number-decimal": {
+      "original": {
+        "bytes": 1732,
+        "gzipBytes": 868,
+        "codeHash": "b6df71348cdab14f0ae8de99a5c3a617a124043bf7baffc6a365ce41dd17ebd0"
+      },
+      "barrel": {
+        "bytes": 1732,
+        "gzipBytes": 869,
+        "codeHash": "78f9b2103ea5af6c9eb73fe8bf54118b2f8300ee5d6e250af4d96903f3b9c49b"
+      },
+      "direct": {
+        "bytes": 1732,
+        "gzipBytes": 869,
+        "codeHash": "230002569e6dfb89053e6cfa7cc39e25024700386fd8501c2f3cc0f8139b6674"
+      }
+    },
+    "scalar-number-inclusive": {
+      "original": {
+        "bytes": 1758,
+        "gzipBytes": 883,
+        "codeHash": "e7f598dfcad9be2c47e346ce950b14292bfc41566a480860fe4ce1537de495c2"
+      },
+      "barrel": {
+        "bytes": 1758,
+        "gzipBytes": 883,
+        "codeHash": "24b245bbc47c3c38b1e7decbfcd880ecc227c108dcc9bb64ce2f11c640f211b8"
+      },
+      "direct": {
+        "bytes": 1758,
+        "gzipBytes": 883,
+        "codeHash": "d649e74fdbf2a54dd2e155b8f44e71bd7362d9927bb02b36c308a4c5db781ec9"
+      }
+    },
+    "scalar-number-exclusive": {
+      "original": {
+        "bytes": 1743,
+        "gzipBytes": 876,
+        "codeHash": "c0a3d7e85a77ba8c19ed039b59ec8327e64ca74a7371813505c7fff38d180344"
+      },
+      "barrel": {
+        "bytes": 1743,
+        "gzipBytes": 877,
+        "codeHash": "a00787ef97f89e3298cdcec9c9d4a05f0b908f2bbc9a08306fa22d009b2afbac"
+      },
+      "direct": {
+        "bytes": 1743,
+        "gzipBytes": 877,
+        "codeHash": "fab50eba2749c080cb7b47651d2bbd5ee08f6121557bf61d3231b127b5ba84f7"
+      }
+    },
+    "scalar-boolean": {
+      "original": {
+        "bytes": 1353,
+        "gzipBytes": 716,
+        "codeHash": "0eab261795445ddb9e4410cde7d8a6bdd146fe4c89db0f0ad310ec4826b52f59"
+      },
+      "barrel": {
+        "bytes": 1353,
+        "gzipBytes": 714,
+        "codeHash": "127b75a2af30cd52aad916d3fb55061d766a07cb50497cc8d8f6c00a25b27636"
+      },
+      "direct": {
+        "bytes": 1353,
+        "gzipBytes": 717,
+        "codeHash": "b6a2274c1869d5bbf337937b5734008e50d0ffe8301f1cfa437ed040087e0fb6"
+      }
+    },
+    "scalar-enum-2": {
+      "original": {
+        "bytes": 1590,
+        "gzipBytes": 839,
+        "codeHash": "d435b79c50ec1b4a5d63f397aca2aedfe02c69c27c9c097bf233f361d9868d08"
+      },
+      "barrel": {
+        "bytes": 1590,
+        "gzipBytes": 834,
+        "codeHash": "f6bcfe69fc5cce7da13ebdc6b4dbdd1c943b858ead01be12bbddd6aafa45ea00"
+      },
+      "direct": {
+        "bytes": 1590,
+        "gzipBytes": 838,
+        "codeHash": "b9e6c6bbf454c2419dc730c19bd7444090632090681a2f5ad1bf9808d75561be"
+      }
+    },
+    "scalar-enum-32": {
+      "original": {
+        "bytes": 1912,
+        "gzipBytes": 918,
+        "codeHash": "46a3308ca01ffab0daf6c2cfaa609d9a0c3b575c012af40ad4d8299194a1ba00"
+      },
+      "barrel": {
+        "bytes": 1912,
+        "gzipBytes": 919,
+        "codeHash": "e04827143943523b9c28128aa5d1950e60aab0c991dbff283ab14471ea21d988"
+      },
+      "direct": {
+        "bytes": 1912,
+        "gzipBytes": 920,
+        "codeHash": "f732945bddb3a3d7d324747e9ba5e9e8bf006bd7e6b51a219bca43eb46f7dca7"
+      }
+    },
+    "scalar-literal": {
+      "original": {
+        "bytes": 1444,
+        "gzipBytes": 750,
+        "codeHash": "0852581adac8e22a62516e67cde0b6f81d255f41c2cc59e195ff650d7e54d5c4"
+      },
+      "barrel": {
+        "bytes": 1444,
+        "gzipBytes": 747,
+        "codeHash": "c7d400f4fa40907a97bc2d6d595d4342eea725033a2dbc059ca95b1da82c3db4"
+      },
+      "direct": {
+        "bytes": 1444,
+        "gzipBytes": 750,
+        "codeHash": "6afbec0a6889a54d61651e7bddb49c4b83ebef224e54e2f52ff017dcd83cc45c"
+      }
+    },
+    "scalar-date": {
+      "original": {
+        "bytes": 1459,
+        "gzipBytes": 802,
+        "codeHash": "0474750c74f8c140787030dacb734b265477c8c982c9f66be41077454f0bd23b"
+      },
+      "barrel": {
+        "bytes": 1459,
+        "gzipBytes": 804,
+        "codeHash": "79754ad48c5043e1a3a4e5d9dbef6187bd295c5faed58cdf10e6f7f69547feff"
+      },
+      "direct": {
+        "bytes": 1459,
+        "gzipBytes": 803,
+        "codeHash": "7b9efc93aba1dd52fe06af2420b5f37214852b1c2d79516247afc61086f48320"
+      }
+    },
+    "scalar-presence-required": {
+      "original": {
+        "bytes": 1735,
+        "gzipBytes": 837,
+        "codeHash": "348ffe0f833e01cc9ca2b19650d662e03276086266fe3a55d5e75edacbe0129f"
+      },
+      "barrel": {
+        "bytes": 1735,
+        "gzipBytes": 838,
+        "codeHash": "71d806d2d0cf90bfd79dbfc6302be45a3680f4c84841bddf0d6795b77e1ac520"
+      },
+      "direct": {
+        "bytes": 1735,
+        "gzipBytes": 836,
+        "codeHash": "a1c9a443d1bdbcb2130405b1b915b563eccd9cb5e2a122b6e051e61075be7594"
+      }
+    },
+    "scalar-presence-optional": {
+      "original": {
+        "bytes": 1746,
+        "gzipBytes": 841,
+        "codeHash": "ba6dad0cf9bc215b2afa9b871837da0425c1a6a783c57696e109b3208e88f40b"
+      },
+      "barrel": {
+        "bytes": 1746,
+        "gzipBytes": 841,
+        "codeHash": "06b7c13b6063f37d7fd7bf6d2df96122857509cf6965f57da3124d66a022ae80"
+      },
+      "direct": {
+        "bytes": 1746,
+        "gzipBytes": 839,
+        "codeHash": "7b9d473f227b6ba57c4b02abe1d034422c465ec83201d11d17ff2c034dccd4e1"
+      }
+    },
+    "scalar-presence-nullable": {
+      "original": {
+        "bytes": 1746,
+        "gzipBytes": 840,
+        "codeHash": "1bdd3ab366f742e54ca513356a4246d590fc11f8173d49dba296d29b3b6e8068"
+      },
+      "barrel": {
+        "bytes": 1746,
+        "gzipBytes": 841,
+        "codeHash": "00a9f9836ae2163abc552fe545cd2c9a03af0bd4a4fc646f672d1a850e225e44"
+      },
+      "direct": {
+        "bytes": 1746,
+        "gzipBytes": 839,
+        "codeHash": "5858ac767382c88dbd4804e6fdc4965a6a798cf4622f77440007853980c7f1aa"
+      }
+    },
+    "scalar-presence-nullish": {
+      "original": {
+        "bytes": 1745,
+        "gzipBytes": 841,
+        "codeHash": "512f9ef60c0d6b05559efa06f841178cea37346203287a6af01baa3bd9e9f22f"
+      },
+      "barrel": {
+        "bytes": 1745,
+        "gzipBytes": 842,
+        "codeHash": "2bab5e53a76b6d94aa399b51f38d0481292a46d7bcb7b84dbdd55ed534322bb0"
+      },
+      "direct": {
+        "bytes": 1745,
+        "gzipBytes": 840,
+        "codeHash": "7c1a39526acc863e46c52e47b07323e0f45f35788d44e9d92888aa7eb6682ffa"
+      }
+    },
+    "scalar-presence-optional-nullable": {
+      "original": {
+        "bytes": 1758,
+        "gzipBytes": 846,
+        "codeHash": "524ca1e3e8c66a385af2d5bd3cd06cb1f996d72dd73f2c7778c4cd9539e81d27"
+      },
+      "barrel": {
+        "bytes": 1758,
+        "gzipBytes": 846,
+        "codeHash": "cfb176e381a2dcf791d182c859ac5d0959dd27fb315f21802cd49b675e3d34ab"
+      },
+      "direct": {
+        "bytes": 1758,
+        "gzipBytes": 844,
+        "codeHash": "820242178040059ae1179defd0ca319cdf036150582b544d03ca9254a24acd99"
+      }
+    },
+    "scalar-presence-default": {
+      "original": {
+        "bytes": 1746,
+        "gzipBytes": 842,
+        "codeHash": "db09e34f0d0797d4032625c4ee9368e1f9976160d5d282baa62a825f989ebed1"
+      },
+      "barrel": {
+        "bytes": 1746,
+        "gzipBytes": 843,
+        "codeHash": "d833b5b91bdbd50930899abc6686fd83902fc4a4699bff3e106111aa2577ae6f"
+      },
+      "direct": {
+        "bytes": 1746,
+        "gzipBytes": 841,
+        "codeHash": "0eb41aa7d02f09f0bf8d291823daaafa00870200f8426baee2f5346bfa9d9a13"
+      }
+    },
+    "scalar-presence-optional-default": {
+      "original": {
+        "bytes": 1758,
+        "gzipBytes": 847,
+        "codeHash": "f0d1edd428e1044fb00ae17503ccc64260fc0d8ce3d725c75b8135c0c8515eac"
+      },
+      "barrel": {
+        "bytes": 1758,
+        "gzipBytes": 848,
+        "codeHash": "72c0514e99739861fe389027289ed53e5fa9e7a4fa2004c54fcfb080f9a758b8"
+      },
+      "direct": {
+        "bytes": 1758,
+        "gzipBytes": 845,
+        "codeHash": "0879d1749a7ad925bd93ac7d5c6c001092f48eb1d67a863da30255ea8574d4f3"
+      }
+    },
+    "scalar-presence-nullable-default": {
+      "original": {
+        "bytes": 1758,
+        "gzipBytes": 847,
+        "codeHash": "5adb9d1a4502dca9e64a78235e6ebe8ea93e0be84d75a6bdb5d35bb825521a43"
+      },
+      "barrel": {
+        "bytes": 1758,
+        "gzipBytes": 848,
+        "codeHash": "05560e769b5392e163eb377b689f81d78b69f2014a5729cdbea52e3eb9d23eca"
+      },
+      "direct": {
+        "bytes": 1758,
+        "gzipBytes": 846,
+        "codeHash": "71822bc4903b76523ba966def2e057c74fb3319a079d412c6709643a60687f7b"
+      }
+    },
+    "scalar-presence-nullish-default": {
+      "original": {
+        "bytes": 1757,
+        "gzipBytes": 846,
+        "codeHash": "7ca069eb5255db9b2d1aa2d6501610a0b4a9cd267e9424808f5aabd65f617249"
+      },
+      "barrel": {
+        "bytes": 1757,
+        "gzipBytes": 847,
+        "codeHash": "9fb7e119b5d7e75fbaca12ac3fe463a2e1d122de5b4d0e1c0f418adb05672022"
+      },
+      "direct": {
+        "bytes": 1757,
+        "gzipBytes": 845,
+        "codeHash": "ff8bd927ad1000fa4b870e2bc303a9a8483f316dbf6d42f6fda3fa82151a465f"
+      }
+    },
+    "scalar-presence-target-undefined": {
+      "original": {
+        "bytes": 1758,
+        "gzipBytes": 845,
+        "codeHash": "ad35d16b61d9f0275578682abbee89d8209f43cec511891141da169365bc5db9"
+      },
+      "barrel": {
+        "bytes": 1758,
+        "gzipBytes": 846,
+        "codeHash": "3cdad2216a3547dca07fd87237e5fc969d243a2204bc39610a188831cfb4a43d"
+      },
+      "direct": {
+        "bytes": 1758,
+        "gzipBytes": 844,
+        "codeHash": "de70d3a949572636abe2cf58b85a4e1c59b84279e5de4958457047a7fc3553f0"
+      }
+    },
+    "scalar-presence-target-null": {
+      "original": {
+        "bytes": 1753,
+        "gzipBytes": 845,
+        "codeHash": "9cf26fa47cb1871a23cf4dc018d3703ef74607c682346e3b4963cce622e82d08"
+      },
+      "barrel": {
+        "bytes": 1753,
+        "gzipBytes": 846,
+        "codeHash": "89d4e5f2a9cb496e31fc2fbcaa90e5015d8939abcf94632131e1a841f0363898"
+      },
+      "direct": {
+        "bytes": 1753,
+        "gzipBytes": 844,
+        "codeHash": "1040eae4149c54f74992e47d65fe975570b929b98eec04ad79ea022b1006289d"
+      }
+    },
+    "scalar-presence-optional-target-null": {
+      "original": {
+        "bytes": 1765,
+        "gzipBytes": 851,
+        "codeHash": "76b2fce4cc88f4868bcfe3aa7c6fd260db06e1d43ca81a406881253d7c493d7a"
+      },
+      "barrel": {
+        "bytes": 1765,
+        "gzipBytes": 851,
+        "codeHash": "96989eb66963c8dd971b3e731f846e163a7e6360a47f119cf2f66d65d89396cd"
+      },
+      "direct": {
+        "bytes": 1765,
+        "gzipBytes": 849,
+        "codeHash": "a5e7510d3328b617c4cabb2bc7264c6e6066efd8a97f926ad6a79c14c8de1d76"
+      }
+    },
+    "scalar-presence-nullable-target-undefined": {
+      "original": {
+        "bytes": 1770,
+        "gzipBytes": 851,
+        "codeHash": "164a0957acb11a403870eaaddb6ecf670855e0b22ee0f48a2790035c41464f67"
+      },
+      "barrel": {
+        "bytes": 1770,
+        "gzipBytes": 851,
+        "codeHash": "a1901a1df6e93660fb88ee203f56fad8d0c8f6c5c6fb5343d1c099f1c3302a21"
+      },
+      "direct": {
+        "bytes": 1770,
+        "gzipBytes": 849,
+        "codeHash": "91aece6acd99743fd081808867987f02f418b0badd228c9e9805cabb501f44db"
+      }
+    },
+    "scalar-presence-target-both": {
+      "original": {
+        "bytes": 1767,
+        "gzipBytes": 852,
+        "codeHash": "6fb66a6cddc9b98ea582cf0662cc7882c0f192546a20714be94d4bb4555c5460"
+      },
+      "barrel": {
+        "bytes": 1767,
+        "gzipBytes": 853,
+        "codeHash": "6648352d7017032bcd999ee235faed88db6186d25c544c65748b46d1d51b1702"
+      },
+      "direct": {
+        "bytes": 1767,
+        "gzipBytes": 850,
+        "codeHash": "b5730336f3d017fbc35a3921097748b90ea69d66ae2d859f22dadfc2fbc7e4ba"
+      }
+    },
+    "scalar-presence-target-nullish": {
+      "original": {
+        "bytes": 1756,
+        "gzipBytes": 845,
+        "codeHash": "6f0172278b0603f8bade1ae5cedcfed339116b5fea812a434ee4799dc4d12be4"
+      },
+      "barrel": {
+        "bytes": 1756,
+        "gzipBytes": 846,
+        "codeHash": "e0c70355418c0b90d7fcf9aa5a237e8f2b15a2db848a50cc66db2236c40278df"
+      },
+      "direct": {
+        "bytes": 1756,
+        "gzipBytes": 843,
+        "codeHash": "eeafa97f8e70defa9138a1d0a385d1546c8e346cb3d90fa0e60881c2ab290e4f"
+      }
+    },
+    "scalar-presence-nullish-target-nullish": {
+      "original": {
+        "bytes": 1767,
+        "gzipBytes": 848,
+        "codeHash": "f91d7a8b301b416eb092ee6599006c5cee921f32bba9869f914bd75025ca6953"
+      },
+      "barrel": {
+        "bytes": 1767,
+        "gzipBytes": 849,
+        "codeHash": "75c6c0d6956251816d4aee244055144d4ca200ff03a7a6dd7f2a2943b34eed52"
+      },
+      "direct": {
+        "bytes": 1767,
+        "gzipBytes": 848,
+        "codeHash": "5a4e836edf6c8d47cc3f75f00dd8351398eb7c67ad76d5859bb5b43d9c57443d"
+      }
+    },
+    "scalar-number-nullish-default": {
+      "original": {
+        "bytes": 1753,
+        "gzipBytes": 877,
+        "codeHash": "14ada2ec81fbe18c8ffbdae86804c7ab716eff03a3821fd7b75385406f531f5e"
+      },
+      "barrel": {
+        "bytes": 1753,
+        "gzipBytes": 878,
+        "codeHash": "16d71fb96066f95aab429aa99a0f516b1b29ab402c17309d68821412664edbf4"
+      },
+      "direct": {
+        "bytes": 1753,
+        "gzipBytes": 877,
+        "codeHash": "45b554bc98504e064a6d23136004994723d136242a41143957532898ceb458fe"
+      }
+    },
+    "scalar-boolean-default": {
+      "original": {
+        "bytes": 1365,
+        "gzipBytes": 721,
+        "codeHash": "b4061190504ef44da846fea3c34796f332d1986b9fb2769a059b1a5b03dc3b67"
+      },
+      "barrel": {
+        "bytes": 1365,
+        "gzipBytes": 721,
+        "codeHash": "3ee4d62ae823750c63cc05399e35569ab729adedb53060599200663f078da97d"
+      },
+      "direct": {
+        "bytes": 1365,
+        "gzipBytes": 722,
+        "codeHash": "e8933dd3823b99ae8a709110a640aa7451d652c44a51ae7b11cee64ec363bf40"
+      }
+    },
+    "scalar-enum-default": {
+      "original": {
+        "bytes": 1592,
+        "gzipBytes": 841,
+        "codeHash": "fb05e08a456df051bf35cf7c5c73bff07fe14bbb40c33bdec5d6e79217508992"
+      },
+      "barrel": {
+        "bytes": 1592,
+        "gzipBytes": 837,
+        "codeHash": "f3d22ea129aae0077beb4c7f8a422c75114f90b275050d7e8d7577b2b0bf7b6a"
+      },
+      "direct": {
+        "bytes": 1592,
+        "gzipBytes": 840,
+        "codeHash": "b1611674ca49dd1aba9af8afd9df6ac7b95c222cb03ef52e405b9ff30178f253"
+      }
+    },
+    "scalar-date-default": {
+      "original": {
+        "bytes": 1501,
+        "gzipBytes": 826,
+        "codeHash": "0c5ac9245192c03cb99639e3f4b94179db34b9943c804999b4b754bf9efc8231"
+      },
+      "barrel": {
+        "bytes": 1501,
+        "gzipBytes": 827,
+        "codeHash": "a846c8c932946dcb627ac20591b1d50f9ed563490eff077aa523bebf54b97694"
+      },
+      "direct": {
+        "bytes": 1501,
+        "gzipBytes": 828,
+        "codeHash": "8cc6df0286dd4a3a5a3cf45ccf1607ea2ee37e41989bd5220ce788d06e8c5c90"
+      }
+    },
+    "scalar-array-wrap": {
+      "original": {
+        "bytes": 2511,
+        "gzipBytes": 1118,
+        "codeHash": "63f9a12d22eb2623161538e5a17af312177ec15129af61a783ad2e41025e6fb5"
+      },
+      "barrel": {
+        "bytes": 2511,
+        "gzipBytes": 1117,
+        "codeHash": "08faecb706693130e59b75567017236f93ef584258ecada9454909e6b03a3784"
+      },
+      "direct": {
+        "bytes": 2511,
+        "gzipBytes": 1117,
+        "codeHash": "d49208065fb4f83bcea11d7d6a79a36b4927fd5369c8320343b316d6691d72a5"
+      }
+    },
+    "scalar-array-strict": {
+      "original": {
+        "bytes": 2527,
+        "gzipBytes": 1124,
+        "codeHash": "137707ba7ed9fe59cc7c07eb99f68ec0a0bc191f549f973c9146275cb32c4073"
+      },
+      "barrel": {
+        "bytes": 2527,
+        "gzipBytes": 1124,
+        "codeHash": "306c093a655bb63f98325d74179c27e273be50ecc56b4683439f42d05a7075da"
+      },
+      "direct": {
+        "bytes": 2527,
+        "gzipBytes": 1121,
+        "codeHash": "017539a578fed31c1f666185a114e1a78381ff3d75bac7874dc701dbeafef6ba"
+      }
+    },
+    "scalar-array-bounds": {
+      "original": {
+        "bytes": 2525,
+        "gzipBytes": 1129,
+        "codeHash": "72e738606266e8e0ec9050c41f4d524ea80cf71b2aeb40b0827ac94d940863ac"
+      },
+      "barrel": {
+        "bytes": 2525,
+        "gzipBytes": 1129,
+        "codeHash": "4e308e7fad59516f10535c7d3db698a2e1ab1a4d426802c444fe80ec9fad1f6a"
+      },
+      "direct": {
+        "bytes": 2525,
+        "gzipBytes": 1126,
+        "codeHash": "c984e881c73c067875476b95f187ff66d6da967b7046f96bcb45d5fd9609a583"
+      }
+    },
+    "scalar-array-number": {
+      "original": {
+        "bytes": 2510,
+        "gzipBytes": 1157,
+        "codeHash": "059dd6808a229523b499e06ce7d4c87c744ab2473f870231765469cc2f410123"
+      },
+      "barrel": {
+        "bytes": 2510,
+        "gzipBytes": 1157,
+        "codeHash": "fc38c1d143dd677dd7ef6963ba0f743685035137666dba0971be3497fae9947e"
+      },
+      "direct": {
+        "bytes": 2510,
+        "gzipBytes": 1153,
+        "codeHash": "56dc13ec095f4c7e4a8bbedd7544aee11a617a1c4b7db28aba4e47ab07e033df"
+      }
+    },
+    "scalar-array-inner-nullable": {
+      "original": {
+        "bytes": 2524,
+        "gzipBytes": 1123,
+        "codeHash": "44dd7f53da86745cc33097a42909819c8185d90b6988437e1727c4359cfae38f"
+      },
+      "barrel": {
+        "bytes": 2524,
+        "gzipBytes": 1123,
+        "codeHash": "543b2fc1524251a902a20ffe2d1c5509096869e3ade0d9ca5c937ac06f91b606"
+      },
+      "direct": {
+        "bytes": 2524,
+        "gzipBytes": 1122,
+        "codeHash": "ca7d85e67ba0126fbc3793d56f7e706f00514c090b095441da75f47c5c9f8b6e"
+      }
+    },
+    "scalar-array-default": {
+      "original": {
+        "bytes": 2567,
+        "gzipBytes": 1145,
+        "codeHash": "8bbd7d32ab8674b223b51808b8d4e2caacd2215a4a2dd78e71b89934e058fa1f"
+      },
+      "barrel": {
+        "bytes": 2567,
+        "gzipBytes": 1144,
+        "codeHash": "423c86789e6d3dd4ef142a1ddee74bffd661fb09c036daf3fcb0f0feaa2dda22"
+      },
+      "direct": {
+        "bytes": 2567,
+        "gzipBytes": 1143,
+        "codeHash": "5095e74ffb3ab746adeeaedc5ffc58f4ec2e26cdf3cf63499cdc16e23951e591"
+      }
+    },
+    "scalar-transform-field": {
+      "original": {
+        "bytes": 2110,
+        "gzipBytes": 940,
+        "codeHash": "884c650d575890232bc484e723fe93ccbb7c33b2be50eb0041f2e36c02032f61"
+      },
+      "barrel": {
+        "bytes": 2110,
+        "gzipBytes": 940,
+        "codeHash": "a542d732d3c57c2105e7a0e44917e8d462874a4b3107c7cff70027af3db129bb"
+      },
+      "direct": {
+        "bytes": 2110,
+        "gzipBytes": 940,
+        "codeHash": "ad490023f816f64d80ed1d303a17b55ec65cb12434a27eb9e56c1b1130b0b38f"
+      }
+    },
+    "scalar-refine-field": {
+      "original": {
+        "bytes": 1969,
+        "gzipBytes": 964,
+        "codeHash": "65c8215875f78234a4b30e34a4f88784d7ac2446badb41d383449423fbe9505e"
+      },
+      "barrel": {
+        "bytes": 1969,
+        "gzipBytes": 964,
+        "codeHash": "2b7e0b5113455ad54a91124ff045e5f1507b5249dd9e010378ff5f5212a21bf6"
+      },
+      "direct": {
+        "bytes": 1969,
+        "gzipBytes": 960,
+        "codeHash": "eb8abcfe67d8252999f2e71db85d3e598258d08fd5d28f12a8e4246c6db723d7"
+      }
+    }
+  },
+  "compiled": {
+    "string-basic": {
+      "original": {
+        "bytes": 7312,
+        "gzipBytes": 2917,
+        "codeHash": "9f22005aa4debfb42592405c5aa62783f31a2b6e866c849bf59d2cc57d4356a5"
+      },
+      "barrel": {
+        "bytes": 7312,
+        "gzipBytes": 2909,
+        "codeHash": "142ee6228d631c609b23e6500da45f37fd30e55dcb14f646872d749cc1daa6c4"
+      },
+      "direct": {
+        "bytes": 7314,
+        "gzipBytes": 2919,
+        "codeHash": "2854d3b1a077e17b8894e836b3dd2b2875b564295f37abaaee83358cb4d3d597"
+      }
+    },
+    "string-trim": {
+      "original": {
+        "bytes": 7333,
+        "gzipBytes": 2934,
+        "codeHash": "a6c52d8674a1d2228f49bd1ac39751c70e5a4dbb11427945b4213ba11cd9092f"
+      },
+      "barrel": {
+        "bytes": 7333,
+        "gzipBytes": 2926,
+        "codeHash": "181dba90a89346fff9bd1ebc10c1b31cb6e8a2f07102f890eec40d87c8176b90"
+      },
+      "direct": {
+        "bytes": 7335,
+        "gzipBytes": 2935,
+        "codeHash": "e82308c6d8b9fe26501b17b257061650db7ad078d77f26d1cda40583b141a9ed"
+      }
+    },
+    "string-pattern": {
+      "original": {
+        "bytes": 7332,
+        "gzipBytes": 2932,
+        "codeHash": "cb59e69df8d4dc5a9d4644834603a2cb4f76f6618ad2e6adbed65c9750d96225"
+      },
+      "barrel": {
+        "bytes": 7332,
+        "gzipBytes": 2924,
+        "codeHash": "bb02ba9c8079ce38470bffa17a5d0044c74296260e5bb24468c04dde830dcf2c"
+      },
+      "direct": {
+        "bytes": 7334,
+        "gzipBytes": 2934,
+        "codeHash": "7ba11c51399488cc275fb7b16f49d03358cdf03ea078f8597ce945e03ec04d41"
+      }
+    },
+    "number-decimal": {
+      "original": {
+        "bytes": 7343,
+        "gzipBytes": 2922,
+        "codeHash": "3206e55b9fe05f1ee3aad4a171ab848e44aa98d888d1aba5c73a4304dc231941"
+      },
+      "barrel": {
+        "bytes": 7343,
+        "gzipBytes": 2918,
+        "codeHash": "b944737b39547da1432bcb1be9c650659b29c18ee6fe896495eff3e77269e326"
+      },
+      "direct": {
+        "bytes": 7345,
+        "gzipBytes": 2928,
+        "codeHash": "9f9ae365de358bc6ef29ea64fdbb0b770a6954da6782f847adce74f176919eb5"
+      }
+    },
+    "number-inclusive": {
+      "original": {
+        "bytes": 7369,
+        "gzipBytes": 2937,
+        "codeHash": "97a0e972c8eba8385e2d3126fec1b75af3b761eaebe0c31b4fccb039f9c5b058"
+      },
+      "barrel": {
+        "bytes": 7369,
+        "gzipBytes": 2932,
+        "codeHash": "995ea58f4e72b4aab961ce9372c3db52ab736124aed210c301f4f80d6b5b3061"
+      },
+      "direct": {
+        "bytes": 7371,
+        "gzipBytes": 2942,
+        "codeHash": "3af2845b734c65639bd0751b6b7a370db5be36d3abff4914e775bdbc2c7c41f4"
+      }
+    },
+    "number-exclusive": {
+      "original": {
+        "bytes": 7354,
+        "gzipBytes": 2930,
+        "codeHash": "b2f08be3677bbf316198104d9a4a60e3b4617656246a87e14b584fbc0f3433ee"
+      },
+      "barrel": {
+        "bytes": 7354,
+        "gzipBytes": 2926,
+        "codeHash": "d9c7583adc27452e3c1fb46914a75ca07be23762f7a6cf52fb273cc1c060d932"
+      },
+      "direct": {
+        "bytes": 7356,
+        "gzipBytes": 2936,
+        "codeHash": "fae69d566b52b2b421e06ec7efb13001823c112f0abac952b3a154f742ab58a5"
+      }
+    },
+    "boolean": {
+      "original": {
+        "bytes": 6871,
+        "gzipBytes": 2786,
+        "codeHash": "5a62976fe1494ead34546a1d3b0627f7f5aef8d19aa8e509b4ed9310a3a96823"
+      },
+      "barrel": {
+        "bytes": 6871,
+        "gzipBytes": 2780,
+        "codeHash": "3aa2d367f278b19410a5437d30d765faa8abcd14146f06654be1905b5cb5628f"
+      },
+      "direct": {
+        "bytes": 6873,
+        "gzipBytes": 2785,
+        "codeHash": "05ac09f340331bc5e6e48f5aa3270e088888dcb442f7f2b19c46b8c392ab460a"
+      }
+    },
+    "enum-2": {
+      "original": {
+        "bytes": 7268,
+        "gzipBytes": 2971,
+        "codeHash": "cfe6ceec7dec73d92172b52ae18b56126fdcd43a533641dbd0d7af8b91e038b0"
+      },
+      "barrel": {
+        "bytes": 7270,
+        "gzipBytes": 2966,
+        "codeHash": "87c655fa0a6bf01fd456872afc0c06d0e898af61115bedc90e6f4fed727bdab4"
+      },
+      "direct": {
+        "bytes": 7270,
+        "gzipBytes": 2970,
+        "codeHash": "b311cd2c04de2a8bfe6eb9ed5b1c91146b48473f2bb6fdf6e51e6dfc25fe5e22"
+      }
+    },
+    "enum-32": {
+      "original": {
+        "bytes": 7590,
+        "gzipBytes": 3059,
+        "codeHash": "1155219726f9bfa0e746f1145190de581db4c83e3c078b719aac45dad4eee7ef"
+      },
+      "barrel": {
+        "bytes": 7592,
+        "gzipBytes": 3055,
+        "codeHash": "9fb6c33928f015e7b854c82e1127b3c8b254982beef75e1dfd5c74e3d955d6e0"
+      },
+      "direct": {
+        "bytes": 7592,
+        "gzipBytes": 3056,
+        "codeHash": "4ea9302ee539050ae28f770691042be2648ae2dfb8bd97376ab90b276e930a8c"
+      }
+    },
+    "literal": {
+      "original": {
+        "bytes": 7122,
+        "gzipBytes": 2890,
+        "codeHash": "1306cd3a332f782e3e13901ef1a6b70eec678db7caa17fc87a232bb5b9fe83f4"
+      },
+      "barrel": {
+        "bytes": 7124,
+        "gzipBytes": 2880,
+        "codeHash": "492691507ce8c50bf350428177af3225dd4cf2fb99fcbb12c75f64406def0041"
+      },
+      "direct": {
+        "bytes": 7124,
+        "gzipBytes": 2888,
+        "codeHash": "d817338cba46ebe00dd635d1dac1d7ab499ab78bd84ffba0ce9b2943eea87454"
+      }
+    },
+    "date": {
+      "original": {
+        "bytes": 7137,
+        "gzipBytes": 2926,
+        "codeHash": "2cad0947774e832b18a5ca2162fd4c82e0cda37098273ea533ec621d42219aba"
+      },
+      "barrel": {
+        "bytes": 7139,
+        "gzipBytes": 2928,
+        "codeHash": "9ae279979d60b216ad4f410a77bde6d8490826679368c17ce701b91acb0343ac"
+      },
+      "direct": {
+        "bytes": 7139,
+        "gzipBytes": 2932,
+        "codeHash": "aa26fd185d08b8486c7c1daee9e3ea66a5d4d12ab57c9f7254438bb508b622d1"
+      }
+    },
+    "presence-required": {
+      "original": {
+        "bytes": 7314,
+        "gzipBytes": 2919,
+        "codeHash": "9583ef0b0b1848407816367cd7d3a6e6c0623595c8955318b214c141e3f070e2"
+      },
+      "barrel": {
+        "bytes": 7314,
+        "gzipBytes": 2911,
+        "codeHash": "7118f68a251a587202d8f1e71525e5f66f33730d9a9e82976dc879963b0b9732"
+      },
+      "direct": {
+        "bytes": 7316,
+        "gzipBytes": 2920,
+        "codeHash": "e8fafeb46313bff0b465a0f9193dc17790a6d0990dab86c84370ffa6c25db130"
+      }
+    },
+    "presence-optional": {
+      "original": {
+        "bytes": 7325,
+        "gzipBytes": 2922,
+        "codeHash": "2aa80c2a5cc914edc702ad9ba5d6c587b8faf352e0462fecf3bf2149eb8d4efa"
+      },
+      "barrel": {
+        "bytes": 7325,
+        "gzipBytes": 2915,
+        "codeHash": "388f86e927e3208855d76bad658e86fc2e106b2df266e7a24ec094161967f364"
+      },
+      "direct": {
+        "bytes": 7327,
+        "gzipBytes": 2923,
+        "codeHash": "a404084e1ac11940cbceb0a968e6230025d6aac8b2e7466462c1c4490cbce8cf"
+      }
+    },
+    "presence-nullable": {
+      "original": {
+        "bytes": 7325,
+        "gzipBytes": 2922,
+        "codeHash": "61414ed1a065f6631fe387e56a8ad7b4936ccfbd70e605d9396c07fa59e04024"
+      },
+      "barrel": {
+        "bytes": 7325,
+        "gzipBytes": 2914,
+        "codeHash": "7a3d3c15b7d62340dda89a6c63cb28e63678e72c4c107e3e3c2d61e82e94485e"
+      },
+      "direct": {
+        "bytes": 7327,
+        "gzipBytes": 2923,
+        "codeHash": "7151e05dbffc53e3f89e0053247f01c6b4b719e751a6fd9290929b82384e02fb"
+      }
+    },
+    "presence-nullish": {
+      "original": {
+        "bytes": 7324,
+        "gzipBytes": 2923,
+        "codeHash": "4363d9a63daf5738c2f9bf9ff27d82d359b78380d1b0531841c67176068b9b88"
+      },
+      "barrel": {
+        "bytes": 7324,
+        "gzipBytes": 2915,
+        "codeHash": "c66c456460695890a12ed1b85188ff61221db98c25d69bb68150111306e9aec4"
+      },
+      "direct": {
+        "bytes": 7326,
+        "gzipBytes": 2924,
+        "codeHash": "57528566c7302a6d5822b136f099eca0af7a37040969b3707a93b98fb83e8387"
+      }
+    },
+    "presence-optional-nullable": {
+      "original": {
+        "bytes": 7337,
+        "gzipBytes": 2927,
+        "codeHash": "71140fdf6136f5fd09d28dee7c81d24206ed51b809267c7f3537bdd82ad882e2"
+      },
+      "barrel": {
+        "bytes": 7337,
+        "gzipBytes": 2919,
+        "codeHash": "34425efa89de6dc555ed50f6ea58a3caeab2df736861cf1f6a036e5d32a66194"
+      },
+      "direct": {
+        "bytes": 7339,
+        "gzipBytes": 2928,
+        "codeHash": "fe0541ad6ab4e03d5db6f689846d84704230367436a60dd989fb57fa0528ea45"
+      }
+    },
+    "presence-default": {
+      "original": {
+        "bytes": 7325,
+        "gzipBytes": 2924,
+        "codeHash": "f2faa269feab13ea3f21efcdbf098450ef36c688d12e3014abb79c98dcdc61c0"
+      },
+      "barrel": {
+        "bytes": 7325,
+        "gzipBytes": 2916,
+        "codeHash": "a419f4195a9d0c2d0348f3853bfee736f230b58c68009bb954b91491ff2c557b"
+      },
+      "direct": {
+        "bytes": 7327,
+        "gzipBytes": 2926,
+        "codeHash": "21c084bf0931de6de597bc2d6a231819baf990db885ef41f961ed57428e38a22"
+      }
+    },
+    "presence-optional-default": {
+      "original": {
+        "bytes": 7337,
+        "gzipBytes": 2929,
+        "codeHash": "f5d695a84e7df81275dd324fe9e63f2fd42e4c0d2d40ddb8bb771f681e3aa4c0"
+      },
+      "barrel": {
+        "bytes": 7337,
+        "gzipBytes": 2922,
+        "codeHash": "1d5c4728ba99fe56e5cd108aca73fdfd7f92e670ef8e944ca6b03e643552696f"
+      },
+      "direct": {
+        "bytes": 7339,
+        "gzipBytes": 2930,
+        "codeHash": "673fae88ace52970918c56f4bb1bb89a887b30bb53277f44542a0bfef086660b"
+      }
+    },
+    "presence-nullable-default": {
+      "original": {
+        "bytes": 7337,
+        "gzipBytes": 2929,
+        "codeHash": "b53c1c13760b48358cc50c645a03578bebdc7a4cc83cf86c1fe3379559158dd0"
+      },
+      "barrel": {
+        "bytes": 7337,
+        "gzipBytes": 2921,
+        "codeHash": "8b95f8de9de10d4ee14f6e1f9013b82c15e9e3773885d8ebc8e318ba9f32056d"
+      },
+      "direct": {
+        "bytes": 7339,
+        "gzipBytes": 2930,
+        "codeHash": "bbbd8814521e4346bd3c24e3e8dc385a3be97265b05ddef63000664768b3a7bd"
+      }
+    },
+    "presence-nullish-default": {
+      "original": {
+        "bytes": 7336,
+        "gzipBytes": 2929,
+        "codeHash": "7c77e32982c825856380756493eb97db64a2687ccda6abf038fd0de85892b7ec"
+      },
+      "barrel": {
+        "bytes": 7336,
+        "gzipBytes": 2924,
+        "codeHash": "586242d9f7fd33e862ed02f385c74b6b6c968b7509b8641bdae8c61a56c4c4d3"
+      },
+      "direct": {
+        "bytes": 7338,
+        "gzipBytes": 2931,
+        "codeHash": "9841bedb58d74b623593a5b7d15ec8ecd3b40446b2b8794bba130ca7c54a0177"
+      }
+    },
+    "presence-target-undefined": {
+      "original": {
+        "bytes": 7337,
+        "gzipBytes": 2929,
+        "codeHash": "1ac3aa03884664cf48f9e7ac1d09605d993b18cb09a2b845714dc112ff4c6a3d"
+      },
+      "barrel": {
+        "bytes": 7337,
+        "gzipBytes": 2921,
+        "codeHash": "8df135b71e670980177f7b9ac3825da107f3890bee9ea5a0eed4de77f7edfa9c"
+      },
+      "direct": {
+        "bytes": 7339,
+        "gzipBytes": 2930,
+        "codeHash": "98d0d40cd82a0dda6aa14117dbd17da4fb4c37656c3f32be965df37020d42cd3"
+      }
+    },
+    "presence-target-null": {
+      "original": {
+        "bytes": 7332,
+        "gzipBytes": 2928,
+        "codeHash": "527b01012f73ec25a201c180bcc1e262faac875ac8f10ad9294e7037667f18d0"
+      },
+      "barrel": {
+        "bytes": 7332,
+        "gzipBytes": 2920,
+        "codeHash": "98ce074bceaccfb4d83328eed4bd14ab553c59a91bbf7d8c8dde45483796b66e"
+      },
+      "direct": {
+        "bytes": 7334,
+        "gzipBytes": 2930,
+        "codeHash": "56a2190d36ec06b40e1b190e4b31a1a25b1127806ee22c7908c0ee66d0393e95"
+      }
+    },
+    "presence-optional-target-null": {
+      "original": {
+        "bytes": 7344,
+        "gzipBytes": 2933,
+        "codeHash": "0df8a95c249e7ad28cce114a8c1c6d13b0145f6d29d94078078949d680d683a7"
+      },
+      "barrel": {
+        "bytes": 7344,
+        "gzipBytes": 2925,
+        "codeHash": "31a976eea52b0ad999a653c77828b481f878ef75edbc4ebb159e3efa6a9d3eab"
+      },
+      "direct": {
+        "bytes": 7346,
+        "gzipBytes": 2934,
+        "codeHash": "7b56ed0f6f1a9cccd4b725905a325fa793e31efcb6d8ccd1de49dd38a5628275"
+      }
+    },
+    "presence-nullable-target-undefined": {
+      "original": {
+        "bytes": 7349,
+        "gzipBytes": 2933,
+        "codeHash": "c084c8f4a1f50db5a48184b3a5146e70abd9fc53cc7fa11e8ff3607ae177c808"
+      },
+      "barrel": {
+        "bytes": 7349,
+        "gzipBytes": 2925,
+        "codeHash": "f03d8c6e202dc497241727958b8104323c3330255a981336efa2dc59f8c02a11"
+      },
+      "direct": {
+        "bytes": 7351,
+        "gzipBytes": 2935,
+        "codeHash": "904ede7da39096e57652668cc4260098a1787d3c07c5db9b2f74d9ea313dff26"
+      }
+    },
+    "presence-target-both": {
+      "original": {
+        "bytes": 7346,
+        "gzipBytes": 2934,
+        "codeHash": "da574765dbae2d39d8a6e61e60686191bd9e784d8c704e6ea72a88bb291679fd"
+      },
+      "barrel": {
+        "bytes": 7346,
+        "gzipBytes": 2926,
+        "codeHash": "74b70662ed8bb74a668965b5b30180fe7c08cb48d305c9e19f96b56afecb5770"
+      },
+      "direct": {
+        "bytes": 7348,
+        "gzipBytes": 2936,
+        "codeHash": "2dc5111d62181e1527c1a33e05312ab58f57117d97eeeeab4e22e73e289ac0cf"
+      }
+    },
+    "presence-target-nullish": {
+      "original": {
+        "bytes": 7335,
+        "gzipBytes": 2928,
+        "codeHash": "65de98b78fff63fe490b1139d1980d46dc211f44e3f9ea4e58a4a7b2b55d38c5"
+      },
+      "barrel": {
+        "bytes": 7335,
+        "gzipBytes": 2921,
+        "codeHash": "eee3979f8601aaac56665861ba192263ab31ac74d2d3f22c2ab5dd71bab16d8a"
+      },
+      "direct": {
+        "bytes": 7337,
+        "gzipBytes": 2930,
+        "codeHash": "ace83bc84f8c044ff43b65229c33969d81f4f94981cf29982f0c60a113677252"
+      }
+    },
+    "presence-nullish-target-nullish": {
+      "original": {
+        "bytes": 7346,
+        "gzipBytes": 2932,
+        "codeHash": "8aa8edb9174f66d83dafcbddadf58eb6c47e9c0564ca4bad777d4b9ebb16b417"
+      },
+      "barrel": {
+        "bytes": 7346,
+        "gzipBytes": 2924,
+        "codeHash": "1b7596f2eb8848bbb7b498b6c5243480d6c4e4b3ae93b9edf3cbcfd2270e92cf"
+      },
+      "direct": {
+        "bytes": 7348,
+        "gzipBytes": 2933,
+        "codeHash": "18c1224a6a99c172b6c70a11863ca01f24977eba8edae5b102e66f2ec488b3c3"
+      }
+    },
+    "number-nullish-default": {
+      "original": {
+        "bytes": 7364,
+        "gzipBytes": 2932,
+        "codeHash": "11dc15eed83afa1002d98d07eb9a46fc2f85b03f10cb08c86b5e6585a3fc9c88"
+      },
+      "barrel": {
+        "bytes": 7364,
+        "gzipBytes": 2927,
+        "codeHash": "2f698059556828cdce8a3e66271d177b88a30ddf94274ea08017c2c17d4caf80"
+      },
+      "direct": {
+        "bytes": 7366,
+        "gzipBytes": 2937,
+        "codeHash": "58f1445bb77fd602a8691348d23a68efa362071f89dd18050717875c6a2e70cb"
+      }
+    },
+    "boolean-default": {
+      "original": {
+        "bytes": 6883,
+        "gzipBytes": 2793,
+        "codeHash": "239149c00d1ef2e22506617039e1958e662088ff4449e328de116191684eaba2"
+      },
+      "barrel": {
+        "bytes": 6883,
+        "gzipBytes": 2787,
+        "codeHash": "ad928df68cc18d317a472ec02728745bcf26f6f4a982ac1c17106bba9d3514df"
+      },
+      "direct": {
+        "bytes": 6885,
+        "gzipBytes": 2791,
+        "codeHash": "9ea2e3497382654f97b199a0242d0d9183e979950fa3297b12a78f3fb7ccebe5"
+      }
+    },
+    "enum-default": {
+      "original": {
+        "bytes": 7270,
+        "gzipBytes": 2975,
+        "codeHash": "217caffca9ec001e406f633b8db199c4fd5d9810649ccc9c8c83533e44c16351"
+      },
+      "barrel": {
+        "bytes": 7272,
+        "gzipBytes": 2969,
+        "codeHash": "9d4bc313eada3f9d7c7e2bb3560512db6796c47a58f9fca84b31da8917c4f861"
+      },
+      "direct": {
+        "bytes": 7272,
+        "gzipBytes": 2970,
+        "codeHash": "ec0c0a5b718e19812c6b0ba96235a6750a983affd5d81f2c51e33984090f3fde"
+      }
+    },
+    "date-default": {
+      "original": {
+        "bytes": 7179,
+        "gzipBytes": 2952,
+        "codeHash": "8b698e6343e62765f62784e484b540f3b43de72ac9dd5448d9f442c8f7e5a611"
+      },
+      "barrel": {
+        "bytes": 7181,
+        "gzipBytes": 2956,
+        "codeHash": "a81e92ff80a6b1fbb70e18983dcafff416fbfe507ced8b5fa6d00083356d1f1e"
+      },
+      "direct": {
+        "bytes": 7181,
+        "gzipBytes": 2958,
+        "codeHash": "134a550224ebd992d514f3eae358d86265cb5885b8f0efbc269774c67c902dbe"
+      }
+    },
+    "array-wrap": {
+      "original": {
+        "bytes": 8090,
+        "gzipBytes": 3153,
+        "codeHash": "56c2853fad6bbbaa631196b6aa9d4dc0926f367d40cf969b20cf311f6e865fd9"
+      },
+      "barrel": {
+        "bytes": 8092,
+        "gzipBytes": 3158,
+        "codeHash": "7e7f6608592fc8a04dca5d62eb5dd6040b8f4844929478865fe65b0e5841797c"
+      },
+      "direct": {
+        "bytes": 8092,
+        "gzipBytes": 3167,
+        "codeHash": "2e85851f777ce0ff66ad7c2e9a2305232cece29732f926f50b38cacf372be4c0"
+      }
+    },
+    "array-strict": {
+      "original": {
+        "bytes": 8106,
+        "gzipBytes": 3160,
+        "codeHash": "f758ac006b3303b4d652d1b055971df3bb01dbed1120b0d10d03459c8648d9ec"
+      },
+      "barrel": {
+        "bytes": 8108,
+        "gzipBytes": 3164,
+        "codeHash": "436f06462cb927d7c10b62ae28a4edd43e197ef836e0023f5e0ba2aed9e1d38f"
+      },
+      "direct": {
+        "bytes": 8108,
+        "gzipBytes": 3174,
+        "codeHash": "c45db04c3dc13ad1246d42609379dd075ebbdf2ef91692e1d94edb905d148b79"
+      }
+    },
+    "array-bounds": {
+      "original": {
+        "bytes": 8104,
+        "gzipBytes": 3164,
+        "codeHash": "71ec0e55d7a9b874f9a4c1c712f8daa11726c8a1833cb223f1b4332222ce8e96"
+      },
+      "barrel": {
+        "bytes": 8106,
+        "gzipBytes": 3169,
+        "codeHash": "2846c2de1284273ef9ef9db684f708169cc0e9d23ecfffb9a6c70c9fa8d94647"
+      },
+      "direct": {
+        "bytes": 8106,
+        "gzipBytes": 3179,
+        "codeHash": "a7c1cf73eeee11422a578438cf4f16a0d6bcbada2f55f56d23036528958fd77e"
+      }
+    },
+    "array-number": {
+      "original": {
+        "bytes": 8121,
+        "gzipBytes": 3162,
+        "codeHash": "d966547e8e8a602aff68faf42c99f665f06fca3bd9d6ff4a8cdc7811dd159fa7"
+      },
+      "barrel": {
+        "bytes": 8123,
+        "gzipBytes": 3166,
+        "codeHash": "922c10865ff3ae35144fa07a76cf928ac7e7dde4c669ae52aad59f9cf1756124"
+      },
+      "direct": {
+        "bytes": 8123,
+        "gzipBytes": 3170,
+        "codeHash": "491cde514cd8a00cfdd7fda2ef6e8169b5e6e6df5b50bb94b1238dfc6bc22426"
+      }
+    },
+    "array-inner-nullable": {
+      "original": {
+        "bytes": 8103,
+        "gzipBytes": 3159,
+        "codeHash": "d37a28d65cf4ff63ced1bff18b758b52ada8a54f898bb937c1b698f079af6095"
+      },
+      "barrel": {
+        "bytes": 8105,
+        "gzipBytes": 3162,
+        "codeHash": "70c30d6213b702ab79979f6b334aa09f66878f274d4027bc062a6c3b901198a9"
+      },
+      "direct": {
+        "bytes": 8105,
+        "gzipBytes": 3172,
+        "codeHash": "ae7ad0523859acd615713377de3759ff8c047fc7ec0654d878016ced550740cf"
+      }
+    },
+    "array-default": {
+      "original": {
+        "bytes": 8146,
+        "gzipBytes": 3181,
+        "codeHash": "19e94824ed4d052e0744fb48808548f3abaf7ec46cd579ef055c149509e07e87"
+      },
+      "barrel": {
+        "bytes": 8148,
+        "gzipBytes": 3187,
+        "codeHash": "87324e6685432fcd7b683520a26bdd63d6130a3a494e9ffa7de15d872587e069"
+      },
+      "direct": {
+        "bytes": 8148,
+        "gzipBytes": 3195,
+        "codeHash": "462bd4c7a815bcfa2fe2aa8d81a24d9963ed513a107448be8b49627c519d9c64"
+      }
+    },
+    "transform-field": {
+      "original": {
+        "bytes": 7689,
+        "gzipBytes": 3014,
+        "codeHash": "ac0bb92af87e0690de8cc08f4111ceb73dee4d62fed7e1e03b6dbd36764b8eee"
+      },
+      "barrel": {
+        "bytes": 7691,
+        "gzipBytes": 3010,
+        "codeHash": "3306e03073d3ff91f943a722c49bb55be32230e4c664c085d9190b11c31ba504"
+      },
+      "direct": {
+        "bytes": 7691,
+        "gzipBytes": 3020,
+        "codeHash": "868c3a9481cf63b4faa4bdfc1f9f1939d7561e885f68b691ae6b02dc8f647de8"
+      }
+    },
+    "refine-field": {
+      "original": {
+        "bytes": 7580,
+        "gzipBytes": 2997,
+        "codeHash": "9a51df1fdc020291f30d2e4c8b12d27b96aa520f9d16fe2efc8b07cd5033fd78"
+      },
+      "barrel": {
+        "bytes": 7582,
+        "gzipBytes": 3005,
+        "codeHash": "36e1d490104b769e23f6d71d5e31e700455a39b7ad3504f151890708e3327785"
+      },
+      "direct": {
+        "bytes": 7582,
+        "gzipBytes": 3006,
+        "codeHash": "e7b454587345d5e8ccecf91aaeb96164978714a3255e2bcc03adc49b598b6905"
+      }
+    },
+    "object-strip": {
+      "original": {
+        "bytes": 7333,
+        "gzipBytes": 2927,
+        "codeHash": "52227163f9ec28b9dcc15a97a1e5ab4aaef4791ca5c2179f4a885ef3df7cf5a2"
+      },
+      "barrel": {
+        "bytes": 7333,
+        "gzipBytes": 2920,
+        "codeHash": "e1d092a682886c2d263e349414eba2ffa3fe8c0069663411be1e5d8b007f25bd"
+      },
+      "direct": {
+        "bytes": 7335,
+        "gzipBytes": 2927,
+        "codeHash": "688cc5698b9fdd22c4457fef022661f41ed840271a097fd845a6f50e5358f345"
+      }
+    },
+    "object-strict": {
+      "original": {
+        "bytes": 7334,
+        "gzipBytes": 2927,
+        "codeHash": "1cb5395b0ce6faf3d0d43d2a28522eac9bfb9a8066e40c6309a2978d60d4ca64"
+      },
+      "barrel": {
+        "bytes": 7334,
+        "gzipBytes": 2920,
+        "codeHash": "f3ebb1be7a1c8795a2818557ce49813c38453fa6865dcfccd5c6fb8912106aa2"
+      },
+      "direct": {
+        "bytes": 7336,
+        "gzipBytes": 2927,
+        "codeHash": "77466434ed3d8c688d43cd79c9f902624184982a79bb5f0774be0b89ee2189c9"
+      }
+    },
+    "object-passthrough": {
+      "original": {
+        "bytes": 7339,
+        "gzipBytes": 2927,
+        "codeHash": "7c7337ffdf1d124bc6cea23758b2b4114a4d6d18c70b9fe5afee08f650671aad"
+      },
+      "barrel": {
+        "bytes": 7339,
+        "gzipBytes": 2926,
+        "codeHash": "4b4be172c4a6a3b821cd406a37fd6ab6a9c3f114dc960bbf0dd29de004904df7"
+      },
+      "direct": {
+        "bytes": 7341,
+        "gzipBytes": 2928,
+        "codeHash": "4fc8b8fe07ffc4a8d5e08f85f0135d0ef797b57d6d5b70afa2d2b593bea801f6"
+      }
+    },
+    "entries-url": {
+      "original": {
+        "bytes": 8113,
+        "gzipBytes": 3168,
+        "codeHash": "17235b979140c179237a562658dd470574dc2b227116560b9ccbcab44964a62e"
+      },
+      "barrel": {
+        "bytes": 8115,
+        "gzipBytes": 3173,
+        "codeHash": "7f6cf813bbaf386f21b66279fad2cc0a877a787da950bc364d456cda0aec8256"
+      },
+      "direct": {
+        "bytes": 8115,
+        "gzipBytes": 3181,
+        "codeHash": "335a7ad8ce1a44cba465dce26b4e6ce861d0c12d88641c3477bc3a7898e6cb87"
+      }
+    },
+    "entries-form": {
+      "original": {
+        "bytes": 8113,
+        "gzipBytes": 3168,
+        "codeHash": "17235b979140c179237a562658dd470574dc2b227116560b9ccbcab44964a62e"
+      },
+      "barrel": {
+        "bytes": 8115,
+        "gzipBytes": 3173,
+        "codeHash": "7f6cf813bbaf386f21b66279fad2cc0a877a787da950bc364d456cda0aec8256"
+      },
+      "direct": {
+        "bytes": 8115,
+        "gzipBytes": 3181,
+        "codeHash": "335a7ad8ce1a44cba465dce26b4e6ce861d0c12d88641c3477bc3a7898e6cb87"
+      }
+    },
+    "entry-safeParse": {
+      "original": {
+        "bytes": 7311,
+        "gzipBytes": 2920,
+        "codeHash": "3a4355dbfdbc67171ee939a4c913152617b00a705e903aee192497cab708aa61"
+      },
+      "barrel": {
+        "bytes": 7311,
+        "gzipBytes": 2912,
+        "codeHash": "dc2f03179ac8558e2a7adc6259220da79bc2721f684626b870c65b2c22d165da"
+      },
+      "direct": {
+        "bytes": 7313,
+        "gzipBytes": 2921,
+        "codeHash": "a93c13bd6db740ef7b6119cd2f2023e6c4ca7c8909639600ee5eecb1644a94c8"
+      }
+    },
+    "entry-parse": {
+      "original": {
+        "bytes": 7311,
+        "gzipBytes": 2920,
+        "codeHash": "3a4355dbfdbc67171ee939a4c913152617b00a705e903aee192497cab708aa61"
+      },
+      "barrel": {
+        "bytes": 7311,
+        "gzipBytes": 2912,
+        "codeHash": "dc2f03179ac8558e2a7adc6259220da79bc2721f684626b870c65b2c22d165da"
+      },
+      "direct": {
+        "bytes": 7313,
+        "gzipBytes": 2921,
+        "codeHash": "a93c13bd6db740ef7b6119cd2f2023e6c4ca7c8909639600ee5eecb1644a94c8"
+      }
+    },
+    "width-0": {
+      "original": {
+        "bytes": 5843,
+        "gzipBytes": 2418,
+        "codeHash": "4f6122adce59c9e98ea10262e1c80801954784214bb60d5567804ace35780a5d"
+      },
+      "barrel": {
+        "bytes": 5843,
+        "gzipBytes": 2423,
+        "codeHash": "dae871b8344280f50de05385592bd9ffbd31c69ca89f34d4fcd8e5274e648e35"
+      },
+      "direct": {
+        "bytes": 5843,
+        "gzipBytes": 2417,
+        "codeHash": "d1b3aeccaa2dc433ce08b0ab6c86d14fbbe57213906ef7ae30001ea772521fd2"
+      }
+    },
+    "width-1": {
+      "original": {
+        "bytes": 7309,
+        "gzipBytes": 2918,
+        "codeHash": "c0067c37e0c27738d84e07920837a42b8cbc69983a0e8b2723c85e345642aa5d"
+      },
+      "barrel": {
+        "bytes": 7309,
+        "gzipBytes": 2911,
+        "codeHash": "4ec8c72cceac7b01e28709ffa8a34e23058c814c81ce99d5bd04c4c47a78aecc"
+      },
+      "direct": {
+        "bytes": 7311,
+        "gzipBytes": 2920,
+        "codeHash": "ed0b949664c723a2de0038d165dcbb8a8d8a7b2b90f0ab227470891d4c2e1531"
+      }
+    },
+    "width-100": {
+      "original": {
+        "bytes": 8092,
+        "gzipBytes": 3181,
+        "codeHash": "a9e1b62f629d0a5a66148d5e8b0f896b69f3303c065a48ed67a3cc7a30b977f5"
+      },
+      "barrel": {
+        "bytes": 8092,
+        "gzipBytes": 3187,
+        "codeHash": "44734050e6f62acef23031d65cc63a11e153bd660ed638394c3bc8f77739613d"
+      },
+      "direct": {
+        "bytes": 8094,
+        "gzipBytes": 3187,
+        "codeHash": "745926bff548dfe2fdc72a5b0d1d7a79760a51c64a6b8154d240e5acfaa6ef25"
+      }
+    }
+  },
+  "identityChecks": 20,
+  "completed": true,
+  "bundlers": {
+    "string-basic": {
+      "original": {
+        "esbuild": {
+          "bytes": 2844,
+          "gzipBytes": 1279,
+          "codeHash": "ad6cfc475a62dc264daa3ca03d3f00c2f192acf74281bad2f4184587678076c8"
+        },
+        "rolldown": {
+          "bytes": 2911,
+          "gzipBytes": 1286,
+          "codeHash": "828687c6cab2946389bbaee25cc8186622b8c29a8f085a6483fb8eaf2f7cbb7a"
+        },
+        "bun": {
+          "bytes": 2893,
+          "gzipBytes": 1280,
+          "codeHash": "1944ad23261358aff6b4c1b74585180aacd6f230acfe5f9cea5f86ed15f63858"
+        }
+      },
+      "barrel": {
+        "esbuild": {
+          "bytes": 2844,
+          "gzipBytes": 1278,
+          "codeHash": "5e8c1da4d1b214870c6da2fc166ecf51bd31b8492af03d1f883b7c4b9238ccd2"
+        },
+        "rolldown": {
+          "bytes": 2911,
+          "gzipBytes": 1285,
+          "codeHash": "861f8725efa18c220180dd6a6ac42a0725e87fb13eea711e485dc14c60ce76bd"
+        },
+        "bun": {
+          "bytes": 2893,
+          "gzipBytes": 1280,
+          "codeHash": "105b58042360ff61c56ac774129e6da83ae6e3e88086ee42b8abe4e1a2ef2891"
+        }
+      },
+      "direct": {
+        "esbuild": {
+          "bytes": 2844,
+          "gzipBytes": 1283,
+          "codeHash": "f79922ba7a42bc89d84109ed788bf492026625e111799dabc74170eb40c1a7f9"
+        },
+        "rolldown": {
+          "bytes": 2911,
+          "gzipBytes": 1283,
+          "codeHash": "a8a7e334e01a472bf806a721c73ac0f5bd14e292331b77002447ae75d9c414e3"
+        },
+        "bun": {
+          "bytes": 2893,
+          "gzipBytes": 1287,
+          "codeHash": "20ee06be229aad4af96544c686bc186c21534449640199d1665191016289572f"
+        }
+      }
+    },
+    "number-decimal": {
+      "original": {
+        "esbuild": {
+          "bytes": 2843,
+          "gzipBytes": 1318,
+          "codeHash": "37244493224684feb705de4b358594c2969f128658174cd0b0e61d1a4d3be610"
+        },
+        "rolldown": {
+          "bytes": 2912,
+          "gzipBytes": 1323,
+          "codeHash": "593b8a2ff7e31bb5254d7d72136d08b4fe537ba171b0742927075ed3a9664759"
+        },
+        "bun": {
+          "bytes": 2952,
+          "gzipBytes": 1313,
+          "codeHash": "3e849848b52e13cc806dcc871b9241a2af8379cc83c79a8fa8931a33d380dbbd"
+        }
+      },
+      "barrel": {
+        "esbuild": {
+          "bytes": 2843,
+          "gzipBytes": 1320,
+          "codeHash": "d99af7d32f9cae2e71788478728c48a6237a85ee639446d428ba0c8ad2e4845e"
+        },
+        "rolldown": {
+          "bytes": 2906,
+          "gzipBytes": 1322,
+          "codeHash": "fd51e34070143f3ee3e3ead9a84cc94047b3e3786fe48e1e1b3974c08692b502"
+        },
+        "bun": {
+          "bytes": 2952,
+          "gzipBytes": 1316,
+          "codeHash": "7afc6f0ab66704501c07629fd4f795bc823494ad584dfd11457fbc327e967ac4"
+        }
+      },
+      "direct": {
+        "esbuild": {
+          "bytes": 2843,
+          "gzipBytes": 1315,
+          "codeHash": "b093a5cf7d43c13965be85224e7ccc23652a87566cd7f49c09f5478f2642a0a0"
+        },
+        "rolldown": {
+          "bytes": 2912,
+          "gzipBytes": 1314,
+          "codeHash": "17540988cbdc5e45cf589f419bd06aa2c0e7cf35da8ba90e51c42fba66db5a93"
+        },
+        "bun": {
+          "bytes": 2952,
+          "gzipBytes": 1317,
+          "codeHash": "70d5d6ebbf5c5bbaf10d613f5b9f9b11ecc52f50e141f2258d44831ca131863b"
+        }
+      }
+    },
+    "presence-default": {
+      "original": {
+        "esbuild": {
+          "bytes": 2857,
+          "gzipBytes": 1286,
+          "codeHash": "db2e738b0409a7ef018594dd64201e5e42073711051d6bc787e66dfdf128cc6c"
+        },
+        "rolldown": {
+          "bytes": 2924,
+          "gzipBytes": 1292,
+          "codeHash": "8b7a301eef80e9a5bd361159cbedffc36d7ee06a3828a183827b8073eec6faa5"
+        },
+        "bun": {
+          "bytes": 2906,
+          "gzipBytes": 1287,
+          "codeHash": "d435f4a8b5fcb634d4bdc0a62792543c58b49e32dd88f1b6ac89dde532fd3dd5"
+        }
+      },
+      "barrel": {
+        "esbuild": {
+          "bytes": 2857,
+          "gzipBytes": 1285,
+          "codeHash": "12daba9c80396a7da04a00422b98551990e42fa515a85f57e6565c1545de19e9"
+        },
+        "rolldown": {
+          "bytes": 2924,
+          "gzipBytes": 1291,
+          "codeHash": "86a319a710540efa127eea934ba3524c4c21d48e1dc4e21cebbaaa6348797814"
+        },
+        "bun": {
+          "bytes": 2906,
+          "gzipBytes": 1287,
+          "codeHash": "7ee6cb121e81b9cb95219536af55e42fa941f138143b23925e8b9ceee1427a72"
+        }
+      },
+      "direct": {
+        "esbuild": {
+          "bytes": 2857,
+          "gzipBytes": 1289,
+          "codeHash": "4ba1f2fdf535b6deb5802124f244e7bb7730059b9f6194fa8196fb94f334b115"
+        },
+        "rolldown": {
+          "bytes": 2924,
+          "gzipBytes": 1289,
+          "codeHash": "21c303fb493398b65780cb7426093dbe644090fdaaaca59f9fb4c7f5109fa7b4"
+        },
+        "bun": {
+          "bytes": 2906,
+          "gzipBytes": 1295,
+          "codeHash": "1997c5af6c62a02f8b95fefcccd0d90465096389def0f9e262c3f0be2e7fa8c5"
+        }
+      }
+    },
+    "array-strict": {
+      "original": {
+        "esbuild": {
+          "bytes": 3638,
+          "gzipBytes": 1540,
+          "codeHash": "2ec2c1f7b7adc4b75e5b261684c9e0e1f874dc1f3f174a20bbefc2b2b24ac4fe"
+        },
+        "rolldown": {
+          "bytes": 3744,
+          "gzipBytes": 1503,
+          "codeHash": "07100a6f9a39d94721a1d31a2d2a987406156c15954de79c00ff221343d25b20"
+        },
+        "bun": {
+          "bytes": 3685,
+          "gzipBytes": 1539,
+          "codeHash": "27f864653078ea04b0a0ae3f95b6093b9bbcf915166e2f0ac3d1adce595ae5c2"
+        }
+      },
+      "barrel": {
+        "esbuild": {
+          "bytes": 3638,
+          "gzipBytes": 1539,
+          "codeHash": "bdbabc11622f9058f62cf05f30604e0bb7cba9de230bf508bcc110edcfe47daf"
+        },
+        "rolldown": {
+          "bytes": 3744,
+          "gzipBytes": 1526,
+          "codeHash": "08398a0565d0d190ffac1dd3f89fc062e52a0f28ccc35f8d2ecf4ef149f5b0c5"
+        },
+        "bun": {
+          "bytes": 3685,
+          "gzipBytes": 1537,
+          "codeHash": "6eea7f901356d62e8230e4f84976ef49043fb7b99405e229d8a94494aa3349ea"
+        }
+      },
+      "direct": {
+        "esbuild": {
+          "bytes": 3638,
+          "gzipBytes": 1541,
+          "codeHash": "9160b0a6a52812ca2ccc101aa39dbd85657d8a8af955aa597455c877b98f8145"
+        },
+        "rolldown": {
+          "bytes": 3744,
+          "gzipBytes": 1523,
+          "codeHash": "169bc3a973c6e7481b9158b5a324dd06a43d923741da1d24db33180b161e0a1c"
+        },
+        "bun": {
+          "bytes": 3685,
+          "gzipBytes": 1538,
+          "codeHash": "e53b25aca5253fdfab9c0ed548fd4f5393189047474c3eabb7795fd059b0fbfd"
+        }
+      }
+    },
+    "date": {
+      "original": {
+        "esbuild": {
+          "bytes": 2570,
+          "gzipBytes": 1259,
+          "codeHash": "189de0aad29b5d3d5af522329fa16dcbf0c0679e61c49979c7c4b0475313d8b1"
+        },
+        "rolldown": {
+          "bytes": 2634,
+          "gzipBytes": 1266,
+          "codeHash": "884302965b041f15cd4efbf322944b4ba46bd60141bac34e0577e16983498037"
+        },
+        "bun": {
+          "bytes": 2636,
+          "gzipBytes": 1265,
+          "codeHash": "e2b3abeb526e578397e5271691046167ea445e567959ed587cea2c008c50c1b1"
+        }
+      },
+      "barrel": {
+        "esbuild": {
+          "bytes": 2570,
+          "gzipBytes": 1259,
+          "codeHash": "25af10f5912e3d15ab3a4ea7cccd417abeb548a527a0b562511741ee33e572b5"
+        },
+        "rolldown": {
+          "bytes": 2634,
+          "gzipBytes": 1265,
+          "codeHash": "a7cbd9ad5b7f3adf0c18cf4c90a0d50562d9236d3ca411b1eaa5bf68a01f9310"
+        },
+        "bun": {
+          "bytes": 2636,
+          "gzipBytes": 1265,
+          "codeHash": "0eefd4b3b06f7deb4af6a7c71c14b847bc2e30b740a2e50c49f5e45a231c02ea"
+        }
+      },
+      "direct": {
+        "esbuild": {
+          "bytes": 2570,
+          "gzipBytes": 1254,
+          "codeHash": "52ef816152c80db0d8310139cd3fc86f8dbcca2a0084a87321e4fb716a41d7ed"
+        },
+        "rolldown": {
+          "bytes": 2634,
+          "gzipBytes": 1259,
+          "codeHash": "01e647c6d526285a2af54829051a0e42fc49fe39fa10186e3b32cc1c95255ddb"
+        },
+        "bun": {
+          "bytes": 2636,
+          "gzipBytes": 1266,
+          "codeHash": "9fce07853dc12e8ca57e8e4718a6e9f2295346bde957bf732ee2cac1e86a57ce"
+        }
+      }
+    },
+    "width-100": {
+      "original": {
+        "esbuild": {
+          "bytes": 3624,
+          "gzipBytes": 1530,
+          "codeHash": "711d48e47f96008c2c3dd7456ec24d6b8c61b3831ed8892eac0e0b28b54a211b"
+        },
+        "rolldown": {
+          "bytes": 5275,
+          "gzipBytes": 1589,
+          "codeHash": "f158595051e53508562a5ade99dc052f750bdd6388b0fd79c51ba6c01a086f4e"
+        },
+        "bun": {
+          "bytes": 3673,
+          "gzipBytes": 1533,
+          "codeHash": "238fe882ef610c86d90e8f3e57b025e7836318fba0574fa49d96ff7382266b3c"
+        }
+      },
+      "barrel": {
+        "esbuild": {
+          "bytes": 3624,
+          "gzipBytes": 1528,
+          "codeHash": "c329337581317bb42a25a278ddf54f83b84cb78b8a38d552f20ea3f247e63022"
+        },
+        "rolldown": {
+          "bytes": 5275,
+          "gzipBytes": 1587,
+          "codeHash": "7db1bf0a62369caa8bf265493d9c0616e12067e53047eaa7c6b81ef42e4082bd"
+        },
+        "bun": {
+          "bytes": 3673,
+          "gzipBytes": 1532,
+          "codeHash": "d6d72998d0c7ac93480f4745c9b4c41471263d7ff46a22306562d21b402c226b"
+        }
+      },
+      "direct": {
+        "esbuild": {
+          "bytes": 3624,
+          "gzipBytes": 1537,
+          "codeHash": "434fd19e78b8ac8cf1de4298e42470c9fcc9e3572c5880d0dd1baebbb36f966d"
+        },
+        "rolldown": {
+          "bytes": 5275,
+          "gzipBytes": 1585,
+          "codeHash": "cd78e897a10b968d9058a0a8fdef78dbb48ce86172c222e88e02a7ef310c37f4"
+        },
+        "bun": {
+          "bytes": 3673,
+          "gzipBytes": 1541,
+          "codeHash": "46ca2ccce325df4736695043ad1b90405c36a9c3f2f221a89be73b60e659526a"
+        }
+      }
+    }
+  },
+  "runtimeRegressionTests": {
+    "node": {
+      "passed": 57,
+      "log": "/tmp/loculus-modularity-tests-node.log",
+      "logSha256": "52f3d9bcf2afe5c0381bfcc89c00ee1c9e5e30dc0ddc5b2b2249459695f03653"
+    },
+    "bun": {
+      "passed": 57,
+      "log": "/tmp/loculus-modularity-tests-bun.log",
+      "logSha256": "5525f38d2d832385b4b23e6a8a2857aee8fd3fb466ecdbe8f4af8a63bbda28e0"
+    }
+  }
+}

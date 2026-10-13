@@ -1,0 +1,179 @@
+{
+  "completed": true,
+  "runtime": "v24.13.0",
+  "versions": {
+    "zod": "4.6.5",
+    "valibot": "1.5.0"
+  },
+  "cases": [
+    {
+      "library": "zod",
+      "jitless": false,
+      "proto": {
+        "own": false,
+        "plain": true,
+        "nullPrototype": false,
+        "inheritedAdmin": false
+      },
+      "shape": {
+        "frozen": false,
+        "sameAsOriginal": false,
+        "mutation": "applied",
+        "stringAccepted": false,
+        "numberAccepted": true
+      },
+      "enum": {
+        "frozen": false,
+        "mutation": "applied",
+        "addedAccepted": false
+      },
+      "inheritedInputAccepted": true,
+      "arrayRootAccepted": false,
+      "freshSchema": true,
+      "freshStandard": true,
+      "stableStandard": true,
+      "normalFieldErrors": 2
+    },
+    {
+      "library": "valibot",
+      "jitless": false,
+      "proto": {
+        "own": false,
+        "plain": false,
+        "nullPrototype": false,
+        "inheritedAdmin": true
+      },
+      "shape": {
+        "frozen": false,
+        "sameAsOriginal": true,
+        "mutation": "applied",
+        "stringAccepted": false,
+        "numberAccepted": true
+      },
+      "enum": {
+        "frozen": false,
+        "mutation": "applied",
+        "addedAccepted": true
+      },
+      "inheritedInputAccepted": true,
+      "arrayRootAccepted": true,
+      "freshSchema": true,
+      "freshStandard": true,
+      "stableStandard": true,
+      "normalFieldErrors": 2
+    },
+    {
+      "library": "loculus",
+      "jitless": false,
+      "proto": {
+        "own": false,
+        "plain": true,
+        "nullPrototype": false,
+        "inheritedAdmin": false
+      },
+      "shape": {
+        "frozen": false,
+        "sameAsOriginal": false,
+        "mutation": "applied",
+        "stringAccepted": true,
+        "numberAccepted": false
+      },
+      "enum": {
+        "frozen": false,
+        "mutation": "applied",
+        "addedAccepted": false
+      },
+      "inheritedInputAccepted": true,
+      "arrayRootAccepted": false,
+      "freshSchema": true,
+      "freshStandard": true,
+      "stableStandard": true,
+      "normalFieldErrors": 2
+    },
+    {
+      "library": "zod",
+      "jitless": true,
+      "proto": {
+        "own": false,
+        "plain": true,
+        "nullPrototype": false,
+        "inheritedAdmin": false
+      },
+      "shape": {
+        "frozen": false,
+        "sameAsOriginal": false,
+        "mutation": "applied",
+        "stringAccepted": false,
+        "numberAccepted": true
+      },
+      "enum": {
+        "frozen": false,
+        "mutation": "applied",
+        "addedAccepted": false
+      },
+      "inheritedInputAccepted": true,
+      "arrayRootAccepted": false,
+      "freshSchema": true,
+      "freshStandard": true,
+      "stableStandard": true,
+      "normalFieldErrors": 2
+    },
+    {
+      "library": "valibot",
+      "jitless": true,
+      "proto": {
+        "own": false,
+        "plain": false,
+        "nullPrototype": false,
+        "inheritedAdmin": true
+      },
+      "shape": {
+        "frozen": false,
+        "sameAsOriginal": true,
+        "mutation": "applied",
+        "stringAccepted": false,
+        "numberAccepted": true
+      },
+      "enum": {
+        "frozen": false,
+        "mutation": "applied",
+        "addedAccepted": true
+      },
+      "inheritedInputAccepted": true,
+      "arrayRootAccepted": true,
+      "freshSchema": true,
+      "freshStandard": true,
+      "stableStandard": true,
+      "normalFieldErrors": 2
+    },
+    {
+      "library": "loculus",
+      "jitless": true,
+      "proto": {
+        "own": false,
+        "plain": true,
+        "nullPrototype": false,
+        "inheritedAdmin": false
+      },
+      "shape": {
+        "frozen": false,
+        "sameAsOriginal": false,
+        "mutation": "applied",
+        "stringAccepted": true,
+        "numberAccepted": false
+      },
+      "enum": {
+        "frozen": false,
+        "mutation": "applied",
+        "addedAccepted": false
+      },
+      "inheritedInputAccepted": true,
+      "arrayRootAccepted": false,
+      "freshSchema": true,
+      "freshStandard": true,
+      "stableStandard": true,
+      "normalFieldErrors": 2
+    }
+  ],
+  "scope": "Installed-version behavior, not a claim about public guarantees for schema mutation. The prototype case uses an explicitly declared computed __proto__ field transformed to an object. Zod is tested with JIT enabled and disabled. No performance claims."
+}

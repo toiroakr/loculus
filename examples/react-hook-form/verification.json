@@ -1,0 +1,29 @@
+{
+  "completed": true,
+  "date": "2026-10-12T05:23:05.141Z",
+  "currentVerification": "bench/whole-object/verification.json",
+  "sourceHash": "181dcb12c1941d6b5a9c7c235fb09c127172277c7a26e0357d02421efb012bdf",
+  "distHash": "add4e2a2a56e31d3600d6a012f0e20f084bcb0ec43cfbac32cb105bc0c31f87f",
+  "declarationsHash": "64573cacc2063f995710cc9a63a2ecf5007b00e041e2a431ac68ad6903ce4942",
+  "pluginSourceHash": "8f5ab71e54174e725ad9c731abc782bf6063fcccdf33d4c316fe5ddca85e3af2",
+  "browserTests": 12,
+  "generatedFields": true,
+  "htmlSha256": "aecee361569972797ffabb89bd948ba69ffbd60756b6b755ba489f5130d22e77",
+  "preview": "https://github.com/toiroakr/mayfly-private/actions/runs/38207825643/artifacts/11727529518",
+  "viewports": [
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 1280,
+      "height": 900
+    }
+  ],
+  "physicalSafari": false,
+  "currentReportPreview": "https://github.com/toiroakr/mayfly-private/actions/runs/38222176390/artifacts/11734094451",
+  "currentRHFPreview": "https://github.com/toiroakr/mayfly-private/actions/runs/38222176390/artifacts/11734109602",
+  "currentHtmlSha256": "30c5c53cb98aa7acb2550d469eb362afe2bbe62fd7366fe2ad05ff5e5a75c038",
+  "generatedArrays": true,
+  "generatedObjects": true
+}

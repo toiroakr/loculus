@@ -1,0 +1,306 @@
+{
+  "package": "cf",
+  "version": "1.0.0-beta.14",
+  "gitHead": null,
+  "repository": "https://github.com/cloudflare/cf",
+  "tarball": "https://registry.npmjs.org/cf/-/cf-1.0.0-beta.14.tgz",
+  "integrity": "sha512-CIDV5JAUIhJRTCPG3gR72BBzNbPH0NqpF/C3d6mPTXFd1LMbAgfAv6C0sg0MtLLb0blz1kFudDDd4azlKQ/p9A==",
+  "accessed": "2026-10-12",
+  "commands": [
+    {
+      "command": "cf deploy",
+      "options": [
+        {
+          "name": "prebuilt",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "message",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "secrets-file",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        },
+        {
+          "name": "worker",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "provision",
+          "type": "boolean",
+          "required": false,
+          "default": true
+        },
+        {
+          "name": "dispatch-namespace",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "containers-rollout",
+          "type": "string",
+          "required": false,
+          "enum": [
+            "immediate",
+            "gradual",
+            "none"
+          ]
+        }
+      ]
+    },
+    {
+      "command": "cf dns records list",
+      "options": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "name-exact",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "name-contains",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "name-startswith",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "name-endswith",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "type",
+          "type": "string",
+          "required": false,
+          "enum": [
+            "A",
+            "AAAA",
+            "CAA",
+            "CERT",
+            "CNAME",
+            "DNSKEY",
+            "DS",
+            "HTTPS",
+            "LOC",
+            "MX",
+            "NAPTR",
+            "NS",
+            "OPENPGPKEY",
+            "PTR",
+            "SMIMEA",
+            "SRV",
+            "SSHFP",
+            "SVCB",
+            "TLSA",
+            "TXT",
+            "URI"
+          ]
+        },
+        {
+          "name": "content",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "content-exact",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "content-contains",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "content-startswith",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "content-endswith",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "proxied",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "match",
+          "type": "string",
+          "required": false,
+          "enum": [
+            "any",
+            "all"
+          ]
+        },
+        {
+          "name": "comment",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "comment-present",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "comment-absent",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "comment-exact",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "comment-contains",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "comment-startswith",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "comment-endswith",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tag",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tag-present",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tag-absent",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tag-exact",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tag-contains",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tag-startswith",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tag-endswith",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "tag-match",
+          "type": "string",
+          "required": false,
+          "enum": [
+            "any",
+            "all"
+          ]
+        },
+        {
+          "name": "page",
+          "type": "number",
+          "required": false
+        },
+        {
+          "name": "per-page",
+          "type": "number",
+          "required": false
+        },
+        {
+          "name": "order",
+          "type": "string",
+          "required": false,
+          "enum": [
+            "type",
+            "name",
+            "content",
+            "ttl",
+            "proxied"
+          ]
+        },
+        {
+          "name": "direction",
+          "type": "string",
+          "required": false,
+          "enum": [
+            "asc",
+            "desc"
+          ]
+        },
+        {
+          "name": "include-shadow-metadata",
+          "type": "boolean",
+          "required": false
+        },
+        {
+          "name": "shadowed-by-name",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "shadowing-name",
+          "type": "string",
+          "required": false
+        },
+        {
+          "name": "dry-run",
+          "type": "boolean",
+          "required": false,
+          "default": false
+        }
+      ]
+    }
+  ],
+  "metadataHashes": {
+    "commands.json": "222f834f2cc3877d2a18ea727fa7cb33a75da4039faf7029c62c3f076b991bfe",
+    "hand-written-commands.json": "e027d0275bbb3d076525e79aabd337c95b121a65b0b6f59639bd722999d89a22"
+  }
+}

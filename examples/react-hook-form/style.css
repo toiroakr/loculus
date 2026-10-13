@@ -1,0 +1,28 @@
+:root { font-family: system-ui, sans-serif; color: #233047; background: #f2f5fa; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 760px; margin: 36px auto; padding: 32px; background: white; border-radius: 20px; box-shadow: 0 8px 32px #2330470a; }
+.eyebrow { color: #536caa; font-size: .75rem; letter-spacing: .09em; font-weight: 700; }
+h1 { font-size: 1.8rem; margin: 12px 0; }
+h2 { font-size: 1.15rem; }
+p { line-height: 1.65; }
+.hint { color: #617088; font-size: .9rem; }
+label { display: block; margin: 12px 0 6px; font-weight: 600; }
+input { width: 100%; min-height: 46px; border: 1px solid #bac5d6; border-radius: 8px; padding: 10px 12px; font: inherit; }
+input:focus { outline: 2px solid #4265c1; outline-offset: 2px; }
+input[aria-invalid="true"] { border-color: #b92338; }
+button { min-height: 44px; background: #3159bb; color: white; border: 1px solid #3159bb; border-radius: 8px; padding: 10px 16px; font: inherit; cursor: pointer; }
+button:focus-visible, summary:focus-visible { outline: 2px solid #4265c1; outline-offset: 3px; }
+.secondary { background: white; color: #3159bb; border-color: #c6d2e7; }
+fieldset { border: 1px solid #dce3ef; border-radius: 12px; padding: 12px 18px 18px; margin: 20px 0; }
+legend { font-weight: 600; padding: 0 8px; }
+.row { display: grid; grid-template-columns: 1fr 130px; gap: 18px; margin-bottom: 16px; }
+.section-title { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; }
+.section-title span { color: #617088; font-size: .9rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+[role="alert"] { color: #b92338; font-size: .85rem; margin: 8px 0; }
+.output { border-top: 1px solid #dce3ef; margin-top: 28px; padding-top: 14px; }
+pre { overflow: auto; background: #f3f6fb; border-radius: 10px; padding: 16px; font-size: .85rem; line-height: 1.6; }
+details { margin-top: 24px; }
+summary { cursor: pointer; font-weight: 600; }
+@media (max-width: 600px) { main { margin: 0; padding: 24px 18px; border-radius: 0; } h1 { font-size: 1.55rem; } .row { grid-template-columns: 1fr 90px; gap: 12px; } fieldset { padding: 10px 12px 16px; } }

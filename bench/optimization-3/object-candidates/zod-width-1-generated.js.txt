@@ -1,0 +1,6 @@
+return (input) => {
+if (typeof input !== "object" || input === null || Array.isArray(input)) return INVALID;
+const v0 = input["f0"];
+if (typeof v0 !== "string") return INVALID;
+return true;
+}

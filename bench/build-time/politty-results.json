@@ -1,0 +1,36 @@
+{
+  "completed": true,
+  "date": "2026-10-12T08:02:15.483Z",
+  "adapter": "/Users/toiroakr/workspace/politty/feat/loculus-adapter/packages/loculus/dist/index.js",
+  "adapterHash": "7e5364a12d6fa7a7252f7cae8cb42ace0958a59c7ad66881ec68401fd7d47954",
+  "cases": [
+    {
+      "success": true,
+      "value": {
+        "name": "app",
+        "port": 3000,
+        "cache": true
+      }
+    },
+    {
+      "success": true,
+      "value": {
+        "name": "app",
+        "port": 8080,
+        "cache": false,
+        "tag": [
+          "alpha",
+          "beta"
+        ]
+      }
+    },
+    {
+      "success": false
+    }
+  ],
+  "freshCommandIdentity": true,
+  "alias": true,
+  "negation": true,
+  "repeatedArray": true,
+  "numericDefaultAndBoundaries": true
+}

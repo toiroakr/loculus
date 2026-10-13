@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-11T14:55:37.906Z",
+  "baselineHash": "25a54b1c230cf21a20920b068711dc64b0506c628264a18be3b13ec358e00b95",
+  "results": [
+    {
+      "name": "baseline3",
+      "scenarioChecks": 64,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "preseed-safe",
+      "scenarioChecks": 64,
+      "cspFallback": true,
+      "failures": []
+    }
+  ]
+}

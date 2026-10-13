@@ -1,0 +1,151 @@
+{
+  "date": "2026-10-11T10:50:46.049Z",
+  "sourceHash": "589cabdb29451e8cbcefc21a937c677d4cab0f4e23fa4f639b1a342e0561ad7a",
+  "distHash": "01937be7e3fbb235506150b5cdd1c356b3ea6c8860acd66268206acbdc4c8e94",
+  "scope": "browser ESM, minified, schema and Standard Schema validate exports, no timing harness",
+  "versions": {
+    "bun": "1.4.3",
+    "esbuild": "0.28.2",
+    "rolldown": "1.2.13",
+    "zod": "4.6.5",
+    "valibot": "1.5.0"
+  },
+  "cases": {
+    "bun/loculus-strings-3": {
+      "bytes": 2882,
+      "gzipBytes": 1294,
+      "verifiedProbes": 8
+    },
+    "esbuild/loculus-strings-3": {
+      "bytes": 2837,
+      "gzipBytes": 1291,
+      "verifiedProbes": 8
+    },
+    "rolldown/loculus-strings-3": {
+      "bytes": 2932,
+      "gzipBytes": 1301,
+      "verifiedProbes": 8
+    },
+    "bun/zod-strings-3": {
+      "bytes": 81205,
+      "gzipBytes": 23174,
+      "verifiedProbes": 8
+    },
+    "esbuild/zod-strings-3": {
+      "bytes": 453194,
+      "gzipBytes": 93178,
+      "verifiedProbes": 8
+    },
+    "rolldown/zod-strings-3": {
+      "bytes": 82559,
+      "gzipBytes": 22600,
+      "verifiedProbes": 8
+    },
+    "bun/valibot-strings-3": {
+      "bytes": 3454,
+      "gzipBytes": 1309,
+      "verifiedProbes": 8
+    },
+    "esbuild/valibot-strings-3": {
+      "bytes": 3377,
+      "gzipBytes": 1292,
+      "verifiedProbes": 8
+    },
+    "rolldown/valibot-strings-3": {
+      "bytes": 3753,
+      "gzipBytes": 1309,
+      "verifiedProbes": 8
+    },
+    "bun/loculus-strings-30": {
+      "bytes": 3496,
+      "gzipBytes": 1382,
+      "verifiedProbes": 8
+    },
+    "esbuild/loculus-strings-30": {
+      "bytes": 3451,
+      "gzipBytes": 1378,
+      "verifiedProbes": 8
+    },
+    "rolldown/loculus-strings-30": {
+      "bytes": 3978,
+      "gzipBytes": 1395,
+      "verifiedProbes": 8
+    },
+    "bun/zod-strings-30": {
+      "bytes": 81847,
+      "gzipBytes": 23258,
+      "verifiedProbes": 8
+    },
+    "esbuild/zod-strings-30": {
+      "bytes": 454033,
+      "gzipBytes": 93274,
+      "verifiedProbes": 8
+    },
+    "rolldown/zod-strings-30": {
+      "bytes": 83201,
+      "gzipBytes": 22690,
+      "verifiedProbes": 8
+    },
+    "bun/valibot-strings-30": {
+      "bytes": 4068,
+      "gzipBytes": 1398,
+      "verifiedProbes": 8
+    },
+    "esbuild/valibot-strings-30": {
+      "bytes": 3991,
+      "gzipBytes": 1384,
+      "verifiedProbes": 8
+    },
+    "rolldown/valibot-strings-30": {
+      "bytes": 6095,
+      "gzipBytes": 1412,
+      "verifiedProbes": 8
+    },
+    "bun/loculus-cli": {
+      "bytes": 4613,
+      "gzipBytes": 1883,
+      "verifiedProbes": 11
+    },
+    "esbuild/loculus-cli": {
+      "bytes": 4459,
+      "gzipBytes": 1881,
+      "verifiedProbes": 11
+    },
+    "rolldown/loculus-cli": {
+      "bytes": 4653,
+      "gzipBytes": 1894,
+      "verifiedProbes": 11
+    },
+    "bun/zod-cli": {
+      "bytes": 87141,
+      "gzipBytes": 24699,
+      "verifiedProbes": 11
+    },
+    "esbuild/zod-cli": {
+      "bytes": 453443,
+      "gzipBytes": 93305,
+      "verifiedProbes": 11
+    },
+    "rolldown/zod-cli": {
+      "bytes": 88797,
+      "gzipBytes": 24078,
+      "verifiedProbes": 11
+    },
+    "bun/valibot-cli": {
+      "bytes": 6144,
+      "gzipBytes": 2054,
+      "verifiedProbes": 11
+    },
+    "esbuild/valibot-cli": {
+      "bytes": 5991,
+      "gzipBytes": 2041,
+      "verifiedProbes": 11
+    },
+    "rolldown/valibot-cli": {
+      "bytes": 6955,
+      "gzipBytes": 2037,
+      "verifiedProbes": 11
+    }
+  },
+  "completed": true
+}

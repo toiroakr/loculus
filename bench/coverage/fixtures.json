@@ -1,0 +1,4120 @@
+{
+  "profiles": [
+    {
+      "id": "string-basic",
+      "feature": "string",
+      "expressions": [
+        "l.object({value:l.string()})",
+        "z.object({value:z.string()})",
+        "v.object({value:v.string()})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {
+          "value": ""
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": "😀"
+        }
+      ]
+    },
+    {
+      "id": "string-trim",
+      "feature": "string.trim/min/max",
+      "expressions": [
+        "l.object({value:l.string({trim:true,min:2,max:6})})",
+        "z.object({value:z.string().trim().refine(x=>x.length>=2&&x.length<=6)})",
+        "v.object({value:v.pipe(v.string(),v.trim(),v.minLength(2),v.maxLength(6))})"
+      ],
+      "valid": [
+        {
+          "value": "  abc  "
+        },
+        {
+          "value": "abcdef"
+        }
+      ],
+      "invalid": [
+        {
+          "value": " a "
+        },
+        {
+          "value": "abcdefg"
+        }
+      ],
+      "probes": [
+        {
+          "value": "  abc  "
+        },
+        {
+          "value": "abcdef"
+        },
+        {
+          "value": " a "
+        },
+        {
+          "value": "abcdefg"
+        },
+        {
+          "value": "😀😀😀"
+        },
+        {
+          "value": "😀😀😀😀"
+        }
+      ],
+      "note": "Zod 4.6.5 native string min/max count Unicode code points; this parity fixture explicitly checks UTF-16 length to match loculus/Valibot."
+    },
+    {
+      "id": "string-pattern",
+      "feature": "string.pattern",
+      "expressions": [
+        "l.object({value:l.string({pattern:/^[a-z]+$/})})",
+        "z.object({value:z.string().regex(/^[a-z]+$/)})",
+        "v.object({value:v.pipe(v.string(),v.regex(/^[a-z]+$/))})"
+      ],
+      "valid": [
+        {
+          "value": "abc"
+        }
+      ],
+      "invalid": [
+        {
+          "value": "ABC"
+        },
+        {
+          "value": "a1"
+        }
+      ],
+      "probes": [
+        {
+          "value": "abc"
+        },
+        {
+          "value": "ABC"
+        },
+        {
+          "value": "a1"
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "number-decimal",
+      "feature": "number",
+      "expressions": [
+        "l.object({value:l.number()})",
+        "z.object({value:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number())})",
+        "v.object({value:v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite())})"
+      ],
+      "valid": [
+        {
+          "value": "12.5"
+        },
+        {
+          "value": "-2.5e2"
+        },
+        {
+          "value": 12.5
+        }
+      ],
+      "invalid": [
+        {
+          "value": ""
+        },
+        {
+          "value": " "
+        },
+        {
+          "value": "0x10"
+        },
+        {
+          "value": "Infinity"
+        },
+        {
+          "value": true
+        },
+        {
+          "value": {
+            "$number": "NaN"
+          }
+        },
+        {
+          "value": {
+            "$number": "Infinity"
+          }
+        }
+      ],
+      "probes": [
+        {
+          "value": "12.5"
+        },
+        {
+          "value": "-2.5e2"
+        },
+        {
+          "value": 12.5
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": " "
+        },
+        {
+          "value": "0x10"
+        },
+        {
+          "value": "Infinity"
+        },
+        {
+          "value": true
+        },
+        {
+          "value": {
+            "$number": "NaN"
+          }
+        },
+        {
+          "value": {
+            "$number": "Infinity"
+          }
+        },
+        {
+          "value": "+1"
+        },
+        {
+          "value": ".5"
+        },
+        {
+          "value": "1."
+        },
+        {
+          "value": "1e309"
+        },
+        {
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "number-inclusive",
+      "feature": "number.gte/lte/integer",
+      "expressions": [
+        "l.object({value:l.number({integer:true,gte:1,lte:100})})",
+        "z.object({value:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).pipe(z.number().int().gte(1).lte(100))})",
+        "v.object({value:v.pipe(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),v.safeInteger(),v.minValue(1),v.maxValue(100))})"
+      ],
+      "valid": [
+        {
+          "value": "1"
+        },
+        {
+          "value": "100"
+        },
+        {
+          "value": 50
+        }
+      ],
+      "invalid": [
+        {
+          "value": "0"
+        },
+        {
+          "value": "101"
+        },
+        {
+          "value": "1.5"
+        }
+      ],
+      "probes": [
+        {
+          "value": "1"
+        },
+        {
+          "value": "100"
+        },
+        {
+          "value": 50
+        },
+        {
+          "value": "0"
+        },
+        {
+          "value": "101"
+        },
+        {
+          "value": "1.5"
+        },
+        {
+          "value": "9007199254740992"
+        }
+      ]
+    },
+    {
+      "id": "number-exclusive",
+      "feature": "number.gt/lt",
+      "expressions": [
+        "l.object({value:l.number({gt:0,lt:1})})",
+        "z.object({value:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).pipe(z.number().gt(0).lt(1))})",
+        "v.object({value:v.pipe(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),v.check(x=>x>0&&x<1))})"
+      ],
+      "valid": [
+        {
+          "value": ".5"
+        },
+        {
+          "value": 0.5
+        }
+      ],
+      "invalid": [
+        {
+          "value": "0"
+        },
+        {
+          "value": "1"
+        }
+      ],
+      "probes": [
+        {
+          "value": ".5"
+        },
+        {
+          "value": 0.5
+        },
+        {
+          "value": "0"
+        },
+        {
+          "value": "1"
+        },
+        {
+          "value": "-1"
+        }
+      ]
+    },
+    {
+      "id": "boolean",
+      "feature": "boolean",
+      "expressions": [
+        "l.object({value:l.boolean()})",
+        "z.object({value:z.union([z.boolean(),z.enum(['true','false','1','0']).transform(x=>x==='true'||x==='1')])})",
+        "v.object({value:v.union([v.boolean(),v.pipe(v.picklist(['true','false','1','0']),v.transform(x=>x==='true'||x==='1'))])})"
+      ],
+      "valid": [
+        {
+          "value": "true"
+        },
+        {
+          "value": "false"
+        },
+        {
+          "value": "1"
+        },
+        {
+          "value": "0"
+        },
+        {
+          "value": true
+        },
+        {
+          "value": false
+        }
+      ],
+      "invalid": [
+        {
+          "value": "yes"
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": 1
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "true"
+        },
+        {
+          "value": "false"
+        },
+        {
+          "value": "1"
+        },
+        {
+          "value": "0"
+        },
+        {
+          "value": true
+        },
+        {
+          "value": false
+        },
+        {
+          "value": "yes"
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": 1
+        },
+        {
+          "value": null
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "enum-2",
+      "feature": "enum",
+      "expressions": [
+        "l.object({value:l.enum([\"value-0\",\"value-1\"])})",
+        "z.object({value:z.enum([\"value-0\",\"value-1\"])})",
+        "v.object({value:v.picklist([\"value-0\",\"value-1\"])})"
+      ],
+      "valid": [
+        {
+          "value": "value-0"
+        },
+        {
+          "value": "value-1"
+        }
+      ],
+      "invalid": [
+        {
+          "value": "missing"
+        },
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "value-0"
+        },
+        {
+          "value": "value-1"
+        },
+        {
+          "value": "missing"
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "enum-32",
+      "feature": "enum",
+      "expressions": [
+        "l.object({value:l.enum([\"value-0\",\"value-1\",\"value-2\",\"value-3\",\"value-4\",\"value-5\",\"value-6\",\"value-7\",\"value-8\",\"value-9\",\"value-10\",\"value-11\",\"value-12\",\"value-13\",\"value-14\",\"value-15\",\"value-16\",\"value-17\",\"value-18\",\"value-19\",\"value-20\",\"value-21\",\"value-22\",\"value-23\",\"value-24\",\"value-25\",\"value-26\",\"value-27\",\"value-28\",\"value-29\",\"value-30\",\"value-31\"])})",
+        "z.object({value:z.enum([\"value-0\",\"value-1\",\"value-2\",\"value-3\",\"value-4\",\"value-5\",\"value-6\",\"value-7\",\"value-8\",\"value-9\",\"value-10\",\"value-11\",\"value-12\",\"value-13\",\"value-14\",\"value-15\",\"value-16\",\"value-17\",\"value-18\",\"value-19\",\"value-20\",\"value-21\",\"value-22\",\"value-23\",\"value-24\",\"value-25\",\"value-26\",\"value-27\",\"value-28\",\"value-29\",\"value-30\",\"value-31\"])})",
+        "v.object({value:v.picklist([\"value-0\",\"value-1\",\"value-2\",\"value-3\",\"value-4\",\"value-5\",\"value-6\",\"value-7\",\"value-8\",\"value-9\",\"value-10\",\"value-11\",\"value-12\",\"value-13\",\"value-14\",\"value-15\",\"value-16\",\"value-17\",\"value-18\",\"value-19\",\"value-20\",\"value-21\",\"value-22\",\"value-23\",\"value-24\",\"value-25\",\"value-26\",\"value-27\",\"value-28\",\"value-29\",\"value-30\",\"value-31\"])})"
+      ],
+      "valid": [
+        {
+          "value": "value-0"
+        },
+        {
+          "value": "value-31"
+        }
+      ],
+      "invalid": [
+        {
+          "value": "missing"
+        },
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "value-0"
+        },
+        {
+          "value": "value-31"
+        },
+        {
+          "value": "missing"
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "literal",
+      "feature": "literal",
+      "expressions": [
+        "l.object({value:l.literal('ready')})",
+        "z.object({value:z.literal('ready')})",
+        "v.object({value:v.literal('ready')})"
+      ],
+      "valid": [
+        {
+          "value": "ready"
+        }
+      ],
+      "invalid": [
+        {
+          "value": "other"
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "ready"
+        },
+        {
+          "value": "other"
+        },
+        {
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "date",
+      "feature": "date",
+      "expressions": [
+        "l.object({value:l.date()})",
+        "z.object({value:z.string().refine(iso).transform(x=>new Date(x))})",
+        "v.object({value:v.pipe(v.string(),v.check(iso),v.transform(x=>new Date(x)))})"
+      ],
+      "valid": [
+        {
+          "value": "2026-10-11"
+        },
+        {
+          "value": "2024-02-29"
+        },
+        {
+          "value": "2026-10-11T09:00:00+09:00"
+        }
+      ],
+      "invalid": [
+        {
+          "value": "2026-02-30"
+        },
+        {
+          "value": "not-date"
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "2026-10-11"
+        },
+        {
+          "value": "2024-02-29"
+        },
+        {
+          "value": "2026-10-11T09:00:00+09:00"
+        },
+        {
+          "value": "2026-02-30"
+        },
+        {
+          "value": "not-date"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": "2026-13-01"
+        },
+        {
+          "value": "2026-10-11T25:00:00Z"
+        },
+        {
+          "value": 42
+        }
+      ]
+    },
+    {
+      "id": "presence-required",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({})})",
+        "z.object({value:z.string()})",
+        "v.object({value:v.string()})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {},
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {
+          "value": 42
+        },
+        {},
+        {
+          "value": null
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-optional",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({optional:true})})",
+        "z.object({value:z.string().optional()})",
+        "v.object({value:v.optional(v.string())})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-nullable",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({nullable:true})})",
+        "z.object({value:z.string().nullable()})",
+        "v.object({value:v.nullable(v.string())})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {}
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {},
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-nullish",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({nullish:true})})",
+        "z.object({value:z.string().nullish()})",
+        "v.object({value:v.nullish(v.string())})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-optional-nullable",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({optional:true,nullable:true})})",
+        "z.object({value:z.string().optional().nullable()})",
+        "v.object({value:v.nullish(v.string())})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-default",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({default:\"D\"})})",
+        "z.object({value:z.string().default(\"D\")})",
+        "v.object({value:v.optional(v.string(),\"D\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-optional-default",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({optional:true,default:\"D\"})})",
+        "z.object({value:z.string().default(\"D\")})",
+        "v.object({value:v.optional(v.string(),\"D\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-nullable-default",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({nullable:true,default:\"D\"})})",
+        "z.object({value:z.string().nullable().default(\"D\")})",
+        "v.object({value:v.optional(v.nullable(v.string()),\"D\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-nullish-default",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({nullish:true,default:\"D\"})})",
+        "z.object({value:z.string().nullable().default(\"D\")})",
+        "v.object({value:v.optional(v.nullable(v.string()),\"D\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-target-undefined",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({default:{undefined:\"U\"}})})",
+        "z.object({value:z.string().default(\"U\")})",
+        "v.object({value:v.optional(v.string(),\"U\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": null
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-target-null",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({default:{null:\"N\"}})})",
+        "z.object({value:z.union([z.string(),z.null().transform(()=>\"N\")])})",
+        "v.object({value:v.nullable(v.string(),\"N\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {}
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {},
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-optional-target-null",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({optional:true,default:{null:\"N\"}})})",
+        "z.object({value:z.union([z.string(),z.null().transform(()=>\"N\")]).optional()})",
+        "v.object({value:v.optional(v.nullable(v.string(),\"N\"))})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-nullable-target-undefined",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({nullable:true,default:{undefined:\"U\"}})})",
+        "z.object({value:z.string().nullable().default(\"U\")})",
+        "v.object({value:v.optional(v.nullable(v.string()),\"U\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-target-both",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({default:{undefined:\"U\",null:\"N\"}})})",
+        "z.object({value:z.union([z.string(),z.null().transform(()=>\"N\")]).default(\"U\")})",
+        "v.object({value:v.optional(v.nullable(v.string(),\"N\"),\"U\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-target-nullish",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({default:{nullish:\"D\"}})})",
+        "z.object({value:z.string().nullish().transform(x=>x??\"D\")})",
+        "v.object({value:v.nullish(v.string(),\"D\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "presence-nullish-target-nullish",
+      "feature": "FieldOptions presence/default",
+      "expressions": [
+        "l.object({value:l.string({nullish:true,default:{nullish:\"D\"}})})",
+        "z.object({value:z.string().nullish().transform(x=>x??\"D\")})",
+        "v.object({value:v.nullish(v.string(),\"D\")})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {},
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "null"
+        }
+      ]
+    },
+    {
+      "id": "number-nullish-default",
+      "feature": "number/default",
+      "expressions": [
+        "l.object({value:l.number({default:{nullish:0}})})",
+        "z.object({value:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).nullish().transform(x=>x??0)})",
+        "v.object({value:v.nullish(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),0)})"
+      ],
+      "valid": [
+        {
+          "value": "42"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ],
+      "invalid": [
+        {
+          "value": ""
+        },
+        {
+          "value": "oops"
+        }
+      ],
+      "probes": [
+        {
+          "value": "42"
+        },
+        {
+          "value": null
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": ""
+        },
+        {
+          "value": "oops"
+        }
+      ]
+    },
+    {
+      "id": "boolean-default",
+      "feature": "boolean/default",
+      "expressions": [
+        "l.object({value:l.boolean({default:false})})",
+        "z.object({value:z.union([z.boolean(),z.enum(['true','false','1','0']).transform(x=>x==='true'||x==='1')]).default(false)})",
+        "v.object({value:v.optional(v.union([v.boolean(),v.pipe(v.picklist(['true','false','1','0']),v.transform(x=>x==='true'||x==='1'))]),false)})"
+      ],
+      "valid": [
+        {
+          "value": "true"
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ],
+      "invalid": [
+        {
+          "value": "yes"
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "true"
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": "yes"
+        },
+        {
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "enum-default",
+      "feature": "enum/default",
+      "expressions": [
+        "l.object({value:l.enum(['a','b'],{default:'a'})})",
+        "z.object({value:z.enum(['a','b']).default('a')})",
+        "v.object({value:v.optional(v.picklist(['a','b']),'a')})"
+      ],
+      "valid": [
+        {
+          "value": "b"
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ],
+      "invalid": [
+        {
+          "value": "c"
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "b"
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": "c"
+        },
+        {
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "date-default",
+      "feature": "date/default",
+      "expressions": [
+        "l.object({value:l.date({default:new Date('2026-10-11T00:00:00Z')})})",
+        "z.object({value:z.string().refine(iso).transform(x=>new Date(x)).default(new Date('2026-10-11T00:00:00Z'))})",
+        "v.object({value:v.pipe(v.optional(v.pipe(v.string(),v.check(iso)),'2026-10-11'),v.transform(x=>new Date(x)))})"
+      ],
+      "valid": [
+        {
+          "value": "2026-10-12"
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ],
+      "invalid": [
+        {
+          "value": "invalid"
+        },
+        {
+          "value": null
+        }
+      ],
+      "probes": [
+        {
+          "value": "2026-10-12"
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": "invalid"
+        },
+        {
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "array-wrap",
+      "feature": "array.wrapScalar",
+      "expressions": [
+        "l.object({value:l.array(l.string())})",
+        "z.object({value:z.union([z.array(z.string()),z.string().transform(x=>[x])])})",
+        "v.object({value:v.union([v.array(v.string()),v.pipe(v.string(),v.transform(x=>[x]))])})"
+      ],
+      "valid": [
+        {
+          "value": "a"
+        },
+        {
+          "value": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "value": []
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {
+          "value": [
+            1,
+            "b"
+          ]
+        }
+      ],
+      "probes": [
+        {
+          "value": "a"
+        },
+        {
+          "value": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "value": []
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": [
+            1,
+            "b"
+          ]
+        },
+        {
+          "value": null
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "array-strict",
+      "feature": "array.wrapScalar=false",
+      "expressions": [
+        "l.object({value:l.array(l.string(),{wrapScalar:false})})",
+        "z.object({value:z.array(z.string())})",
+        "v.object({value:v.array(v.string())})"
+      ],
+      "valid": [
+        {
+          "value": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "value": []
+        }
+      ],
+      "invalid": [
+        {
+          "value": "a"
+        },
+        {
+          "value": [
+            1
+          ]
+        }
+      ],
+      "probes": [
+        {
+          "value": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "value": []
+        },
+        {
+          "value": "a"
+        },
+        {
+          "value": [
+            1
+          ]
+        },
+        {
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "array-bounds",
+      "feature": "array.min/max",
+      "expressions": [
+        "l.object({value:l.array(l.string(),{min:2,max:3})})",
+        "z.object({value:z.union([z.array(z.string()),z.string().transform(x=>[x])]).pipe(z.array(z.string()).min(2).max(3))})",
+        "v.object({value:v.pipe(v.union([v.array(v.string()),v.pipe(v.string(),v.transform(x=>[x]))]),v.minLength(2),v.maxLength(3))})"
+      ],
+      "valid": [
+        {
+          "value": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "value": [
+            "a",
+            "b",
+            "c"
+          ]
+        }
+      ],
+      "invalid": [
+        {
+          "value": "a"
+        },
+        {
+          "value": []
+        },
+        {
+          "value": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        }
+      ],
+      "probes": [
+        {
+          "value": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "value": [
+            "a",
+            "b",
+            "c"
+          ]
+        },
+        {
+          "value": "a"
+        },
+        {
+          "value": []
+        },
+        {
+          "value": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "array-number",
+      "feature": "array(number)",
+      "expressions": [
+        "l.object({value:l.array(l.number())})",
+        "z.object({value:z.union([z.array(z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number())),z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).transform(x=>[x])])})",
+        "v.object({value:v.union([v.array(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite())),v.pipe(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),v.transform(x=>[x]))])})"
+      ],
+      "valid": [
+        {
+          "value": [
+            "1",
+            "2"
+          ]
+        },
+        {
+          "value": "3"
+        }
+      ],
+      "invalid": [
+        {
+          "value": [
+            "bad",
+            "2"
+          ]
+        },
+        {
+          "value": [
+            true
+          ]
+        }
+      ],
+      "probes": [
+        {
+          "value": [
+            "1",
+            "2"
+          ]
+        },
+        {
+          "value": "3"
+        },
+        {
+          "value": [
+            "bad",
+            "2"
+          ]
+        },
+        {
+          "value": [
+            true
+          ]
+        },
+        {
+          "value": []
+        }
+      ]
+    },
+    {
+      "id": "array-inner-nullable",
+      "feature": "array/null",
+      "expressions": [
+        "l.object({value:l.array(l.string({nullable:true}))})",
+        "z.object({value:z.union([z.array(z.string().nullable()),z.string().nullable().transform(x=>[x])])})",
+        "v.object({value:v.union([v.array(v.nullable(v.string())),v.pipe(v.nullable(v.string()),v.transform(x=>[x]))])})"
+      ],
+      "valid": [
+        {
+          "value": [
+            null,
+            "a"
+          ]
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        },
+        {
+          "value": [
+            1
+          ]
+        }
+      ],
+      "probes": [
+        {
+          "value": [
+            null,
+            "a"
+          ]
+        },
+        {
+          "value": null
+        },
+        {
+          "value": 42
+        },
+        {
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "array-default",
+      "feature": "array/default",
+      "expressions": [
+        "l.object({value:l.array(l.string(),{wrapScalar:false,default:{undefined:['general'],null:[]}})})",
+        "z.object({value:z.union([z.array(z.string()),z.null().transform(()=>[])]).default(['general'])})",
+        "v.object({value:v.optional(v.nullable(v.array(v.string()),[]),['general'])})"
+      ],
+      "valid": [
+        {
+          "value": [
+            "a"
+          ]
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        }
+      ],
+      "invalid": [
+        {
+          "value": "a"
+        },
+        {
+          "value": [
+            1
+          ]
+        }
+      ],
+      "probes": [
+        {
+          "value": [
+            "a"
+          ]
+        },
+        {
+          "value": {
+            "$undefined": true
+          }
+        },
+        {
+          "value": null
+        },
+        {
+          "value": "a"
+        },
+        {
+          "value": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "transform-field",
+      "feature": "transform(field)",
+      "expressions": [
+        "l.object({value:l.transform(l.string(),x=>x.toUpperCase())})",
+        "z.object({value:z.string().transform(x=>x.toUpperCase())})",
+        "v.object({value:v.pipe(v.string(),v.transform(x=>x.toUpperCase()))})"
+      ],
+      "valid": [
+        {
+          "value": "hello"
+        }
+      ],
+      "invalid": [
+        {
+          "value": 42
+        }
+      ],
+      "probes": [
+        {
+          "value": "hello"
+        },
+        {
+          "value": 42
+        }
+      ]
+    },
+    {
+      "id": "refine-field",
+      "feature": "refine(field)",
+      "expressions": [
+        "l.object({value:l.refine(l.number(),x=>x%2===0,'even')})",
+        "z.object({value:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).refine(x=>x%2===0,'even')})",
+        "v.object({value:v.pipe(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),v.check(x=>x%2===0,'even'))})"
+      ],
+      "valid": [
+        {
+          "value": "2"
+        },
+        {
+          "value": 4
+        }
+      ],
+      "invalid": [
+        {
+          "value": "3"
+        },
+        {
+          "value": "bad"
+        }
+      ],
+      "probes": [
+        {
+          "value": "2"
+        },
+        {
+          "value": 4
+        },
+        {
+          "value": "3"
+        },
+        {
+          "value": "bad"
+        }
+      ]
+    },
+    {
+      "id": "object-strip",
+      "feature": "object.unknownKeys",
+      "expressions": [
+        "l.object({name:l.string()},{unknownKeys:'strip'})",
+        "z.object({name:z.string()})",
+        "v.object({name:v.string()})"
+      ],
+      "valid": [
+        {
+          "name": "a"
+        },
+        {
+          "name": "a",
+          "extra": "kept?"
+        }
+      ],
+      "invalid": [
+        {
+          "name": 42
+        }
+      ],
+      "probes": [
+        {
+          "name": "a"
+        },
+        {
+          "name": "a",
+          "extra": "kept?"
+        },
+        {
+          "name": 42
+        },
+        null,
+        [],
+        {}
+      ]
+    },
+    {
+      "id": "object-strict",
+      "feature": "object.unknownKeys",
+      "expressions": [
+        "l.object({name:l.string()},{unknownKeys:'strict'})",
+        "z.strictObject({name:z.string()})",
+        "v.strictObject({name:v.string()})"
+      ],
+      "valid": [
+        {
+          "name": "a"
+        }
+      ],
+      "invalid": [
+        {
+          "name": 42
+        },
+        {
+          "name": "a",
+          "extra": 1
+        }
+      ],
+      "probes": [
+        {
+          "name": "a"
+        },
+        {
+          "name": 42
+        },
+        {
+          "name": "a",
+          "extra": 1
+        },
+        null,
+        [],
+        {}
+      ]
+    },
+    {
+      "id": "object-passthrough",
+      "feature": "object.unknownKeys",
+      "expressions": [
+        "l.object({name:l.string()},{unknownKeys:'passthrough'})",
+        "z.looseObject({name:z.string()})",
+        "v.looseObject({name:v.string()})"
+      ],
+      "valid": [
+        {
+          "name": "a"
+        },
+        {
+          "name": "a",
+          "extra": "kept?"
+        }
+      ],
+      "invalid": [
+        {
+          "name": 42
+        }
+      ],
+      "probes": [
+        {
+          "name": "a"
+        },
+        {
+          "name": "a",
+          "extra": "kept?"
+        },
+        {
+          "name": 42
+        },
+        null,
+        [],
+        {}
+      ]
+    },
+    {
+      "id": "refine-object",
+      "feature": "refine(object)",
+      "expressions": [
+        "l.refine(l.object({a:l.number(),b:l.number()}),x=>x.a<x.b,'order')",
+        "z.object({a:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()),b:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number())}).refine(x=>x.a<x.b,'order')",
+        "v.pipe(v.object({a:v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),b:v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite())}),v.check(x=>x.a<x.b,'order'))"
+      ],
+      "valid": [
+        {
+          "a": "1",
+          "b": "2"
+        }
+      ],
+      "invalid": [
+        {
+          "a": "2",
+          "b": "1"
+        }
+      ],
+      "probes": [
+        {
+          "a": "1",
+          "b": "2"
+        },
+        {
+          "a": "2",
+          "b": "1"
+        }
+      ]
+    },
+    {
+      "id": "transform-object",
+      "feature": "transform(object)",
+      "expressions": [
+        "l.transform(l.object({name:l.string()}),x=>({name:x.name.toUpperCase()}))",
+        "z.object({name:z.string()}).transform(x=>({name:x.name.toUpperCase()}))",
+        "v.pipe(v.object({name:v.string()}),v.transform(x=>({name:x.name.toUpperCase()})))"
+      ],
+      "valid": [
+        {
+          "name": "hello"
+        }
+      ],
+      "invalid": [
+        {
+          "name": 42
+        }
+      ],
+      "probes": [
+        {
+          "name": "hello"
+        },
+        {
+          "name": 42
+        }
+      ]
+    },
+    {
+      "id": "union-first",
+      "feature": "union",
+      "expressions": [
+        "l.union([l.object({kind:l.literal('a'),name:l.string()}),l.object({kind:l.literal('b'),count:l.number()})])",
+        "z.union([z.object({kind:z.literal('a'),name:z.string()}),z.object({kind:z.literal('b'),count:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number())})])",
+        "v.union([v.object({kind:v.literal('a'),name:v.string()}),v.object({kind:v.literal('b'),count:v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite())})])"
+      ],
+      "valid": [
+        {
+          "kind": "a",
+          "name": "hello"
+        }
+      ],
+      "invalid": [
+        {
+          "kind": "c"
+        },
+        {
+          "kind": "b",
+          "count": "bad"
+        }
+      ],
+      "probes": [
+        {
+          "kind": "a",
+          "name": "hello"
+        },
+        {
+          "kind": "c"
+        },
+        {
+          "kind": "b",
+          "count": "bad"
+        }
+      ]
+    },
+    {
+      "id": "union-last",
+      "feature": "union",
+      "expressions": [
+        "l.union([l.object({kind:l.literal('a'),name:l.string()}),l.object({kind:l.literal('b'),count:l.number()})])",
+        "z.union([z.object({kind:z.literal('a'),name:z.string()}),z.object({kind:z.literal('b'),count:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number())})])",
+        "v.union([v.object({kind:v.literal('a'),name:v.string()}),v.object({kind:v.literal('b'),count:v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite())})])"
+      ],
+      "valid": [
+        {
+          "kind": "b",
+          "count": "3"
+        }
+      ],
+      "invalid": [
+        {
+          "kind": "c"
+        },
+        {
+          "kind": "b",
+          "count": "bad"
+        }
+      ],
+      "probes": [
+        {
+          "kind": "b",
+          "count": "3"
+        },
+        {
+          "kind": "c"
+        },
+        {
+          "kind": "b",
+          "count": "bad"
+        }
+      ]
+    },
+    {
+      "id": "discriminated-union",
+      "feature": "discriminatedUnion",
+      "expressions": [
+        "l.discriminatedUnion('kind',[l.object({kind:l.literal('a'),name:l.string()}),l.object({kind:l.literal('b'),count:l.number()})])",
+        "z.discriminatedUnion('kind',[z.object({kind:z.literal('a'),name:z.string()}),z.object({kind:z.literal('b'),count:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number())})])",
+        "v.variant('kind',[v.object({kind:v.literal('a'),name:v.string()}),v.object({kind:v.literal('b'),count:v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite())})])"
+      ],
+      "valid": [
+        {
+          "kind": "a",
+          "name": "hello"
+        },
+        {
+          "kind": "b",
+          "count": "3"
+        }
+      ],
+      "invalid": [
+        {
+          "kind": "c"
+        },
+        {
+          "kind": "b",
+          "count": "bad"
+        }
+      ],
+      "probes": [
+        {
+          "kind": "a",
+          "name": "hello"
+        },
+        {
+          "kind": "b",
+          "count": "3"
+        },
+        {
+          "kind": "c"
+        },
+        {
+          "kind": "b",
+          "count": "bad"
+        },
+        {}
+      ]
+    },
+    {
+      "id": "xor",
+      "feature": "xor",
+      "expressions": [
+        "l.xor([l.object({kind:l.literal('a'),name:l.string()}),l.object({kind:l.literal('b'),count:l.number()})])",
+        "z.xor([z.object({kind:z.literal('a'),name:z.string()}),z.object({kind:z.literal('b'),count:z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number())})])",
+        "(()=>{const options=[v.object({kind:v.literal('a'),name:v.string()}),v.object({kind:v.literal('b'),count:v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite())})];return v.pipe(v.unknown(),v.rawTransform(({dataset,addIssue,NEVER})=>{const results=options.map(s=>v.safeParse(s,dataset.value));const matches=results.filter(r=>r.success);if(matches.length!==1){addIssue({message:'Exactly one'});return NEVER;}return matches[0].output;}));})()"
+      ],
+      "valid": [
+        {
+          "kind": "a",
+          "name": "hello"
+        },
+        {
+          "kind": "b",
+          "count": "3"
+        }
+      ],
+      "invalid": [
+        {
+          "kind": "c"
+        }
+      ],
+      "probes": [
+        {
+          "kind": "a",
+          "name": "hello"
+        },
+        {
+          "kind": "b",
+          "count": "3"
+        },
+        {
+          "kind": "c"
+        }
+      ],
+      "nativeValibot": false,
+      "note": "Valibot has no xor export; rawTransform tests prebuilt branches. Included as a composition example, not native xor performance."
+    },
+    {
+      "id": "xor-overlap",
+      "feature": "xor overlap",
+      "expressions": [
+        "l.xor([l.object({a:l.string({optional:true})}),l.object({b:l.string({optional:true})})])",
+        "z.xor([z.object({a:z.string().optional()}),z.object({b:z.string().optional()})])",
+        "v.pipe(v.unknown(),v.check(x=>[v.object({a:v.optional(v.string())}),v.object({b:v.optional(v.string())})].filter(s=>v.safeParse(s,x).success).length===1),v.transform(x=>v.parse(v.union([v.object({a:v.optional(v.string())}),v.object({b:v.optional(v.string())})]),x)))"
+      ],
+      "valid": [
+        {
+          "a": "hello",
+          "b": 42
+        }
+      ],
+      "invalid": [
+        {},
+        {
+          "a": "a",
+          "b": "b"
+        }
+      ],
+      "probes": [
+        {
+          "a": "hello",
+          "b": 42
+        },
+        {},
+        {
+          "a": "a",
+          "b": "b"
+        }
+      ],
+      "nativeValibot": false,
+      "note": "Valibot xor uses a custom composition; no native xor export."
+    },
+    {
+      "id": "intersection",
+      "feature": "intersection",
+      "expressions": [
+        "l.intersection(l.object({a:l.string()}),l.object({b:l.string()}))",
+        "z.intersection(z.object({a:z.string()}),z.object({b:z.string()}))",
+        "v.intersect([v.object({a:v.string()}),v.object({b:v.string()})])"
+      ],
+      "valid": [
+        {
+          "a": "a",
+          "b": "b"
+        }
+      ],
+      "invalid": [
+        {
+          "a": 42,
+          "b": 42
+        },
+        {}
+      ],
+      "probes": [
+        {
+          "a": "a",
+          "b": "b"
+        },
+        {
+          "a": 42,
+          "b": 42
+        },
+        {}
+      ]
+    },
+    {
+      "id": "entries-url",
+      "feature": "fromEntries / url",
+      "expressions": [
+        "l.object({search:l.string(),tag:l.array(l.string(),{optional:true})})",
+        "z.object({search:z.string(),tag:z.union([z.array(z.string()),z.string().transform(x=>[x])]).optional()})",
+        "v.object({search:v.string(),tag:v.optional(v.union([v.array(v.string()),v.pipe(v.string(),v.transform(x=>[x]))]))})"
+      ],
+      "valid": [
+        {
+          "search": "hello",
+          "tag": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "search": "hello",
+          "tag": "a"
+        }
+      ],
+      "invalid": [
+        {
+          "tag": [
+            "a",
+            "b"
+          ]
+        }
+      ],
+      "probes": [
+        {
+          "search": "hello",
+          "tag": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "search": "hello",
+          "tag": "a"
+        },
+        {
+          "tag": [
+            "a",
+            "b"
+          ]
+        }
+      ],
+      "format": "url"
+    },
+    {
+      "id": "entries-form",
+      "feature": "fromEntries / form",
+      "expressions": [
+        "l.object({search:l.string(),tag:l.array(l.string(),{optional:true})})",
+        "z.object({search:z.string(),tag:z.union([z.array(z.string()),z.string().transform(x=>[x])]).optional()})",
+        "v.object({search:v.string(),tag:v.optional(v.union([v.array(v.string()),v.pipe(v.string(),v.transform(x=>[x]))]))})"
+      ],
+      "valid": [
+        {
+          "search": "hello",
+          "tag": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "search": "hello",
+          "tag": "a"
+        }
+      ],
+      "invalid": [
+        {
+          "tag": [
+            "a",
+            "b"
+          ]
+        }
+      ],
+      "probes": [
+        {
+          "search": "hello",
+          "tag": [
+            "a",
+            "b"
+          ]
+        },
+        {
+          "search": "hello",
+          "tag": "a"
+        },
+        {
+          "tag": [
+            "a",
+            "b"
+          ]
+        }
+      ],
+      "format": "form"
+    },
+    {
+      "id": "entry-safeParse",
+      "feature": "safeParse",
+      "expressions": [
+        "l.object({name:l.string()})",
+        "z.object({name:z.string()})",
+        "v.object({name:v.string()})"
+      ],
+      "valid": [
+        {
+          "name": "hello"
+        }
+      ],
+      "invalid": [
+        {
+          "name": 42
+        }
+      ],
+      "probes": [
+        {
+          "name": "hello"
+        },
+        {
+          "name": 42
+        }
+      ],
+      "method": "safeParse"
+    },
+    {
+      "id": "entry-parse",
+      "feature": "parse",
+      "expressions": [
+        "l.object({name:l.string()})",
+        "z.object({name:z.string()})",
+        "v.object({name:v.string()})"
+      ],
+      "valid": [
+        {
+          "name": "hello"
+        }
+      ],
+      "invalid": [
+        {
+          "name": 42
+        }
+      ],
+      "probes": [
+        {
+          "name": "hello"
+        },
+        {
+          "name": 42
+        }
+      ],
+      "method": "parse"
+    },
+    {
+      "id": "width-0",
+      "feature": "object width",
+      "expressions": [
+        "l.object({})",
+        "z.object({})",
+        "v.object({})"
+      ],
+      "valid": [
+        {}
+      ],
+      "invalid": [
+        null
+      ],
+      "probes": [
+        {},
+        null
+      ]
+    },
+    {
+      "id": "width-1",
+      "feature": "object width",
+      "expressions": [
+        "l.object({f0:l.string()})",
+        "z.object({f0:z.string()})",
+        "v.object({f0:v.string()})"
+      ],
+      "valid": [
+        {
+          "f0": "hello"
+        }
+      ],
+      "invalid": [
+        {}
+      ],
+      "probes": [
+        {
+          "f0": "hello"
+        },
+        {}
+      ]
+    },
+    {
+      "id": "width-100",
+      "feature": "object width",
+      "expressions": [
+        "l.object({f0:l.string(),f1:l.string(),f2:l.string(),f3:l.string(),f4:l.string(),f5:l.string(),f6:l.string(),f7:l.string(),f8:l.string(),f9:l.string(),f10:l.string(),f11:l.string(),f12:l.string(),f13:l.string(),f14:l.string(),f15:l.string(),f16:l.string(),f17:l.string(),f18:l.string(),f19:l.string(),f20:l.string(),f21:l.string(),f22:l.string(),f23:l.string(),f24:l.string(),f25:l.string(),f26:l.string(),f27:l.string(),f28:l.string(),f29:l.string(),f30:l.string(),f31:l.string(),f32:l.string(),f33:l.string(),f34:l.string(),f35:l.string(),f36:l.string(),f37:l.string(),f38:l.string(),f39:l.string(),f40:l.string(),f41:l.string(),f42:l.string(),f43:l.string(),f44:l.string(),f45:l.string(),f46:l.string(),f47:l.string(),f48:l.string(),f49:l.string(),f50:l.string(),f51:l.string(),f52:l.string(),f53:l.string(),f54:l.string(),f55:l.string(),f56:l.string(),f57:l.string(),f58:l.string(),f59:l.string(),f60:l.string(),f61:l.string(),f62:l.string(),f63:l.string(),f64:l.string(),f65:l.string(),f66:l.string(),f67:l.string(),f68:l.string(),f69:l.string(),f70:l.string(),f71:l.string(),f72:l.string(),f73:l.string(),f74:l.string(),f75:l.string(),f76:l.string(),f77:l.string(),f78:l.string(),f79:l.string(),f80:l.string(),f81:l.string(),f82:l.string(),f83:l.string(),f84:l.string(),f85:l.string(),f86:l.string(),f87:l.string(),f88:l.string(),f89:l.string(),f90:l.string(),f91:l.string(),f92:l.string(),f93:l.string(),f94:l.string(),f95:l.string(),f96:l.string(),f97:l.string(),f98:l.string(),f99:l.string()})",
+        "z.object({f0:z.string(),f1:z.string(),f2:z.string(),f3:z.string(),f4:z.string(),f5:z.string(),f6:z.string(),f7:z.string(),f8:z.string(),f9:z.string(),f10:z.string(),f11:z.string(),f12:z.string(),f13:z.string(),f14:z.string(),f15:z.string(),f16:z.string(),f17:z.string(),f18:z.string(),f19:z.string(),f20:z.string(),f21:z.string(),f22:z.string(),f23:z.string(),f24:z.string(),f25:z.string(),f26:z.string(),f27:z.string(),f28:z.string(),f29:z.string(),f30:z.string(),f31:z.string(),f32:z.string(),f33:z.string(),f34:z.string(),f35:z.string(),f36:z.string(),f37:z.string(),f38:z.string(),f39:z.string(),f40:z.string(),f41:z.string(),f42:z.string(),f43:z.string(),f44:z.string(),f45:z.string(),f46:z.string(),f47:z.string(),f48:z.string(),f49:z.string(),f50:z.string(),f51:z.string(),f52:z.string(),f53:z.string(),f54:z.string(),f55:z.string(),f56:z.string(),f57:z.string(),f58:z.string(),f59:z.string(),f60:z.string(),f61:z.string(),f62:z.string(),f63:z.string(),f64:z.string(),f65:z.string(),f66:z.string(),f67:z.string(),f68:z.string(),f69:z.string(),f70:z.string(),f71:z.string(),f72:z.string(),f73:z.string(),f74:z.string(),f75:z.string(),f76:z.string(),f77:z.string(),f78:z.string(),f79:z.string(),f80:z.string(),f81:z.string(),f82:z.string(),f83:z.string(),f84:z.string(),f85:z.string(),f86:z.string(),f87:z.string(),f88:z.string(),f89:z.string(),f90:z.string(),f91:z.string(),f92:z.string(),f93:z.string(),f94:z.string(),f95:z.string(),f96:z.string(),f97:z.string(),f98:z.string(),f99:z.string()})",
+        "v.object({f0:v.string(),f1:v.string(),f2:v.string(),f3:v.string(),f4:v.string(),f5:v.string(),f6:v.string(),f7:v.string(),f8:v.string(),f9:v.string(),f10:v.string(),f11:v.string(),f12:v.string(),f13:v.string(),f14:v.string(),f15:v.string(),f16:v.string(),f17:v.string(),f18:v.string(),f19:v.string(),f20:v.string(),f21:v.string(),f22:v.string(),f23:v.string(),f24:v.string(),f25:v.string(),f26:v.string(),f27:v.string(),f28:v.string(),f29:v.string(),f30:v.string(),f31:v.string(),f32:v.string(),f33:v.string(),f34:v.string(),f35:v.string(),f36:v.string(),f37:v.string(),f38:v.string(),f39:v.string(),f40:v.string(),f41:v.string(),f42:v.string(),f43:v.string(),f44:v.string(),f45:v.string(),f46:v.string(),f47:v.string(),f48:v.string(),f49:v.string(),f50:v.string(),f51:v.string(),f52:v.string(),f53:v.string(),f54:v.string(),f55:v.string(),f56:v.string(),f57:v.string(),f58:v.string(),f59:v.string(),f60:v.string(),f61:v.string(),f62:v.string(),f63:v.string(),f64:v.string(),f65:v.string(),f66:v.string(),f67:v.string(),f68:v.string(),f69:v.string(),f70:v.string(),f71:v.string(),f72:v.string(),f73:v.string(),f74:v.string(),f75:v.string(),f76:v.string(),f77:v.string(),f78:v.string(),f79:v.string(),f80:v.string(),f81:v.string(),f82:v.string(),f83:v.string(),f84:v.string(),f85:v.string(),f86:v.string(),f87:v.string(),f88:v.string(),f89:v.string(),f90:v.string(),f91:v.string(),f92:v.string(),f93:v.string(),f94:v.string(),f95:v.string(),f96:v.string(),f97:v.string(),f98:v.string(),f99:v.string()})"
+      ],
+      "valid": [
+        {
+          "f0": "hello",
+          "f1": "hello",
+          "f2": "hello",
+          "f3": "hello",
+          "f4": "hello",
+          "f5": "hello",
+          "f6": "hello",
+          "f7": "hello",
+          "f8": "hello",
+          "f9": "hello",
+          "f10": "hello",
+          "f11": "hello",
+          "f12": "hello",
+          "f13": "hello",
+          "f14": "hello",
+          "f15": "hello",
+          "f16": "hello",
+          "f17": "hello",
+          "f18": "hello",
+          "f19": "hello",
+          "f20": "hello",
+          "f21": "hello",
+          "f22": "hello",
+          "f23": "hello",
+          "f24": "hello",
+          "f25": "hello",
+          "f26": "hello",
+          "f27": "hello",
+          "f28": "hello",
+          "f29": "hello",
+          "f30": "hello",
+          "f31": "hello",
+          "f32": "hello",
+          "f33": "hello",
+          "f34": "hello",
+          "f35": "hello",
+          "f36": "hello",
+          "f37": "hello",
+          "f38": "hello",
+          "f39": "hello",
+          "f40": "hello",
+          "f41": "hello",
+          "f42": "hello",
+          "f43": "hello",
+          "f44": "hello",
+          "f45": "hello",
+          "f46": "hello",
+          "f47": "hello",
+          "f48": "hello",
+          "f49": "hello",
+          "f50": "hello",
+          "f51": "hello",
+          "f52": "hello",
+          "f53": "hello",
+          "f54": "hello",
+          "f55": "hello",
+          "f56": "hello",
+          "f57": "hello",
+          "f58": "hello",
+          "f59": "hello",
+          "f60": "hello",
+          "f61": "hello",
+          "f62": "hello",
+          "f63": "hello",
+          "f64": "hello",
+          "f65": "hello",
+          "f66": "hello",
+          "f67": "hello",
+          "f68": "hello",
+          "f69": "hello",
+          "f70": "hello",
+          "f71": "hello",
+          "f72": "hello",
+          "f73": "hello",
+          "f74": "hello",
+          "f75": "hello",
+          "f76": "hello",
+          "f77": "hello",
+          "f78": "hello",
+          "f79": "hello",
+          "f80": "hello",
+          "f81": "hello",
+          "f82": "hello",
+          "f83": "hello",
+          "f84": "hello",
+          "f85": "hello",
+          "f86": "hello",
+          "f87": "hello",
+          "f88": "hello",
+          "f89": "hello",
+          "f90": "hello",
+          "f91": "hello",
+          "f92": "hello",
+          "f93": "hello",
+          "f94": "hello",
+          "f95": "hello",
+          "f96": "hello",
+          "f97": "hello",
+          "f98": "hello",
+          "f99": "hello"
+        }
+      ],
+      "invalid": [
+        {}
+      ],
+      "probes": [
+        {
+          "f0": "hello",
+          "f1": "hello",
+          "f2": "hello",
+          "f3": "hello",
+          "f4": "hello",
+          "f5": "hello",
+          "f6": "hello",
+          "f7": "hello",
+          "f8": "hello",
+          "f9": "hello",
+          "f10": "hello",
+          "f11": "hello",
+          "f12": "hello",
+          "f13": "hello",
+          "f14": "hello",
+          "f15": "hello",
+          "f16": "hello",
+          "f17": "hello",
+          "f18": "hello",
+          "f19": "hello",
+          "f20": "hello",
+          "f21": "hello",
+          "f22": "hello",
+          "f23": "hello",
+          "f24": "hello",
+          "f25": "hello",
+          "f26": "hello",
+          "f27": "hello",
+          "f28": "hello",
+          "f29": "hello",
+          "f30": "hello",
+          "f31": "hello",
+          "f32": "hello",
+          "f33": "hello",
+          "f34": "hello",
+          "f35": "hello",
+          "f36": "hello",
+          "f37": "hello",
+          "f38": "hello",
+          "f39": "hello",
+          "f40": "hello",
+          "f41": "hello",
+          "f42": "hello",
+          "f43": "hello",
+          "f44": "hello",
+          "f45": "hello",
+          "f46": "hello",
+          "f47": "hello",
+          "f48": "hello",
+          "f49": "hello",
+          "f50": "hello",
+          "f51": "hello",
+          "f52": "hello",
+          "f53": "hello",
+          "f54": "hello",
+          "f55": "hello",
+          "f56": "hello",
+          "f57": "hello",
+          "f58": "hello",
+          "f59": "hello",
+          "f60": "hello",
+          "f61": "hello",
+          "f62": "hello",
+          "f63": "hello",
+          "f64": "hello",
+          "f65": "hello",
+          "f66": "hello",
+          "f67": "hello",
+          "f68": "hello",
+          "f69": "hello",
+          "f70": "hello",
+          "f71": "hello",
+          "f72": "hello",
+          "f73": "hello",
+          "f74": "hello",
+          "f75": "hello",
+          "f76": "hello",
+          "f77": "hello",
+          "f78": "hello",
+          "f79": "hello",
+          "f80": "hello",
+          "f81": "hello",
+          "f82": "hello",
+          "f83": "hello",
+          "f84": "hello",
+          "f85": "hello",
+          "f86": "hello",
+          "f87": "hello",
+          "f88": "hello",
+          "f89": "hello",
+          "f90": "hello",
+          "f91": "hello",
+          "f92": "hello",
+          "f93": "hello",
+          "f94": "hello",
+          "f95": "hello",
+          "f96": "hello",
+          "f97": "hello",
+          "f98": "hello",
+          "f99": "hello"
+        },
+        {}
+      ]
+    },
+    {
+      "id": "scalar-string-basic",
+      "feature": "string / standalone field",
+      "expressions": [
+        "l.string()",
+        "z.string()",
+        "v.string()"
+      ],
+      "valid": [
+        "hello",
+        ""
+      ],
+      "invalid": [
+        42,
+        null
+      ],
+      "probes": [
+        "hello",
+        "",
+        42,
+        null,
+        {
+          "$undefined": true
+        },
+        "😀"
+      ]
+    },
+    {
+      "id": "scalar-string-trim",
+      "feature": "string.trim/min/max / standalone field",
+      "expressions": [
+        "l.string({trim:true,min:2,max:6})",
+        "z.string().trim().refine(x=>x.length>=2&&x.length<=6)",
+        "v.pipe(v.string(),v.trim(),v.minLength(2),v.maxLength(6))"
+      ],
+      "valid": [
+        "  abc  ",
+        "abcdef"
+      ],
+      "invalid": [
+        " a ",
+        "abcdefg"
+      ],
+      "probes": [
+        "  abc  ",
+        "abcdef",
+        " a ",
+        "abcdefg",
+        "😀😀😀",
+        "😀😀😀😀"
+      ],
+      "note": "Zod 4.6.5 native string min/max count Unicode code points; this parity fixture explicitly checks UTF-16 length to match loculus/Valibot."
+    },
+    {
+      "id": "scalar-string-pattern",
+      "feature": "string.pattern / standalone field",
+      "expressions": [
+        "l.string({pattern:/^[a-z]+$/})",
+        "z.string().regex(/^[a-z]+$/)",
+        "v.pipe(v.string(),v.regex(/^[a-z]+$/))"
+      ],
+      "valid": [
+        "abc"
+      ],
+      "invalid": [
+        "ABC",
+        "a1"
+      ],
+      "probes": [
+        "abc",
+        "ABC",
+        "a1",
+        "",
+        null
+      ]
+    },
+    {
+      "id": "scalar-number-decimal",
+      "feature": "number / standalone field",
+      "expressions": [
+        "l.number()",
+        "z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number())",
+        "v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite())"
+      ],
+      "valid": [
+        "12.5",
+        "-2.5e2",
+        12.5
+      ],
+      "invalid": [
+        "",
+        " ",
+        "0x10",
+        "Infinity",
+        true,
+        {
+          "$number": "NaN"
+        },
+        {
+          "$number": "Infinity"
+        }
+      ],
+      "probes": [
+        "12.5",
+        "-2.5e2",
+        12.5,
+        "",
+        " ",
+        "0x10",
+        "Infinity",
+        true,
+        {
+          "$number": "NaN"
+        },
+        {
+          "$number": "Infinity"
+        },
+        "+1",
+        ".5",
+        "1.",
+        "1e309",
+        null
+      ]
+    },
+    {
+      "id": "scalar-number-inclusive",
+      "feature": "number.gte/lte/integer / standalone field",
+      "expressions": [
+        "l.number({integer:true,gte:1,lte:100})",
+        "z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).pipe(z.number().int().gte(1).lte(100))",
+        "v.pipe(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),v.safeInteger(),v.minValue(1),v.maxValue(100))"
+      ],
+      "valid": [
+        "1",
+        "100",
+        50
+      ],
+      "invalid": [
+        "0",
+        "101",
+        "1.5"
+      ],
+      "probes": [
+        "1",
+        "100",
+        50,
+        "0",
+        "101",
+        "1.5",
+        "9007199254740992"
+      ]
+    },
+    {
+      "id": "scalar-number-exclusive",
+      "feature": "number.gt/lt / standalone field",
+      "expressions": [
+        "l.number({gt:0,lt:1})",
+        "z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).pipe(z.number().gt(0).lt(1))",
+        "v.pipe(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),v.check(x=>x>0&&x<1))"
+      ],
+      "valid": [
+        ".5",
+        0.5
+      ],
+      "invalid": [
+        "0",
+        "1"
+      ],
+      "probes": [
+        ".5",
+        0.5,
+        "0",
+        "1",
+        "-1"
+      ]
+    },
+    {
+      "id": "scalar-boolean",
+      "feature": "boolean / standalone field",
+      "expressions": [
+        "l.boolean()",
+        "z.union([z.boolean(),z.enum(['true','false','1','0']).transform(x=>x==='true'||x==='1')])",
+        "v.union([v.boolean(),v.pipe(v.picklist(['true','false','1','0']),v.transform(x=>x==='true'||x==='1'))])"
+      ],
+      "valid": [
+        "true",
+        "false",
+        "1",
+        "0",
+        true,
+        false
+      ],
+      "invalid": [
+        "yes",
+        "",
+        1,
+        null
+      ],
+      "probes": [
+        "true",
+        "false",
+        "1",
+        "0",
+        true,
+        false,
+        "yes",
+        "",
+        1,
+        null,
+        {
+          "$undefined": true
+        }
+      ]
+    },
+    {
+      "id": "scalar-enum-2",
+      "feature": "enum / standalone field",
+      "expressions": [
+        "l.enum([\"value-0\",\"value-1\"])",
+        "z.enum([\"value-0\",\"value-1\"])",
+        "v.picklist([\"value-0\",\"value-1\"])"
+      ],
+      "valid": [
+        "value-0",
+        "value-1"
+      ],
+      "invalid": [
+        "missing",
+        42
+      ],
+      "probes": [
+        "value-0",
+        "value-1",
+        "missing",
+        42,
+        null
+      ]
+    },
+    {
+      "id": "scalar-enum-32",
+      "feature": "enum / standalone field",
+      "expressions": [
+        "l.enum([\"value-0\",\"value-1\",\"value-2\",\"value-3\",\"value-4\",\"value-5\",\"value-6\",\"value-7\",\"value-8\",\"value-9\",\"value-10\",\"value-11\",\"value-12\",\"value-13\",\"value-14\",\"value-15\",\"value-16\",\"value-17\",\"value-18\",\"value-19\",\"value-20\",\"value-21\",\"value-22\",\"value-23\",\"value-24\",\"value-25\",\"value-26\",\"value-27\",\"value-28\",\"value-29\",\"value-30\",\"value-31\"])",
+        "z.enum([\"value-0\",\"value-1\",\"value-2\",\"value-3\",\"value-4\",\"value-5\",\"value-6\",\"value-7\",\"value-8\",\"value-9\",\"value-10\",\"value-11\",\"value-12\",\"value-13\",\"value-14\",\"value-15\",\"value-16\",\"value-17\",\"value-18\",\"value-19\",\"value-20\",\"value-21\",\"value-22\",\"value-23\",\"value-24\",\"value-25\",\"value-26\",\"value-27\",\"value-28\",\"value-29\",\"value-30\",\"value-31\"])",
+        "v.picklist([\"value-0\",\"value-1\",\"value-2\",\"value-3\",\"value-4\",\"value-5\",\"value-6\",\"value-7\",\"value-8\",\"value-9\",\"value-10\",\"value-11\",\"value-12\",\"value-13\",\"value-14\",\"value-15\",\"value-16\",\"value-17\",\"value-18\",\"value-19\",\"value-20\",\"value-21\",\"value-22\",\"value-23\",\"value-24\",\"value-25\",\"value-26\",\"value-27\",\"value-28\",\"value-29\",\"value-30\",\"value-31\"])"
+      ],
+      "valid": [
+        "value-0",
+        "value-31"
+      ],
+      "invalid": [
+        "missing",
+        42
+      ],
+      "probes": [
+        "value-0",
+        "value-31",
+        "missing",
+        42,
+        null
+      ]
+    },
+    {
+      "id": "scalar-literal",
+      "feature": "literal / standalone field",
+      "expressions": [
+        "l.literal('ready')",
+        "z.literal('ready')",
+        "v.literal('ready')"
+      ],
+      "valid": [
+        "ready"
+      ],
+      "invalid": [
+        "other",
+        null
+      ],
+      "probes": [
+        "ready",
+        "other",
+        null
+      ]
+    },
+    {
+      "id": "scalar-date",
+      "feature": "date / standalone field",
+      "expressions": [
+        "l.date()",
+        "z.string().refine(iso).transform(x=>new Date(x))",
+        "v.pipe(v.string(),v.check(iso),v.transform(x=>new Date(x)))"
+      ],
+      "valid": [
+        "2026-10-11",
+        "2024-02-29",
+        "2026-10-11T09:00:00+09:00"
+      ],
+      "invalid": [
+        "2026-02-30",
+        "not-date",
+        null
+      ],
+      "probes": [
+        "2026-10-11",
+        "2024-02-29",
+        "2026-10-11T09:00:00+09:00",
+        "2026-02-30",
+        "not-date",
+        null,
+        "2026-13-01",
+        "2026-10-11T25:00:00Z",
+        42
+      ]
+    },
+    {
+      "id": "scalar-presence-required",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({})",
+        "z.string()",
+        "v.string()"
+      ],
+      "valid": [
+        "hello"
+      ],
+      "invalid": [
+        42,
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "probes": [
+        "hello",
+        42,
+        {
+          "$undefined": true
+        },
+        null,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-optional",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({optional:true})",
+        "z.string().optional()",
+        "v.optional(v.string())"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        }
+      ],
+      "invalid": [
+        42,
+        null
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        42,
+        null,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-nullable",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({nullable:true})",
+        "z.string().nullable()",
+        "v.nullable(v.string())"
+      ],
+      "valid": [
+        "hello",
+        null
+      ],
+      "invalid": [
+        42,
+        {
+          "$undefined": true
+        }
+      ],
+      "probes": [
+        "hello",
+        null,
+        42,
+        {
+          "$undefined": true
+        },
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-nullish",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({nullish:true})",
+        "z.string().nullish()",
+        "v.nullish(v.string())"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null,
+        42,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-optional-nullable",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({optional:true,nullable:true})",
+        "z.string().optional().nullable()",
+        "v.nullish(v.string())"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null,
+        42,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-default",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({default:\"D\"})",
+        "z.string().default(\"D\")",
+        "v.optional(v.string(),\"D\")"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        }
+      ],
+      "invalid": [
+        42,
+        null
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        42,
+        null,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-optional-default",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({optional:true,default:\"D\"})",
+        "z.string().default(\"D\")",
+        "v.optional(v.string(),\"D\")"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        }
+      ],
+      "invalid": [
+        42,
+        null
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        42,
+        null,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-nullable-default",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({nullable:true,default:\"D\"})",
+        "z.string().nullable().default(\"D\")",
+        "v.optional(v.nullable(v.string()),\"D\")"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null,
+        42,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-nullish-default",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({nullish:true,default:\"D\"})",
+        "z.string().nullable().default(\"D\")",
+        "v.optional(v.nullable(v.string()),\"D\")"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null,
+        42,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-target-undefined",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({default:{undefined:\"U\"}})",
+        "z.string().default(\"U\")",
+        "v.optional(v.string(),\"U\")"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        }
+      ],
+      "invalid": [
+        42,
+        null
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        42,
+        null,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-target-null",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({default:{null:\"N\"}})",
+        "z.union([z.string(),z.null().transform(()=>\"N\")])",
+        "v.nullable(v.string(),\"N\")"
+      ],
+      "valid": [
+        "hello",
+        null
+      ],
+      "invalid": [
+        42,
+        {
+          "$undefined": true
+        }
+      ],
+      "probes": [
+        "hello",
+        null,
+        42,
+        {
+          "$undefined": true
+        },
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-optional-target-null",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({optional:true,default:{null:\"N\"}})",
+        "z.union([z.string(),z.null().transform(()=>\"N\")]).optional()",
+        "v.optional(v.nullable(v.string(),\"N\"))"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null,
+        42,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-nullable-target-undefined",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({nullable:true,default:{undefined:\"U\"}})",
+        "z.string().nullable().default(\"U\")",
+        "v.optional(v.nullable(v.string()),\"U\")"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null,
+        42,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-target-both",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({default:{undefined:\"U\",null:\"N\"}})",
+        "z.union([z.string(),z.null().transform(()=>\"N\")]).default(\"U\")",
+        "v.optional(v.nullable(v.string(),\"N\"),\"U\")"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null,
+        42,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-target-nullish",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({default:{nullish:\"D\"}})",
+        "z.string().nullish().transform(x=>x??\"D\")",
+        "v.nullish(v.string(),\"D\")"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null,
+        42,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-presence-nullish-target-nullish",
+      "feature": "FieldOptions presence/default / standalone field",
+      "expressions": [
+        "l.string({nullish:true,default:{nullish:\"D\"}})",
+        "z.string().nullish().transform(x=>x??\"D\")",
+        "v.nullish(v.string(),\"D\")"
+      ],
+      "valid": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        {
+          "$undefined": true
+        },
+        {
+          "$undefined": true
+        },
+        null,
+        42,
+        "",
+        "null"
+      ]
+    },
+    {
+      "id": "scalar-number-nullish-default",
+      "feature": "number/default / standalone field",
+      "expressions": [
+        "l.number({default:{nullish:0}})",
+        "z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).nullish().transform(x=>x??0)",
+        "v.nullish(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),0)"
+      ],
+      "valid": [
+        "42",
+        null,
+        {
+          "$undefined": true
+        }
+      ],
+      "invalid": [
+        "",
+        "oops"
+      ],
+      "probes": [
+        "42",
+        null,
+        {
+          "$undefined": true
+        },
+        "",
+        "oops"
+      ]
+    },
+    {
+      "id": "scalar-boolean-default",
+      "feature": "boolean/default / standalone field",
+      "expressions": [
+        "l.boolean({default:false})",
+        "z.union([z.boolean(),z.enum(['true','false','1','0']).transform(x=>x==='true'||x==='1')]).default(false)",
+        "v.optional(v.union([v.boolean(),v.pipe(v.picklist(['true','false','1','0']),v.transform(x=>x==='true'||x==='1'))]),false)"
+      ],
+      "valid": [
+        "true",
+        {
+          "$undefined": true
+        }
+      ],
+      "invalid": [
+        "yes",
+        null
+      ],
+      "probes": [
+        "true",
+        {
+          "$undefined": true
+        },
+        "yes",
+        null
+      ]
+    },
+    {
+      "id": "scalar-enum-default",
+      "feature": "enum/default / standalone field",
+      "expressions": [
+        "l.enum(['a','b'],{default:'a'})",
+        "z.enum(['a','b']).default('a')",
+        "v.optional(v.picklist(['a','b']),'a')"
+      ],
+      "valid": [
+        "b",
+        {
+          "$undefined": true
+        }
+      ],
+      "invalid": [
+        "c",
+        null
+      ],
+      "probes": [
+        "b",
+        {
+          "$undefined": true
+        },
+        "c",
+        null
+      ]
+    },
+    {
+      "id": "scalar-date-default",
+      "feature": "date/default / standalone field",
+      "expressions": [
+        "l.date({default:new Date('2026-10-11T00:00:00Z')})",
+        "z.string().refine(iso).transform(x=>new Date(x)).default(new Date('2026-10-11T00:00:00Z'))",
+        "v.pipe(v.optional(v.pipe(v.string(),v.check(iso)),'2026-10-11'),v.transform(x=>new Date(x)))"
+      ],
+      "valid": [
+        "2026-10-12",
+        {
+          "$undefined": true
+        }
+      ],
+      "invalid": [
+        "invalid",
+        null
+      ],
+      "probes": [
+        "2026-10-12",
+        {
+          "$undefined": true
+        },
+        "invalid",
+        null
+      ]
+    },
+    {
+      "id": "scalar-array-wrap",
+      "feature": "array.wrapScalar / standalone field",
+      "expressions": [
+        "l.array(l.string())",
+        "z.union([z.array(z.string()),z.string().transform(x=>[x])])",
+        "v.union([v.array(v.string()),v.pipe(v.string(),v.transform(x=>[x]))])"
+      ],
+      "valid": [
+        "a",
+        [
+          "a",
+          "b"
+        ],
+        []
+      ],
+      "invalid": [
+        42,
+        [
+          1,
+          "b"
+        ]
+      ],
+      "probes": [
+        "a",
+        [
+          "a",
+          "b"
+        ],
+        [],
+        42,
+        [
+          1,
+          "b"
+        ],
+        null,
+        {
+          "$undefined": true
+        }
+      ]
+    },
+    {
+      "id": "scalar-array-strict",
+      "feature": "array.wrapScalar=false / standalone field",
+      "expressions": [
+        "l.array(l.string(),{wrapScalar:false})",
+        "z.array(z.string())",
+        "v.array(v.string())"
+      ],
+      "valid": [
+        [
+          "a",
+          "b"
+        ],
+        []
+      ],
+      "invalid": [
+        "a",
+        [
+          1
+        ]
+      ],
+      "probes": [
+        [
+          "a",
+          "b"
+        ],
+        [],
+        "a",
+        [
+          1
+        ],
+        null
+      ]
+    },
+    {
+      "id": "scalar-array-bounds",
+      "feature": "array.min/max / standalone field",
+      "expressions": [
+        "l.array(l.string(),{min:2,max:3})",
+        "z.union([z.array(z.string()),z.string().transform(x=>[x])]).pipe(z.array(z.string()).min(2).max(3))",
+        "v.pipe(v.union([v.array(v.string()),v.pipe(v.string(),v.transform(x=>[x]))]),v.minLength(2),v.maxLength(3))"
+      ],
+      "valid": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "a",
+          "b",
+          "c"
+        ]
+      ],
+      "invalid": [
+        "a",
+        [],
+        [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      ],
+      "probes": [
+        [
+          "a",
+          "b"
+        ],
+        [
+          "a",
+          "b",
+          "c"
+        ],
+        "a",
+        [],
+        [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      ]
+    },
+    {
+      "id": "scalar-array-number",
+      "feature": "array(number) / standalone field",
+      "expressions": [
+        "l.array(l.number())",
+        "z.union([z.array(z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number())),z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).transform(x=>[x])])",
+        "v.union([v.array(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite())),v.pipe(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),v.transform(x=>[x]))])"
+      ],
+      "valid": [
+        [
+          "1",
+          "2"
+        ],
+        "3"
+      ],
+      "invalid": [
+        [
+          "bad",
+          "2"
+        ],
+        [
+          true
+        ]
+      ],
+      "probes": [
+        [
+          "1",
+          "2"
+        ],
+        "3",
+        [
+          "bad",
+          "2"
+        ],
+        [
+          true
+        ],
+        []
+      ]
+    },
+    {
+      "id": "scalar-array-inner-nullable",
+      "feature": "array/null / standalone field",
+      "expressions": [
+        "l.array(l.string({nullable:true}))",
+        "z.union([z.array(z.string().nullable()),z.string().nullable().transform(x=>[x])])",
+        "v.union([v.array(v.nullable(v.string())),v.pipe(v.nullable(v.string()),v.transform(x=>[x]))])"
+      ],
+      "valid": [
+        [
+          null,
+          "a"
+        ],
+        null
+      ],
+      "invalid": [
+        42,
+        [
+          1
+        ]
+      ],
+      "probes": [
+        [
+          null,
+          "a"
+        ],
+        null,
+        42,
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "id": "scalar-array-default",
+      "feature": "array/default / standalone field",
+      "expressions": [
+        "l.array(l.string(),{wrapScalar:false,default:{undefined:['general'],null:[]}})",
+        "z.union([z.array(z.string()),z.null().transform(()=>[])]).default(['general'])",
+        "v.optional(v.nullable(v.array(v.string()),[]),['general'])"
+      ],
+      "valid": [
+        [
+          "a"
+        ],
+        {
+          "$undefined": true
+        },
+        null
+      ],
+      "invalid": [
+        "a",
+        [
+          1
+        ]
+      ],
+      "probes": [
+        [
+          "a"
+        ],
+        {
+          "$undefined": true
+        },
+        null,
+        "a",
+        [
+          1
+        ]
+      ]
+    },
+    {
+      "id": "scalar-transform-field",
+      "feature": "transform(field) / standalone field",
+      "expressions": [
+        "l.transform(l.string(),x=>x.toUpperCase())",
+        "z.string().transform(x=>x.toUpperCase())",
+        "v.pipe(v.string(),v.transform(x=>x.toUpperCase()))"
+      ],
+      "valid": [
+        "hello"
+      ],
+      "invalid": [
+        42
+      ],
+      "probes": [
+        "hello",
+        42
+      ]
+    },
+    {
+      "id": "scalar-refine-field",
+      "feature": "refine(field) / standalone field",
+      "expressions": [
+        "l.refine(l.number(),x=>x%2===0,'even')",
+        "z.union([z.string().regex(decimal).transform(Number),z.number()]).pipe(z.number()).refine(x=>x%2===0,'even')",
+        "v.pipe(v.pipe(v.union([v.pipe(v.string(),v.regex(decimal),v.transform(Number)),v.number()]),v.finite()),v.check(x=>x%2===0,'even'))"
+      ],
+      "valid": [
+        "2",
+        4
+      ],
+      "invalid": [
+        "3",
+        "bad"
+      ],
+      "probes": [
+        "2",
+        4,
+        "3",
+        "bad"
+      ]
+    }
+  ],
+  "prelude": "\nconst decimal=/^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$/;\nconst booleanWords=['true','false','1','0'];\nconst iso=(value)=>/^\\d{4}-\\d{2}-\\d{2}(?:T.*)?$/.test(value)&&Number.isFinite(new Date(value).getTime())&&new Date(value.slice(0,10)+'T00:00:00.000Z').toISOString().slice(0,10)===value.slice(0,10);\n",
+  "coverage": {
+    "string": [
+      "string-basic",
+      "string-trim",
+      "string-pattern"
+    ],
+    "number": [
+      "number-decimal",
+      "number-inclusive",
+      "number-exclusive"
+    ],
+    "boolean": [
+      "boolean"
+    ],
+    "enum": [
+      "enum-2",
+      "enum-32"
+    ],
+    "literal": [
+      "literal"
+    ],
+    "date": [
+      "date",
+      "date-default"
+    ],
+    "array": [
+      "array-wrap",
+      "array-strict",
+      "array-bounds",
+      "array-number",
+      "array-inner-nullable",
+      "array-default"
+    ],
+    "FieldOptions": [
+      "presence-required",
+      "presence-optional",
+      "presence-nullable",
+      "presence-nullish",
+      "presence-optional-nullable",
+      "presence-default",
+      "presence-optional-default",
+      "presence-nullable-default",
+      "presence-nullish-default",
+      "presence-target-undefined",
+      "presence-target-null",
+      "presence-optional-target-null",
+      "presence-nullable-target-undefined",
+      "presence-target-both",
+      "presence-target-nullish",
+      "presence-nullish-target-nullish"
+    ],
+    "transform": [
+      "transform-field",
+      "transform-object"
+    ],
+    "refine": [
+      "refine-field",
+      "refine-object"
+    ],
+    "object": [
+      "object-strip",
+      "object-strict",
+      "object-passthrough",
+      "width-0",
+      "width-1",
+      "width-100"
+    ],
+    "union": [
+      "union-first",
+      "union-last"
+    ],
+    "xor": [
+      "xor",
+      "xor-overlap"
+    ],
+    "discriminatedUnion": [
+      "discriminated-union"
+    ],
+    "intersection": [
+      "intersection"
+    ],
+    "fromEntries": [
+      "entries-url",
+      "entries-form"
+    ],
+    "parse": [
+      "entry-parse"
+    ],
+    "safeParse": [
+      "entry-safeParse"
+    ],
+    "compile": "All eligible object profiles also run compile/JIT mode"
+  }
+}

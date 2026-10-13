@@ -1,0 +1,841 @@
+{
+  "date": "2026-10-11T16:55:11.555Z",
+  "sourceHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+  "distHash": "17eb28fb24e095141a85e1bf6ba33b408d67e5e3ad4081a70a21d9074ef66ab4",
+  "scope": "Additional six profiles, actual before/after JS, live schema and Standard Schema validate, esbuild browser ES2022 ESM; separate from canonical96",
+  "cases": {
+    "supplement-rhf-items-1": {
+      "ordinary": {
+        "before": {
+          "bytes": 4432,
+          "gzipBytes": 1817
+        },
+        "after": {
+          "bytes": 4436,
+          "gzipBytes": 1818
+        },
+        "zod": {
+          "bytes": 453341,
+          "gzipBytes": 93247
+        },
+        "valibot": {
+          "bytes": 6136,
+          "gzipBytes": 2012
+        }
+      },
+      "compiled": {
+        "before": {
+          "bytes": 8095,
+          "gzipBytes": 3092
+        },
+        "after": {
+          "bytes": 8848,
+          "gzipBytes": 3380
+        },
+        "zod": {
+          "bytes": 453353,
+          "gzipBytes": 93257
+        },
+        "valibot": {
+          "bytes": 6136,
+          "gzipBytes": 2012
+        }
+      }
+    },
+    "supplement-rhf-items-10": {
+      "ordinary": {
+        "before": {
+          "bytes": 4432,
+          "gzipBytes": 1817
+        },
+        "after": {
+          "bytes": 4436,
+          "gzipBytes": 1818
+        },
+        "zod": {
+          "bytes": 453341,
+          "gzipBytes": 93247
+        },
+        "valibot": {
+          "bytes": 6136,
+          "gzipBytes": 2012
+        }
+      },
+      "compiled": {
+        "before": {
+          "bytes": 8095,
+          "gzipBytes": 3092
+        },
+        "after": {
+          "bytes": 8848,
+          "gzipBytes": 3380
+        },
+        "zod": {
+          "bytes": 453353,
+          "gzipBytes": 93257
+        },
+        "valibot": {
+          "bytes": 6136,
+          "gzipBytes": 2012
+        }
+      }
+    },
+    "supplement-rhf-items-100": {
+      "ordinary": {
+        "before": {
+          "bytes": 4432,
+          "gzipBytes": 1817
+        },
+        "after": {
+          "bytes": 4436,
+          "gzipBytes": 1818
+        },
+        "zod": {
+          "bytes": 453341,
+          "gzipBytes": 93247
+        },
+        "valibot": {
+          "bytes": 6136,
+          "gzipBytes": 2012
+        }
+      },
+      "compiled": {
+        "before": {
+          "bytes": 8095,
+          "gzipBytes": 3092
+        },
+        "after": {
+          "bytes": 8848,
+          "gzipBytes": 3380
+        },
+        "zod": {
+          "bytes": 453353,
+          "gzipBytes": 93257
+        },
+        "valibot": {
+          "bytes": 6136,
+          "gzipBytes": 2012
+        }
+      }
+    },
+    "mixed-http-transform-100": {
+      "ordinary": {
+        "before": {
+          "bytes": 3867,
+          "gzipBytes": 1628
+        },
+        "after": {
+          "bytes": 3991,
+          "gzipBytes": 1632
+        },
+        "zod": {
+          "bytes": 454596,
+          "gzipBytes": 93470
+        },
+        "valibot": {
+          "bytes": 3782,
+          "gzipBytes": 1482
+        }
+      },
+      "compiled": {
+        "before": {
+          "bytes": 7586,
+          "gzipBytes": 3010
+        },
+        "after": {
+          "bytes": 8459,
+          "gzipBytes": 3284
+        },
+        "zod": {
+          "bytes": 454607,
+          "gzipBytes": 93481
+        },
+        "valibot": {
+          "bytes": 3782,
+          "gzipBytes": 1482
+        }
+      }
+    },
+    "mixed-http-default-100": {
+      "ordinary": {
+        "before": {
+          "bytes": 3612,
+          "gzipBytes": 1551
+        },
+        "after": {
+          "bytes": 3644,
+          "gzipBytes": 1548
+        },
+        "zod": {
+          "bytes": 454596,
+          "gzipBytes": 93473
+        },
+        "valibot": {
+          "bytes": 3665,
+          "gzipBytes": 1419
+        }
+      },
+      "compiled": {
+        "before": {
+          "bytes": 7331,
+          "gzipBytes": 2939
+        },
+        "after": {
+          "bytes": 8112,
+          "gzipBytes": 3196
+        },
+        "zod": {
+          "bytes": 454607,
+          "gzipBytes": 93481
+        },
+        "valibot": {
+          "bytes": 3665,
+          "gzipBytes": 1419
+        }
+      }
+    },
+    "mixed-http-query-12": {
+      "ordinary": {
+        "before": {
+          "bytes": 5434,
+          "gzipBytes": 2191
+        },
+        "after": {
+          "bytes": 5438,
+          "gzipBytes": 2202
+        },
+        "zod": {
+          "bytes": 453756,
+          "gzipBytes": 93383
+        },
+        "valibot": {
+          "bytes": 6910,
+          "gzipBytes": 2243
+        }
+      },
+      "compiled": {
+        "before": {
+          "bytes": 8948,
+          "gzipBytes": 3421
+        },
+        "after": {
+          "bytes": 9701,
+          "gzipBytes": 3707
+        },
+        "zod": {
+          "bytes": 453767,
+          "gzipBytes": 93391
+        },
+        "valibot": {
+          "bytes": 6910,
+          "gzipBytes": 2243
+        }
+      }
+    }
+  },
+  "entrySanity": {
+    "loculus": {
+      "bytes": 2844,
+      "gzipBytes": 1280
+    },
+    "valibot": {
+      "bytes": 2592,
+      "gzipBytes": 1078
+    },
+    "zodRootNamespace": {
+      "bytes": 453091,
+      "gzipBytes": 93150
+    },
+    "zodRootNamed": {
+      "bytes": 84311,
+      "gzipBytes": 24837
+    },
+    "zodV4Named": {
+      "bytes": 84311,
+      "gzipBytes": 24837
+    },
+    "zodMiniNamed": {
+      "bytes": 12418,
+      "gzipBytes": 4421
+    }
+  },
+  "namedZodOrdinary": {
+    "string-basic": {
+      "bytes": 84311,
+      "gzipBytes": 24839,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string()})"
+    },
+    "string-trim": {
+      "bytes": 84354,
+      "gzipBytes": 24860,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().trim().refine(x=>x.length>=2&&x.length<=6)})"
+    },
+    "string-pattern": {
+      "bytes": 84329,
+      "gzipBytes": 24856,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().regex(/^[a-z]+$/)})"
+    },
+    "number-decimal": {
+      "bytes": 89424,
+      "gzipBytes": 26120,
+      "imports": "import {object as z_object,union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_object({value:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number())})"
+    },
+    "number-inclusive": {
+      "bytes": 89457,
+      "gzipBytes": 26140,
+      "imports": "import {object as z_object,union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_object({value:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).pipe(z_number().int().gte(1).lte(100))})"
+    },
+    "number-exclusive": {
+      "bytes": 89447,
+      "gzipBytes": 26135,
+      "imports": "import {object as z_object,union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_object({value:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).pipe(z_number().gt(0).lt(1))})"
+    },
+    "boolean": {
+      "bytes": 67739,
+      "gzipBytes": 20812,
+      "imports": "import {object as z_object,union as z_union,boolean as z_boolean,enum as z_enum} from 'zod';",
+      "expression": "z_object({value:z_union([z_boolean(),z_enum(['true','false','1','0']).transform(x=>x==='true'||x==='1')])})"
+    },
+    "enum-2": {
+      "bytes": 67196,
+      "gzipBytes": 20669,
+      "imports": "import {object as z_object,enum as z_enum} from 'zod';",
+      "expression": "z_object({value:z_enum([\"value-0\",\"value-1\"])})"
+    },
+    "enum-32": {
+      "bytes": 67518,
+      "gzipBytes": 20756,
+      "imports": "import {object as z_object,enum as z_enum} from 'zod';",
+      "expression": "z_object({value:z_enum([\"value-0\",\"value-1\",\"value-2\",\"value-3\",\"value-4\",\"value-5\",\"value-6\",\"value-7\",\"value-8\",\"value-9\",\"value-10\",\"value-11\",\"value-12\",\"value-13\",\"value-14\",\"value-15\",\"value-16\",\"value-17\",\"value-18\",\"value-19\",\"value-20\",\"value-21\",\"value-22\",\"value-23\",\"value-24\",\"value-25\",\"value-26\",\"value-27\",\"value-28\",\"value-29\",\"value-30\",\"value-31\"])})"
+    },
+    "literal": {
+      "bytes": 68647,
+      "gzipBytes": 21010,
+      "imports": "import {object as z_object,literal as z_literal} from 'zod';",
+      "expression": "z_object({value:z_literal('ready')})"
+    },
+    "date": {
+      "bytes": 84516,
+      "gzipBytes": 24960,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().refine(iso).transform(x=>new Date(x))})"
+    },
+    "presence-required": {
+      "bytes": 84311,
+      "gzipBytes": 24839,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string()})"
+    },
+    "presence-optional": {
+      "bytes": 84322,
+      "gzipBytes": 24844,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().optional()})"
+    },
+    "presence-nullable": {
+      "bytes": 84322,
+      "gzipBytes": 24844,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().nullable()})"
+    },
+    "presence-nullish": {
+      "bytes": 84321,
+      "gzipBytes": 24844,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().nullish()})"
+    },
+    "presence-optional-nullable": {
+      "bytes": 84333,
+      "gzipBytes": 24848,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().optional().nullable()})"
+    },
+    "presence-default": {
+      "bytes": 84324,
+      "gzipBytes": 24846,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().default(\"D\")})"
+    },
+    "presence-optional-default": {
+      "bytes": 84324,
+      "gzipBytes": 24846,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().default(\"D\")})"
+    },
+    "presence-nullable-default": {
+      "bytes": 84335,
+      "gzipBytes": 24850,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().nullable().default(\"D\")})"
+    },
+    "presence-nullish-default": {
+      "bytes": 84335,
+      "gzipBytes": 24850,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().nullable().default(\"D\")})"
+    },
+    "presence-target-undefined": {
+      "bytes": 84324,
+      "gzipBytes": 24846,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().default(\"U\")})"
+    },
+    "presence-target-null": {
+      "bytes": 84860,
+      "gzipBytes": 24964,
+      "imports": "import {object as z_object,union as z_union,string as z_string,null as z_null} from 'zod';",
+      "expression": "z_object({value:z_union([z_string(),z_null().transform(()=>\"N\")])})"
+    },
+    "presence-optional-target-null": {
+      "bytes": 84871,
+      "gzipBytes": 24968,
+      "imports": "import {object as z_object,union as z_union,string as z_string,null as z_null} from 'zod';",
+      "expression": "z_object({value:z_union([z_string(),z_null().transform(()=>\"N\")]).optional()})"
+    },
+    "presence-nullable-target-undefined": {
+      "bytes": 84335,
+      "gzipBytes": 24850,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().nullable().default(\"U\")})"
+    },
+    "presence-target-both": {
+      "bytes": 84873,
+      "gzipBytes": 24971,
+      "imports": "import {object as z_object,union as z_union,string as z_string,null as z_null} from 'zod';",
+      "expression": "z_object({value:z_union([z_string(),z_null().transform(()=>\"N\")]).default(\"U\")})"
+    },
+    "presence-target-nullish": {
+      "bytes": 84342,
+      "gzipBytes": 24854,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().nullish().transform(x=>x??\"D\")})"
+    },
+    "presence-nullish-target-nullish": {
+      "bytes": 84342,
+      "gzipBytes": 24854,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().nullish().transform(x=>x??\"D\")})"
+    },
+    "number-nullish-default": {
+      "bytes": 89453,
+      "gzipBytes": 26132,
+      "imports": "import {object as z_object,union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_object({value:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).nullish().transform(x=>x??0)})"
+    },
+    "boolean-default": {
+      "bytes": 67751,
+      "gzipBytes": 20816,
+      "imports": "import {object as z_object,union as z_union,boolean as z_boolean,enum as z_enum} from 'zod';",
+      "expression": "z_object({value:z_union([z_boolean(),z_enum(['true','false','1','0']).transform(x=>x==='true'||x==='1')]).default(false)})"
+    },
+    "enum-default": {
+      "bytes": 67197,
+      "gzipBytes": 20670,
+      "imports": "import {object as z_object,enum as z_enum} from 'zod';",
+      "expression": "z_object({value:z_enum(['a','b']).default('a')})"
+    },
+    "date-default": {
+      "bytes": 84558,
+      "gzipBytes": 24981,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().refine(iso).transform(x=>new Date(x)).default(new Date('2026-10-11T00:00:00Z'))})"
+    },
+    "array-wrap": {
+      "bytes": 84344,
+      "gzipBytes": 24855,
+      "imports": "import {object as z_object,union as z_union,array as z_array,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_union([z_array(z_string()),z_string().transform(x=>[x])])})"
+    },
+    "array-strict": {
+      "bytes": 84315,
+      "gzipBytes": 24842,
+      "imports": "import {object as z_object,array as z_array,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_array(z_string())})"
+    },
+    "array-bounds": {
+      "bytes": 84373,
+      "gzipBytes": 24873,
+      "imports": "import {object as z_object,union as z_union,array as z_array,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_union([z_array(z_string()),z_string().transform(x=>[x])]).pipe(z_array(z_string()).min(2).max(3))})"
+    },
+    "array-number": {
+      "bytes": 89507,
+      "gzipBytes": 26152,
+      "imports": "import {object as z_object,union as z_union,array as z_array,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_object({value:z_union([z_array(z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number())),z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).transform(x=>[x])])})"
+    },
+    "array-inner-nullable": {
+      "bytes": 84366,
+      "gzipBytes": 24858,
+      "imports": "import {object as z_object,union as z_union,array as z_array,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_union([z_array(z_string().nullable()),z_string().nullable().transform(x=>[x])])})"
+    },
+    "array-default": {
+      "bytes": 84884,
+      "gzipBytes": 24971,
+      "imports": "import {object as z_object,union as z_union,array as z_array,string as z_string,null as z_null} from 'zod';",
+      "expression": "z_object({value:z_union([z_array(z_string()),z_null().transform(()=>[])]).default(['general'])})"
+    },
+    "transform-field": {
+      "bytes": 84341,
+      "gzipBytes": 24845,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({value:z_string().transform(x=>x.toUpperCase())})"
+    },
+    "refine-field": {
+      "bytes": 89450,
+      "gzipBytes": 26138,
+      "imports": "import {object as z_object,union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_object({value:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).refine(x=>x%2===0,'even')})"
+    },
+    "object-strip": {
+      "bytes": 84310,
+      "gzipBytes": 24840,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({name:z_string()})"
+    },
+    "object-strict": {
+      "bytes": 84312,
+      "gzipBytes": 24834,
+      "imports": "import {strictObject as z_strictObject,string as z_string} from 'zod';",
+      "expression": "z_strictObject({name:z_string()})"
+    },
+    "object-passthrough": {
+      "bytes": 84312,
+      "gzipBytes": 24832,
+      "imports": "import {looseObject as z_looseObject,string as z_string} from 'zod';",
+      "expression": "z_looseObject({name:z_string()})"
+    },
+    "refine-object": {
+      "bytes": 89504,
+      "gzipBytes": 26140,
+      "imports": "import {object as z_object,union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_object({a:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()),b:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number())}).refine(x=>x.a<x.b,'order')"
+    },
+    "transform-object": {
+      "bytes": 84354,
+      "gzipBytes": 24855,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({name:z_string()}).transform(x=>({name:x.name.toUpperCase()}))"
+    },
+    "union-first": {
+      "bytes": 90933,
+      "gzipBytes": 26500,
+      "imports": "import {union as z_union,object as z_object,literal as z_literal,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_union([z_object({kind:z_literal('a'),name:z_string()}),z_object({kind:z_literal('b'),count:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number())})])"
+    },
+    "union-last": {
+      "bytes": 90933,
+      "gzipBytes": 26500,
+      "imports": "import {union as z_union,object as z_object,literal as z_literal,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_union([z_object({kind:z_literal('a'),name:z_string()}),z_object({kind:z_literal('b'),count:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number())})])"
+    },
+    "discriminated-union": {
+      "bytes": 92697,
+      "gzipBytes": 26976,
+      "imports": "import {discriminatedUnion as z_discriminatedUnion,object as z_object,literal as z_literal,string as z_string,union as z_union,number as z_number} from 'zod';",
+      "expression": "z_discriminatedUnion('kind',[z_object({kind:z_literal('a'),name:z_string()}),z_object({kind:z_literal('b'),count:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number())})])"
+    },
+    "xor": {
+      "bytes": 91838,
+      "gzipBytes": 26639,
+      "imports": "import {xor as z_xor,object as z_object,literal as z_literal,string as z_string,union as z_union,number as z_number} from 'zod';",
+      "expression": "z_xor([z_object({kind:z_literal('a'),name:z_string()}),z_object({kind:z_literal('b'),count:z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number())})])"
+    },
+    "xor-overlap": {
+      "bytes": 85253,
+      "gzipBytes": 25017,
+      "imports": "import {xor as z_xor,object as z_object,string as z_string} from 'zod';",
+      "expression": "z_xor([z_object({a:z_string().optional()}),z_object({b:z_string().optional()})])"
+    },
+    "intersection": {
+      "bytes": 84324,
+      "gzipBytes": 24844,
+      "imports": "import {intersection as z_intersection,object as z_object,string as z_string} from 'zod';",
+      "expression": "z_intersection(z_object({a:z_string()}),z_object({b:z_string()}))"
+    },
+    "entries-url": {
+      "bytes": 84365,
+      "gzipBytes": 24873,
+      "imports": "import {object as z_object,string as z_string,union as z_union,array as z_array} from 'zod';",
+      "expression": "z_object({search:z_string(),tag:z_union([z_array(z_string()),z_string().transform(x=>[x])]).optional()})"
+    },
+    "entries-form": {
+      "bytes": 84365,
+      "gzipBytes": 24873,
+      "imports": "import {object as z_object,string as z_string,union as z_union,array as z_array} from 'zod';",
+      "expression": "z_object({search:z_string(),tag:z_union([z_array(z_string()),z_string().transform(x=>[x])]).optional()})"
+    },
+    "entry-safeParse": {
+      "bytes": 84310,
+      "gzipBytes": 24840,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({name:z_string()})"
+    },
+    "entry-parse": {
+      "bytes": 84310,
+      "gzipBytes": 24840,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({name:z_string()})"
+    },
+    "width-0": {
+      "bytes": 67165,
+      "gzipBytes": 20654,
+      "imports": "import {object as z_object} from 'zod';",
+      "expression": "z_object({})"
+    },
+    "width-1": {
+      "bytes": 84308,
+      "gzipBytes": 24840,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({f0:z_string()})"
+    },
+    "width-100": {
+      "bytes": 85094,
+      "gzipBytes": 25098,
+      "imports": "import {object as z_object,string as z_string} from 'zod';",
+      "expression": "z_object({f0:z_string(),f1:z_string(),f2:z_string(),f3:z_string(),f4:z_string(),f5:z_string(),f6:z_string(),f7:z_string(),f8:z_string(),f9:z_string(),f10:z_string(),f11:z_string(),f12:z_string(),f13:z_string(),f14:z_string(),f15:z_string(),f16:z_string(),f17:z_string(),f18:z_string(),f19:z_string(),f20:z_string(),f21:z_string(),f22:z_string(),f23:z_string(),f24:z_string(),f25:z_string(),f26:z_string(),f27:z_string(),f28:z_string(),f29:z_string(),f30:z_string(),f31:z_string(),f32:z_string(),f33:z_string(),f34:z_string(),f35:z_string(),f36:z_string(),f37:z_string(),f38:z_string(),f39:z_string(),f40:z_string(),f41:z_string(),f42:z_string(),f43:z_string(),f44:z_string(),f45:z_string(),f46:z_string(),f47:z_string(),f48:z_string(),f49:z_string(),f50:z_string(),f51:z_string(),f52:z_string(),f53:z_string(),f54:z_string(),f55:z_string(),f56:z_string(),f57:z_string(),f58:z_string(),f59:z_string(),f60:z_string(),f61:z_string(),f62:z_string(),f63:z_string(),f64:z_string(),f65:z_string(),f66:z_string(),f67:z_string(),f68:z_string(),f69:z_string(),f70:z_string(),f71:z_string(),f72:z_string(),f73:z_string(),f74:z_string(),f75:z_string(),f76:z_string(),f77:z_string(),f78:z_string(),f79:z_string(),f80:z_string(),f81:z_string(),f82:z_string(),f83:z_string(),f84:z_string(),f85:z_string(),f86:z_string(),f87:z_string(),f88:z_string(),f89:z_string(),f90:z_string(),f91:z_string(),f92:z_string(),f93:z_string(),f94:z_string(),f95:z_string(),f96:z_string(),f97:z_string(),f98:z_string(),f99:z_string()})"
+    },
+    "scalar-string-basic": {
+      "bytes": 74890,
+      "gzipBytes": 21971,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string()"
+    },
+    "scalar-string-trim": {
+      "bytes": 74933,
+      "gzipBytes": 21992,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().trim().refine(x=>x.length>=2&&x.length<=6)"
+    },
+    "scalar-string-pattern": {
+      "bytes": 74908,
+      "gzipBytes": 21986,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().regex(/^[a-z]+$/)"
+    },
+    "scalar-number-decimal": {
+      "bytes": 80007,
+      "gzipBytes": 23244,
+      "imports": "import {union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number())"
+    },
+    "scalar-number-inclusive": {
+      "bytes": 80040,
+      "gzipBytes": 23261,
+      "imports": "import {union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).pipe(z_number().int().gte(1).lte(100))"
+    },
+    "scalar-number-exclusive": {
+      "bytes": 80030,
+      "gzipBytes": 23255,
+      "imports": "import {union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).pipe(z_number().gt(0).lt(1))"
+    },
+    "scalar-boolean": {
+      "bytes": 59593,
+      "gzipBytes": 18313,
+      "imports": "import {union as z_union,boolean as z_boolean,enum as z_enum} from 'zod';",
+      "expression": "z_union([z_boolean(),z_enum(['true','false','1','0']).transform(x=>x==='true'||x==='1')])"
+    },
+    "scalar-enum-2": {
+      "bytes": 59050,
+      "gzipBytes": 18164,
+      "imports": "import {enum as z_enum} from 'zod';",
+      "expression": "z_enum([\"value-0\",\"value-1\"])"
+    },
+    "scalar-enum-32": {
+      "bytes": 59372,
+      "gzipBytes": 18253,
+      "imports": "import {enum as z_enum} from 'zod';",
+      "expression": "z_enum([\"value-0\",\"value-1\",\"value-2\",\"value-3\",\"value-4\",\"value-5\",\"value-6\",\"value-7\",\"value-8\",\"value-9\",\"value-10\",\"value-11\",\"value-12\",\"value-13\",\"value-14\",\"value-15\",\"value-16\",\"value-17\",\"value-18\",\"value-19\",\"value-20\",\"value-21\",\"value-22\",\"value-23\",\"value-24\",\"value-25\",\"value-26\",\"value-27\",\"value-28\",\"value-29\",\"value-30\",\"value-31\"])"
+    },
+    "scalar-literal": {
+      "bytes": 59235,
+      "gzipBytes": 18165,
+      "imports": "import {literal as z_literal} from 'zod';",
+      "expression": "z_literal('ready')"
+    },
+    "scalar-date": {
+      "bytes": 75095,
+      "gzipBytes": 22076,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().refine(iso).transform(x=>new Date(x))"
+    },
+    "scalar-presence-required": {
+      "bytes": 74890,
+      "gzipBytes": 21971,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string()"
+    },
+    "scalar-presence-optional": {
+      "bytes": 74901,
+      "gzipBytes": 21975,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().optional()"
+    },
+    "scalar-presence-nullable": {
+      "bytes": 74901,
+      "gzipBytes": 21975,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().nullable()"
+    },
+    "scalar-presence-nullish": {
+      "bytes": 74900,
+      "gzipBytes": 21975,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().nullish()"
+    },
+    "scalar-presence-optional-nullable": {
+      "bytes": 74912,
+      "gzipBytes": 21978,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().optional().nullable()"
+    },
+    "scalar-presence-default": {
+      "bytes": 74903,
+      "gzipBytes": 21977,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().default(\"D\")"
+    },
+    "scalar-presence-optional-default": {
+      "bytes": 74903,
+      "gzipBytes": 21977,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().default(\"D\")"
+    },
+    "scalar-presence-nullable-default": {
+      "bytes": 74914,
+      "gzipBytes": 21981,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().nullable().default(\"D\")"
+    },
+    "scalar-presence-nullish-default": {
+      "bytes": 74914,
+      "gzipBytes": 21981,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().nullable().default(\"D\")"
+    },
+    "scalar-presence-target-undefined": {
+      "bytes": 74903,
+      "gzipBytes": 21977,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().default(\"U\")"
+    },
+    "scalar-presence-target-null": {
+      "bytes": 75439,
+      "gzipBytes": 22099,
+      "imports": "import {union as z_union,string as z_string,null as z_null} from 'zod';",
+      "expression": "z_union([z_string(),z_null().transform(()=>\"N\")])"
+    },
+    "scalar-presence-optional-target-null": {
+      "bytes": 75450,
+      "gzipBytes": 22102,
+      "imports": "import {union as z_union,string as z_string,null as z_null} from 'zod';",
+      "expression": "z_union([z_string(),z_null().transform(()=>\"N\")]).optional()"
+    },
+    "scalar-presence-nullable-target-undefined": {
+      "bytes": 74914,
+      "gzipBytes": 21981,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().nullable().default(\"U\")"
+    },
+    "scalar-presence-target-both": {
+      "bytes": 75452,
+      "gzipBytes": 22105,
+      "imports": "import {union as z_union,string as z_string,null as z_null} from 'zod';",
+      "expression": "z_union([z_string(),z_null().transform(()=>\"N\")]).default(\"U\")"
+    },
+    "scalar-presence-target-nullish": {
+      "bytes": 74921,
+      "gzipBytes": 21985,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().nullish().transform(x=>x??\"D\")"
+    },
+    "scalar-presence-nullish-target-nullish": {
+      "bytes": 74921,
+      "gzipBytes": 21985,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().nullish().transform(x=>x??\"D\")"
+    },
+    "scalar-number-nullish-default": {
+      "bytes": 80036,
+      "gzipBytes": 23257,
+      "imports": "import {union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).nullish().transform(x=>x??0)"
+    },
+    "scalar-boolean-default": {
+      "bytes": 59605,
+      "gzipBytes": 18318,
+      "imports": "import {union as z_union,boolean as z_boolean,enum as z_enum} from 'zod';",
+      "expression": "z_union([z_boolean(),z_enum(['true','false','1','0']).transform(x=>x==='true'||x==='1')]).default(false)"
+    },
+    "scalar-enum-default": {
+      "bytes": 59051,
+      "gzipBytes": 18163,
+      "imports": "import {enum as z_enum} from 'zod';",
+      "expression": "z_enum(['a','b']).default('a')"
+    },
+    "scalar-date-default": {
+      "bytes": 75137,
+      "gzipBytes": 22096,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().refine(iso).transform(x=>new Date(x)).default(new Date('2026-10-11T00:00:00Z'))"
+    },
+    "scalar-array-wrap": {
+      "bytes": 74923,
+      "gzipBytes": 21991,
+      "imports": "import {union as z_union,array as z_array,string as z_string} from 'zod';",
+      "expression": "z_union([z_array(z_string()),z_string().transform(x=>[x])])"
+    },
+    "scalar-array-strict": {
+      "bytes": 74894,
+      "gzipBytes": 21974,
+      "imports": "import {array as z_array,string as z_string} from 'zod';",
+      "expression": "z_array(z_string())"
+    },
+    "scalar-array-bounds": {
+      "bytes": 74952,
+      "gzipBytes": 22002,
+      "imports": "import {union as z_union,array as z_array,string as z_string} from 'zod';",
+      "expression": "z_union([z_array(z_string()),z_string().transform(x=>[x])]).pipe(z_array(z_string()).min(2).max(3))"
+    },
+    "scalar-array-number": {
+      "bytes": 80090,
+      "gzipBytes": 23262,
+      "imports": "import {union as z_union,array as z_array,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_union([z_array(z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number())),z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).transform(x=>[x])])"
+    },
+    "scalar-array-inner-nullable": {
+      "bytes": 74945,
+      "gzipBytes": 21995,
+      "imports": "import {union as z_union,array as z_array,string as z_string} from 'zod';",
+      "expression": "z_union([z_array(z_string().nullable()),z_string().nullable().transform(x=>[x])])"
+    },
+    "scalar-array-default": {
+      "bytes": 75463,
+      "gzipBytes": 22103,
+      "imports": "import {union as z_union,array as z_array,string as z_string,null as z_null} from 'zod';",
+      "expression": "z_union([z_array(z_string()),z_null().transform(()=>[])]).default(['general'])"
+    },
+    "scalar-transform-field": {
+      "bytes": 74920,
+      "gzipBytes": 21977,
+      "imports": "import {string as z_string} from 'zod';",
+      "expression": "z_string().transform(x=>x.toUpperCase())"
+    },
+    "scalar-refine-field": {
+      "bytes": 80033,
+      "gzipBytes": 23264,
+      "imports": "import {union as z_union,string as z_string,number as z_number} from 'zod';",
+      "expression": "z_union([z_string().regex(decimal).transform(Number),z_number()]).pipe(z_number()).refine(x=>x%2===0,'even')"
+    }
+  },
+  "completed": true
+}

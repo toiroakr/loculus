@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import { chromium } from '@playwright/test';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { readFileSync } from 'node:fs';
+
+const html = readFileSync('docs/performance-tuning.html', 'utf8');
+assert.ok(!html.includes('l.compile('));
+assert.ok(!html.includes('z.compile('));
+assert.ok(!html.includes('wrangler-deploy'));
+assert.ok(!html.includes('wrangler-dev'));
+const browser = await chromium.launch({ channel: 'chrome', headless: true });
+try {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  await page.goto(pathToFileURL(resolve('docs/performance-tuning.html')).href);
+  assert.equal(await page.locator('.case-code').count(), 107);
+  assert.equal(await page.locator('#speed tbody tr').count(), 214);
+  assert.equal(await page.locator('#bundles tbody tr').count(), 107);
+  assert.equal(await page.locator('#types tbody tr').count(), 6);
+  assert.equal(await page.locator('.cli-card').count(), 4);
+  assert.equal(await page.locator('#evidence').evaluate(element => element.open), false);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.screenshot({ path: 'bench/single-use/generated/report-mobile.png' });
+  await page.locator('a[href="#cli"]').click();
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.screenshot({ path: 'bench/single-use/generated/report-cli-mobile.png' });
+  await page.locator('.cli-card a[href="#case-cli-cf-dns-records-list-full"]').click();
+  const schema = page.locator('#case-cli-cf-dns-records-list-full');
+  await schema.locator('pre code').first().waitFor({ state: 'visible' });
+  assert.equal(await page.locator('#evidence').evaluate(element => element.open), true);
+  assert.equal(await schema.locator('h3').count(), 3);
+  assert.equal(await schema.locator('pre code').count(), 4);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  assert.deepEqual(errors, []);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto(pathToFileURL(resolve('docs/performance-tuning.html')).href);
+  assert.equal(await page.locator('#evidence').evaluate(element => element.open), false);
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.screenshot({ path: 'bench/single-use/generated/report-desktop.png' });
+  assert.deepEqual(errors, []);
+  console.log('Verified 107 schemas, all single-use rows, three-library examples, CF identities, closed appendix and mobile/desktop layout.');
+} finally { await browser.close(); }

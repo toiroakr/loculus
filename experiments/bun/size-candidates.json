@@ -1,0 +1,506 @@
+[
+  {
+    "order": [
+      "kind: meta.kind",
+      "enumValues: meta.enumValues",
+      "inner: innerValidate",
+      "options"
+    ],
+    "differences": [
+      -8,
+      -8,
+      -351,
+      4,
+      1,
+      -341,
+      1,
+      -7,
+      -330
+    ],
+    "worst": 4,
+    "total": -1039
+  },
+  {
+    "order": [
+      "kind: meta.kind",
+      "inner: innerValidate",
+      "enumValues: meta.enumValues",
+      "options"
+    ],
+    "differences": [
+      -8,
+      -8,
+      -351,
+      4,
+      1,
+      -341,
+      1,
+      -7,
+      -330
+    ],
+    "worst": 4,
+    "total": -1039
+  },
+  {
+    "order": [
+      "kind: meta.kind",
+      "options",
+      "enumValues: meta.enumValues",
+      "inner: innerValidate"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      5,
+      1,
+      -340,
+      1,
+      -7,
+      -330
+    ],
+    "worst": 5,
+    "total": -1034
+  },
+  {
+    "order": [
+      "kind: meta.kind",
+      "options",
+      "inner: innerValidate",
+      "enumValues: meta.enumValues"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      5,
+      1,
+      -340,
+      1,
+      -7,
+      -330
+    ],
+    "worst": 5,
+    "total": -1034
+  },
+  {
+    "order": [
+      "inner: innerValidate",
+      "kind: meta.kind",
+      "enumValues: meta.enumValues",
+      "options"
+    ],
+    "differences": [
+      -7,
+      -8,
+      -350,
+      5,
+      1,
+      -340,
+      2,
+      -6,
+      -330
+    ],
+    "worst": 5,
+    "total": -1033
+  },
+  {
+    "order": [
+      "kind: meta.kind",
+      "enumValues: meta.enumValues",
+      "options",
+      "inner: innerValidate"
+    ],
+    "differences": [
+      -8,
+      -7,
+      -350,
+      5,
+      1,
+      -338,
+      1,
+      -7,
+      -329
+    ],
+    "worst": 5,
+    "total": -1032
+  },
+  {
+    "order": [
+      "kind: meta.kind",
+      "inner: innerValidate",
+      "options",
+      "enumValues: meta.enumValues"
+    ],
+    "differences": [
+      -8,
+      -7,
+      -350,
+      5,
+      1,
+      -338,
+      1,
+      -7,
+      -329
+    ],
+    "worst": 5,
+    "total": -1032
+  },
+  {
+    "order": [
+      "inner: innerValidate",
+      "enumValues: meta.enumValues",
+      "kind: meta.kind",
+      "options"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      5,
+      1,
+      -340,
+      2,
+      -6,
+      -330
+    ],
+    "worst": 5,
+    "total": -1032
+  },
+  {
+    "order": [
+      "enumValues: meta.enumValues",
+      "kind: meta.kind",
+      "inner: innerValidate",
+      "options"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -351,
+      5,
+      2,
+      -338,
+      3,
+      -6,
+      -330
+    ],
+    "worst": 5,
+    "total": -1029
+  },
+  {
+    "order": [
+      "enumValues: meta.enumValues",
+      "inner: innerValidate",
+      "kind: meta.kind",
+      "options"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -351,
+      5,
+      2,
+      -338,
+      3,
+      -6,
+      -330
+    ],
+    "worst": 5,
+    "total": -1029
+  },
+  {
+    "order": [
+      "inner: innerValidate",
+      "options",
+      "kind: meta.kind",
+      "enumValues: meta.enumValues"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -339,
+      2,
+      -6,
+      -330
+    ],
+    "worst": 6,
+    "total": -1029
+  },
+  {
+    "order": [
+      "inner: innerValidate",
+      "options",
+      "enumValues: meta.enumValues",
+      "kind: meta.kind"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -339,
+      2,
+      -6,
+      -330
+    ],
+    "worst": 6,
+    "total": -1029
+  },
+  {
+    "order": [
+      "options",
+      "kind: meta.kind",
+      "enumValues: meta.enumValues",
+      "inner: innerValidate"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -339,
+      2,
+      -6,
+      -329
+    ],
+    "worst": 6,
+    "total": -1028
+  },
+  {
+    "order": [
+      "options",
+      "kind: meta.kind",
+      "inner: innerValidate",
+      "enumValues: meta.enumValues"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -339,
+      2,
+      -6,
+      -329
+    ],
+    "worst": 6,
+    "total": -1028
+  },
+  {
+    "order": [
+      "options",
+      "enumValues: meta.enumValues",
+      "kind: meta.kind",
+      "inner: innerValidate"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -339,
+      2,
+      -6,
+      -329
+    ],
+    "worst": 6,
+    "total": -1028
+  },
+  {
+    "order": [
+      "options",
+      "enumValues: meta.enumValues",
+      "inner: innerValidate",
+      "kind: meta.kind"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -339,
+      2,
+      -6,
+      -329
+    ],
+    "worst": 6,
+    "total": -1028
+  },
+  {
+    "order": [
+      "options",
+      "inner: innerValidate",
+      "kind: meta.kind",
+      "enumValues: meta.enumValues"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -339,
+      2,
+      -6,
+      -329
+    ],
+    "worst": 6,
+    "total": -1028
+  },
+  {
+    "order": [
+      "options",
+      "inner: innerValidate",
+      "enumValues: meta.enumValues",
+      "kind: meta.kind"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -339,
+      2,
+      -6,
+      -329
+    ],
+    "worst": 6,
+    "total": -1028
+  },
+  {
+    "order": [
+      "inner: innerValidate",
+      "enumValues: meta.enumValues",
+      "options",
+      "kind: meta.kind"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -339,
+      2,
+      -6,
+      -329
+    ],
+    "worst": 6,
+    "total": -1028
+  },
+  {
+    "order": [
+      "inner: innerValidate",
+      "kind: meta.kind",
+      "options",
+      "enumValues: meta.enumValues"
+    ],
+    "differences": [
+      -7,
+      -7,
+      -350,
+      6,
+      2,
+      -338,
+      2,
+      -6,
+      -328
+    ],
+    "worst": 6,
+    "total": -1026
+  },
+  {
+    "order": [
+      "enumValues: meta.enumValues",
+      "inner: innerValidate",
+      "options",
+      "kind: meta.kind"
+    ],
+    "differences": [
+      -7,
+      -6,
+      -350,
+      6,
+      2,
+      -338,
+      3,
+      -6,
+      -329
+    ],
+    "worst": 6,
+    "total": -1025
+  },
+  {
+    "order": [
+      "enumValues: meta.enumValues",
+      "kind: meta.kind",
+      "options",
+      "inner: innerValidate"
+    ],
+    "differences": [
+      -7,
+      -6,
+      -350,
+      6,
+      2,
+      -338,
+      3,
+      -6,
+      -328
+    ],
+    "worst": 6,
+    "total": -1024
+  },
+  {
+    "order": [
+      "enumValues: meta.enumValues",
+      "options",
+      "kind: meta.kind",
+      "inner: innerValidate"
+    ],
+    "differences": [
+      -7,
+      -6,
+      -350,
+      6,
+      2,
+      -338,
+      3,
+      -6,
+      -328
+    ],
+    "worst": 6,
+    "total": -1024
+  },
+  {
+    "order": [
+      "enumValues: meta.enumValues",
+      "options",
+      "inner: innerValidate",
+      "kind: meta.kind"
+    ],
+    "differences": [
+      -7,
+      -6,
+      -350,
+      6,
+      2,
+      -338,
+      3,
+      -6,
+      -328
+    ],
+    "worst": 6,
+    "total": -1024
+  }
+]

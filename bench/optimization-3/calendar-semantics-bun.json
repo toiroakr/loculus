@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-11T16:14:18.920Z",
+  "sourceHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+  "cases": 1371216,
+  "runtime": "Bun 1.4.3",
+  "years": 742,
+  "gregorianCycle": [
+    1600,
+    1999
+  ],
+  "monthRange": [
+    0,
+    13
+  ],
+  "dayRange": [
+    0,
+    32
+  ],
+  "variants": [
+    "date",
+    "positive timezone",
+    "negative timezone",
+    "trailing newline"
+  ],
+  "matchedExceptPreviouslyThrown": true,
+  "previouslyThrownCount": 114,
+  "previouslyThrownExamples": [
+    "0001-01-00",
+    "0001-01-32",
+    "0001-02-00",
+    "0001-02-32",
+    "0001-03-00",
+    "0001-03-32",
+    "0001-04-00",
+    "0001-04-32",
+    "0001-05-00",
+    "0001-05-32"
+  ]
+}

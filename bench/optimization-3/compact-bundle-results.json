@@ -1,0 +1,1739 @@
+{
+  "date": "2026-10-11T14:31:54.600Z",
+  "scope": "96 ordinary schema profiles, minified browser ESM, esbuild; schema and Standard Schema validate remain live",
+  "hashes": {
+    "before": "85266e2c6fd0a7088b8760e10766d02b5fabe745a73a81a9ea7f6d907ed3f768",
+    "after": "a1e815de03c99a14dfc9a149749484cb4c0325a8008871a0bc6ef3a9265f3308"
+  },
+  "cases": {
+    "string-basic": {
+      "before": {
+        "bytes": 2812,
+        "gzipBytes": 1287
+      },
+      "after": {
+        "bytes": 2844,
+        "gzipBytes": 1281
+      },
+      "zod": {
+        "bytes": 453091,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 2592,
+        "gzipBytes": 1078
+      }
+    },
+    "string-trim": {
+      "before": {
+        "bytes": 2833,
+        "gzipBytes": 1303
+      },
+      "after": {
+        "bytes": 2865,
+        "gzipBytes": 1297
+      },
+      "zod": {
+        "bytes": 453134,
+        "gzipBytes": 93174
+      },
+      "valibot": {
+        "bytes": 3453,
+        "gzipBytes": 1315
+      }
+    },
+    "string-pattern": {
+      "before": {
+        "bytes": 2832,
+        "gzipBytes": 1303
+      },
+      "after": {
+        "bytes": 2864,
+        "gzipBytes": 1297
+      },
+      "zod": {
+        "bytes": 453109,
+        "gzipBytes": 93158
+      },
+      "valibot": {
+        "bytes": 3058,
+        "gzipBytes": 1251
+      }
+    },
+    "number-decimal": {
+      "before": {
+        "bytes": 2913,
+        "gzipBytes": 1356
+      },
+      "after": {
+        "bytes": 2843,
+        "gzipBytes": 1317
+      },
+      "zod": {
+        "bytes": 453218,
+        "gzipBytes": 93203
+      },
+      "valibot": {
+        "bytes": 4338,
+        "gzipBytes": 1637
+      }
+    },
+    "number-inclusive": {
+      "before": {
+        "bytes": 2939,
+        "gzipBytes": 1369
+      },
+      "after": {
+        "bytes": 2869,
+        "gzipBytes": 1332
+      },
+      "zod": {
+        "bytes": 453258,
+        "gzipBytes": 93212
+      },
+      "valibot": {
+        "bytes": 5174,
+        "gzipBytes": 1794
+      }
+    },
+    "number-exclusive": {
+      "before": {
+        "bytes": 2924,
+        "gzipBytes": 1364
+      },
+      "after": {
+        "bytes": 2854,
+        "gzipBytes": 1326
+      },
+      "zod": {
+        "bytes": 453248,
+        "gzipBytes": 93206
+      },
+      "valibot": {
+        "bytes": 4548,
+        "gzipBytes": 1675
+      }
+    },
+    "boolean": {
+      "before": {
+        "bytes": 2432,
+        "gzipBytes": 1177
+      },
+      "after": {
+        "bytes": 2464,
+        "gzipBytes": 1171
+      },
+      "zod": {
+        "bytes": 453172,
+        "gzipBytes": 93187
+      },
+      "valibot": {
+        "bytes": 3917,
+        "gzipBytes": 1527
+      }
+    },
+    "enum-2": {
+      "before": {
+        "bytes": 2669,
+        "gzipBytes": 1300
+      },
+      "after": {
+        "bytes": 2701,
+        "gzipBytes": 1298
+      },
+      "zod": {
+        "bytes": 453110,
+        "gzipBytes": 93164
+      },
+      "valibot": {
+        "bytes": 2734,
+        "gzipBytes": 1161
+      }
+    },
+    "enum-32": {
+      "before": {
+        "bytes": 2991,
+        "gzipBytes": 1384
+      },
+      "after": {
+        "bytes": 3023,
+        "gzipBytes": 1380
+      },
+      "zod": {
+        "bytes": 453432,
+        "gzipBytes": 93250
+      },
+      "valibot": {
+        "bytes": 3056,
+        "gzipBytes": 1245
+      }
+    },
+    "literal": {
+      "before": {
+        "bytes": 2523,
+        "gzipBytes": 1209
+      },
+      "after": {
+        "bytes": 2555,
+        "gzipBytes": 1204
+      },
+      "zod": {
+        "bytes": 453099,
+        "gzipBytes": 93155
+      },
+      "valibot": {
+        "bytes": 2670,
+        "gzipBytes": 1112
+      }
+    },
+    "date": {
+      "before": {
+        "bytes": 2459,
+        "gzipBytes": 1215
+      },
+      "after": {
+        "bytes": 2491,
+        "gzipBytes": 1208
+      },
+      "zod": {
+        "bytes": 453296,
+        "gzipBytes": 93250
+      },
+      "valibot": {
+        "bytes": 3372,
+        "gzipBytes": 1388
+      }
+    },
+    "presence-required": {
+      "before": {
+        "bytes": 2814,
+        "gzipBytes": 1288
+      },
+      "after": {
+        "bytes": 2846,
+        "gzipBytes": 1283
+      },
+      "zod": {
+        "bytes": 453091,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 2592,
+        "gzipBytes": 1078
+      }
+    },
+    "presence-optional": {
+      "before": {
+        "bytes": 2825,
+        "gzipBytes": 1292
+      },
+      "after": {
+        "bytes": 2857,
+        "gzipBytes": 1286
+      },
+      "zod": {
+        "bytes": 453102,
+        "gzipBytes": 93152
+      },
+      "valibot": {
+        "bytes": 2874,
+        "gzipBytes": 1163
+      }
+    },
+    "presence-nullable": {
+      "before": {
+        "bytes": 2825,
+        "gzipBytes": 1292
+      },
+      "after": {
+        "bytes": 2857,
+        "gzipBytes": 1286
+      },
+      "zod": {
+        "bytes": 453102,
+        "gzipBytes": 93153
+      },
+      "valibot": {
+        "bytes": 2865,
+        "gzipBytes": 1160
+      }
+    },
+    "presence-nullish": {
+      "before": {
+        "bytes": 2824,
+        "gzipBytes": 1292
+      },
+      "after": {
+        "bytes": 2856,
+        "gzipBytes": 1286
+      },
+      "zod": {
+        "bytes": 453101,
+        "gzipBytes": 93155
+      },
+      "valibot": {
+        "bytes": 2913,
+        "gzipBytes": 1176
+      }
+    },
+    "presence-optional-nullable": {
+      "before": {
+        "bytes": 2837,
+        "gzipBytes": 1295
+      },
+      "after": {
+        "bytes": 2869,
+        "gzipBytes": 1290
+      },
+      "zod": {
+        "bytes": 453113,
+        "gzipBytes": 93156
+      },
+      "valibot": {
+        "bytes": 2913,
+        "gzipBytes": 1176
+      }
+    },
+    "presence-default": {
+      "before": {
+        "bytes": 2825,
+        "gzipBytes": 1294
+      },
+      "after": {
+        "bytes": 2857,
+        "gzipBytes": 1288
+      },
+      "zod": {
+        "bytes": 453104,
+        "gzipBytes": 93156
+      },
+      "valibot": {
+        "bytes": 2878,
+        "gzipBytes": 1167
+      }
+    },
+    "presence-optional-default": {
+      "before": {
+        "bytes": 2837,
+        "gzipBytes": 1298
+      },
+      "after": {
+        "bytes": 2869,
+        "gzipBytes": 1292
+      },
+      "zod": {
+        "bytes": 453104,
+        "gzipBytes": 93156
+      },
+      "valibot": {
+        "bytes": 2878,
+        "gzipBytes": 1167
+      }
+    },
+    "presence-nullable-default": {
+      "before": {
+        "bytes": 2837,
+        "gzipBytes": 1298
+      },
+      "after": {
+        "bytes": 2869,
+        "gzipBytes": 1292
+      },
+      "zod": {
+        "bytes": 453115,
+        "gzipBytes": 93159
+      },
+      "valibot": {
+        "bytes": 3151,
+        "gzipBytes": 1200
+      }
+    },
+    "presence-nullish-default": {
+      "before": {
+        "bytes": 2836,
+        "gzipBytes": 1298
+      },
+      "after": {
+        "bytes": 2868,
+        "gzipBytes": 1293
+      },
+      "zod": {
+        "bytes": 453115,
+        "gzipBytes": 93159
+      },
+      "valibot": {
+        "bytes": 3151,
+        "gzipBytes": 1200
+      }
+    },
+    "presence-target-undefined": {
+      "before": {
+        "bytes": 2837,
+        "gzipBytes": 1298
+      },
+      "after": {
+        "bytes": 2869,
+        "gzipBytes": 1293
+      },
+      "zod": {
+        "bytes": 453104,
+        "gzipBytes": 93156
+      },
+      "valibot": {
+        "bytes": 2878,
+        "gzipBytes": 1168
+      }
+    },
+    "presence-target-null": {
+      "before": {
+        "bytes": 2832,
+        "gzipBytes": 1299
+      },
+      "after": {
+        "bytes": 2864,
+        "gzipBytes": 1293
+      },
+      "zod": {
+        "bytes": 453132,
+        "gzipBytes": 93159
+      },
+      "valibot": {
+        "bytes": 2869,
+        "gzipBytes": 1164
+      }
+    },
+    "presence-optional-target-null": {
+      "before": {
+        "bytes": 2844,
+        "gzipBytes": 1303
+      },
+      "after": {
+        "bytes": 2876,
+        "gzipBytes": 1297
+      },
+      "zod": {
+        "bytes": 453143,
+        "gzipBytes": 93163
+      },
+      "valibot": {
+        "bytes": 3151,
+        "gzipBytes": 1200
+      }
+    },
+    "presence-nullable-target-undefined": {
+      "before": {
+        "bytes": 2849,
+        "gzipBytes": 1303
+      },
+      "after": {
+        "bytes": 2881,
+        "gzipBytes": 1297
+      },
+      "zod": {
+        "bytes": 453115,
+        "gzipBytes": 93159
+      },
+      "valibot": {
+        "bytes": 3151,
+        "gzipBytes": 1201
+      }
+    },
+    "presence-target-both": {
+      "before": {
+        "bytes": 2846,
+        "gzipBytes": 1305
+      },
+      "after": {
+        "bytes": 2878,
+        "gzipBytes": 1299
+      },
+      "zod": {
+        "bytes": 453145,
+        "gzipBytes": 93166
+      },
+      "valibot": {
+        "bytes": 3155,
+        "gzipBytes": 1205
+      }
+    },
+    "presence-target-nullish": {
+      "before": {
+        "bytes": 2835,
+        "gzipBytes": 1297
+      },
+      "after": {
+        "bytes": 2867,
+        "gzipBytes": 1292
+      },
+      "zod": {
+        "bytes": 453122,
+        "gzipBytes": 93167
+      },
+      "valibot": {
+        "bytes": 2917,
+        "gzipBytes": 1180
+      }
+    },
+    "presence-nullish-target-nullish": {
+      "before": {
+        "bytes": 2846,
+        "gzipBytes": 1300
+      },
+      "after": {
+        "bytes": 2878,
+        "gzipBytes": 1295
+      },
+      "zod": {
+        "bytes": 453122,
+        "gzipBytes": 93167
+      },
+      "valibot": {
+        "bytes": 2917,
+        "gzipBytes": 1180
+      }
+    },
+    "number-nullish-default": {
+      "before": {
+        "bytes": 2934,
+        "gzipBytes": 1364
+      },
+      "after": {
+        "bytes": 2864,
+        "gzipBytes": 1326
+      },
+      "zod": {
+        "bytes": 453247,
+        "gzipBytes": 93217
+      },
+      "valibot": {
+        "bytes": 4661,
+        "gzipBytes": 1735
+      }
+    },
+    "boolean-default": {
+      "before": {
+        "bytes": 2444,
+        "gzipBytes": 1183
+      },
+      "after": {
+        "bytes": 2476,
+        "gzipBytes": 1177
+      },
+      "zod": {
+        "bytes": 453184,
+        "gzipBytes": 93191
+      },
+      "valibot": {
+        "bytes": 4202,
+        "gzipBytes": 1613
+      }
+    },
+    "enum-default": {
+      "before": {
+        "bytes": 2671,
+        "gzipBytes": 1302
+      },
+      "after": {
+        "bytes": 2703,
+        "gzipBytes": 1300
+      },
+      "zod": {
+        "bytes": 453111,
+        "gzipBytes": 93163
+      },
+      "valibot": {
+        "bytes": 3008,
+        "gzipBytes": 1242
+      }
+    },
+    "date-default": {
+      "before": {
+        "bytes": 2501,
+        "gzipBytes": 1237
+      },
+      "after": {
+        "bytes": 2533,
+        "gzipBytes": 1231
+      },
+      "zod": {
+        "bytes": 453338,
+        "gzipBytes": 93271
+      },
+      "valibot": {
+        "bytes": 3670,
+        "gzipBytes": 1484
+      }
+    },
+    "array-wrap": {
+      "before": {
+        "bytes": 3604,
+        "gzipBytes": 1533
+      },
+      "after": {
+        "bytes": 3622,
+        "gzipBytes": 1534
+      },
+      "zod": {
+        "bytes": 453143,
+        "gzipBytes": 93163
+      },
+      "valibot": {
+        "bytes": 4212,
+        "gzipBytes": 1575
+      }
+    },
+    "array-strict": {
+      "before": {
+        "bytes": 3620,
+        "gzipBytes": 1540
+      },
+      "after": {
+        "bytes": 3638,
+        "gzipBytes": 1540
+      },
+      "zod": {
+        "bytes": 453101,
+        "gzipBytes": 93153
+      },
+      "valibot": {
+        "bytes": 3136,
+        "gzipBytes": 1201
+      }
+    },
+    "array-bounds": {
+      "before": {
+        "bytes": 3618,
+        "gzipBytes": 1545
+      },
+      "after": {
+        "bytes": 3636,
+        "gzipBytes": 1545
+      },
+      "zod": {
+        "bytes": 453185,
+        "gzipBytes": 93173
+      },
+      "valibot": {
+        "bytes": 4701,
+        "gzipBytes": 1680
+      }
+    },
+    "array-number": {
+      "before": {
+        "bytes": 3705,
+        "gzipBytes": 1611
+      },
+      "after": {
+        "bytes": 3621,
+        "gzipBytes": 1573
+      },
+      "zod": {
+        "bytes": 453340,
+        "gzipBytes": 93226
+      },
+      "valibot": {
+        "bytes": 4938,
+        "gzipBytes": 1773
+      }
+    },
+    "array-inner-nullable": {
+      "before": {
+        "bytes": 3617,
+        "gzipBytes": 1538
+      },
+      "after": {
+        "bytes": 3635,
+        "gzipBytes": 1538
+      },
+      "zod": {
+        "bytes": 453165,
+        "gzipBytes": 93166
+      },
+      "valibot": {
+        "bytes": 4488,
+        "gzipBytes": 1659
+      }
+    },
+    "array-default": {
+      "before": {
+        "bytes": 3660,
+        "gzipBytes": 1561
+      },
+      "after": {
+        "bytes": 3678,
+        "gzipBytes": 1561
+      },
+      "zod": {
+        "bytes": 453162,
+        "gzipBytes": 93175
+      },
+      "valibot": {
+        "bytes": 3706,
+        "gzipBytes": 1334
+      }
+    },
+    "transform-field": {
+      "before": {
+        "bytes": 3097,
+        "gzipBytes": 1380
+      },
+      "after": {
+        "bytes": 3221,
+        "gzipBytes": 1383
+      },
+      "zod": {
+        "bytes": 453121,
+        "gzipBytes": 93167
+      },
+      "valibot": {
+        "bytes": 3012,
+        "gzipBytes": 1237
+      }
+    },
+    "refine-field": {
+      "before": {
+        "bytes": 3150,
+        "gzipBytes": 1448
+      },
+      "after": {
+        "bytes": 3080,
+        "gzipBytes": 1410
+      },
+      "zod": {
+        "bytes": 453244,
+        "gzipBytes": 93221
+      },
+      "valibot": {
+        "bytes": 4554,
+        "gzipBytes": 1680
+      }
+    },
+    "object-strip": {
+      "before": {
+        "bytes": 2833,
+        "gzipBytes": 1296
+      },
+      "after": {
+        "bytes": 2865,
+        "gzipBytes": 1290
+      },
+      "zod": {
+        "bytes": 453090,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 2591,
+        "gzipBytes": 1081
+      }
+    },
+    "object-strict": {
+      "before": {
+        "bytes": 2834,
+        "gzipBytes": 1295
+      },
+      "after": {
+        "bytes": 2866,
+        "gzipBytes": 1290
+      },
+      "zod": {
+        "bytes": 453096,
+        "gzipBytes": 93153
+      },
+      "valibot": {
+        "bytes": 2813,
+        "gzipBytes": 1142
+      }
+    },
+    "object-passthrough": {
+      "before": {
+        "bytes": 2839,
+        "gzipBytes": 1296
+      },
+      "after": {
+        "bytes": 2871,
+        "gzipBytes": 1290
+      },
+      "zod": {
+        "bytes": 453095,
+        "gzipBytes": 93153
+      },
+      "valibot": {
+        "bytes": 2838,
+        "gzipBytes": 1168
+      }
+    },
+    "refine-object": {
+      "before": {
+        "bytes": 3153,
+        "gzipBytes": 1452
+      },
+      "after": {
+        "bytes": 3083,
+        "gzipBytes": 1414
+      },
+      "zod": {
+        "bytes": 453325,
+        "gzipBytes": 93230
+      },
+      "valibot": {
+        "bytes": 4591,
+        "gzipBytes": 1685
+      }
+    },
+    "transform-object": {
+      "before": {
+        "bytes": 3110,
+        "gzipBytes": 1386
+      },
+      "after": {
+        "bytes": 3234,
+        "gzipBytes": 1389
+      },
+      "zod": {
+        "bytes": 453134,
+        "gzipBytes": 93171
+      },
+      "valibot": {
+        "bytes": 3025,
+        "gzipBytes": 1244
+      }
+    },
+    "union-first": {
+      "before": {
+        "bytes": 4325,
+        "gzipBytes": 1779
+      },
+      "after": {
+        "bytes": 4343,
+        "gzipBytes": 1786
+      },
+      "zod": {
+        "bytes": 453302,
+        "gzipBytes": 93228
+      },
+      "valibot": {
+        "bytes": 4631,
+        "gzipBytes": 1720
+      }
+    },
+    "union-last": {
+      "before": {
+        "bytes": 4325,
+        "gzipBytes": 1779
+      },
+      "after": {
+        "bytes": 4343,
+        "gzipBytes": 1786
+      },
+      "zod": {
+        "bytes": 453302,
+        "gzipBytes": 93228
+      },
+      "valibot": {
+        "bytes": 4631,
+        "gzipBytes": 1720
+      }
+    },
+    "discriminated-union": {
+      "before": {
+        "bytes": 4636,
+        "gzipBytes": 1905
+      },
+      "after": {
+        "bytes": 4654,
+        "gzipBytes": 1911
+      },
+      "zod": {
+        "bytes": 453322,
+        "gzipBytes": 93239
+      },
+      "valibot": {
+        "bytes": 5503,
+        "gzipBytes": 2052
+      }
+    },
+    "xor": {
+      "before": {
+        "bytes": 4349,
+        "gzipBytes": 1790
+      },
+      "after": {
+        "bytes": 4367,
+        "gzipBytes": 1796
+      },
+      "zod": {
+        "bytes": 453300,
+        "gzipBytes": 93232
+      },
+      "valibot": {
+        "bytes": 5278,
+        "gzipBytes": 1953
+      }
+    },
+    "xor-overlap": {
+      "before": {
+        "bytes": 3206,
+        "gzipBytes": 1398
+      },
+      "after": {
+        "bytes": 3238,
+        "gzipBytes": 1393
+      },
+      "zod": {
+        "bytes": 453146,
+        "gzipBytes": 93155
+      },
+      "valibot": {
+        "bytes": 4669,
+        "gzipBytes": 1770
+      }
+    },
+    "intersection": {
+      "before": {
+        "bytes": 3444,
+        "gzipBytes": 1480
+      },
+      "after": {
+        "bytes": 3476,
+        "gzipBytes": 1475
+      },
+      "zod": {
+        "bytes": 453131,
+        "gzipBytes": 93151
+      },
+      "valibot": {
+        "bytes": 3932,
+        "gzipBytes": 1537
+      }
+    },
+    "entries-url": {
+      "before": {
+        "bytes": 3627,
+        "gzipBytes": 1546
+      },
+      "after": {
+        "bytes": 3645,
+        "gzipBytes": 1547
+      },
+      "zod": {
+        "bytes": 453171,
+        "gzipBytes": 93166
+      },
+      "valibot": {
+        "bytes": 4503,
+        "gzipBytes": 1671
+      }
+    },
+    "entries-form": {
+      "before": {
+        "bytes": 3627,
+        "gzipBytes": 1546
+      },
+      "after": {
+        "bytes": 3645,
+        "gzipBytes": 1547
+      },
+      "zod": {
+        "bytes": 453171,
+        "gzipBytes": 93166
+      },
+      "valibot": {
+        "bytes": 4503,
+        "gzipBytes": 1671
+      }
+    },
+    "entry-safeParse": {
+      "before": {
+        "bytes": 2811,
+        "gzipBytes": 1289
+      },
+      "after": {
+        "bytes": 2843,
+        "gzipBytes": 1284
+      },
+      "zod": {
+        "bytes": 453090,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 2591,
+        "gzipBytes": 1081
+      }
+    },
+    "entry-parse": {
+      "before": {
+        "bytes": 2811,
+        "gzipBytes": 1289
+      },
+      "after": {
+        "bytes": 2843,
+        "gzipBytes": 1284
+      },
+      "zod": {
+        "bytes": 453090,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 2591,
+        "gzipBytes": 1081
+      }
+    },
+    "width-0": {
+      "before": {
+        "bytes": 1276,
+        "gzipBytes": 711
+      },
+      "after": {
+        "bytes": 1276,
+        "gzipBytes": 711
+      },
+      "zod": {
+        "bytes": 453074,
+        "gzipBytes": 93144
+      },
+      "valibot": {
+        "bytes": 2404,
+        "gzipBytes": 1030
+      }
+    },
+    "width-1": {
+      "before": {
+        "bytes": 2809,
+        "gzipBytes": 1288
+      },
+      "after": {
+        "bytes": 2841,
+        "gzipBytes": 1283
+      },
+      "zod": {
+        "bytes": 453088,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 2589,
+        "gzipBytes": 1080
+      }
+    },
+    "width-100": {
+      "before": {
+        "bytes": 3592,
+        "gzipBytes": 1537
+      },
+      "after": {
+        "bytes": 3624,
+        "gzipBytes": 1533
+      },
+      "zod": {
+        "bytes": 454576,
+        "gzipBytes": 93459
+      },
+      "valibot": {
+        "bytes": 3372,
+        "gzipBytes": 1327
+      }
+    },
+    "scalar-string-basic": {
+      "before": {
+        "bytes": 1701,
+        "gzipBytes": 840
+      },
+      "after": {
+        "bytes": 1733,
+        "gzipBytes": 836
+      },
+      "zod": {
+        "bytes": 453072,
+        "gzipBytes": 93144
+      },
+      "valibot": {
+        "bytes": 1492,
+        "gzipBytes": 708
+      }
+    },
+    "scalar-string-trim": {
+      "before": {
+        "bytes": 1722,
+        "gzipBytes": 856
+      },
+      "after": {
+        "bytes": 1754,
+        "gzipBytes": 852
+      },
+      "zod": {
+        "bytes": 453115,
+        "gzipBytes": 93168
+      },
+      "valibot": {
+        "bytes": 2353,
+        "gzipBytes": 966
+      }
+    },
+    "scalar-string-pattern": {
+      "before": {
+        "bytes": 1721,
+        "gzipBytes": 856
+      },
+      "after": {
+        "bytes": 1753,
+        "gzipBytes": 852
+      },
+      "zod": {
+        "bytes": 453090,
+        "gzipBytes": 93155
+      },
+      "valibot": {
+        "bytes": 1958,
+        "gzipBytes": 901
+      }
+    },
+    "scalar-number-decimal": {
+      "before": {
+        "bytes": 1802,
+        "gzipBytes": 907
+      },
+      "after": {
+        "bytes": 1732,
+        "gzipBytes": 868
+      },
+      "zod": {
+        "bytes": 453199,
+        "gzipBytes": 93192
+      },
+      "valibot": {
+        "bytes": 3238,
+        "gzipBytes": 1299
+      }
+    },
+    "scalar-number-inclusive": {
+      "before": {
+        "bytes": 1828,
+        "gzipBytes": 922
+      },
+      "after": {
+        "bytes": 1758,
+        "gzipBytes": 883
+      },
+      "zod": {
+        "bytes": 453239,
+        "gzipBytes": 93211
+      },
+      "valibot": {
+        "bytes": 4074,
+        "gzipBytes": 1447
+      }
+    },
+    "scalar-number-exclusive": {
+      "before": {
+        "bytes": 1813,
+        "gzipBytes": 915
+      },
+      "after": {
+        "bytes": 1743,
+        "gzipBytes": 876
+      },
+      "zod": {
+        "bytes": 453229,
+        "gzipBytes": 93205
+      },
+      "valibot": {
+        "bytes": 3448,
+        "gzipBytes": 1337
+      }
+    },
+    "scalar-boolean": {
+      "before": {
+        "bytes": 1321,
+        "gzipBytes": 721
+      },
+      "after": {
+        "bytes": 1353,
+        "gzipBytes": 717
+      },
+      "zod": {
+        "bytes": 453153,
+        "gzipBytes": 93186
+      },
+      "valibot": {
+        "bytes": 2817,
+        "gzipBytes": 1187
+      }
+    },
+    "scalar-enum-2": {
+      "before": {
+        "bytes": 1558,
+        "gzipBytes": 845
+      },
+      "after": {
+        "bytes": 1590,
+        "gzipBytes": 838
+      },
+      "zod": {
+        "bytes": 453091,
+        "gzipBytes": 93156
+      },
+      "valibot": {
+        "bytes": 1634,
+        "gzipBytes": 800
+      }
+    },
+    "scalar-enum-32": {
+      "before": {
+        "bytes": 1880,
+        "gzipBytes": 925
+      },
+      "after": {
+        "bytes": 1912,
+        "gzipBytes": 919
+      },
+      "zod": {
+        "bytes": 453413,
+        "gzipBytes": 93246
+      },
+      "valibot": {
+        "bytes": 1956,
+        "gzipBytes": 883
+      }
+    },
+    "scalar-literal": {
+      "before": {
+        "bytes": 1412,
+        "gzipBytes": 757
+      },
+      "after": {
+        "bytes": 1444,
+        "gzipBytes": 749
+      },
+      "zod": {
+        "bytes": 453080,
+        "gzipBytes": 93148
+      },
+      "valibot": {
+        "bytes": 1570,
+        "gzipBytes": 747
+      }
+    },
+    "scalar-date": {
+      "before": {
+        "bytes": 1348,
+        "gzipBytes": 762
+      },
+      "after": {
+        "bytes": 1380,
+        "gzipBytes": 755
+      },
+      "zod": {
+        "bytes": 453277,
+        "gzipBytes": 93247
+      },
+      "valibot": {
+        "bytes": 2272,
+        "gzipBytes": 1032
+      }
+    },
+    "scalar-presence-required": {
+      "before": {
+        "bytes": 1703,
+        "gzipBytes": 841
+      },
+      "after": {
+        "bytes": 1735,
+        "gzipBytes": 837
+      },
+      "zod": {
+        "bytes": 453072,
+        "gzipBytes": 93144
+      },
+      "valibot": {
+        "bytes": 1492,
+        "gzipBytes": 708
+      }
+    },
+    "scalar-presence-optional": {
+      "before": {
+        "bytes": 1714,
+        "gzipBytes": 846
+      },
+      "after": {
+        "bytes": 1746,
+        "gzipBytes": 841
+      },
+      "zod": {
+        "bytes": 453083,
+        "gzipBytes": 93146
+      },
+      "valibot": {
+        "bytes": 1853,
+        "gzipBytes": 825
+      }
+    },
+    "scalar-presence-nullable": {
+      "before": {
+        "bytes": 1714,
+        "gzipBytes": 846
+      },
+      "after": {
+        "bytes": 1746,
+        "gzipBytes": 841
+      },
+      "zod": {
+        "bytes": 453083,
+        "gzipBytes": 93147
+      },
+      "valibot": {
+        "bytes": 1844,
+        "gzipBytes": 821
+      }
+    },
+    "scalar-presence-nullish": {
+      "before": {
+        "bytes": 1713,
+        "gzipBytes": 845
+      },
+      "after": {
+        "bytes": 1745,
+        "gzipBytes": 841
+      },
+      "zod": {
+        "bytes": 453082,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 1892,
+        "gzipBytes": 837
+      }
+    },
+    "scalar-presence-optional-nullable": {
+      "before": {
+        "bytes": 1726,
+        "gzipBytes": 851
+      },
+      "after": {
+        "bytes": 1758,
+        "gzipBytes": 846
+      },
+      "zod": {
+        "bytes": 453094,
+        "gzipBytes": 93149
+      },
+      "valibot": {
+        "bytes": 1892,
+        "gzipBytes": 837
+      }
+    },
+    "scalar-presence-default": {
+      "before": {
+        "bytes": 1714,
+        "gzipBytes": 846
+      },
+      "after": {
+        "bytes": 1746,
+        "gzipBytes": 842
+      },
+      "zod": {
+        "bytes": 453085,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 1857,
+        "gzipBytes": 829
+      }
+    },
+    "scalar-presence-optional-default": {
+      "before": {
+        "bytes": 1726,
+        "gzipBytes": 852
+      },
+      "after": {
+        "bytes": 1758,
+        "gzipBytes": 847
+      },
+      "zod": {
+        "bytes": 453085,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 1857,
+        "gzipBytes": 829
+      }
+    },
+    "scalar-presence-nullable-default": {
+      "before": {
+        "bytes": 1726,
+        "gzipBytes": 852
+      },
+      "after": {
+        "bytes": 1758,
+        "gzipBytes": 847
+      },
+      "zod": {
+        "bytes": 453096,
+        "gzipBytes": 93153
+      },
+      "valibot": {
+        "bytes": 2130,
+        "gzipBytes": 864
+      }
+    },
+    "scalar-presence-nullish-default": {
+      "before": {
+        "bytes": 1725,
+        "gzipBytes": 851
+      },
+      "after": {
+        "bytes": 1757,
+        "gzipBytes": 847
+      },
+      "zod": {
+        "bytes": 453096,
+        "gzipBytes": 93153
+      },
+      "valibot": {
+        "bytes": 2130,
+        "gzipBytes": 864
+      }
+    },
+    "scalar-presence-target-undefined": {
+      "before": {
+        "bytes": 1726,
+        "gzipBytes": 850
+      },
+      "after": {
+        "bytes": 1758,
+        "gzipBytes": 846
+      },
+      "zod": {
+        "bytes": 453085,
+        "gzipBytes": 93150
+      },
+      "valibot": {
+        "bytes": 1857,
+        "gzipBytes": 830
+      }
+    },
+    "scalar-presence-target-null": {
+      "before": {
+        "bytes": 1721,
+        "gzipBytes": 850
+      },
+      "after": {
+        "bytes": 1753,
+        "gzipBytes": 846
+      },
+      "zod": {
+        "bytes": 453113,
+        "gzipBytes": 93159
+      },
+      "valibot": {
+        "bytes": 1848,
+        "gzipBytes": 825
+      }
+    },
+    "scalar-presence-optional-target-null": {
+      "before": {
+        "bytes": 1733,
+        "gzipBytes": 855
+      },
+      "after": {
+        "bytes": 1765,
+        "gzipBytes": 851
+      },
+      "zod": {
+        "bytes": 453124,
+        "gzipBytes": 93162
+      },
+      "valibot": {
+        "bytes": 2130,
+        "gzipBytes": 864
+      }
+    },
+    "scalar-presence-nullable-target-undefined": {
+      "before": {
+        "bytes": 1738,
+        "gzipBytes": 855
+      },
+      "after": {
+        "bytes": 1770,
+        "gzipBytes": 851
+      },
+      "zod": {
+        "bytes": 453096,
+        "gzipBytes": 93153
+      },
+      "valibot": {
+        "bytes": 2130,
+        "gzipBytes": 865
+      }
+    },
+    "scalar-presence-target-both": {
+      "before": {
+        "bytes": 1735,
+        "gzipBytes": 857
+      },
+      "after": {
+        "bytes": 1767,
+        "gzipBytes": 852
+      },
+      "zod": {
+        "bytes": 453126,
+        "gzipBytes": 93168
+      },
+      "valibot": {
+        "bytes": 2134,
+        "gzipBytes": 869
+      }
+    },
+    "scalar-presence-target-nullish": {
+      "before": {
+        "bytes": 1724,
+        "gzipBytes": 849
+      },
+      "after": {
+        "bytes": 1756,
+        "gzipBytes": 845
+      },
+      "zod": {
+        "bytes": 453103,
+        "gzipBytes": 93161
+      },
+      "valibot": {
+        "bytes": 1896,
+        "gzipBytes": 841
+      }
+    },
+    "scalar-presence-nullish-target-nullish": {
+      "before": {
+        "bytes": 1735,
+        "gzipBytes": 853
+      },
+      "after": {
+        "bytes": 1767,
+        "gzipBytes": 848
+      },
+      "zod": {
+        "bytes": 453103,
+        "gzipBytes": 93161
+      },
+      "valibot": {
+        "bytes": 1896,
+        "gzipBytes": 841
+      }
+    },
+    "scalar-number-nullish-default": {
+      "before": {
+        "bytes": 1823,
+        "gzipBytes": 916
+      },
+      "after": {
+        "bytes": 1753,
+        "gzipBytes": 878
+      },
+      "zod": {
+        "bytes": 453228,
+        "gzipBytes": 93206
+      },
+      "valibot": {
+        "bytes": 3640,
+        "gzipBytes": 1425
+      }
+    },
+    "scalar-boolean-default": {
+      "before": {
+        "bytes": 1333,
+        "gzipBytes": 726
+      },
+      "after": {
+        "bytes": 1365,
+        "gzipBytes": 723
+      },
+      "zod": {
+        "bytes": 453165,
+        "gzipBytes": 93191
+      },
+      "valibot": {
+        "bytes": 3181,
+        "gzipBytes": 1295
+      }
+    },
+    "scalar-enum-default": {
+      "before": {
+        "bytes": 1560,
+        "gzipBytes": 847
+      },
+      "after": {
+        "bytes": 1592,
+        "gzipBytes": 840
+      },
+      "zod": {
+        "bytes": 453092,
+        "gzipBytes": 93157
+      },
+      "valibot": {
+        "bytes": 1987,
+        "gzipBytes": 908
+      }
+    },
+    "scalar-date-default": {
+      "before": {
+        "bytes": 1390,
+        "gzipBytes": 783
+      },
+      "after": {
+        "bytes": 1422,
+        "gzipBytes": 777
+      },
+      "zod": {
+        "bytes": 453319,
+        "gzipBytes": 93268
+      },
+      "valibot": {
+        "bytes": 2649,
+        "gzipBytes": 1158
+      }
+    },
+    "scalar-array-wrap": {
+      "before": {
+        "bytes": 2493,
+        "gzipBytes": 1122
+      },
+      "after": {
+        "bytes": 2511,
+        "gzipBytes": 1117
+      },
+      "zod": {
+        "bytes": 453124,
+        "gzipBytes": 93154
+      },
+      "valibot": {
+        "bytes": 3112,
+        "gzipBytes": 1296
+      }
+    },
+    "scalar-array-strict": {
+      "before": {
+        "bytes": 2509,
+        "gzipBytes": 1128
+      },
+      "after": {
+        "bytes": 2527,
+        "gzipBytes": 1124
+      },
+      "zod": {
+        "bytes": 453082,
+        "gzipBytes": 93146
+      },
+      "valibot": {
+        "bytes": 2036,
+        "gzipBytes": 920
+      }
+    },
+    "scalar-array-bounds": {
+      "before": {
+        "bytes": 2507,
+        "gzipBytes": 1133
+      },
+      "after": {
+        "bytes": 2525,
+        "gzipBytes": 1128
+      },
+      "zod": {
+        "bytes": 453166,
+        "gzipBytes": 93162
+      },
+      "valibot": {
+        "bytes": 3601,
+        "gzipBytes": 1399
+      }
+    },
+    "scalar-array-number": {
+      "before": {
+        "bytes": 2594,
+        "gzipBytes": 1198
+      },
+      "after": {
+        "bytes": 2510,
+        "gzipBytes": 1156
+      },
+      "zod": {
+        "bytes": 453321,
+        "gzipBytes": 93218
+      },
+      "valibot": {
+        "bytes": 3838,
+        "gzipBytes": 1490
+      }
+    },
+    "scalar-array-inner-nullable": {
+      "before": {
+        "bytes": 2506,
+        "gzipBytes": 1127
+      },
+      "after": {
+        "bytes": 2524,
+        "gzipBytes": 1123
+      },
+      "zod": {
+        "bytes": 453146,
+        "gzipBytes": 93158
+      },
+      "valibot": {
+        "bytes": 3467,
+        "gzipBytes": 1403
+      }
+    },
+    "scalar-array-default": {
+      "before": {
+        "bytes": 2549,
+        "gzipBytes": 1148
+      },
+      "after": {
+        "bytes": 2567,
+        "gzipBytes": 1144
+      },
+      "zod": {
+        "bytes": 453143,
+        "gzipBytes": 93165
+      },
+      "valibot": {
+        "bytes": 2685,
+        "gzipBytes": 1074
+      }
+    },
+    "scalar-transform-field": {
+      "before": {
+        "bytes": 1986,
+        "gzipBytes": 935
+      },
+      "after": {
+        "bytes": 2110,
+        "gzipBytes": 940
+      },
+      "zod": {
+        "bytes": 453102,
+        "gzipBytes": 93163
+      },
+      "valibot": {
+        "bytes": 1912,
+        "gzipBytes": 873
+      }
+    },
+    "scalar-refine-field": {
+      "before": {
+        "bytes": 2039,
+        "gzipBytes": 1001
+      },
+      "after": {
+        "bytes": 1969,
+        "gzipBytes": 963
+      },
+      "zod": {
+        "bytes": 453225,
+        "gzipBytes": 93210
+      },
+      "valibot": {
+        "bytes": 3454,
+        "gzipBytes": 1340
+      }
+    }
+  },
+  "completed": true
+}

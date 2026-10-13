@@ -1,0 +1,200 @@
+{
+  "completed": true,
+  "date": "2026-10-11T16:56:21.231Z",
+  "sourceHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+  "distHash": "17eb28fb24e095141a85e1bf6ba33b408d67e5e3ad4081a70a21d9074ef66ab4",
+  "declarationsHash": "75f4be2b22ca9a7b3bf329fd67d7a336b3374d42666402d2daad519132e4911a",
+  "declarationsIdenticalToBefore": true,
+  "versions": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-hook-form": "7.89.0",
+    "@hookform/resolvers": "5.9.1",
+    "@playwright/test": "1.64.0",
+    "typescript": "7.0.2",
+    "zod": "4.6.5",
+    "valibot": "1.5.0",
+    "esbuild": "0.28.2",
+    "rolldown": "1.2.13",
+    "tsdown": "0.23.1"
+  },
+  "typecheck": {
+    "passed": true,
+    "log": "/tmp/loculus-opt3-typecheck.log"
+  },
+  "schemaTests": {
+    "passed": 57,
+    "runtimes": [
+      "Node 24.13.0",
+      "Bun 1.4.3"
+    ],
+    "logs": [
+      "/tmp/loculus-opt3-node-tests.log",
+      "/tmp/loculus-opt3-bun-tests.log"
+    ]
+  },
+  "ordinaryWorkerEquivalence": {
+    "proof": "ordinary-worker-equivalence.json",
+    "proofHash": "88d25267931b284919cd0eae2254f63e1eea1e4fd5d3847a51d5569fffacb1f1",
+    "originalMeasuredSourceHash": "25a54b1c230cf21a20920b068711dc64b0506c628264a18be3b13ec358e00b95"
+  },
+  "calendarChecks": {
+    "perRuntime": 1371216,
+    "fixedExceptions": 114,
+    "reports": [
+      "calendar-semantics-node.json",
+      "calendar-semantics-bun.json"
+    ]
+  },
+  "browserTests": {
+    "passed": 12,
+    "runner": "installed Google Chrome, headless",
+    "projects": [
+      "desktop",
+      "iPhone 13 viewport on Chromium"
+    ],
+    "physicalMobileOrSafari": false,
+    "log": "/tmp/loculus-rhf-tests.log"
+  },
+  "polittyTests": {
+    "passed": 84,
+    "installedRuntimeAndDeclarationsMatch": true,
+    "log": "/tmp/politty-loculus-opt3-tests.log"
+  },
+  "treeShaking": {
+    "bundlers": [
+      "esbuild",
+      "rolldown",
+      "bun"
+    ],
+    "passed": true,
+    "log": "/tmp/loculus-opt3-all-trees.log"
+  },
+  "logs": {
+    "/tmp/loculus-opt3-node-tests.log": "14cad8b06c64085c83d4164eb536ae972bca9d388f667154f2e92eda1b6618dc",
+    "/tmp/loculus-opt3-bun-tests.log": "fa0679a924d4066c734eecb63fc64fefcddab312d6cc8a2f4c8ae4c4107155d1",
+    "/tmp/loculus-rhf-tests.log": "2606b9a6c917f6a6ab8e5fad28290afb37fa6be811b14a4ae4e8e78025eb2780",
+    "/tmp/politty-loculus-opt3-tests.log": "fdd82e39f86fec3a22d241396ee274abe9b7c30acd50c544efd53da0dad81c70",
+    "/tmp/loculus-opt3-typecheck.log": "1267f9393f137a66c6402fb1619fb1a1c4631ea489907c62751ba1cc606e6cb5"
+  },
+  "reportBrowserCheck": {
+    "passed": true,
+    "date": "2026-10-12T03:20:16.891751+00:00",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "browser": "Chrome / Chromium, headless",
+    "physicalSafari": false,
+    "checks": [
+      "12 scenario summaries",
+      "closed data appendix on initial load",
+      "code links open appendix and target schema",
+      "mobile and desktop page width",
+      "772 primary rows",
+      "60 supplementary rows",
+      "110 schemas",
+      "runtime/scope/mode filters",
+      "no compiled construction rows",
+      "compiled construction option disabled",
+      "three libraries plus named Zod code",
+      "no JavaScript errors",
+      "Valibot source analysis navigation and mobile layout",
+      "4 command models / 8 CLI profiles",
+      "80 CLI speed rows / 16 bundle rows",
+      "CLI code navigation / three library examples",
+      "CLI compiled generation excluded / no construction rows",
+      "CF package definitions / deploy and DNS record list schemas present",
+      "CF cases replace Wrangler / no old Wrangler schema IDs"
+    ],
+    "htmlSha256": "7b7d567e43651c2fa836c0bd057b0bf87d006a0faf1dccec9331022c6299de63",
+    "log": "/tmp/loculus-opt3-report-browser.log",
+    "viewports": [
+      {
+        "width": 390,
+        "height": 844
+      },
+      {
+        "width": 1280,
+        "height": 900
+      }
+    ]
+  },
+  "preview": "https://github.com/toiroakr/mayfly-private/actions/runs/38199359321/artifacts/11724238384",
+  "reportPreview": "https://github.com/toiroakr/mayfly-private/actions/runs/38199359321/artifacts/11724238384",
+  "rhfPreview": "https://github.com/toiroakr/mayfly-private/actions/runs/38183354205/artifacts/11717803608",
+  "previewBranch": "preview/20261010-195626-24218",
+  "modularityExperiment": {
+    "report": "modularity-results.json",
+    "reportSha256": "f2966ef78d468ea876e0bd230521dd9742dc1a92595e3a15f2eeb10610d0ccda",
+    "coldReport": "modularity-cold-results.json",
+    "coldReportSha256": "5f2249fccb5bd7ca82b64ae37a43ad80b5f48e9ee6fd0b8d582d7cce7f17f64a",
+    "productionChanged": false,
+    "runtimeTestsPerRuntime": 57
+  },
+  "compilerEvaluation": {
+    "modes": [
+      "valid",
+      "invalid"
+    ],
+    "generationExcluded": true,
+    "ordinarySingleUse": "field definitions and schema creation plus one validation, all included",
+    "statistics": [
+      {
+        "report": "compiled-repeated-significance-results.json",
+        "sha256": "ced1f14007bbe1cc1e33a4f4e910f3be8fd1521d3aba3e0a1fec42c43ede24e4"
+      },
+      {
+        "report": "supplement-compiled-repeated-significance-results.json",
+        "sha256": "2e0301b24ac4668c9c893d3e4e35bd06584ee5daa6c634fdaf13783f51a83140"
+      },
+      {
+        "report": "mixed-compiled-repeated-significance-results.json",
+        "sha256": "500834af323d0ca947e281a3a833a9828e69c895a6403ad7c1c86d43ea4604f7"
+      }
+    ]
+  },
+  "valibotAnalysis": {
+    "sourceHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+    "freshProcesses": 9,
+    "ablationReportSha256": "548f5a02799e5c50a5c372ff36aa664d6e6ccb71ce919e2cf10b9b42fbed732c",
+    "statisticsSha256": "423354084ac025b2e1b1768771ee0765097a5f5b78a60c2c5635f19bcb187f64",
+    "reachabilitySha256": "bcd431dc4775a63d194170882c946d6601c401caa5ad30d029625470117ed5d9",
+    "behaviorSha256": "bb5c6d5ece7fb6d352dfa0c1d580bca909a285d4c6a36ac4b01866b5b87042b7",
+    "shippedChanges": false
+  },
+  "commandBenchmarks": {
+    "sourceHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+    "freshProcessesPerRuntime": 9,
+    "profiles": 8,
+    "commands": 4,
+    "models": [
+      "git log",
+      "git clone",
+      "cf deploy",
+      "cf dns records list"
+    ],
+    "cfVersion": "1.0.0-beta.14",
+    "cfReferenceHash": "07c9a4103396e48efbe48aa6a71179800d699db15de41d1608171e41aaf9809e",
+    "ordinaryPeerFamily": 96,
+    "compiledPeerFamily": 64,
+    "compiledModes": [
+      "valid",
+      "invalid"
+    ],
+    "compiledGenerationExcluded": true,
+    "productionChanged": false,
+    "reports": {
+      "cf-reference.json": "07c9a4103396e48efbe48aa6a71179800d699db15de41d1608171e41aaf9809e",
+      "fixtures.mjs": "35519f06b56da9561b9609c573dbdb2dc1b6e535b77c6b2fee271bdd7bffa9eb",
+      "fixtures.json": "a3c2f6a0cf6a32a4a3f5c12521dedc6633cab8432cde386439871f939900b697",
+      "behavior-probes.mjs": "c1ac38e27292f494cf23a7f27601b1e6ab04772072ceeaac4392aead7bcc78b8",
+      "semantics-results.json": "51a05283431e438770255577234ac51d6896c03eb54e8797423f43536a262324",
+      "settled-results.json": "54e8748e505c68d8eb1d8771c783f575e2794312c4d92831419d1ddb152d01f8",
+      "compiled-settled-results.json": "179786c78e6e8fb422e39452358187c06a19e69d5663bdf2d83fb76a6ef883f5",
+      "significance-results.json": "1cef79f35bf29aa16cfcaa806dca36ca7053007ca579af462046ac83da73cfc1",
+      "compiled-significance-results.json": "bf332846fd5bd0fab44a41c271891131172f96157ac6689fc573520bcf3a55bd",
+      "bundle-results.json": "ead51f422397b2be8c45ceb9353ce348983cfb9632f51b6066de5f87cc16960f"
+    }
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "supplement": true,
+  "sourceHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+  "fixturesHash": "140b3b906661fc5ddc495c0d5d502b53115ccff3e23da89981eeab389d05f9d9",
+  "runtime": "/Users/toiroakr/.local/share/mise/installs/node/24.13.0/bin/node",
+  "results": [
+    {
+      "id": "supplement-rhf-items-1",
+      "name": "supplement-rhf-items-1-loculus",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-1",
+      "name": "supplement-rhf-items-1-loculus",
+      "version": "before",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-1",
+      "name": "supplement-rhf-items-1-loculus-optimized",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-1",
+      "name": "supplement-rhf-items-1-loculus-optimized",
+      "version": "before",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-1",
+      "name": "supplement-rhf-items-1-zod",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-1",
+      "name": "supplement-rhf-items-1-zod-optimized",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-1",
+      "name": "supplement-rhf-items-1-zod-compiled",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-1",
+      "name": "supplement-rhf-items-1-valibot",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-10",
+      "name": "supplement-rhf-items-10-loculus",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-10",
+      "name": "supplement-rhf-items-10-loculus",
+      "version": "before",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-10",
+      "name": "supplement-rhf-items-10-loculus-optimized",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-10",
+      "name": "supplement-rhf-items-10-loculus-optimized",
+      "version": "before",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-10",
+      "name": "supplement-rhf-items-10-zod",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-10",
+      "name": "supplement-rhf-items-10-zod-optimized",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-10",
+      "name": "supplement-rhf-items-10-zod-compiled",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-10",
+      "name": "supplement-rhf-items-10-valibot",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-100",
+      "name": "supplement-rhf-items-100-loculus",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-100",
+      "name": "supplement-rhf-items-100-loculus",
+      "version": "before",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-100",
+      "name": "supplement-rhf-items-100-loculus-optimized",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-100",
+      "name": "supplement-rhf-items-100-loculus-optimized",
+      "version": "before",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-100",
+      "name": "supplement-rhf-items-100-zod",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-100",
+      "name": "supplement-rhf-items-100-zod-optimized",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-100",
+      "name": "supplement-rhf-items-100-zod-compiled",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    },
+    {
+      "id": "supplement-rhf-items-100",
+      "name": "supplement-rhf-items-100-valibot",
+      "version": "after",
+      "matchesOutputIssueCountPaths": true
+    }
+  ],
+  "completed": true
+}

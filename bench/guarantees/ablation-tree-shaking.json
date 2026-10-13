@@ -1,0 +1,296 @@
+{
+  "completed": true,
+  "cases": [
+    {
+      "variant": "baseline",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "baseline",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "no-freeze",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "no-freeze",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "no-copy",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "no-copy",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "freeze-caller",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "freeze-caller",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "enum-plain-lazy",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "enum-plain-lazy",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "enum-eager",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "enum-eager",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "enum-no-setter",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "enum-no-setter",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "enum-no-freeze",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "enum-no-freeze",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "shared-meta",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "shared-meta",
+      "mode": "caller-freeze",
+      "bytes": 1740,
+      "frozen": false
+    },
+    {
+      "variant": "shared-standard",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "shared-standard",
+      "mode": "caller-freeze",
+      "bytes": 1734,
+      "frozen": false
+    },
+    {
+      "variant": "shared-schema",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "shared-schema",
+      "mode": "caller-freeze",
+      "bytes": 2200,
+      "frozen": false
+    },
+    {
+      "variant": "literal-validator-cache",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "literal-validator-cache",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "lazy-standard",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "lazy-standard",
+      "mode": "caller-freeze",
+      "bytes": 1898,
+      "frozen": false
+    },
+    {
+      "variant": "lazy-standard-prototype",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "lazy-standard-prototype",
+      "mode": "caller-freeze",
+      "bytes": 1810,
+      "frozen": false
+    },
+    {
+      "variant": "no-own",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "no-own",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "no-array-root-check",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "no-array-root-check",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "unsafe-proto-write",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "unsafe-proto-write",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "reject-proto-schema",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "reject-proto-schema",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "mutate-issues",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "mutate-issues",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "fresh-generated-issues",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "fresh-generated-issues",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "first-unknown",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "first-unknown",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "live-validators",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "live-validators",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "eager-input",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "eager-input",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "du-lazy",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "du-lazy",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "du-no-duplicate-check",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "du-no-duplicate-check",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    },
+    {
+      "variant": "du-static",
+      "mode": "unused",
+      "bytes": 42
+    },
+    {
+      "variant": "du-static",
+      "mode": "caller-freeze",
+      "bytes": 1672,
+      "frozen": false
+    }
+  ],
+  "freezeCaller": {
+    "unbundledFrozen": true,
+    "bundledFrozen": false,
+    "reason": "Retaining the current NO_SIDE_EFFECTS annotation while freezing caller-owned input permits removal of the unused object call. The proposal would also need annotation changes; do not ship the isolated patch as-is."
+  }
+}

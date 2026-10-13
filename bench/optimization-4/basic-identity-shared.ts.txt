@@ -1,0 +1,43 @@
+import type { Field, ObjectSchema, Issue } from '../../src/index.js';
+const tag = Symbol();
+export interface StringField extends Field<string, string, false> { readonly [tag]: true }
+export type StringShape = Readonly<Record<string, StringField>>;
+const own = Object.hasOwn;
+function validateString(value: unknown) {
+  return typeof value === 'string' ? { value } : { issues: [{ message: 'Expected a string', code: 'invalid_type' }] };
+}
+const plain = /* @__PURE__ */ Object.freeze({
+  meta: /* @__PURE__ */ Object.freeze({ kind: 'string' as const, description: undefined }),
+  '~standard': /* @__PURE__ */ Object.freeze({ version: 1 as const, vendor: 'loculus' as const, validate: validateString }),
+  field: true as const,
+  [tag]: true as const,
+}) as StringField;
+/* @__NO_SIDE_EFFECTS__ */
+export function string(): StringField { return plain; }
+/* @__NO_SIDE_EFFECTS__ */
+export function object<S extends StringShape>(shape: S): ObjectSchema<S> {
+  const fields = Object.freeze({ ...shape });
+  const keys = Object.keys(fields);
+  for (const key of keys) {
+    const field = fields[key]!;
+    if (field !== plain && (field.field !== true || field[tag] !== true || field['~standard'].validate !== validateString))
+      throw new TypeError(`Expected a plain string field: ${key}`);
+  }
+  const validate = (input: unknown) => validateObject(keys, input);
+  return { meta: { kind: 'object', shape: fields, unknownKeys: 'strip', description: undefined }, '~standard': { version: 1, vendor: 'loculus', validate }, shape: fields } as ObjectSchema<S>;
+}
+
+function validateObject(keys: readonly string[], input: unknown) {
+    if (typeof input !== 'object' || input === null || Array.isArray(input))
+      return { issues: [{ message: 'Expected an object', code: 'invalid_type' }] };
+    const raw = input as Record<string, unknown>;
+    const output: Record<string, string> = {};
+    let issues: Issue[] | undefined;
+    for (const key of keys) {
+      const value = own(raw, key) ? raw[key] : undefined;
+      if (typeof value !== 'string') (issues ??= []).push({ message: 'Expected a string', code: 'invalid_type', path: [key] });
+      else if (key === '__proto__') Object.defineProperty(output, key, { value, enumerable: true, writable: true, configurable: true });
+      else output[key] = value;
+    }
+    return issues ? { issues } : { value: output };
+}

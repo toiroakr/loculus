@@ -1,0 +1,763 @@
+{
+  "date": "2026-10-11T14:36:54.575Z",
+  "purpose": "Exploratory screening, three fresh processes, no significance claims",
+  "compiled": false,
+  "cases": {
+    "baseline/string-basic": {
+      "candidate": "baseline",
+      "profile": "string-basic",
+      "gzipBytes": 1287,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/baseline-string-basic.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            21.813795214703408,
+            21.72113733601562,
+            21.766071034128643
+          ],
+          "invalid": [
+            47.4251772591621,
+            46.808609139749265,
+            46.265306801987236
+          ],
+          "construct": [
+            91.52735797771153,
+            93.3981555054779,
+            92.71191068666337
+          ]
+        },
+        "bun": {
+          "valid": [
+            14.482135286717986,
+            14.891964730405263,
+            14.206925072041052
+          ],
+          "invalid": [
+            33.96404468809374,
+            34.07418411777894,
+            33.480285385584324
+          ],
+          "construct": [
+            60.32113661411659,
+            59.95453132079482,
+            57.64417820905497
+          ]
+        }
+      }
+    },
+    "baseline/date": {
+      "candidate": "baseline",
+      "profile": "date",
+      "gzipBytes": 1215,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/baseline-date.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            709.8964959055414,
+            688.8430823770871,
+            704.6041468518168
+          ],
+          "invalid": [
+            261.4021205778404,
+            260.8446316077784,
+            260.59198080400665
+          ],
+          "construct": [
+            812.7658439656983,
+            793.7116973618721,
+            767.9081268481706
+          ]
+        },
+        "bun": {
+          "valid": [
+            302.8755534125283,
+            301.171757111156,
+            301.4691274634457
+          ],
+          "invalid": [
+            121.15469389080057,
+            123.40510366826176,
+            121.19619606421232
+          ],
+          "construct": [
+            359.6684484253105,
+            371.8889156162792,
+            360.6376954570115
+          ]
+        }
+      }
+    },
+    "baseline/width-100": {
+      "candidate": "baseline",
+      "profile": "width-100",
+      "gzipBytes": 1537,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/baseline-width-100.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            6166.666666666666,
+            6132.560200668896,
+            6103.317398119121
+          ],
+          "invalid": [
+            2262.6346461735566,
+            2257.1561904761975,
+            2237.517132977047
+          ],
+          "construct": [
+            8555.048974943062,
+            8583.185579196235,
+            8456.770454545454
+          ]
+        },
+        "bun": {
+          "valid": [
+            723.4403780635232,
+            737.8227769110765,
+            744.2641707855714
+          ],
+          "invalid": [
+            2452.885115836241,
+            2314.9623188405826,
+            2308.750401026625
+          ],
+          "construct": [
+            3453.443626323057,
+            3178.8575280898876,
+            3133.831574318376
+          ]
+        }
+      }
+    },
+    "baseline/scalar-string-basic": {
+      "candidate": "baseline",
+      "profile": "scalar-string-basic",
+      "gzipBytes": 840,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/baseline-scalar-string-basic.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            3.4651660000000035,
+            3.394083000000002,
+            3.2665000000000006
+          ],
+          "invalid": [
+            9.138625190910668,
+            9.181649493254225,
+            8.648887612764108
+          ],
+          "construct": [
+            14.764760563702728,
+            14.92441615876088,
+            14.533510582747336
+          ]
+        },
+        "bun": {
+          "valid": [
+            3.2092090000000013,
+            3.151333000000001,
+            3.146249999999995
+          ],
+          "invalid": [
+            8.505777230010786,
+            8.296123178764669,
+            8.362436395793127
+          ],
+          "construct": [
+            13.764800355226413,
+            11.552982719354771,
+            14.159047393620387
+          ]
+        }
+      }
+    },
+    "baseline/scalar-boolean": {
+      "candidate": "baseline",
+      "profile": "scalar-boolean",
+      "gzipBytes": 721,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/baseline-scalar-boolean.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            7.117834000000002,
+            7.115750000000006,
+            6.999333000000007
+          ],
+          "invalid": [
+            14.782391168334033,
+            14.874365677379672,
+            14.720793915235788
+          ],
+          "construct": [
+            16.41285477795635,
+            16.44669182500119,
+            16.38900236752261
+          ]
+        },
+        "bun": {
+          "valid": [
+            5.452582999999997,
+            5.136333000000001,
+            5.033125000000005
+          ],
+          "invalid": [
+            11.61122273834091,
+            10.765102569340181,
+            10.809600166775649
+          ],
+          "construct": [
+            17.19660646779294,
+            17.034222455153103,
+            17.217821463766494
+          ]
+        }
+      }
+    },
+    "baseline/scalar-date": {
+      "candidate": "baseline",
+      "profile": "scalar-date",
+      "gzipBytes": 762,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/baseline-scalar-date.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            659.7283534421578,
+            673.3851284362323,
+            656.4708355228581
+          ],
+          "invalid": [
+            219.91061653303876,
+            219.0651311249131,
+            218.43150090921847
+          ],
+          "construct": [
+            704.2608434252327,
+            688.3041811536064,
+            671.7504072708556
+          ]
+        },
+        "bun": {
+          "valid": [
+            312.7442598925255,
+            296.81786353380517,
+            299.52433274888006
+          ],
+          "invalid": [
+            107.80799125742793,
+            99.85735257494126,
+            97.88296989360894
+          ],
+          "construct": [
+            332.26329787234033,
+            298.31132301308566,
+            302.51765039268076
+          ]
+        }
+      }
+    },
+    "basic-early-field/string-basic": {
+      "candidate": "basic-early-field",
+      "profile": "string-basic",
+      "gzipBytes": 1295,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/basic-early-field-string-basic.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            21.855546961294433,
+            21.382416234727874,
+            21.96613420898111
+          ],
+          "invalid": [
+            46.51059510382795,
+            47.664093381085,
+            46.915485634291024
+          ],
+          "construct": [
+            89.49561941136253,
+            92.47373994638062,
+            89.09384292012717
+          ]
+        },
+        "bun": {
+          "valid": [
+            16.59313502301816,
+            13.964683905763906,
+            14.123181144591065
+          ],
+          "invalid": [
+            39.37334737218514,
+            35.32601039434662,
+            33.53385542278317
+          ],
+          "construct": [
+            66.49096818730922,
+            56.89691416959355,
+            57.28197894324643
+          ]
+        }
+      }
+    },
+    "basic-early-field/date": {
+      "candidate": "basic-early-field",
+      "profile": "date",
+      "gzipBytes": 1226,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/basic-early-field-date.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            678.9537935495794,
+            702.7551290536071,
+            685.2503241340988
+          ],
+          "invalid": [
+            261.86599438611097,
+            264.33990233693714,
+            260.53117870722474
+          ],
+          "construct": [
+            765.8820614469759,
+            798.1321839080459,
+            789.3403082576278
+          ]
+        },
+        "bun": {
+          "valid": [
+            492.2491461748637,
+            299.9515151515152,
+            304.49483579440016
+          ],
+          "invalid": [
+            282.1102812329442,
+            123.67037086180585,
+            122.71290275024982
+          ],
+          "construct": [
+            910.6358912568713,
+            389.08397397989415,
+            359.3717091014104
+          ]
+        }
+      }
+    },
+    "basic-early-field/width-100": {
+      "candidate": "basic-early-field",
+      "profile": "width-100",
+      "gzipBytes": 1545,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/basic-early-field-width-100.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            5794.51124903026,
+            6073.117193523509,
+            5950.113808801219
+          ],
+          "invalid": [
+            2227.452431936368,
+            2219.4451827242497,
+            2212.896031990152
+          ],
+          "construct": [
+            8376.398210290814,
+            8520.08765859283,
+            8353.951890034372
+          ]
+        },
+        "bun": {
+          "valid": [
+            757.6903321538639,
+            718.8865806316234,
+            722.2034865622086
+          ],
+          "invalid": [
+            2523.288151963941,
+            2304.892322097381,
+            2320.8319195727304
+          ],
+          "construct": [
+            2953.7510656436566,
+            3360.423267326735,
+            4176.096400496473
+          ]
+        }
+      }
+    },
+    "basic-early-field/scalar-string-basic": {
+      "candidate": "basic-early-field",
+      "profile": "scalar-string-basic",
+      "gzipBytes": 850,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/basic-early-field-scalar-string-basic.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            3.2765000000000057,
+            3.265416000000002,
+            3.267832999999996
+          ],
+          "invalid": [
+            8.898695434493042,
+            8.724152851730153,
+            8.863223462237213
+          ],
+          "construct": [
+            14.35556949391738,
+            14.261422923895266,
+            14.262591154824248
+          ]
+        },
+        "bun": {
+          "valid": [
+            3.2387919999999966,
+            3.1421670000000006,
+            3.1427499999999995
+          ],
+          "invalid": [
+            8.415423984726301,
+            8.462616369163802,
+            8.501510108817568
+          ],
+          "construct": [
+            11.046724447888325,
+            10.964465423632909,
+            11.139781113859268
+          ]
+        }
+      }
+    },
+    "basic-early-field/scalar-boolean": {
+      "candidate": "basic-early-field",
+      "profile": "scalar-boolean",
+      "gzipBytes": 731,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/basic-early-field-scalar-boolean.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            7.1699159999999935,
+            6.978125000000006,
+            7.030749999999998
+          ],
+          "invalid": [
+            14.717914226255646,
+            14.548214613103239,
+            15.07093193407067
+          ],
+          "construct": [
+            16.015195221849332,
+            16.077462483011026,
+            16.511096390313806
+          ]
+        },
+        "bun": {
+          "valid": [
+            5.177666000000002,
+            5.320666000000003,
+            5.120583000000003
+          ],
+          "invalid": [
+            10.755475047523694,
+            10.802709379139788,
+            10.621832629031688
+          ],
+          "construct": [
+            14.540971333442354,
+            14.30800671483836,
+            14.282155195322877
+          ]
+        }
+      }
+    },
+    "basic-early-field/scalar-date": {
+      "candidate": "basic-early-field",
+      "profile": "scalar-date",
+      "gzipBytes": 774,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/basic-early-field-scalar-date.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            665.9992881295602,
+            662.4592888888888,
+            693.8004032258062
+          ],
+          "invalid": [
+            222.11065387671692,
+            219.60462459952663,
+            222.14942561828786
+          ],
+          "construct": [
+            687.7194333775997,
+            674.1562098776008,
+            706.1430474160899
+          ]
+        },
+        "bun": {
+          "valid": [
+            294.0822554410968,
+            295.23451124368967,
+            295.3486189120567
+          ],
+          "invalid": [
+            97.83262340265594,
+            97.03197062362118,
+            99.60568540100343
+          ],
+          "construct": [
+            302.99479166666646,
+            302.90209679337295,
+            316.0682440846833
+          ]
+        }
+      }
+    },
+    "date-calendar/string-basic": {
+      "candidate": "date-calendar",
+      "profile": "string-basic",
+      "gzipBytes": 1287,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/date-calendar-string-basic.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            21.48230669160327,
+            21.592537942664425,
+            22.471173081883585
+          ],
+          "invalid": [
+            46.71749117784145,
+            46.34982934018185,
+            52.991135915955496
+          ],
+          "construct": [
+            95.12070666792829,
+            91.21304550602994,
+            92.67342019090059
+          ]
+        },
+        "bun": {
+          "valid": [
+            14.284998935963515,
+            14.043008807377126,
+            14.271703721837047
+          ],
+          "invalid": [
+            33.94868513453576,
+            34.451743642483244,
+            34.16337391256398
+          ],
+          "construct": [
+            59.65976171506546,
+            58.29445885574286,
+            58.07130889957533
+          ]
+        }
+      }
+    },
+    "date-calendar/date": {
+      "candidate": "date-calendar",
+      "profile": "date",
+      "gzipBytes": 1270,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/date-calendar-date.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            198.57605724392988,
+            199.74630053786942,
+            201.61531461258454
+          ],
+          "invalid": [
+            101.3259545344823,
+            98.47218047225074,
+            98.90429353404033
+          ],
+          "construct": [
+            272.47055313117727,
+            273.5263235294111,
+            270.4224797645332
+          ]
+        },
+        "bun": {
+          "valid": [
+            157.55419395275445,
+            151.1701578019866,
+            150.8364536345852
+          ],
+          "invalid": [
+            58.98717661040336,
+            59.130369556663155,
+            58.967454366492305
+          ],
+          "construct": [
+            199.82128121607002,
+            196.92436425086504,
+            197.97956820249823
+          ]
+        }
+      }
+    },
+    "date-calendar/width-100": {
+      "candidate": "date-calendar",
+      "profile": "width-100",
+      "gzipBytes": 1537,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/date-calendar-width-100.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            6027.8949386503,
+            6011.282990083905,
+            6165.899038461539
+          ],
+          "invalid": [
+            2210.057195010645,
+            2223.178604365201,
+            2229.941723496591
+          ],
+          "construct": [
+            8364.903299203657,
+            8560.288214702437,
+            8521.723699421982
+          ]
+        },
+        "bun": {
+          "valid": [
+            734.3265842180137,
+            732.8154466501236,
+            726.450525439601
+          ],
+          "invalid": [
+            2360.7077217613287,
+            2317.1412570006237,
+            2310.888646288206
+          ],
+          "construct": [
+            3391.8364226135286,
+            3213.325317009179,
+            3158.738191632926
+          ]
+        }
+      }
+    },
+    "date-calendar/scalar-string-basic": {
+      "candidate": "date-calendar",
+      "profile": "scalar-string-basic",
+      "gzipBytes": 840,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/date-calendar-scalar-string-basic.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            3.2764999999999986,
+            3.272708999999999,
+            3.262791000000007
+          ],
+          "invalid": [
+            8.902436153749521,
+            8.681610764612936,
+            8.969170747743549
+          ],
+          "construct": [
+            14.664839954068725,
+            14.733205055319862,
+            14.59920614046626
+          ]
+        },
+        "bun": {
+          "valid": [
+            3.141458,
+            3.1424590000000023,
+            3.143499999999996
+          ],
+          "invalid": [
+            8.579269411397489,
+            8.498552012625828,
+            8.22198006885476
+          ],
+          "construct": [
+            14.163824366641515,
+            11.553728168841253,
+            11.284223155843987
+          ]
+        }
+      }
+    },
+    "date-calendar/scalar-boolean": {
+      "candidate": "date-calendar",
+      "profile": "scalar-boolean",
+      "gzipBytes": 721,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/date-calendar-scalar-boolean.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            7.133874999999996,
+            7.060917000000003,
+            7.287875
+          ],
+          "invalid": [
+            14.72183791345681,
+            14.56447478400259,
+            14.48047791993571
+          ],
+          "construct": [
+            16.69082711419505,
+            16.37452467325468,
+            16.25056778966827
+          ]
+        },
+        "bun": {
+          "valid": [
+            5.042625000000001,
+            5.082250000000002,
+            5.195792000000004
+          ],
+          "invalid": [
+            10.727605200720177,
+            10.878465192967015,
+            10.730704271826943
+          ],
+          "construct": [
+            15.770475695674765,
+            17.4289261970665,
+            17.49550259262308
+          ]
+        }
+      }
+    },
+    "date-calendar/scalar-date": {
+      "candidate": "date-calendar",
+      "profile": "scalar-date",
+      "gzipBytes": 815,
+      "file": "/Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/optimization-3/generated/screen/date-calendar-scalar-date.mjs",
+      "runtime": {
+        "node": {
+          "valid": [
+            183.51359338061465,
+            183.99112433019394,
+            185.45183798895593
+          ],
+          "invalid": [
+            63.852465435181564,
+            65.76359429232538,
+            62.48176090912221
+          ],
+          "construct": [
+            190.97049398540767,
+            197.46926172458322,
+            191.44389365690031
+          ]
+        },
+        "bun": {
+          "valid": [
+            139.10543306797757,
+            141.53031029775295,
+            141.9408988341482
+          ],
+          "invalid": [
+            34.64218947293277,
+            34.2548912245089,
+            34.34537390248543
+          ],
+          "construct": [
+            145.4964502363319,
+            147.48839152143924,
+            148.53714486693494
+          ]
+        }
+      }
+    }
+  }
+}

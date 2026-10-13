@@ -1,0 +1,7 @@
+import{readFileSync,writeFileSync}from'node:fs';import{createHash}from'node:crypto';
+const dir='bench/optimization-4';const s=readFileSync(dir+'/basic.ts.txt','utf8');
+const guard=s.replace("if (field[tag] !== true || field['~standard'].validate !== validateString)","if (field !== plain && (field.field !== true || field[tag] !== true || field['~standard'].validate !== validateString))");
+const fused=x=>x.replace("  return { meta: { kind: 'object', shape: fields, unknownKeys: 'strip', description: undefined }, '~standard': { version: 1, vendor: 'loculus', validate }, shape: fields } as ObjectSchema<S>;","  const descriptor = { kind: 'object' as const, shape: fields, unknownKeys: 'strip' as const, description: undefined, version: 1 as const, vendor: 'loculus' as const, validate };\n  return { meta: descriptor, '~standard': descriptor, shape: fields } as ObjectSchema<S>;");
+const indexed=x=>x.replace('    for (const key of keys) {','    for (let i = 0; i < keys.length; i++) {\n      const key = keys[i]!;');
+const variants={'basic-identity':guard,'basic-fused':fused(guard),'basic-indexed':indexed(guard),'basic-fused-indexed':indexed(fused(guard))};
+const m=JSON.parse(readFileSync(dir+'/manifest.json'));for(const[name,contents]of Object.entries(variants)){writeFileSync(dir+'/'+name+'.ts.txt',contents);m.candidates.push({name,sourceHash:createHash('sha256').update(contents).digest('hex')});}writeFileSync(dir+'/manifest.json',JSON.stringify(m,null,2)+'\n');

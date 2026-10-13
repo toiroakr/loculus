@@ -1,0 +1,585 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Loculus の保証をどこまで保つか — Zod / Valibot 比較</title><style>
+:root{color-scheme:light;--ink:#182b35;--muted:#4a606c;--line:#d8e2e8;--blue:#145e83}*{box-sizing:border-box}body{margin:0;background:#f4f7f8;color:var(--ink);font:16px/1.8 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1080px;margin:auto;padding:28px 24px 70px}header{padding:30px;background:#153b50;color:white;border-radius:20px}header p{color:#e5eef2}h1{font-size:clamp(26px,4vw,39px);line-height:1.45;margin:10px 0}h2{font-size:25px;margin:0 0 16px}h3{font-size:19px;line-height:1.6;margin:8px 0}p{margin:12px 0}a{color:var(--blue);text-underline-offset:3px}header a{color:#edf6ff}.eyebrow{font-size:14px;letter-spacing:.06em}.muted,.note{color:var(--muted);font-size:14px}.note{border-left:3px solid #94aebc;padding-left:12px}nav{display:flex;flex-wrap:wrap;gap:9px 18px;padding:20px 0}section{margin:22px 0;background:white;border:1px solid var(--line);border-radius:16px;padding:26px}.lead{font-size:19px}.decision{padding:18px 0;border-top:1px solid var(--line)}.decision:first-of-type{border-top:0}.badge{display:inline-block;padding:2px 10px;border-radius:20px;background:#e7f0f5;color:#19485e;font-size:13px;font-weight:700}.callout{background:#edf5f6;padding:16px;border-radius:12px}.warning{background:#fff4e3;padding:16px;border-radius:12px}ul,ol{padding-left:23px}li{margin:7px 0}.case{padding:17px 0;border-top:1px solid var(--line)}summary{cursor:pointer;font-weight:650;line-height:1.65}.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.example{min-width:0;padding:14px;background:#f6f8fa;border:1px solid var(--line);border-radius:12px}.result{font-size:14px;overflow-wrap:anywhere}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:14px}th,td{padding:10px;text-align:left;border-bottom:1px solid var(--line)}th{background:#edf3f6}pre{padding:14px;background:#102a38;color:#e6f1f7;border-radius:9px;white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font:12px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace}.provenance{overflow-wrap:anywhere;font-size:13px}details details{margin-top:12px}footer{font-size:14px;color:var(--muted)}:target{scroll-margin-top:18px}a:focus-visible,summary:focus-visible{outline:3px solid #df9d2a;outline-offset:4px}@media(max-width:720px){main{padding:14px 12px 40px}header{padding:22px 18px}section{padding:20px 16px}.three{grid-template-columns:1fr}h2{font-size:22px}.lead{font-size:18px}th,td{padding:8px}pre{font-size:12px}}@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style></head><body><main><header><div class="eyebrow">LOCULUS · 設計判断の比較資料 · 2026-10-12</div><h1>速くするために、どの保証を外せるか</h1><p class="lead">安全性を保つ処理と、内部表現のコストは別です。凍結を外すだけでは、公開定義・検証・CLI metadata の整合性が崩れる可能性があります。</p><p>まず内部表現を見直し、スキーマの変更を許すかどうかは別途決めるのが望ましいと考えます。</p><p class="eyebrow">この資料は比較と変更案です。ライブラリの仕様は変更していません。</p></header>
+<nav aria-label="目次"><a href="#answer">判断の要点</a><a href="#performance">現在の勝ち負け</a><a href="#decisions">変更とデメリット</a><a href="#examples">3 ライブラリの実行例</a><a href="#proposal">進め方の提案</a><a href="#evidence">確認範囲と出典</a></nav>
+<section id="answer"><h2>「保証が違うから負ける」とは、まだ言い切れません</h2><p>過去の切り分けでは、shape のコピー・凍結や入力の own property チェックにコストがありました。一方、それらを保ったまま固定キーの検証を生成することで、大きな object の性能差を改善できています。<strong>仕様の差と、実装上の最適化余地が両方あります。</strong></p><ul><li><strong>Standard Schema が要求するもの：</strong><code>~standard</code> に version / vendor / validate を持ち、成功時の value と失敗時の issues / path を所定の形式で返すこと。shape のコピー・凍結、独自 metadata、クラス、早期 Map 作成は要求されません。<a href="https://standardschema.dev/">Standard Schema 仕様</a></li><li><strong>Loculus の用途で保ちたいもの：</strong>入力や prototype を安全に扱い、RHF が正しいフィールドにエラーを表示し、Politty の help と実際の検証を一致させること。</li><li><strong>見直しやすいもの：</strong>metadata の表現、~standard の実体化タイミング、検証コードの共有。スキーマの同一性や挙動を変えずに行える可能性があります。</li></ul><p class="note">Zod の「Immutable API」はメソッドが新しいスキーマを返すという意味で、shape の実行時凍結を意味しません。Zod の .readonly() は解析後の出力を凍結する機能。Valibot の readonly() は出力の型を readonly にし、今回の実装では実行時凍結をしません。shape の凍結とは別の話です。<a href="https://zod.dev/">Zod</a> · <a href="https://zod.dev/api#readonly">Zod readonly</a> · <a href="https://valibot.dev/api/readonly/">Valibot readonly</a></p></section>
+<section id="performance"><h2>現在、負けているのはどこか</h2><p>既存の 107 プロファイルの比較では、<strong>対 Zod の実用上・統計上の負けは 0、対 Valibot は次の 5 条件</strong>です。全て「スキーマ作成＋有効入力の 1 回検証」。反復の有効・無効入力では、この判定基準での対ライブラリの負けは残っていません。</p><div class="table-wrap"><table id="losses"><caption>生成済み Loculus と Valibot：小さいほど速い（ns / 回）</caption><thead><tr><th>ケース</th><th>実行環境</th><th>Loculus</th><th>Valibot</th><th>差</th></tr></thead><tbody><tr><td>literal を 1 個持つ object</td><td>Node</td><td>99.50</td><td>88.76</td><td>+12.1%</td></tr><tr><td>literal を 1 個持つ object</td><td>Bun</td><td>80.48</td><td>68.28</td><td>+17.9%</td></tr><tr><td>discriminated union</td><td>Bun</td><td>802.62</td><td>703.21</td><td>+14.1%</td></tr><tr><td>空の object</td><td>Node</td><td>67.90</td><td>42.95</td><td>+58.1%</td></tr><tr><td>literal 単体</td><td>Bun</td><td>26.54</td><td>21.21</td><td>+25.1%</td></tr></tbody></table></div><p class="note">「実用上・統計上」は 10% 超の遅延かつ Holm 補正後 p &lt; 0.05。11 独立プロセス、各 7 ラウンドの中央値。Apple M3 / Node 24.13.0 / Bun 1.4.3。Zod は jitless 設定。build-time plugin の生成コストは全ての実行時間から除外し、反復時はスキーマ作成コストも除外しています。現在の通常モード全条件の優位を、この表から主張することはできません。</p><p>サイズは別の課題です。同じ 107 ケースの gzip では、<strong>生成ありの Loculus より Valibot の方が小さいのが 8 ケース</strong>、通常モードの Loculus より小さいのが 45 ケースあります。スキーマ作成を速くしても、バンドルが小さくなるとは限りません。型チェックの優位も、この動作確認からは結論づけません。</p><details><summary>保証のコストを切り分けた過去の実験</summary><p>whole-object 最適化前の strict object「作成＋1 回」で、凍結だけを外すと Node 125→102 ns、Bun 88→77 ns。Valibot にコピー・凍結・own property チェック・配列拒否を追加すると Node 91→122 ns、Bun 68→87 ns でした。これは当時の fixture の結果で、現在の空 object や literal の値から差し引ける数値ではありません。</p><p>同じ時期の 100 フィールドの反復検証では、own property チェックを保持した固定キー生成が Node 2,902 ns / Bun 846 ns、Valibot は 12,220 ns / 1,023 ns。保証を外さずに勝てた実験が、その後の whole-object 最適化の根拠です。</p><p>凍結は作成時の処理なので、作成を計測しない反復の遅さを直接説明しません。残る 5 条件について、各保証の寄与を全て分離した証拠はありません。</p></details></section>
+<section id="decisions"><h2>何を変えると、どんなデメリットがあるか</h2>
+<article class="decision" id="shape-freeze"><div class="badge">設計と型の修正が必要</div><h3>1. shape の凍結だけをやめる</h3><p><strong>比較：</strong>Loculus は作成時のコピーを凍結。Zod は最初に shape を読むとコピーしますが凍結しません。Valibot は渡した entries をそのまま保持します。</p><p><strong>具体的な不利益：</strong>schema.shape.name を number に置き換えたつもりでも、Loculus の親は作成時の string 検証関数を保持しています。凍結だけ外すと TypeError が消え、「定義は number、検証は string」という静かな不整合になります。Politty が shape を読むと、help や選択肢にも食い違いが出る可能性があります。</p><p>現在の型は <code>readonly shape: S</code> で、shape プロパティ自体の代入は禁止しても、中の name の代入までは常に禁止しません。<code>Readonly&lt;S&gt;</code> 等の型整理も必要です。TypeScript の readonly だけでは JavaScript や Reflect.set による変更を防げません。</p><p><strong>判断：</strong>「作成後の変更は未サポート」という契約を明示し、公開定義と検証の整合性を設計してから検討。開発時だけ凍結する案は事故検出を保てますが、本番だけ変更が通る差が増えます。現状から凍結 1 行だけを削除するのは避けたいです。<a href="#case-exposed-shape-replacement">実行例 3</a></p></article>
+<article class="decision" id="shape-copy"><div class="badge">凍結解除より影響が大きい</div><h3>2. 元の shape のコピーをやめる</h3><p><strong>具体例：</strong>共通の CLI 定義から schemaA を作り、同じ shape を編集して schemaB を作る。参照を共有すると schemaA まで変わる可能性があります。フォームでも、管理者用に追加した項目が一般ユーザー向けに流れ込む原因になります。</p><p>同じ参照を凍結する方法では、逆に呼び出し側の shape まで凍結してしまいます。コピーを省くだけでは、どちらの問題も解決しません。</p><p><strong>判断：</strong>通常 API は作成時 snapshot を維持する方が扱いやすいです。生成 plugin が自分で作る外部に共有されない shape は、現状でもコピーせず凍結しており、利用者の定義を巻き込まずに省略できています。<a href="#case-original-shape-before-first-read">実行例 1</a> · <a href="#case-original-shape-after-first-read">実行例 2</a></p></article>
+<article class="decision" id="metadata"><div class="badge">まず検討したい内部最適化</div><h3>3. metadata のクラス・setter・作成タイミングを見直す</h3><p>Loculus の EnumMeta クラスや enumValues setter は Standard Schema の要件ではありません。Politty は kind / optional / defaultValue / description / enumValues / shape を読むため、それらの値と意味を保てば、クラスの表現は変えられます。Zod は registry の metadata、Valibot は pipeline の metadata action を用い、Loculus と同じ構造ではありません。<a href="https://zod.dev/metadata">Zod metadata</a> · <a href="https://valibot.dev/api/metadata/">Valibot metadata</a></p><p><strong>現在でも起こる問題：</strong>literal("ready") の metadata を Reflect.set で enumValues=["other"] にすると、表示用選択肢は other、検証は ready のままです。setter を残すことが整合性の保証にはなっていません。通常の TS API では enumValues は readonly ですが、実行時の setter は動きます。</p><pre><code>const field = l.literal(&quot;ready&quot;);
+Reflect.set(field.meta, &quot;enumValues&quot;, [&quot;other&quot;]);
+field.meta.enumValues;          // [&quot;other&quot;]
+l.safeParse(field, &quot;ready&quot;);   // success
+l.safeParse(field, &quot;other&quot;);   // failure</code></pre><p><strong>変更のデメリット：</strong>setter 廃止では、この実行時書き換えができなくなります。遅延 metadata では getter の処理や初回読取のコストが増えます。検証済み値に無関係な label を表示したい場合は、検証用 enumValues と分けた UI 定義を使う必要があります。</p><p><strong>判断：</strong>意味が変わらない読み取り用 metadata を作り、書き換えを許さない設計を検討。今の enumValues は既に遅延生成なので、クラスを平坦な配列に置き換えて常に配列を作ると、むしろ作成が遅くなる可能性があります。クラス廃止そのものの速度向上は未計測です。</p></article>
+<article class="decision" id="sharing"><div class="badge">何を共有するかでリスクが違う</div><h3>4. metadata・検証コード・スキーマ本体を共有する</h3><p><strong>検証コードだけ：</strong>設定・default 値の参照・closure の意味を保てば、同じ処理を共有する余地があります。<strong>metadata：</strong>書き換え可能なまま共有すると、コマンド A の description を変えただけで B の help も変わります。今の metadata 全体は凍結されていません。</p><p><strong>スキーマ本体：</strong>同じ l.string() を常に同じオブジェクトにする案は避けたいです。Politty の引数 metadata や抽出キャッシュはスキーマの参照をキーにするため、同じ型の userName と password の設定が混ざる原因になります。Zod の metadata registry もスキーマの同一性を使います。</p><p><strong>判断：</strong>外側のスキーマは毎回別のまま保ち、読み取り専用の内部データや検証コードの共有を先に試す。参照同一性・default の可変参照・メモリ量を確認します。無制限の literal キャッシュは保持メモリと初回コストが増え、別のトレードオフになります。<a href="#case-fresh-standard">実行例 6</a></p></article>
+<article class="decision" id="standard"><div class="badge">仕様を保てる候補</div><h3>5. ~standard をアクセス時に作る</h3><p>Zod は既に遅延実体化、今回の Valibot と Loculus は eager に作成します。Standard Schema は own property として最初から存在することも、別スキーマ間での参照の独立性も要求していません。</p><p><strong>不利益：</strong>Object.hasOwn(schema,"~standard") の結果が変わります。Object.keys や spread 等、反射による列挙・コピーの挙動も設計と確認が必要です。初回アクセス時の負荷は増え、Loculus の safeParse はすぐ ~standard を読むため、「作成＋1 回」では遅延するだけでコストが消えるとは限りません。</p><p><strong>判断：</strong>公開アクセス schema["~standard"].validate が同じ結果を返すこと、Politty / RHF で使えること、同じ schema の再アクセスは安定することを保って検証できます。作成数・使用率ごとの計測が必要です。</p></article>
+<article class="decision" id="input"><div class="badge">入力境界では維持したい</div><h3>6. own property チェック・配列拒否・__proto__ 処理を省く</h3><p><strong>own property：</strong>必須の name を送信していない入力でも、prototype の name が採用されるようになります。許すなら「継承された設定を受ける機能」ですが、CLI / フォーム用途で意図せず必須チェックを通る不利益の方が大きいと考えます。</p><p><strong>配列拒否：</strong>空 object が [] を成功扱いし、JSON 設定の取り違えを見逃します。<strong>__proto__：</strong>通常の代入に置き換えると、object 値を代入した場合に出力の prototype が変わり得ます。安全な own property の書き込みを保つか、キーを明示的に拒否する必要があります。</p><p>__proto__ を正規の項目名として許す機能は必須とは限りません。拒否すればその名前のフォーム項目や設定が使えなくなります。安全性は保ち、名前のサポート可否だけを別に決めるべきです。<a href="#case-inherited-input">実行例 4</a> · <a href="#case-array-root">実行例 5</a> · <a href="#case-proto-input-key">実行例 8</a></p></article>
+<article class="decision" id="errors"><div class="badge">RHF の結果や操作回数に影響</div><h3>7. エラーの clone・全件収集をやめる</h3><p><strong>clone を省く例：</strong>同じ custom field が共有・凍結された issue を返し、left と right の両方で使われる場合。path をその場で変更すると TypeError になったり、以前の left が right のエラーにも混入したりします。Loculus はコピーして prefix を付け、元の issue を変更しません。</p><pre><code>const sharedIssue = Object.freeze({
+  message: &quot;shared&quot;, path: Object.freeze([&quot;leaf&quot;])
+});
+// Observed when the same custom field is used for left and right
+// paths: [&quot;left&quot;, &quot;leaf&quot;], [&quot;right&quot;, &quot;leaf&quot;]
+// sharedIssue.path remains [&quot;leaf&quot;]</code></pre><p>Valibot の object 内部は子 issue の path を直接 prepend します。ただし各ライブラリの拡張 API・issue の構造は違い、この Loculus custom field をそのまま他ライブラリに渡す比較ではありません。</p><p><strong>全件収集を省く例：</strong>未知の extra1 / extra2 を最初の 1 件だけ返すと、フォーム修正や設定の修正を複数回繰り返すことになります。Zod の 1 件は集約で両キーを示すため、「件数が少ない＝情報が少ない」ではありません。</p><p><strong>判断：</strong>RHF 用の path と generic な子の issue 保護は維持。生成コードが自分で作る新しい issue だけを直接構築する最適化なら、共有 issue の保護を外す必要はありません。未知キーの全件収集を選択式にする案はありますが、成功入力での作成コストの負けは説明できません。<a href="#case-strict-unknown-count">実行例 9</a></p></article>
+<article class="decision" id="callbacks"><div class="badge">拡張と副作用の挙動が変わる</div><h3>8. 子の関数 capture・入力の読取順を変える</h3><p>子関数を毎回取得する設計では、作成後の子の差し替えが親にも反映されます。Loculus は今は capture します。変更を禁止するなら capture は実装上の選択ですが、変更を許すなら validation / metadata / キャッシュの更新を一貫して扱う必要があります。</p><p>入力をまとめて先読みする最適化では、getter や callback が後続フィールドを変えるケースで結果が変わります。実測した getter a が b を "before"→"after" にする例では、Loculus は {a:"first", b:"after"} を返しました。先読みで b を確定させると before が残ります。</p><p><strong>判断：</strong>通常の CLI / JSON のプレーンなデータでは問題になりにくいものの、一般の object を受ける API の挙動変更です。直接固定キーを生成しても、読取→検証→書込をフィールド順に保てば、この保証を落とさずに最適化できます。<a href="#case-child-validator-replacement">実行例 7</a></p></article>
+<article class="decision" id="union"><div class="badge">エラー検出時点のトレードオフ</div><h3>9. discriminated union の早期検査を遅らせる</h3><p>kind:"deploy" が 2 分岐に重複した場合、Loculus は定義時に止まります。Zod は最初の検証で例外。今回の Valibot は受理しました。分岐の不備を起動時に知るか、その操作を実行した時に知るかが変わります。</p><p><strong>不利益：</strong>遅延すれば使われない不正なスキーマは気付かれないまま残ります。Politty は help や variant 抽出でも metadata を読むため、検証だけ遅延しても CLI 初期化で必要な処理が残る可能性があります。</p><p><strong>判断：</strong>早期検査を保つかは外向けの設計判断ですが、Map 構築を後ろに移すだけでは現在の単発計測の total は減りません。静的生成で重複を検出するなど、実行時の仕事を実際に減らす方法と区別します。<a href="#case-duplicate-discriminator">実行例 10</a></p></article>
+</section>
+<section id="examples"><h2>確認した 10 ケースと各ライブラリのコード</h2><p>見たいケースを開くと、結果と 3 ライブラリのコードが表示されます。Node v24.13.0 / Bun 1.4.3 で全ケースの結果が一致しました。これらは通常 JS ビルドの現状の観測です。WASM ではありません。</p><p class="note">コードは JavaScript として実行したもの。shape / metadata / 内部関数の書き換えケースは、最適化で何が変わるかを調べる診断であり、Zod / Valibot が書き換えを保証するという意味ではありません。JSON は比較用に出力と issue の path を正規化しています。</p><details id="case-original-shape-before-first-read" class="case"><summary>1. 作成直後に、元の shape を変更</summary><p>CLI の定義を使い回して name を number に差し替えると、Zod / Valibot は最初の検証から数字を受け付けます。Loculus は作成時の文字列定義を保持します。Zod はコピーが遅延するため、コピー後のケースと分けて確認しています。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">&quot;Alice&quot;: 成功 / 123: 失敗</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const shape = { name: l.string() };
+const schema = l.object(shape);
+shape.name = l.number();
+l.safeParse(schema, { name: &quot;Alice&quot; });
+l.safeParse(schema, { name: 123 });</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">&quot;Alice&quot;: 失敗 / 123: 成功</p><pre><code>import { z } from &quot;zod&quot;;
+
+const shape = { name: z.string() };
+const schema = z.object(shape);
+shape.name = z.number();
+schema.safeParse({ name: &quot;Alice&quot; });
+schema.safeParse({ name: 123 });</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">&quot;Alice&quot;: 失敗 / 123: 成功</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const shape = { name: v.string() };
+const schema = v.object(shape);
+shape.name = v.number();
+v.safeParse(schema, { name: &quot;Alice&quot; });
+v.safeParse(schema, { name: 123 });</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;string&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;Alice&quot;
+      }
+    },
+    &quot;number&quot;: {
+      &quot;ok&quot;: false,
+      &quot;paths&quot;: [
+        [
+          &quot;name&quot;
+        ]
+      ],
+      &quot;messages&quot;: [
+        &quot;Expected a string&quot;
+      ]
+    }
+  },
+  &quot;zod&quot;: {
+    &quot;string&quot;: {
+      &quot;ok&quot;: false,
+      &quot;paths&quot;: [
+        [
+          &quot;name&quot;
+        ]
+      ],
+      &quot;messages&quot;: [
+        &quot;Invalid input: expected number, received string&quot;
+      ]
+    },
+    &quot;number&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: 123
+      }
+    }
+  },
+  &quot;valibot&quot;: {
+    &quot;string&quot;: {
+      &quot;ok&quot;: false,
+      &quot;paths&quot;: [
+        [
+          &quot;name&quot;
+        ]
+      ],
+      &quot;messages&quot;: [
+        &quot;Invalid type: Expected number but received \&quot;Alice\&quot;&quot;
+      ]
+    },
+    &quot;number&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: 123
+      }
+    }
+  }
+}</code></pre></details></details><details id="case-original-shape-after-first-read" class="case"><summary>2. 一度参照・検証した後、元の shape を変更</summary><p>Loculus と Zod は元の shape と別のオブジェクトを保持します。Valibot は元の entries を参照するため、置き換えが後の検証にも反映されます。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">&quot;Alice&quot;: 成功 / 123: 失敗 / 元の定義と同じ参照: false / 凍結: true</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const shape = { name: l.string() };
+const schema = l.object(shape);
+schema.shape;
+l.safeParse(schema, { name: &quot;Alice&quot; });
+shape.name = l.number();
+l.safeParse(schema, { name: &quot;Alice&quot; });
+l.safeParse(schema, { name: 123 });</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">&quot;Alice&quot;: 成功 / 123: 失敗 / 元の定義と同じ参照: false / 凍結: false</p><pre><code>import { z } from &quot;zod&quot;;
+
+const shape = { name: z.string() };
+const schema = z.object(shape);
+schema.shape;
+schema.safeParse({ name: &quot;Alice&quot; });
+shape.name = z.number();
+schema.safeParse({ name: &quot;Alice&quot; });
+schema.safeParse({ name: 123 });</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">&quot;Alice&quot;: 失敗 / 123: 成功 / 元の定義と同じ参照: true / 凍結: false</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const shape = { name: v.string() };
+const schema = v.object(shape);
+schema.entries;
+v.safeParse(schema, { name: &quot;Alice&quot; });
+shape.name = v.number();
+v.safeParse(schema, { name: &quot;Alice&quot; });
+v.safeParse(schema, { name: 123 });</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;sameShape&quot;: false,
+    &quot;frozen&quot;: true,
+    &quot;string&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;Alice&quot;
+      }
+    },
+    &quot;number&quot;: {
+      &quot;ok&quot;: false,
+      &quot;paths&quot;: [
+        [
+          &quot;name&quot;
+        ]
+      ],
+      &quot;messages&quot;: [
+        &quot;Expected a string&quot;
+      ]
+    }
+  },
+  &quot;zod&quot;: {
+    &quot;sameShape&quot;: false,
+    &quot;frozen&quot;: false,
+    &quot;string&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;Alice&quot;
+      }
+    },
+    &quot;number&quot;: {
+      &quot;ok&quot;: false,
+      &quot;paths&quot;: [
+        [
+          &quot;name&quot;
+        ]
+      ],
+      &quot;messages&quot;: [
+        &quot;Invalid input: expected string, received number&quot;
+      ]
+    }
+  },
+  &quot;valibot&quot;: {
+    &quot;sameShape&quot;: true,
+    &quot;frozen&quot;: false,
+    &quot;string&quot;: {
+      &quot;ok&quot;: false,
+      &quot;paths&quot;: [
+        [
+          &quot;name&quot;
+        ]
+      ],
+      &quot;messages&quot;: [
+        &quot;Invalid type: Expected number but received \&quot;Alice\&quot;&quot;
+      ]
+    },
+    &quot;number&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: 123
+      }
+    }
+  }
+}</code></pre></details></details><details id="case-exposed-shape-replacement" class="case"><summary>3. 公開された shape 自体を変更</summary><p>Loculus は凍結によって TypeError。Zod / Valibot はこのフィールドの置き換えが反映されます。推論済みの name: string と実際の出力 name: number が食い違う例です。他ライブラリでの書き換えが正式にサポートされることを意味しません。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">変更: TypeError / &quot;Alice&quot;: 成功 / 123: 失敗</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const schema = l.object({ name: l.string() });
+l.safeParse(schema, { name: &quot;Alice&quot; });
+schema.shape.name = l.number();
+l.safeParse(schema, { name: 123 });</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">変更: applied / &quot;Alice&quot;: 失敗 / 123: 成功</p><pre><code>import { z } from &quot;zod&quot;;
+
+const schema = z.object({ name: z.string() });
+schema.safeParse({ name: &quot;Alice&quot; });
+schema.shape.name = z.number();
+schema.safeParse({ name: 123 });</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">変更: applied / &quot;Alice&quot;: 失敗 / 123: 成功</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const schema = v.object({ name: v.string() });
+v.safeParse(schema, { name: &quot;Alice&quot; });
+schema.entries.name = v.number();
+v.safeParse(schema, { name: 123 });</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;mutation&quot;: &quot;TypeError&quot;,
+    &quot;string&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;Alice&quot;
+      }
+    },
+    &quot;number&quot;: {
+      &quot;ok&quot;: false,
+      &quot;paths&quot;: [
+        [
+          &quot;name&quot;
+        ]
+      ],
+      &quot;messages&quot;: [
+        &quot;Expected a string&quot;
+      ]
+    }
+  },
+  &quot;zod&quot;: {
+    &quot;mutation&quot;: &quot;applied&quot;,
+    &quot;string&quot;: {
+      &quot;ok&quot;: false,
+      &quot;paths&quot;: [
+        [
+          &quot;name&quot;
+        ]
+      ],
+      &quot;messages&quot;: [
+        &quot;Invalid input: expected number, received string&quot;
+      ]
+    },
+    &quot;number&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: 123
+      }
+    }
+  },
+  &quot;valibot&quot;: {
+    &quot;mutation&quot;: &quot;applied&quot;,
+    &quot;string&quot;: {
+      &quot;ok&quot;: false,
+      &quot;paths&quot;: [
+        [
+          &quot;name&quot;
+        ]
+      ],
+      &quot;messages&quot;: [
+        &quot;Invalid type: Expected number but received \&quot;Alice\&quot;&quot;
+      ]
+    },
+    &quot;number&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: 123
+      }
+    }
+  }
+}</code></pre></details></details><details id="case-inherited-input" class="case"><summary>4. 入力に、自分のプロパティではない値がある</summary><p>Object.create({ name: "inherited" }) を検証。Loculus は必須の name が欠落しているとして拒否。Zod / Valibot は継承された値を採用します。CLI / FormData から作る通常のプレーンなオブジェクトでは差は出ません。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">失敗</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const schema = l.object({ name: l.string() });
+const input = Object.create({ name: &quot;inherited&quot; });
+l.safeParse(schema, input);</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">成功 / 出力: {&quot;name&quot;:&quot;inherited&quot;}</p><pre><code>import { z } from &quot;zod&quot;;
+
+const schema = z.object({ name: z.string() });
+const input = Object.create({ name: &quot;inherited&quot; });
+schema.safeParse(input);</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">成功 / 出力: {&quot;name&quot;:&quot;inherited&quot;}</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const schema = v.object({ name: v.string() });
+const input = Object.create({ name: &quot;inherited&quot; });
+v.safeParse(schema, input);</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;ok&quot;: false,
+    &quot;paths&quot;: [
+      [
+        &quot;name&quot;
+      ]
+    ],
+    &quot;messages&quot;: [
+      &quot;Expected a string&quot;
+    ]
+  },
+  &quot;zod&quot;: {
+    &quot;ok&quot;: true,
+    &quot;value&quot;: {
+      &quot;name&quot;: &quot;inherited&quot;
+    }
+  },
+  &quot;valibot&quot;: {
+    &quot;ok&quot;: true,
+    &quot;value&quot;: {
+      &quot;name&quot;: &quot;inherited&quot;
+    }
+  }
+}</code></pre></details></details><details id="case-array-root" class="case"><summary>5. 空の object スキーマに配列を渡す</summary><p>JSON の設定を object({}) で受ける場合、Loculus / Zod は [] を拒否し、Valibot は {} を返しました。空スキーマの高速化のために入口の型チェックを省くと、この誤入力が見逃されます。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">失敗</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const schema = l.object({});
+const input = [];
+l.safeParse(schema, input);</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">失敗</p><pre><code>import { z } from &quot;zod&quot;;
+
+const schema = z.object({});
+const input = [];
+schema.safeParse(input);</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">成功 / 出力: {}</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const schema = v.object({});
+const input = [];
+v.safeParse(schema, input);</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;ok&quot;: false,
+    &quot;paths&quot;: [
+      []
+    ],
+    &quot;messages&quot;: [
+      &quot;Expected an object&quot;
+    ]
+  },
+  &quot;zod&quot;: {
+    &quot;ok&quot;: false,
+    &quot;paths&quot;: [
+      []
+    ],
+    &quot;messages&quot;: [
+      &quot;Invalid input: expected object, received array&quot;
+    ]
+  },
+  &quot;valibot&quot;: {
+    &quot;ok&quot;: true,
+    &quot;value&quot;: {}
+  }
+}</code></pre></details></details><details id="case-fresh-standard" class="case"><summary>6. 同じ定義でも、スキーマの同一性は独立</summary><p>3 ライブラリとも別のスキーマを返し、その ~standard も別です。Zod はアクセス時に ~standard を実体化します。Loculus / Valibot は最初から自分のプロパティとして持ちます。作成タイミングは Standard Schema の規定ではありません。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">別スキーマ: true / 初回前に own ~standard: true / 同じスキーマの再アクセス: 同じ参照 / 別スキーマの ~standard: 別参照</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const first = l.string();
+const second = l.string();
+Object.hasOwn(first, &quot;~standard&quot;);
+first !== second;
+first[&quot;~standard&quot;] === first[&quot;~standard&quot;];
+first[&quot;~standard&quot;] !== second[&quot;~standard&quot;];</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">別スキーマ: true / 初回前に own ~standard: false / 同じスキーマの再アクセス: 同じ参照 / 別スキーマの ~standard: 別参照</p><pre><code>import { z } from &quot;zod&quot;;
+
+const first = z.string();
+const second = z.string();
+Object.hasOwn(first, &quot;~standard&quot;);
+first !== second;
+first[&quot;~standard&quot;] === first[&quot;~standard&quot;];
+first[&quot;~standard&quot;] !== second[&quot;~standard&quot;];</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">別スキーマ: true / 初回前に own ~standard: true / 同じスキーマの再アクセス: 同じ参照 / 別スキーマの ~standard: 別参照</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const first = v.string();
+const second = v.string();
+Object.hasOwn(first, &quot;~standard&quot;);
+first !== second;
+first[&quot;~standard&quot;] === first[&quot;~standard&quot;];
+first[&quot;~standard&quot;] !== second[&quot;~standard&quot;];</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;freshSchema&quot;: true,
+    &quot;ownBeforeAccess&quot;: true,
+    &quot;ownAfterAccess&quot;: true,
+    &quot;sameOnRepeatedAccess&quot;: true,
+    &quot;differentBetweenSchemas&quot;: true
+  },
+  &quot;zod&quot;: {
+    &quot;freshSchema&quot;: true,
+    &quot;ownBeforeAccess&quot;: false,
+    &quot;ownAfterAccess&quot;: true,
+    &quot;sameOnRepeatedAccess&quot;: true,
+    &quot;differentBetweenSchemas&quot;: true
+  },
+  &quot;valibot&quot;: {
+    &quot;freshSchema&quot;: true,
+    &quot;ownBeforeAccess&quot;: true,
+    &quot;ownAfterAccess&quot;: true,
+    &quot;sameOnRepeatedAccess&quot;: true,
+    &quot;differentBetweenSchemas&quot;: true
+  }
+}</code></pre></details></details><details id="case-child-validator-replacement" class="case"><summary>7. 親を作成した後、子の検証関数を差し替える</summary><p>Loculus の親は作成時に取得した子の関数を呼び続けます。Zod / Valibot はこの内部関数の置き換えが親にも反映されました。後者は非公開の実装を操作した診断であり、利用者向け API の比較ではありません。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">差し替え後の出力: {&quot;name&quot;:&quot;Alice&quot;}</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const child = l.string();
+const schema = l.object({ name: child });
+l.safeParse(schema, { name: &quot;Alice&quot; });
+child[&quot;~standard&quot;].validate = () =&gt; ({ value: &quot;replacement&quot; });
+l.safeParse(schema, { name: &quot;Alice&quot; });</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">差し替え後の出力: {&quot;name&quot;:&quot;replacement&quot;}</p><pre><code>import { z } from &quot;zod&quot;;
+
+const child = z.string();
+const schema = z.object({ name: child });
+schema.safeParse({ name: &quot;Alice&quot; });
+child._zod.run = payload =&gt; {
+  payload.value = &quot;replacement&quot;;
+  return payload;
+};
+schema.safeParse({ name: &quot;Alice&quot; });</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">差し替え後の出力: {&quot;name&quot;:&quot;replacement&quot;}</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const child = v.string();
+const schema = v.object({ name: child });
+v.safeParse(schema, { name: &quot;Alice&quot; });
+child[&quot;~run&quot;] = dataset =&gt; {
+  dataset.value = &quot;replacement&quot;;
+  dataset.typed = true;
+  return dataset;
+};
+v.safeParse(schema, { name: &quot;Alice&quot; });</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;normal&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;Alice&quot;
+      }
+    },
+    &quot;after&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;Alice&quot;
+      }
+    },
+    &quot;internalMutation&quot;: false
+  },
+  &quot;zod&quot;: {
+    &quot;normal&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;Alice&quot;
+      }
+    },
+    &quot;after&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;replacement&quot;
+      }
+    },
+    &quot;internalMutation&quot;: true
+  },
+  &quot;valibot&quot;: {
+    &quot;normal&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;Alice&quot;
+      }
+    },
+    &quot;after&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;name&quot;: &quot;replacement&quot;
+      }
+    },
+    &quot;internalMutation&quot;: true
+  }
+}</code></pre></details></details><details id="case-proto-input-key" class="case"><summary>8. __proto__ を本物の入力キーとして受ける</summary><p>JSON に自分の __proto__ キーがある場合、Loculus は安全な own property として出力します。Zod / Valibot はこのフィールドを出力しませんでした。全て、出力の Object.prototype は変更されません。安全性の確保と、このキーを許す機能は別の判断です。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">成功 / 出力: {&quot;__proto__&quot;:&quot;value&quot;} / own __proto__: true / prototype 維持: true</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const schema = l.object({ [&quot;__proto__&quot;]: l.string() });
+const input = JSON.parse('{&quot;__proto__&quot;:&quot;value&quot;}');
+l.safeParse(schema, input);</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">成功 / 出力: {} / own __proto__: false / prototype 維持: true</p><pre><code>import { z } from &quot;zod&quot;;
+
+const schema = z.object({ [&quot;__proto__&quot;]: z.string() });
+const input = JSON.parse('{&quot;__proto__&quot;:&quot;value&quot;}');
+schema.safeParse(input);</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">成功 / 出力: {} / own __proto__: false / prototype 維持: true</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const schema = v.object({ [&quot;__proto__&quot;]: v.string() });
+const input = JSON.parse('{&quot;__proto__&quot;:&quot;value&quot;}');
+v.safeParse(schema, input);</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;ok&quot;: true,
+    &quot;value&quot;: {
+      &quot;__proto__&quot;: &quot;value&quot;
+    },
+    &quot;outputOwn&quot;: true,
+    &quot;outputPrototypeUnchanged&quot;: true
+  },
+  &quot;zod&quot;: {
+    &quot;ok&quot;: true,
+    &quot;value&quot;: {},
+    &quot;outputOwn&quot;: false,
+    &quot;outputPrototypeUnchanged&quot;: true
+  },
+  &quot;valibot&quot;: {
+    &quot;ok&quot;: true,
+    &quot;value&quot;: {},
+    &quot;outputOwn&quot;: false,
+    &quot;outputPrototypeUnchanged&quot;: true
+  }
+}</code></pre></details></details><details id="case-strict-unknown-count" class="case"><summary>9. 未知のキーが 2 つある</summary><p>Loculus は各キーのエラーを 2 件、Zod は両方のキーを含む集約エラーを 1 件、Valibot は最初のキーのエラーを 1 件返します。Zod が片方のキーを見逃しているわけではありません。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">2 件 / パス: [[&quot;extra1&quot;],[&quot;extra2&quot;]] / Unknown key: extra1 / Unknown key: extra2</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const schema = l.object({ name: l.string() }, { unknownKeys: &quot;strict&quot; });
+const input = { name: &quot;Alice&quot;, extra1: &quot;x&quot;, extra2: &quot;y&quot; };
+l.safeParse(schema, input);</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">1 件 / パス: [[]] / Unrecognized keys: &quot;extra1&quot;, &quot;extra2&quot;</p><pre><code>import { z } from &quot;zod&quot;;
+
+const schema = z.strictObject({ name: z.string() });
+const input = { name: &quot;Alice&quot;, extra1: &quot;x&quot;, extra2: &quot;y&quot; };
+schema.safeParse(input);</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">1 件 / パス: [[&quot;extra1&quot;]] / Invalid key: Expected never but received &quot;extra1&quot;</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const schema = v.strictObject({ name: v.string() });
+const input = { name: &quot;Alice&quot;, extra1: &quot;x&quot;, extra2: &quot;y&quot; };
+v.safeParse(schema, input);</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;ok&quot;: false,
+    &quot;paths&quot;: [
+      [
+        &quot;extra1&quot;
+      ],
+      [
+        &quot;extra2&quot;
+      ]
+    ],
+    &quot;messages&quot;: [
+      &quot;Unknown key: extra1&quot;,
+      &quot;Unknown key: extra2&quot;
+    ]
+  },
+  &quot;zod&quot;: {
+    &quot;ok&quot;: false,
+    &quot;paths&quot;: [
+      []
+    ],
+    &quot;messages&quot;: [
+      &quot;Unrecognized keys: \&quot;extra1\&quot;, \&quot;extra2\&quot;&quot;
+    ]
+  },
+  &quot;valibot&quot;: {
+    &quot;ok&quot;: false,
+    &quot;paths&quot;: [
+      [
+        &quot;extra1&quot;
+      ]
+    ],
+    &quot;messages&quot;: [
+      &quot;Invalid key: Expected never but received \&quot;extra1\&quot;&quot;
+    ]
+  }
+}</code></pre></details></details><details id="case-duplicate-discriminator" class="case"><summary>10. discriminator の値が重複する union</summary><p>Loculus は作成時、Zod は検証時に例外。Valibot はこの入力を受け付けました。早期検出をやめると、問題を知る時点が遅れます。Map の作成を検証まで遅らせるだけでは「作成＋1 回」の総コストは消えません。</p><div class="three"><article class="example"><h3>Loculus</h3><p class="result">作成時に例外: Duplicate discriminator: x</p><pre><code>import * as l from &quot;loculus&quot;;
+
+const schema = l.discriminatedUnion(&quot;kind&quot;, [
+  l.object({ kind: l.literal(&quot;x&quot;) }),
+  l.object({ kind: l.literal(&quot;x&quot;) })
+]);
+const input = { kind: &quot;x&quot; };
+l.safeParse(schema, input);</code></pre></article><article class="example"><h3>Zod 4.6.5</h3><p class="result">検証時に例外: Duplicate discriminator value &quot;x&quot;</p><pre><code>import { z } from &quot;zod&quot;;
+
+const schema = z.discriminatedUnion(&quot;kind&quot;, [
+  z.object({ kind: z.literal(&quot;x&quot;) }),
+  z.object({ kind: z.literal(&quot;x&quot;) })
+]);
+const input = { kind: &quot;x&quot; };
+schema.safeParse(input);</code></pre></article><article class="example"><h3>Valibot 1.5.0</h3><p class="result">検証成功: {&quot;kind&quot;:&quot;x&quot;}</p><pre><code>import * as v from &quot;valibot&quot;;
+
+const schema = v.variant(&quot;kind&quot;, [
+  v.object({ kind: v.literal(&quot;x&quot;) }),
+  v.object({ kind: v.literal(&quot;x&quot;) })
+]);
+const input = { kind: &quot;x&quot; };
+v.safeParse(schema, input);</code></pre></article></div><details><summary>実際の結果 JSON</summary><pre><code>{
+  &quot;loculus&quot;: {
+    &quot;stage&quot;: &quot;construction&quot;,
+    &quot;error&quot;: &quot;Duplicate discriminator: x&quot;
+  },
+  &quot;zod&quot;: {
+    &quot;stage&quot;: &quot;validation&quot;,
+    &quot;error&quot;: &quot;Duplicate discriminator value \&quot;x\&quot;&quot;
+  },
+  &quot;valibot&quot;: {
+    &quot;stage&quot;: &quot;validation&quot;,
+    &quot;result&quot;: {
+      &quot;ok&quot;: true,
+      &quot;value&quot;: {
+        &quot;kind&quot;: &quot;x&quot;
+      }
+    }
+  }
+}</code></pre></details></details></section>
+<section id="proposal"><h2>進め方の提案</h2><ol><li><strong>既存の安全な入力処理と RHF の path を保持する。</strong>これらの保証を外さずに改善できた実績があります。</li><li><strong>まず内部表現を試す。</strong>enum metadata の読み取り専用化、遅延 ~standard、内部検証コード共有を別々に測定。setter・クラス・割当回数は外向けの仕様と分けて扱います。</li><li><strong>shape の変更契約を決める。</strong>通常 API は作成時 snapshot を保ち、型も中の項目を readonly にする案を推します。凍結の dev 限定化や廃止は、変更をした時の失敗の仕方も含めて評価します。</li><li><strong>残る 5 条件を個別に切り分ける。</strong>literal は metadata / 関数・結果の割当、空 object は snapshot / 凍結 / 入口チェック、union は early check / index 構築を独立に変え、作成＋1 回の総時間・反復・gzip・型・Politty / RHF の結果を確認します。</li></ol><div class="warning">「保証を外せば Valibot に必ず勝つ」「クラスを消せば速くなる」という証拠は、まだありません。ここでは変更候補と具体的な代償までを示し、未計測の速度向上は約束していません。</div><p>利用者側での推奨は、既存 schema を書き換えるより、目的ごとに新しい schema を作ること。動的フォームでも定義の更新と resolver の更新を合わせれば、推論型・検証・表示の食い違いを避けやすくなります。</p></section>
+<section id="evidence"><h2>確認範囲と出典</h2><p>現行の Loculus・Zod 4.6.5・Valibot 1.5.0 をインストール済みの実装で確認。今回新たに実行したのは 10 ケースの動作診断と metadata / issue / getter の補助診断です。性能表は既存の settled 比較を再利用し、今回、性能の再計測やライブラリの挙動変更は行っていません。</p><ul><li><a href="https://standardschema.dev/">Standard Schema 公式仕様</a></li><li><a href="https://zod.dev/metadata">Zod：metadata と schema identity</a> · <a href="https://zod.dev/api">Zod API</a></li><li><a href="https://valibot.dev/api/object/">Valibot object</a> · <a href="https://valibot.dev/api/metadata/">Valibot metadata</a> · <a href="https://valibot.dev/api/readonly/">Valibot readonly</a></li></ul><details class="provenance"><summary>再現手順・ソースの識別情報</summary><p>動作確認: 2026/10/12 17:48:56（JST）。元の動作結果・コードとこの HTML は Loculus リポジトリ内に保存しています。</p><pre><code>node bench/guarantees/probe.mjs
+experiments/bun/generated/tools/bun-darwin-aarch64/bun \
+  bench/guarantees/probe.mjs bench/guarantees/probe-bun.json
+node bench/guarantees/render.mjs
+node bench/guarantees/check-report.mjs</code></pre><p>動作: bench/guarantees/probe-node.json / probe-bun.json<br>性能: bench/whole-object/significance-results.json<br>サイズ: bench/whole-object/bundle-results.json<br>過去の切り分け: bench/build-time/OBJECT-DIAGNOSIS.md<br>Politty: packages/loculus/src/adapter.ts / packages/core/src/core/arg-registry.ts</p><pre><code>{
+  &quot;src/index.ts&quot;: &quot;181dcb12c1941d6b5a9c7c235fb09c127172277c7a26e0357d02421efb012bdf&quot;,
+  &quot;src/rolldown.ts&quot;: &quot;cd3afcb6bd262ac0798a07c8388cd3f860cd1543e60f7e4de962386b3ef2f132&quot;,
+  &quot;dist/index.js&quot;: &quot;add4e2a2a56e31d3600d6a012f0e20f084bcb0ec43cfbac32cb105bc0c31f87f&quot;,
+  &quot;node_modules/zod/v4/core/schemas.js&quot;: &quot;e632b655441418f0593153abc6809fd81cf3e0782d810622d0a4fa50ef6e182e&quot;,
+  &quot;node_modules/zod/v4/classic/schemas.js&quot;: &quot;2bf4a631a18f734a9a7ab7fc11bcf919214774d2235a312dcec0dd53d0324c32&quot;,
+  &quot;node_modules/valibot/dist/index.mjs&quot;: &quot;cc7a8f7551082a19178f8e553e34fd23bea774113e3bcc4b914abc91f19a5cd0&quot;
+}</code></pre><p>性能の初回バッチ以降に配列の最適化が入り、関連条件のみ再計測された merged report を参照しています。今回の root / plugin hash は既存 verification の最終ソースと一致。過去の切り分けは最適化前の別バッチであり、現在の速度の予測値には使っていません。</p></details></section><footer>スマートフォンではコードを縦に並べ、長いコードを折り返します。全ての説明・結果・コードをこの 1 ファイルに含めています。</footer></main><script>document.addEventListener('click',e=>{const a=e.target.closest('a[href^="#"]');if(!a)return;const t=document.getElementById(a.getAttribute('href').slice(1));if(t instanceof HTMLDetailsElement)t.open=true;});</script></body></html>

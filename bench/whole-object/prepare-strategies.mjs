@@ -1,0 +1,10 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+let s=readFileSync('bench/build-time/prepare.mjs','utf8');
+s=s.replace("const dir = 'bench/build-time/generated'","const dir = 'bench/whole-object/generated/strategies'");
+s=s.replace('for (const profile of profiles) {',"for (const profile of profiles.filter(p=>['width-100','object-strict','cli-cf-deploy-full','cli-cf-dns-records-list-full','supplement-rhf-items-100'].includes(p.id))) {");
+s=s.replace("generated:\"import * as l from 'loculus';\",", "generated:\"import * as l from 'loculus';\", unroll:\"import * as l from 'loculus';\", loop:\"import * as l from 'loculus';\", scalar:\"import * as l from 'loculus';\", chunked:\"import * as l from 'loculus';\",");
+s=s.replace("library==='generated' ? [loculusPlugin()]", "['generated','unroll','loop','scalar','chunked'].includes(library) ? [loculusPlugin({objects:library==='scalar'?false:library==='unroll'?'unroll':library==='loop'?'loop':library==='chunked'?'chunked':'auto'})]");
+s=s.replace("if(library==='generated')", "if(['generated','unroll','loop','scalar','chunked'].includes(library))");
+s=s.replaceAll('bench/build-time/bundle-results.json','bench/whole-object/strategy-bundles.json');
+s=s.replaceAll('bench/build-time/fixtures.json','bench/whole-object/strategy-fixtures.json');
+writeFileSync('bench/whole-object/prepare-strategies.generated.mjs',s);

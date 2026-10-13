@@ -1,0 +1,8 @@
+{
+  "scope": "Three additional schemas from the mixed compile candidate-selection domain; separate from canonical96 and RHF3",
+  "profiles": [
+    {"id": "mixed-http-transform-100", "nativeValibot": true},
+    {"id": "mixed-http-default-100", "nativeValibot": true},
+    {"id": "mixed-http-query-12", "nativeValibot": true}
+  ]
+}

@@ -1,0 +1,11 @@
+      const check = checks[i]!;
+      if (ELIGIBLE) {
+        const fallback = `const r${i}=validators[${i}](v${i});
+const e${i}=r${i}.issues;
+if(e${i}){first=r${i};firstRead={issues:e${i},value:undefined};start=${i};break fast;}
+const o${i}=r${i}.value;
+if(o${i}===undefined){first=r${i};firstRead={issues:e${i},value:o${i}};start=${i};break fast;}
+v${i}=r${i}.value;`;
+        return check === "false" ? `${prefix}${fallback}` : `${prefix}if(!(${check})){${fallback}}`;
+      }
+      return `${prefix}if(!(${check})){start=${i};break fast;}`;

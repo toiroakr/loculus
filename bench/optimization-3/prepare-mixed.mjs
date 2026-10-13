@@ -1,0 +1,12 @@
+import {readFileSync,writeFileSync} from 'node:fs';
+const dir=new URL('./',import.meta.url);
+let source=readFileSync(new URL('../coverage/prepare.mjs',dir),'utf8');
+const replace=(from,to)=>{if(!source.includes(from))throw Error('Missing prepare fragment: '+from);source=source.replace(from,to)};
+replace("from './fixtures.mjs';","from './mixed-fixtures.mjs';");
+replace("'bench/coverage/generated'+(baseline?'/before':'')","'bench/optimization-3/mixed-generated'+(baseline?'/before':'')");
+replace("'bench/coverage/before-optimization/index.ts.txt'","'bench/optimization-3/before/index.ts.txt'");
+replace("const sourceFile=option('--source')??(baseline?'bench/optimization-3/before/index.ts.txt':undefined);","const sourceFile=option('--source')??(baseline?'bench/optimization-3/before/index.ts.txt':'src/index.ts');");
+replace("const summarize=r=>r.issues?{ok:false,issueCount:r.issues.length}:{ok:true,value:clean(r.value)};", "const summarize=r=>r.issues?{ok:false,issueCount:r.issues.length,issuePaths:r.issues.map(issue=>(issue.path??[]).map(part=>part!==null&&typeof part==='object'&&'key'in part?part.key:part))}:{ok:true,value:clean(r.value)};");
+replace("if(!baseline&&!option('--out-dir'))writeFileSync('bench/coverage/coverage.json',JSON.stringify(coverage,null,2)+'\\n');",'');
+writeFileSync(new URL('mixed-prepare.generated.mjs',dir),source);
+console.log('Prepared isolated mixed generator source; no worker build performed.');

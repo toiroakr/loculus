@@ -1,0 +1,1818 @@
+{
+  "environment": {
+    "date": "2026-10-11T11:24:13.743Z",
+    "perry": "perry 0.5.1520",
+    "sourceHash": "589cabdb29451e8cbcefc21a937c677d4cab0f4e23fa4f639b1a342e0561ad7a",
+    "distHash": "01937be7e3fbb235506150b5cdd1c356b3ea6c8860acd66268206acbdc4c8e94",
+    "runtimeManifest": {
+      "perry_version": "0.5.1520",
+      "target_triple": "aarch64-apple-darwin",
+      "files": [
+        {
+          "path": "libperry_runtime.a",
+          "sha256": "38ba9714313cb4ffe6302e86746cec1ca6b914b3c615d35b0b291da4e70864de",
+          "size": 33636016
+        },
+        {
+          "path": "libperry_stdlib.a",
+          "sha256": "242b104ea41e55e74b7917e245787048f2ed7b428aae47b8856c70a4e09532f0",
+          "size": 75293488
+        },
+        {
+          "path": "libperry_ui_macos.a",
+          "sha256": "15890d277ea70f3ac2a054dba2ab1bbdaf699b83f7cd92276b78afe22e8df940",
+          "size": 61408496
+        }
+      ]
+    }
+  },
+  "policy": {
+    "groupedCompilation": "one program per library/feature group, covering every ordinary profile; failed group builds cannot provide per-profile runtime results",
+    "sizes": "grouped Mach-O standalone including Perry runtime and test harness; not individual browser bundle sizes",
+    "modes": [
+      "single-file-native",
+      "direct-import"
+    ],
+    "rounds": 7,
+    "freshProcesses": 3,
+    "warmup": 3000,
+    "iterations": 5000,
+    "constructionWarmup": 100,
+    "constructionIterations": 500
+  },
+  "groups": {
+    "scalar-fields-loculus": {
+      "profiles": [
+        "scalar-string-basic",
+        "scalar-string-trim",
+        "scalar-string-pattern",
+        "scalar-number-decimal",
+        "scalar-number-inclusive",
+        "scalar-number-exclusive",
+        "scalar-boolean",
+        "scalar-enum-2",
+        "scalar-enum-32",
+        "scalar-literal",
+        "scalar-date",
+        "scalar-presence-required",
+        "scalar-presence-optional",
+        "scalar-presence-nullable",
+        "scalar-presence-nullish",
+        "scalar-presence-optional-nullable",
+        "scalar-presence-default",
+        "scalar-presence-optional-default",
+        "scalar-presence-nullable-default",
+        "scalar-presence-nullish-default",
+        "scalar-presence-target-undefined",
+        "scalar-presence-target-null",
+        "scalar-presence-optional-target-null",
+        "scalar-presence-nullable-target-undefined",
+        "scalar-presence-target-both",
+        "scalar-presence-target-nullish",
+        "scalar-presence-nullish-target-nullish",
+        "scalar-number-nullish-default",
+        "scalar-boolean-default",
+        "scalar-enum-default",
+        "scalar-date-default",
+        "scalar-array-wrap",
+        "scalar-array-strict",
+        "scalar-array-bounds",
+        "scalar-array-number",
+        "scalar-array-inner-nullable",
+        "scalar-array-default",
+        "scalar-transform-field",
+        "scalar-refine-field"
+      ],
+      "library": "loculus",
+      "modes": {
+        "single-file-native": {
+          "sourceHash": "08bd676d6e76fe9a49ef907273cc97c4d9312409b89b666f93bdc739aa118bb7",
+          "buildStatus": 0,
+          "buildSignal": null,
+          "buildMs": 4976.167415999999,
+          "diagnostics": "Collecting modules...\n  Compile package wildcard: expanded to 9 installed package(s)\n  Compile package wildcard: kept 1 package(s) on Perry's native shim (list explicitly to compile the real source)\nFound 1 module(s): 1 native, 0 JavaScript\nGenerating code...\nAsset manifest: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/node_modules/.cache/perry/assets.json\nLinking (with stdlib)...\nWrote executable: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/coverage/generated/perry-scalar-fields-loculus-single-file-native\nBinary size: 22.2MB\nperry: in-process LLVM backend active (LLVM 22.1.8)\n[perry] codegen: modules finished 1/1 (100%; 0.1 min elapsed; ETA ~0.0 min)\n  note: Perry workspace source not found — linking the prebuilt full stdlib (larger binary). Set PERRY_WORKSPACE_ROOT to a source checkout to enable size-optimized rebuilds.\n[strip-dedup] runtime stdlib-stub localize skipped (non-fatal): llvm-objcopy not found\n",
+          "cases": {
+            "scalar-string-basic": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-string-trim": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-string-pattern": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-decimal": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-inclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-exclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-2": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-32": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-literal": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-date": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-required": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-undefined": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-null": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-target-null": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable-target-undefined": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-both": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish-target-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-nullish-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-date-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-wrap": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-strict": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-bounds": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-number": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-inner-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-transform-field": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-refine-field": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            }
+          },
+          "bytes": 23265200,
+          "gzipBytes": 10742080,
+          "binaryHash": "b92d0b389260ff7655529b7460b2e03e43cb5cfc5c60158d3ff4e52ec33f1175",
+          "status": "built"
+        },
+        "direct-import": {
+          "sourceHash": "25f03101cdada875a3521e51024c16762920a6d329b99a8e1c29210b9acf14ce",
+          "buildStatus": 0,
+          "buildSignal": null,
+          "buildMs": 4616.305457999999,
+          "diagnostics": "Collecting modules...\n  Compile package wildcard: expanded to 9 installed package(s)\n  Compile package wildcard: kept 1 package(s) on Perry's native shim (list explicitly to compile the real source)\nFound 2 module(s): 2 native, 0 JavaScript\nGenerating code...\nAsset manifest: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/node_modules/.cache/perry/assets.json\nLinking (with stdlib)...\nWrote executable: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/coverage/generated/perry-scalar-fields-loculus-direct-import\nBinary size: 22.4MB\n[perry] codegen: module parallelism: 2 module jobs x 2 LLVM unit workers (override with PERRY_MODULE_JOBS / PERRY_CODEGEN_UNIT_JOBS)\n[perry] codegen: modules finished 1/2 (50%; 0.0 min elapsed; ETA ~0.0 min)\nperry: in-process LLVM backend active (LLVM 22.1.8)\n[perry] codegen: modules finished 2/2 (100%; 0.1 min elapsed; ETA ~0.0 min)\n  note: Perry workspace source not found — linking the prebuilt full stdlib (larger binary). Set PERRY_WORKSPACE_ROOT to a source checkout to enable size-optimized rebuilds.\n[strip-dedup] runtime stdlib-stub localize skipped (non-fatal): llvm-objcopy not found\n\nnotice: 2 ahead-of-time-unsupported sites handled at runtime:\n  - new Function(...)      /Users/toiroakr/workspace/loculus/feat/flat-string-schema/dist/index.js:411   → runtime interpreter (#6559)\n  - new Function(...)      /Users/toiroakr/workspace/loculus/feat/flat-string-schema/dist/index.js:443   → runtime interpreter (#6559)\n  Pass --strict-eval/--strict-dynamic-import (or set perry.strict = true) to make these a compile-time error instead.\n\n",
+          "cases": {
+            "scalar-string-basic": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-string-trim": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-string-pattern": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-decimal": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-inclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-exclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-2": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-32": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-literal": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-date": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-required": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-undefined": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-null": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-target-null": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable-target-undefined": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-both": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish-target-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-nullish-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-date-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-wrap": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-strict": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-bounds": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-number": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-inner-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-transform-field": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-refine-field": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot read properties of undefined (reading 'hasOwn')\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            }
+          },
+          "bytes": 23513016,
+          "gzipBytes": 10836579,
+          "binaryHash": "eaac970559ddd56f0aba511535d8a4bf6913e005c21da46eb1610dbe9134199f",
+          "status": "built"
+        }
+      }
+    },
+    "scalar-fields-zod": {
+      "profiles": [
+        "scalar-string-basic",
+        "scalar-string-trim",
+        "scalar-string-pattern",
+        "scalar-number-decimal",
+        "scalar-number-inclusive",
+        "scalar-number-exclusive",
+        "scalar-boolean",
+        "scalar-enum-2",
+        "scalar-enum-32",
+        "scalar-literal",
+        "scalar-date",
+        "scalar-presence-required",
+        "scalar-presence-optional",
+        "scalar-presence-nullable",
+        "scalar-presence-nullish",
+        "scalar-presence-optional-nullable",
+        "scalar-presence-default",
+        "scalar-presence-optional-default",
+        "scalar-presence-nullable-default",
+        "scalar-presence-nullish-default",
+        "scalar-presence-target-undefined",
+        "scalar-presence-target-null",
+        "scalar-presence-optional-target-null",
+        "scalar-presence-nullable-target-undefined",
+        "scalar-presence-target-both",
+        "scalar-presence-target-nullish",
+        "scalar-presence-nullish-target-nullish",
+        "scalar-number-nullish-default",
+        "scalar-boolean-default",
+        "scalar-enum-default",
+        "scalar-date-default",
+        "scalar-array-wrap",
+        "scalar-array-strict",
+        "scalar-array-bounds",
+        "scalar-array-number",
+        "scalar-array-inner-nullable",
+        "scalar-array-default",
+        "scalar-transform-field",
+        "scalar-refine-field"
+      ],
+      "library": "zod",
+      "modes": {
+        "single-file-native": {
+          "sourceHash": "ab916a81beaa2381d34c20704fec90042d074b6d32b805a40110b419cc597655",
+          "buildStatus": 0,
+          "buildSignal": null,
+          "buildMs": 1048.4635839999992,
+          "diagnostics": "Collecting modules...\n  Compile package wildcard: expanded to 9 installed package(s)\n  Compile package wildcard: kept 1 package(s) on Perry's native shim (list explicitly to compile the real source)\nFound 1 module(s): 1 native, 0 JavaScript\nGenerating code...\nAsset manifest: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/node_modules/.cache/perry/assets.json\nLinking (with stdlib)...\nWrote executable: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/coverage/generated/perry-scalar-fields-zod-single-file-native\nBinary size: 34.3MB\n[perry] codegen: modules finished 1/1 (100%; 0.0 min elapsed; ETA ~0.0 min)\n  note: Perry workspace source not found — linking the prebuilt full stdlib (larger binary). Set PERRY_WORKSPACE_ROOT to a source checkout to enable size-optimized rebuilds.\n[strip-dedup] runtime stdlib-stub localize skipped (non-fatal): llvm-objcopy not found\n",
+          "cases": {
+            "scalar-string-basic": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-string-trim": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-string-pattern": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-decimal": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-inclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-exclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-2": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-32": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-literal": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-date": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-required": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-undefined": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-null": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-target-null": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable-target-undefined": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-both": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish-target-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-nullish-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-date-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-wrap": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-strict": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-bounds": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-number": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-inner-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-transform-field": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-refine-field": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Cannot use 'in' operator to search for 'captureStackTrace' in undefined\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            }
+          },
+          "bytes": 35936296,
+          "gzipBytes": 13974892,
+          "binaryHash": "d395cc1266edae1194040498bcb2ae0b5acdfdee9bfeeff6796ecb8b00d0dd02",
+          "status": "built"
+        },
+        "direct-import": {
+          "sourceHash": "b867a87da0b715efcfea3e58cab56b51ca6d18fbd20cdd59cf8611207b04d688",
+          "buildStatus": 1,
+          "buildSignal": null,
+          "buildMs": 2269.741709,
+          "diagnostics": "Collecting modules...\n  Compile package wildcard: expanded to 9 installed package(s)\n  Compile package wildcard: kept 1 package(s) on Perry's native shim (list explicitly to compile the real source)\nFound 96 module(s): 96 native, 0 JavaScript\nGenerating code...\nAsset manifest: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/node_modules/.cache/perry/assets.json\nLinking (with stdlib)...\n[perry] codegen: module parallelism: 2 module jobs x 2 LLVM unit workers (override with PERRY_MODULE_JOBS / PERRY_CODEGEN_UNIT_JOBS)\n[perry] codegen: modules finished 4/96 (4%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 8/96 (8%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 12/96 (12%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 16/96 (17%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 20/96 (21%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 24/96 (25%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 28/96 (29%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 32/96 (33%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 36/96 (38%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 40/96 (42%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 44/96 (46%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 48/96 (50%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 52/96 (54%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 56/96 (58%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 60/96 (62%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 64/96 (67%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 68/96 (71%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 72/96 (75%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 76/96 (79%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 80/96 (83%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 84/96 (88%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 88/96 (92%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 92/96 (96%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 96/96 (100%; 0.0 min elapsed; ETA ~0.0 min)\n  note: Perry workspace source not found — linking the prebuilt full stdlib (larger binary). Set PERRY_WORKSPACE_ROOT to a source checkout to enable size-optimized rebuilds.\n[strip-dedup] runtime stdlib-stub localize skipped (non-fatal): llvm-objcopy not found\nUndefined symbols for architecture arm64:\n  \"_perry_fn_node_modules__pnpm_zod_4_6_5_node_modules_zod_src_v4_core_index_ts__validateAsync\", referenced from:\n      _node_modules__pnpm_zod_4_6_5_node_modules_zod_src_v4_classic_external_ts__init_body in 38d8701d90c7d5b1.o\nld: symbol(s) not found for architecture arm64\nclang: error: linker command failed with exit code 1 (use -v to see invocation)\nError: Linking failed\n",
+          "cases": {},
+          "status": "build-failed"
+        }
+      }
+    },
+    "scalar-fields-valibot": {
+      "profiles": [
+        "scalar-string-basic",
+        "scalar-string-trim",
+        "scalar-string-pattern",
+        "scalar-number-decimal",
+        "scalar-number-inclusive",
+        "scalar-number-exclusive",
+        "scalar-boolean",
+        "scalar-enum-2",
+        "scalar-enum-32",
+        "scalar-literal",
+        "scalar-date",
+        "scalar-presence-required",
+        "scalar-presence-optional",
+        "scalar-presence-nullable",
+        "scalar-presence-nullish",
+        "scalar-presence-optional-nullable",
+        "scalar-presence-default",
+        "scalar-presence-optional-default",
+        "scalar-presence-nullable-default",
+        "scalar-presence-nullish-default",
+        "scalar-presence-target-undefined",
+        "scalar-presence-target-null",
+        "scalar-presence-optional-target-null",
+        "scalar-presence-nullable-target-undefined",
+        "scalar-presence-target-both",
+        "scalar-presence-target-nullish",
+        "scalar-presence-nullish-target-nullish",
+        "scalar-number-nullish-default",
+        "scalar-boolean-default",
+        "scalar-enum-default",
+        "scalar-date-default",
+        "scalar-array-wrap",
+        "scalar-array-strict",
+        "scalar-array-bounds",
+        "scalar-array-number",
+        "scalar-array-inner-nullable",
+        "scalar-array-default",
+        "scalar-transform-field",
+        "scalar-refine-field"
+      ],
+      "library": "valibot",
+      "modes": {
+        "single-file-native": {
+          "sourceHash": "f14c94fdd844a36ce2db8b321da1c6c39c81545dbc7b50d72f0d458cc609837b",
+          "buildStatus": 0,
+          "buildSignal": null,
+          "buildMs": 743.3790000000008,
+          "diagnostics": "Collecting modules...\n  Compile package wildcard: expanded to 9 installed package(s)\n  Compile package wildcard: kept 1 package(s) on Perry's native shim (list explicitly to compile the real source)\nFound 1 module(s): 1 native, 0 JavaScript\nGenerating code...\nAsset manifest: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/node_modules/.cache/perry/assets.json\nLinking (with stdlib)...\nWrote executable: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/coverage/generated/perry-scalar-fields-valibot-single-file-native\nBinary size: 22.3MB\n[perry] codegen: modules finished 1/1 (100%; 0.0 min elapsed; ETA ~0.0 min)\n  note: Perry workspace source not found — linking the prebuilt full stdlib (larger binary). Set PERRY_WORKSPACE_ROOT to a source checkout to enable size-optimized rebuilds.\n[strip-dedup] runtime stdlib-stub localize skipped (non-fatal): llvm-objcopy not found\n",
+          "cases": {
+            "scalar-string-basic": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"\"}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"\"},{\"ok\":false},{\"ok\":false},{\"ok\":false},{\"ok\":true,\"value\":\"😀\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-string-trim": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"abc\"},{\"ok\":true,\"value\":\"abcdef\"}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"abc\"},{\"ok\":true,\"value\":\"abcdef\"},{\"ok\":false},{\"ok\":false},{\"ok\":true,\"value\":\"😀😀😀\"},{\"ok\":false}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-string-pattern": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"abc\"}],\"bad\":[{\"ok\":true,\"value\":\"ABC\"},{\"ok\":true,\"value\":\"a1\"}],\"probes\":[{\"ok\":true,\"value\":\"abc\"},{\"ok\":true,\"value\":\"ABC\"},{\"ok\":true,\"value\":\"a1\"},{\"ok\":true,\"value\":\"\"},{\"ok\":false}]}\n",
+              "stderr": "",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly deep-equal:\n+ actual - expected\n\n  [\n    {\n+     ok: true,\n+     value: 'ABC'\n-     ok: false\n    },\n    {\n+     ok: true,\n+     value: 'a1'\n-     ok: false\n    }\n  ]\n"
+            },
+            "scalar-number-decimal": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-inclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-exclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-2": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-32": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-literal": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"ready\"}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"ready\"},{\"ok\":false},{\"ok\":false}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-date": {
+              "verifyExit": null,
+              "verifySignal": "SIGABRT",
+              "stdout": "",
+              "stderr": "",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\nnull !== 0\n"
+            },
+            "scalar-presence-required": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"}],\"bad\":[{\"ok\":false},{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":false},{\"ok\":false},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-presence-optional": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":{\"$undefined\":true}}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":false},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-nullable": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":null}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":null},{\"ok\":false},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-nullish": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":null}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":null},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-presence-optional-nullable": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":null}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":null},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-default": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":false},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-optional-default": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":false},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-presence-nullable-default": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":null}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":null},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-presence-nullish-default": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":null}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":null},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-target-undefined": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":\"U\"}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":false},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-target-null": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"N\"}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"N\"},{\"ok\":false},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-optional-target-null": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":\"N\"}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":{\"$undefined\":true}},{\"ok\":true,\"value\":\"N\"},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-nullable-target-undefined": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":null}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":null},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-target-both": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":\"N\"}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":\"U\"},{\"ok\":true,\"value\":\"N\"},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-target-nullish": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": ""
+            },
+            "scalar-presence-nullish-target-nullish": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"hello\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":true,\"value\":\"D\"},{\"ok\":false},{\"ok\":true,\"value\":\"\"},{\"ok\":true,\"value\":\"null\"}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-number-nullish-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-date-default": {
+              "verifyExit": null,
+              "verifySignal": "SIGABRT",
+              "stdout": "",
+              "stderr": "",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\nnull !== 0\n"
+            },
+            "scalar-array-wrap": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-strict": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":[\"a\",\"b\"]},{\"ok\":true,\"value\":[]}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":[\"a\",\"b\"]},{\"ok\":true,\"value\":[]},{\"ok\":false},{\"ok\":false},{\"ok\":false}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-array-bounds": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-number": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-inner-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-default": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":[\"a\"]},{\"ok\":true,\"value\":[\"general\"]},{\"ok\":true,\"value\":[]}],\"bad\":[{\"ok\":false},{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":[\"a\"]},{\"ok\":true,\"value\":[\"general\"]},{\"ok\":true,\"value\":[]},{\"ok\":false},{\"ok\":false}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Cannot read properties of undefined (reading '~run')\n    at <anonymous>\n"
+            },
+            "scalar-transform-field": {
+              "verifyExit": 0,
+              "verifySignal": null,
+              "stdout": "{\"good\":[{\"ok\":true,\"value\":\"HELLO\"}],\"bad\":[{\"ok\":false}],\"probes\":[{\"ok\":true,\"value\":\"HELLO\"},{\"ok\":false}]}\n",
+              "stderr": "",
+              "status": "timing-failed",
+              "timingError": "TypeError: Iterator result is not an object\n    at <anonymous>\n"
+            },
+            "scalar-refine-field": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Set.prototype.add is not a function\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            }
+          },
+          "bytes": 23347744,
+          "gzipBytes": 10760890,
+          "binaryHash": "dcfff47b58c1cd2e0679ce7f710d4df994aeb2adcd394e22b9062244efcf1f95",
+          "status": "built"
+        },
+        "direct-import": {
+          "sourceHash": "12e96beae67a6284f8f1ba630a4fe7c624d40441e12b5f096b0a3d5faa6b10f4",
+          "buildStatus": 0,
+          "buildSignal": null,
+          "buildMs": 901.5709170000009,
+          "diagnostics": "Collecting modules...\n  Compile package wildcard: expanded to 9 installed package(s)\n  Compile package wildcard: kept 1 package(s) on Perry's native shim (list explicitly to compile the real source)\nFound 2 module(s): 2 native, 0 JavaScript\nGenerating code...\nAsset manifest: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/node_modules/.cache/perry/assets.json\nLinking (with stdlib)...\nWrote executable: /Users/toiroakr/workspace/loculus/feat/flat-string-schema/bench/coverage/generated/perry-scalar-fields-valibot-direct-import\nBinary size: 26.1MB\n[perry] codegen: module parallelism: 2 module jobs x 2 LLVM unit workers (override with PERRY_MODULE_JOBS / PERRY_CODEGEN_UNIT_JOBS)\n[perry] codegen: modules finished 1/2 (50%; 0.0 min elapsed; ETA ~0.0 min)\n[perry] codegen: modules finished 2/2 (100%; 0.0 min elapsed; ETA ~0.0 min)\n  note: Perry workspace source not found — linking the prebuilt full stdlib (larger binary). Set PERRY_WORKSPACE_ROOT to a source checkout to enable size-optimized rebuilds.\n[strip-dedup] runtime stdlib-stub localize skipped (non-fatal): llvm-objcopy not found\n",
+          "cases": {
+            "scalar-string-basic": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-string-trim": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-string-pattern": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-decimal": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-inclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-exclusive": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-2": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-32": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-literal": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-date": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-required": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-undefined": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-null": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-optional-target-null": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullable-target-undefined": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-both": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-target-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-presence-nullish-target-nullish": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-number-nullish-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-boolean-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-enum-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-date-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-wrap": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-strict": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-bounds": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-number": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-inner-nullable": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-array-default": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-transform-field": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            },
+            "scalar-refine-field": {
+              "verifyExit": 1,
+              "verifySignal": null,
+              "stdout": "",
+              "stderr": "TypeError: Class extends value is not a constructor\n    at <anonymous>\n",
+              "status": "semantic-or-runtime-failure",
+              "reason": "Expected values to be strictly equal:\n\n1 !== 0\n"
+            }
+          },
+          "bytes": 27362136,
+          "gzipBytes": 12067840,
+          "binaryHash": "98a73ef00e0e2660d243f47c5ab231bf2d057205039e12fa167e19f6340b2e1b",
+          "status": "built"
+        }
+      }
+    }
+  },
+  "completed": true
+}

@@ -1,0 +1,50 @@
+{
+  "completed": true,
+  "date": "2026-10-12T08:57:28.358Z",
+  "runtimes": [
+    "Node v24.13.0",
+    "Bun 1.4.3"
+  ],
+  "behaviorCases": 10,
+  "threeLibraryExamples": 30,
+  "nodeBunResultsIdentical": true,
+  "viewports": [
+    390,
+    1280
+  ],
+  "noHorizontalPageOverflow": true,
+  "report": "docs/guarantees-comparison.html",
+  "htmlSha256": "04f8206da21b85422cdea6606a01682708e5542f3d0324ce3218ef3abd3ca27a",
+  "probeNodeSha256": "718c33d7c04d4c6ba02711d8deec9d479ff2229d1e2db416d420653281ec1b50",
+  "probeBunSha256": "73f82fed40b6dc86a430c547f9d7364e9ee445cf26a39d6f1389f4917d094cc7",
+  "codeHashes": {
+    "src/index.ts": "181dcb12c1941d6b5a9c7c235fb09c127172277c7a26e0357d02421efb012bdf",
+    "src/rolldown.ts": "cd3afcb6bd262ac0798a07c8388cd3f860cd1543e60f7e4de962386b3ef2f132",
+    "dist/index.js": "add4e2a2a56e31d3600d6a012f0e20f084bcb0ec43cfbac32cb105bc0c31f87f",
+    "node_modules/zod/v4/core/schemas.js": "e632b655441418f0593153abc6809fd81cf3e0782d810622d0a4fa50ef6e182e",
+    "node_modules/zod/v4/classic/schemas.js": "2bf4a631a18f734a9a7ab7fc11bcf919214774d2235a312dcec0dd53d0324c32",
+    "node_modules/valibot/dist/index.mjs": "cc7a8f7551082a19178f8e553e34fd23bea774113e3bcc4b914abc91f19a5cd0"
+  },
+  "performanceRerun": false,
+  "productionSemanticsChanged": false,
+  "publication": {
+    "branch": {
+      "name": "preview/20261010-195626-24218",
+      "url": "https://github.com/toiroakr/mayfly-private/tree/preview/20261010-195626-24218"
+    },
+    "files": [
+      {
+        "source": "/tmp/loculus-guarantees.html",
+        "name": "loculus-guarantees.html",
+        "url": "https://github.com/toiroakr/mayfly-private/actions/runs/38226914436/artifacts/11736262886"
+      }
+    ],
+    "visibility": "private",
+    "runStatus": "completed",
+    "runConclusion": "success",
+    "artifactExpired": false,
+    "commit": "c9c6f4035373b466799192e2fb51b50b253601c4",
+    "gitBlobHash": "28065de797960f7298f271f196ea1b02980ca155",
+    "publishedFileMatchesVerifiedHtml": true
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "evaluatedOn": "2026-10-13",
+  "packageVersion": "0.1.0",
+  "sourceHashes": {
+    "src/index.ts": "c8463a249e686d47e17390556a9229853887bcfca453a0b207cad81925862df9",
+    "src/rolldown.ts": "2402d138b86c8d50be5380d5afb451690b0d754758b418e4c8cc4b5dde89792f",
+    "dist/index.js": "c17a7359dba21d66422d54ccc09b2d53b41f7383799b100b9ffd25a74e67c50a"
+  },
+  "compatibility": {
+    "profiles": 96,
+    "cellsPerRuntime": 1078,
+    "versions": {
+      "zod": "4.6.5",
+      "valibot": "1.5.0"
+    },
+    "runtimes": [
+      "Node v24.13.0",
+      "Bun 1.4.3"
+    ],
+    "acceptanceAndOutputMatch": "at least one explicitly configured/composed peer",
+    "completeInputCoverage": false
+  },
+  "performance": {
+    "currentContractRemeasured": false
+  }
+}

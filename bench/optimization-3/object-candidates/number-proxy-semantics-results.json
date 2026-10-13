@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-11T15:30:49.294Z",
+  "baselineHash": "77754cfa558e4c48e367626d6545f1b676a51a78ddf6b03474c2862d710f3ae0",
+  "results": [
+    {
+      "name": "baseline",
+      "scenarioChecks": 58,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "number-native-elision",
+      "scenarioChecks": 55,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "opaque-callable-proxy-numeric-log",
+          "compiled": false,
+          "message": "number-native-elision/opaque-callable-proxy-numeric-log/plain\n+ actual - expected\n\n  {\n    events: [\n      [\n+       'get',\n+       'Symbol()'\n+     ],\n+     [\n        'apply',\n        [\n          42\n        ]\n      ]\n"
+        },
+        {
+          "scenario": "opaque-callable-proxy-numeric-throw",
+          "compiled": false,
+          "message": "number-native-elision/opaque-callable-proxy-numeric-throw/plain\n+ actual - expected\n\n  {\n+   error: 'opaque validator get',\n    events: [\n      [\n+       'get',\n+       'Symbol()'\n-       'apply',\n-       [\n-         42\n-       ]\n      ]\n    ],\n+   phase: 'validate'\n-   result: {\n-     keys: [\n-    "
+        },
+        {
+          "scenario": "opaque-callable-proxy-numeric-throw",
+          "compiled": true,
+          "message": "number-native-elision/opaque-callable-proxy-numeric-throw/compiled\n+ actual - expected\n\n  {\n+   error: 'opaque validator get',\n    events: [\n      [\n+       'get',\n+       'Symbol()'\n-       'apply',\n-       [\n-         42\n-       ]\n      ]\n    ],\n+   phase: 'validate'\n-   result: {\n-     keys: [\n- "
+        }
+      ]
+    }
+  ]
+}

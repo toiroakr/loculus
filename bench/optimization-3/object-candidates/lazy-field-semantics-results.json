@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-11T14:27:44.288Z",
+  "baselineHash": "77754cfa558e4c48e367626d6545f1b676a51a78ddf6b03474c2862d710f3ae0",
+  "results": [
+    {
+      "name": "baseline",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "lazy-field-class",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    }
+  ]
+}

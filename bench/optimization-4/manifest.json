@@ -1,0 +1,206 @@
+{
+  "date": "2026-10-12T01:05:24.952Z",
+  "baselineHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+  "candidates": [
+    {
+      "name": "baseline",
+      "sourceHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf"
+    },
+    {
+      "name": "string-fast",
+      "sourceHash": "4e73287ec4dc2fff866b381e3c43708db689e2ac81abecd15c301b5843e06bb7"
+    },
+    {
+      "name": "object-shared",
+      "sourceHash": "b9136091bbed32466a2adf2986b6072c90e906e741b293d2eb5c2e68f37769d9"
+    },
+    {
+      "name": "shared-string-fast",
+      "sourceHash": "40a2837f466531223acc63e7d47e7bba2a93f6a2143f8012e69b03058d99b220"
+    },
+    {
+      "name": "capture-single",
+      "sourceHash": "4de4b611cd9738c59be6d7d49eeee29af7527f001d46e0227ef074dd6e932c6f"
+    },
+    {
+      "name": "capture-single-fast",
+      "sourceHash": "b1a05dfbc19ea8d0ee66373f37e31e13a882d2663b6309d34c37a36802651534"
+    },
+    {
+      "name": "basic-result-elision",
+      "sourceHash": "d54aba343a234a22ba699267c00455a38e746da4fdcc6979aafe3a4b2a62835d"
+    },
+    {
+      "name": "compact-field",
+      "sourceHash": "93666f293a87e99d8b74434fd3635d5a9c6160292140f798dcb3175be443ff26"
+    },
+    {
+      "name": "keys-first",
+      "sourceHash": "194a6477fdc1ea9504de144e63d8d7102cfaac9936a6ecb8df0e34e036d83da8"
+    },
+    {
+      "name": "assign-shape",
+      "sourceHash": "be77ab0b5a4901b7319005fca05baef52ac717825e284a4e91b0934ed80861ae"
+    },
+    {
+      "name": "keys-first-indexed",
+      "sourceHash": "a9b94502b2f4c3c03134c7eb4afbd084b21ba69bec1912872c0fbaa8af6fad03"
+    },
+    {
+      "name": "keys-first-capture",
+      "sourceHash": "b7d0a19a8f73d16e92d8c759a575470b65fbd0b9e4f5a407bfc2eb915d30038d"
+    },
+    {
+      "name": "indexed-capture",
+      "sourceHash": "a27f5292423485f2afa7ea98f98dcb304a3524ce78f16815fed5cd88b14ea911"
+    },
+    {
+      "name": "compact-keys-first",
+      "sourceHash": "4187a25574ce76036a847b910097cae95abe19e672076c8ea5a8927fff0f2847"
+    },
+    {
+      "name": "compact-indexed",
+      "sourceHash": "1674cdd4e48ad60cd49d81f5f4a3e465aa8364c09b23ee6a565b1242c188d16d"
+    },
+    {
+      "name": "compact-capture",
+      "sourceHash": "8df46d3bc65badcc6eef24c36619b86455b9a1fdd2390581d7060352f5b89fd4"
+    },
+    {
+      "name": "agent-deferred-string",
+      "sourceHash": "41a39881db64a72be868d41ae53f698417830217a4fc614ad513eaddf139e364"
+    },
+    {
+      "name": "agent-single-string",
+      "sourceHash": "c2f9dcda5f5dbeb7dff40004fc5b721d819f85fc259d72638a49d6061f985976"
+    },
+    {
+      "name": "agent-deferred-string-fast",
+      "sourceHash": "2a10bb4fa4fbe309eb52f92b69d2cb20fc08ad5b8de6ace39e9be2c6b74d32e2"
+    },
+    {
+      "name": "agent-single-string-fast",
+      "sourceHash": "9cd68ece3cea620b172f174b78442ce999a05643883c50a4e063e5e435c278ba"
+    },
+    {
+      "name": "descriptor-direct",
+      "sourceHash": "30fe81c1db63b3d18bd681deee61606e3cf465247e88fca77854a0dd54502291"
+    },
+    {
+      "name": "descriptor-assign",
+      "sourceHash": "1994e7f578372850b8774d4959c0a608f6738061d66dc32f5f83cd2d1dbd90fc"
+    },
+    {
+      "name": "descriptor-direct-object",
+      "sourceHash": "e1d2170c5337a6c2e687b8eaea114b97abd7651d178fc23d5632c0d504ac9112"
+    },
+    {
+      "name": "descriptor-assign-object",
+      "sourceHash": "37fe990c16e512714a511ed58914e622990bccd098a8b88a8e2aa28a4fdc2781"
+    },
+    {
+      "name": "lazy-shape",
+      "sourceHash": "25fb5d7edd490bd54d7c217f0dcd141be38b081008bf5cef5a0214c162c8b365"
+    },
+    {
+      "name": "lazy-shape-fast",
+      "sourceHash": "19abcc970f5a81fbb92061cffea319d2463a4fe4c859a840f7b30059633e3735"
+    },
+    {
+      "name": "lazy-shape-capture",
+      "sourceHash": "be28e415749a068135f4616704dbb17afade4a5201dc9afb0de1d43fa3378a37"
+    },
+    {
+      "name": "lazy-shape-capture-fast",
+      "sourceHash": "8f09b353cb2a2d0200f3d75ea0413fc51ab2999b4bda8a4731155afd16d2ca0b"
+    },
+    {
+      "name": "basic-identity",
+      "sourceHash": "4d6afbc2f27bcc52e34be52c63515b5e18705cc3966a590b2f8f8a4c51bcbe26"
+    },
+    {
+      "name": "basic-fused",
+      "sourceHash": "04b59997208c4f40fe369e71f8c3df475dc9701a5ddc1445ce9c481f3d4296e5"
+    },
+    {
+      "name": "basic-indexed",
+      "sourceHash": "927afeb69acf03a6c8941a68e295c0ed97a74279f2bd4bdb5491ac1ee336fb46"
+    },
+    {
+      "name": "basic-fused-indexed",
+      "sourceHash": "20c51677bb417dd0f0599d6ce85dd8112f3bb8391ebecba70d913e43602558d5"
+    },
+    {
+      "name": "basic-identity-bind",
+      "sourceHash": "9a2a120c59dad2b40dcd80107afb34a12a2e56191867ea41e8fd67878ff76f4b"
+    },
+    {
+      "name": "basic-identity-shared",
+      "sourceHash": "98e08325dfb5a8be10dd1e6ee31bdf1de80d8d327c3e2da6f95ab788a477f4ad"
+    },
+    {
+      "name": "basic-fused-indexed-bind",
+      "sourceHash": "59c062159d610e48372c4ff36e0c21b8eb9ad068ca24db1833d32a44021d48c9"
+    },
+    {
+      "name": "basic-fused-indexed-shared",
+      "sourceHash": "acdd963a392da39eddf9b0ccd9716e8a1d4d4a8e95ab27ddfe1290cd9ca929c0"
+    },
+    {
+      "name": "basic-identity-shared-single",
+      "sourceHash": "d37e1ce3f9c0e619da8cfdf0d96ac07765a9243f222c7e7d631e003482b31081"
+    },
+    {
+      "name": "basic-identity-shared-single-bind",
+      "sourceHash": "4766477b7cd54d7e97e6daeb6ea976823338ad8b69004e66034896468459a9b4"
+    },
+    {
+      "name": "basic-fused-indexed-shared-single",
+      "sourceHash": "19b788c7fb8059168b18b3fc6e6800bb7b3d6c7735010655b354639116989c68"
+    },
+    {
+      "name": "basic-fused-indexed-shared-single-bind",
+      "sourceHash": "53c65adc4b14217d0fd49a862f8aedf042842123b941c5f57c03dacc7c5e89c8"
+    },
+    {
+      "name": "basic-fresh",
+      "sourceHash": "8b17d107d17695fe0269c86340a991f1a0d4ff37d5ca6272c0f0924966d6621d"
+    },
+    {
+      "name": "basic-fresh-forin",
+      "sourceHash": "a65cb030c2a4fac5077e90bc3654b0a133ac461d8345e65cbdf757be98ec08c2"
+    },
+    {
+      "name": "cached-vector",
+      "sourceHash": "b521962188f923186a03feeead62be37aedf20b4c5c51cdd5767f3fbf6b87642"
+    },
+    {
+      "name": "cached-vector-fast",
+      "sourceHash": "7519f7f54f3f3653abd00d342694ecaa9ba42e39c3e26d95f8473cb884584e70"
+    },
+    {
+      "name": "cached-vector-mutable",
+      "sourceHash": "713e179e28abf3d35678718c95dafc825564dd0c811d6949f71a342a69cd8632"
+    },
+    {
+      "name": "cached-vector-fast-mutable",
+      "sourceHash": "e1840e801ca6591a0455128bf639b522e060f55e90df998c7560985305838b0e"
+    },
+    {
+      "name": "single-kernel",
+      "sourceHash": "2e6d9faa3379343ff5b451fe0dd6124ad804db8611bccdd50a939ca8fc8da87f"
+    },
+    {
+      "name": "single-kernel-fast",
+      "sourceHash": "99dac817b389787bd9aecebc9e6ed7f2a030515a891adb363fc4cd4487612486"
+    },
+    {
+      "name": "single-kernel-no-freeze",
+      "sourceHash": "baecda92f3195d8ae494aaf27426fe01730c95b8567fa593adf9ad268083661d"
+    },
+    {
+      "name": "single-kernel-fast-no-freeze",
+      "sourceHash": "3e6a1ce0eccfe93a2aec46f9c6e01ea1e66f2efe0fbffb6806c63b60ebbdee12"
+    }
+  ]
+}

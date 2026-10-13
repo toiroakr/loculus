@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "declaration": true,
+    "outDir": "dist",
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ]
+  },
+  "include": [
+    "src",
+    "test",
+    "bench"
+  ],
+  "exclude": [
+    "bench/generated",
+    "bench/coverage/generated",
+    "bench/optimization-2/generated",
+    "bench/optimization-3/generated",
+    "bench/optimization-3/supplement-generated",
+    "bench/optimization-3/mixed-generated",
+    "bench/cli/generated",
+    "bench/optimization-4/generated",
+    "bench/single-use/generated",
+    "bench/build-time/generated",
+    "bench/whole-object/generated"
+  ]
+}

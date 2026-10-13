@@ -1,0 +1,6 @@
+return function(raw){
+if(typeof raw!=="object"||raw===null||Array.isArray(raw))return fail("Expected an object","invalid_type");
+let start,first,v0;
+fast:{v0=Object.hasOwn(raw,"f0")?raw["f0"]:undefined;if(!(typeof v0==="string")){start=0;break fast;}
+return {value:{"f0":v0}};}
+return remainder(raw,start,{"f0":v0},keys,validators,first);}

@@ -1,0 +1,499 @@
+{
+  "completed": true,
+  "runtime": "Node v24.13.0",
+  "date": "2026-10-12T08:48:56.745Z",
+  "versions": {
+    "zod": "4.6.5",
+    "valibot": "1.5.0"
+  },
+  "codeHashes": {
+    "src/index.ts": "181dcb12c1941d6b5a9c7c235fb09c127172277c7a26e0357d02421efb012bdf",
+    "src/rolldown.ts": "cd3afcb6bd262ac0798a07c8388cd3f860cd1543e60f7e4de962386b3ef2f132",
+    "dist/index.js": "add4e2a2a56e31d3600d6a012f0e20f084bcb0ec43cfbac32cb105bc0c31f87f",
+    "node_modules/zod/v4/core/schemas.js": "e632b655441418f0593153abc6809fd81cf3e0782d810622d0a4fa50ef6e182e",
+    "node_modules/zod/v4/classic/schemas.js": "2bf4a631a18f734a9a7ab7fc11bcf919214774d2235a312dcec0dd53d0324c32",
+    "node_modules/valibot/dist/index.mjs": "cc7a8f7551082a19178f8e553e34fd23bea774113e3bcc4b914abc91f19a5cd0"
+  },
+  "cases": [
+    {
+      "id": "original-shape-before-first-read",
+      "result": {
+        "loculus": {
+          "string": {
+            "ok": true,
+            "value": {
+              "name": "Alice"
+            }
+          },
+          "number": {
+            "ok": false,
+            "paths": [
+              [
+                "name"
+              ]
+            ],
+            "messages": [
+              "Expected a string"
+            ]
+          }
+        },
+        "zod": {
+          "string": {
+            "ok": false,
+            "paths": [
+              [
+                "name"
+              ]
+            ],
+            "messages": [
+              "Invalid input: expected number, received string"
+            ]
+          },
+          "number": {
+            "ok": true,
+            "value": {
+              "name": 123
+            }
+          }
+        },
+        "valibot": {
+          "string": {
+            "ok": false,
+            "paths": [
+              [
+                "name"
+              ]
+            ],
+            "messages": [
+              "Invalid type: Expected number but received \"Alice\""
+            ]
+          },
+          "number": {
+            "ok": true,
+            "value": {
+              "name": 123
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "original-shape-after-first-read",
+      "result": {
+        "loculus": {
+          "sameShape": false,
+          "frozen": true,
+          "string": {
+            "ok": true,
+            "value": {
+              "name": "Alice"
+            }
+          },
+          "number": {
+            "ok": false,
+            "paths": [
+              [
+                "name"
+              ]
+            ],
+            "messages": [
+              "Expected a string"
+            ]
+          }
+        },
+        "zod": {
+          "sameShape": false,
+          "frozen": false,
+          "string": {
+            "ok": true,
+            "value": {
+              "name": "Alice"
+            }
+          },
+          "number": {
+            "ok": false,
+            "paths": [
+              [
+                "name"
+              ]
+            ],
+            "messages": [
+              "Invalid input: expected string, received number"
+            ]
+          }
+        },
+        "valibot": {
+          "sameShape": true,
+          "frozen": false,
+          "string": {
+            "ok": false,
+            "paths": [
+              [
+                "name"
+              ]
+            ],
+            "messages": [
+              "Invalid type: Expected number but received \"Alice\""
+            ]
+          },
+          "number": {
+            "ok": true,
+            "value": {
+              "name": 123
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "exposed-shape-replacement",
+      "result": {
+        "loculus": {
+          "mutation": "TypeError",
+          "string": {
+            "ok": true,
+            "value": {
+              "name": "Alice"
+            }
+          },
+          "number": {
+            "ok": false,
+            "paths": [
+              [
+                "name"
+              ]
+            ],
+            "messages": [
+              "Expected a string"
+            ]
+          }
+        },
+        "zod": {
+          "mutation": "applied",
+          "string": {
+            "ok": false,
+            "paths": [
+              [
+                "name"
+              ]
+            ],
+            "messages": [
+              "Invalid input: expected number, received string"
+            ]
+          },
+          "number": {
+            "ok": true,
+            "value": {
+              "name": 123
+            }
+          }
+        },
+        "valibot": {
+          "mutation": "applied",
+          "string": {
+            "ok": false,
+            "paths": [
+              [
+                "name"
+              ]
+            ],
+            "messages": [
+              "Invalid type: Expected number but received \"Alice\""
+            ]
+          },
+          "number": {
+            "ok": true,
+            "value": {
+              "name": 123
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "inherited-input",
+      "result": {
+        "loculus": {
+          "ok": false,
+          "paths": [
+            [
+              "name"
+            ]
+          ],
+          "messages": [
+            "Expected a string"
+          ]
+        },
+        "zod": {
+          "ok": true,
+          "value": {
+            "name": "inherited"
+          }
+        },
+        "valibot": {
+          "ok": true,
+          "value": {
+            "name": "inherited"
+          }
+        }
+      }
+    },
+    {
+      "id": "array-root",
+      "result": {
+        "loculus": {
+          "ok": false,
+          "paths": [
+            []
+          ],
+          "messages": [
+            "Expected an object"
+          ]
+        },
+        "zod": {
+          "ok": false,
+          "paths": [
+            []
+          ],
+          "messages": [
+            "Invalid input: expected object, received array"
+          ]
+        },
+        "valibot": {
+          "ok": true,
+          "value": {}
+        }
+      }
+    },
+    {
+      "id": "fresh-standard",
+      "result": {
+        "loculus": {
+          "freshSchema": true,
+          "ownBeforeAccess": true,
+          "ownAfterAccess": true,
+          "sameOnRepeatedAccess": true,
+          "differentBetweenSchemas": true
+        },
+        "zod": {
+          "freshSchema": true,
+          "ownBeforeAccess": false,
+          "ownAfterAccess": true,
+          "sameOnRepeatedAccess": true,
+          "differentBetweenSchemas": true
+        },
+        "valibot": {
+          "freshSchema": true,
+          "ownBeforeAccess": true,
+          "ownAfterAccess": true,
+          "sameOnRepeatedAccess": true,
+          "differentBetweenSchemas": true
+        }
+      }
+    },
+    {
+      "id": "child-validator-replacement",
+      "result": {
+        "loculus": {
+          "normal": {
+            "ok": true,
+            "value": {
+              "name": "Alice"
+            }
+          },
+          "after": {
+            "ok": true,
+            "value": {
+              "name": "Alice"
+            }
+          },
+          "internalMutation": false
+        },
+        "zod": {
+          "normal": {
+            "ok": true,
+            "value": {
+              "name": "Alice"
+            }
+          },
+          "after": {
+            "ok": true,
+            "value": {
+              "name": "replacement"
+            }
+          },
+          "internalMutation": true
+        },
+        "valibot": {
+          "normal": {
+            "ok": true,
+            "value": {
+              "name": "Alice"
+            }
+          },
+          "after": {
+            "ok": true,
+            "value": {
+              "name": "replacement"
+            }
+          },
+          "internalMutation": true
+        }
+      }
+    },
+    {
+      "id": "proto-input-key",
+      "result": {
+        "loculus": {
+          "ok": true,
+          "value": {
+            "__proto__": "value"
+          },
+          "outputOwn": true,
+          "outputPrototypeUnchanged": true
+        },
+        "zod": {
+          "ok": true,
+          "value": {},
+          "outputOwn": false,
+          "outputPrototypeUnchanged": true
+        },
+        "valibot": {
+          "ok": true,
+          "value": {},
+          "outputOwn": false,
+          "outputPrototypeUnchanged": true
+        }
+      }
+    },
+    {
+      "id": "strict-unknown-count",
+      "result": {
+        "loculus": {
+          "ok": false,
+          "paths": [
+            [
+              "extra1"
+            ],
+            [
+              "extra2"
+            ]
+          ],
+          "messages": [
+            "Unknown key: extra1",
+            "Unknown key: extra2"
+          ]
+        },
+        "zod": {
+          "ok": false,
+          "paths": [
+            []
+          ],
+          "messages": [
+            "Unrecognized keys: \"extra1\", \"extra2\""
+          ]
+        },
+        "valibot": {
+          "ok": false,
+          "paths": [
+            [
+              "extra1"
+            ]
+          ],
+          "messages": [
+            "Invalid key: Expected never but received \"extra1\""
+          ]
+        }
+      }
+    },
+    {
+      "id": "duplicate-discriminator",
+      "result": {
+        "loculus": {
+          "stage": "construction",
+          "error": "Duplicate discriminator: x"
+        },
+        "zod": {
+          "stage": "validation",
+          "error": "Duplicate discriminator value \"x\""
+        },
+        "valibot": {
+          "stage": "validation",
+          "result": {
+            "ok": true,
+            "value": {
+              "kind": "x"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "details": {
+    "literalMetadata": {
+      "frozen": true,
+      "mutateChoices": "TypeError",
+      "afterMetadataSet": [
+        "other"
+      ],
+      "ready": {
+        "ok": true,
+        "value": "ready"
+      },
+      "other": {
+        "ok": false,
+        "paths": [
+          []
+        ],
+        "messages": [
+          "Expected one of: ready"
+        ]
+      }
+    },
+    "loculusMetadata": {
+      "fresh": true,
+      "frozen": false
+    },
+    "optionSnapshot": {
+      "result": {
+        "ok": false,
+        "paths": [
+          []
+        ],
+        "messages": [
+          "Expected at least 3 characters"
+        ]
+      }
+    },
+    "sharedFrozenIssues": {
+      "result": {
+        "ok": false,
+        "paths": [
+          [
+            "left",
+            "leaf"
+          ],
+          [
+            "right",
+            "leaf"
+          ]
+        ],
+        "messages": [
+          "shared",
+          "shared"
+        ]
+      },
+      "originalPath": [
+        "leaf"
+      ]
+    },
+    "getterOrdering": {
+      "ok": true,
+      "value": {
+        "a": "first",
+        "b": "after"
+      }
+    }
+  },
+  "scope": "Behavior probes against installed versions; mutation cases explore implementation behavior, not promises from Zod/Valibot public APIs. No performance claims."
+}

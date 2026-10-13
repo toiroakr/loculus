@@ -1,0 +1,82 @@
+{
+  "name": "loculus",
+  "version": "0.1.0",
+  "description": "Flat schemas for string inputs",
+  "license": "MIT",
+  "repository": "github:toiroakr/loculus",
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "packageManager": "pnpm@11.28.5",
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./rolldown": {
+      "types": "./dist/rolldown.d.ts",
+      "import": "./dist/rolldown.js"
+    }
+  },
+  "scripts": {
+    "changeset": "changeset",
+    "version-packages": "changeset version && pnpm install --lockfile-only --ignore-scripts",
+    "release": "changeset publish",
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts && pnpm check:tree-shaking",
+    "bench": "node --import tsx bench/run.ts",
+    "demo:rhf": "pnpm build && node examples/react-hook-form/build.mjs && node examples/react-hook-form/serve.mjs",
+    "test:rhf": "pnpm build && tsc -p examples/react-hook-form/tsconfig.json && node examples/react-hook-form/build.mjs && playwright test --config examples/react-hook-form/playwright.config.ts",
+    "prepublishOnly": "npm run build",
+    "bench:upstream": "node --import tsx bench/upstream.ts",
+    "bench:moonbit": "moon -C experiments/moonbit build --release --target js && moon -C experiments/moonbit build --release --target wasm-gc && pnpm build && node experiments/moonbit/prepare.mjs && node experiments/moonbit/verify.mjs && node experiments/moonbit/bench.mjs",
+    "bench:lifecycle": "node bench/lifecycle.mjs",
+    "check:tree-shaking": "pnpm build && node bench/tree-shaking.mjs && node bench/tree-shaking-rolldown.mjs",
+    "bench:perry": "pnpm build && node experiments/perry/prepare.mjs && node experiments/perry/run.mjs",
+    "bench:bun": "pnpm build && node experiments/perry/prepare.mjs && node experiments/bun/prepare.mjs && node experiments/bun/run.mjs",
+    "bench:coverage": "pnpm build && node bench/coverage/prepare.mjs --ordinary-only && node bench/coverage/run.mjs && node bench/coverage/run.mjs --only-scalars && node bench/coverage/types.mjs --with-scalars && node bench/coverage/semantics.mjs && node bench/coverage/tree-shaking.mjs && node bench/coverage/cold.mjs",
+    "bench:coverage:backends": "node bench/coverage/perry.mjs && node bench/coverage/perry-reference.mjs && node bench/coverage/perry.mjs --only-scalars && node bench/coverage/perry-reference.mjs --only-scalars && node bench/coverage/moonbit.mjs",
+    "bench:single-use": "pnpm build && node bench/single-use/run.mjs",
+    "bench:build-time": "pnpm build && node bench/build-time/prepare.mjs && node bench/build-time/run.mjs && python3 bench/coverage/significance.py --input=bench/build-time/settled-results.json --output=bench/build-time/significance-results.json --fixtures=bench/build-time/timed-fixtures.json --modes=construct,valid"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.3",
+    "@hookform/resolvers": "^5.9.1",
+    "@playwright/test": "^1.64.0",
+    "@standard-schema/spec": "^1.0.0",
+    "@types/node": "^25.0.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "esbuild": "^0.28.2",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-hook-form": "^7.89.0",
+    "rolldown": "^1.2.13",
+    "tinybench": "2.9.0",
+    "tsdown": "^0.23.1",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2",
+    "valibot": "^1.4.2",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "rolldown": ">=1.2.13 <2"
+  },
+  "peerDependenciesMeta": {
+    "rolldown": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

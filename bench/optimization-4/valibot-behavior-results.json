@@ -1,0 +1,84 @@
+{
+  "date": "2026-10-12T02:07:03.265Z",
+  "cases": {
+    "valibot": {
+      "first": {
+        "value": {
+          "value": "ok"
+        }
+      },
+      "shapeChanged": {
+        "issues": [
+          {
+            "message": "Invalid type: Expected number but received \"ok\"",
+            "path": [
+              "value"
+            ]
+          }
+        ]
+      },
+      "standardChanged": {
+        "value": {
+          "value": "ok"
+        }
+      },
+      "standardBefore": {
+        "value": {
+          "value": "ok"
+        }
+      },
+      "inheritedValue": {
+        "value": {
+          "value": "inherited"
+        }
+      },
+      "arrayValue": {
+        "value": {
+          "value": "array-property"
+        }
+      },
+      "frozenShape": false
+    },
+    "loculus": {
+      "first": {
+        "value": {
+          "value": "ok"
+        }
+      },
+      "shapeChanged": {
+        "value": {
+          "value": "ok"
+        }
+      },
+      "standardChanged": {
+        "value": {
+          "value": "ok"
+        }
+      },
+      "standardBefore": {
+        "value": {
+          "value": "replacement"
+        }
+      },
+      "inheritedValue": {
+        "issues": [
+          {
+            "message": "Expected a string",
+            "path": [
+              "value"
+            ]
+          }
+        ]
+      },
+      "arrayValue": {
+        "issues": [
+          {
+            "message": "Expected an object"
+          }
+        ]
+      },
+      "frozenShape": true
+    }
+  },
+  "completed": true
+}

@@ -1,0 +1,997 @@
+{
+  "date": "2026-10-11T23:31:35.582Z",
+  "sourceHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+  "distHash": "17eb28fb24e095141a85e1bf6ba33b408d67e5e3ad4081a70a21d9074ef66ab4",
+  "scope": "Nine fresh processes per runtime/profile/variant, rotating variant order, warm filesystem. Imports include dynamic module loading; process wall includes interpreter startup and shutdown. Descriptive medians, no significance test.",
+  "runtimeVersions": {
+    "node": "v24.13.0",
+    "bun": "1.4.3"
+  },
+  "cases": {
+    "node/string": {
+      "original": {
+        "samples": [
+          {
+            "importNs": 1081291.9999999995,
+            "importAndFirstValidateNs": 1260833.999999999,
+            "processWallNs": 30569292.000000004
+          },
+          {
+            "importNs": 562417,
+            "importAndFirstValidateNs": 724416.999999999,
+            "processWallNs": 30864082.999999993
+          },
+          {
+            "importNs": 537082.9999999991,
+            "importAndFirstValidateNs": 703040.999999999,
+            "processWallNs": 30300124.99999998
+          },
+          {
+            "importNs": 551332.9999999997,
+            "importAndFirstValidateNs": 711665.9999999993,
+            "processWallNs": 32933999.99999997
+          },
+          {
+            "importNs": 538290.9999999992,
+            "importAndFirstValidateNs": 700291,
+            "processWallNs": 33733666.00000003
+          },
+          {
+            "importNs": 558208.9999999998,
+            "importAndFirstValidateNs": 723334.0000000013,
+            "processWallNs": 37806290.999999985
+          },
+          {
+            "importNs": 556917.0000000003,
+            "importAndFirstValidateNs": 719792,
+            "processWallNs": 29051958.000000015
+          },
+          {
+            "importNs": 544874.9999999993,
+            "importAndFirstValidateNs": 708833.9999999995,
+            "processWallNs": 31270833.99999992
+          },
+          {
+            "importNs": 578625.0000000006,
+            "importAndFirstValidateNs": 742917.0000000002,
+            "processWallNs": 32868417.000000022
+          }
+        ],
+        "medians": {
+          "importNs": 556917.0000000003,
+          "importAndFirstValidateNs": 719792,
+          "processWallNs": 31270833.99999992
+        }
+      },
+      "barrel": {
+        "samples": [
+          {
+            "importNs": 5861290.999999998,
+            "importAndFirstValidateNs": 6054666.000000001,
+            "processWallNs": 33862083.99999999
+          },
+          {
+            "importNs": 3356458,
+            "importAndFirstValidateNs": 3532166,
+            "processWallNs": 30742374.99999998
+          },
+          {
+            "importNs": 3487375,
+            "importAndFirstValidateNs": 3650375.0000000005,
+            "processWallNs": 34478667.00000003
+          },
+          {
+            "importNs": 3638417.0000000005,
+            "importAndFirstValidateNs": 3814375,
+            "processWallNs": 36278708.99999999
+          },
+          {
+            "importNs": 3859917.000000001,
+            "importAndFirstValidateNs": 4040584.000000001,
+            "processWallNs": 38120958.00000003
+          },
+          {
+            "importNs": 3327541.9999999995,
+            "importAndFirstValidateNs": 3489582.9999999995,
+            "processWallNs": 32590125.000000056
+          },
+          {
+            "importNs": 3479166.000000001,
+            "importAndFirstValidateNs": 3645832.9999999995,
+            "processWallNs": 33430958.000000034
+          },
+          {
+            "importNs": 3440625.000000001,
+            "importAndFirstValidateNs": 3602667.0000000005,
+            "processWallNs": 34671207.99999998
+          },
+          {
+            "importNs": 3562374.9999999995,
+            "importAndFirstValidateNs": 3724292,
+            "processWallNs": 36941667.00000005
+          }
+        ],
+        "medians": {
+          "importNs": 3487375,
+          "importAndFirstValidateNs": 3650375.0000000005,
+          "processWallNs": 34478667.00000003
+        }
+      },
+      "direct": {
+        "samples": [
+          {
+            "importNs": 987541.9999999994,
+            "importAndFirstValidateNs": 1172749.9999999988,
+            "processWallNs": 28472624.999999993
+          },
+          {
+            "importNs": 931999.9999999986,
+            "importAndFirstValidateNs": 1105166.9999999998,
+            "processWallNs": 28519042.000000015
+          },
+          {
+            "importNs": 929833.0000000003,
+            "importAndFirstValidateNs": 1086957.9999999993,
+            "processWallNs": 30670917.000000004
+          },
+          {
+            "importNs": 941999.9999999984,
+            "importAndFirstValidateNs": 1099290.999999999,
+            "processWallNs": 33799958
+          },
+          {
+            "importNs": 956749.9999999995,
+            "importAndFirstValidateNs": 1117250.0000000002,
+            "processWallNs": 34601124.99999997
+          },
+          {
+            "importNs": 950207.9999999999,
+            "importAndFirstValidateNs": 1107291,
+            "processWallNs": 34951542.000000015
+          },
+          {
+            "importNs": 929291.9999999985,
+            "importAndFirstValidateNs": 1087249.999999999,
+            "processWallNs": 31600584.000000026
+          },
+          {
+            "importNs": 935584.0000000005,
+            "importAndFirstValidateNs": 1097833.9999999988,
+            "processWallNs": 32695499.999999925
+          },
+          {
+            "importNs": 896166.9999999984,
+            "importAndFirstValidateNs": 1053416.9999999995,
+            "processWallNs": 32104583.00000005
+          }
+        ],
+        "medians": {
+          "importNs": 935584.0000000005,
+          "importAndFirstValidateNs": 1099290.999999999,
+          "processWallNs": 32104583.00000005
+        }
+      }
+    },
+    "node/number": {
+      "original": {
+        "samples": [
+          {
+            "importNs": 551916.9999999995,
+            "importAndFirstValidateNs": 758082.9999999992,
+            "processWallNs": 31921458.00000003
+          },
+          {
+            "importNs": 626416.0000000007,
+            "importAndFirstValidateNs": 869708.000000001,
+            "processWallNs": 29652790.999999978
+          },
+          {
+            "importNs": 606042.0000000005,
+            "importAndFirstValidateNs": 846875.0000000007,
+            "processWallNs": 28834958.00000014
+          },
+          {
+            "importNs": 602333.9999999991,
+            "importAndFirstValidateNs": 1079583.9999999988,
+            "processWallNs": 28977082.999999993
+          },
+          {
+            "importNs": 744291.9999999979,
+            "importAndFirstValidateNs": 1029125.0000000005,
+            "processWallNs": 43207165.99999992
+          },
+          {
+            "importNs": 1452666.9999999981,
+            "importAndFirstValidateNs": 1953666.9999999993,
+            "processWallNs": 54460624.99999993
+          },
+          {
+            "importNs": 604458.000000001,
+            "importAndFirstValidateNs": 823207.9999999993,
+            "processWallNs": 36170875.00000002
+          },
+          {
+            "importNs": 513124.9999999987,
+            "importAndFirstValidateNs": 745374.9999999992,
+            "processWallNs": 26557708.999999933
+          },
+          {
+            "importNs": 520875.0000000002,
+            "importAndFirstValidateNs": 751000.0000000012,
+            "processWallNs": 27254292.00000008
+          }
+        ],
+        "medians": {
+          "importNs": 604458.000000001,
+          "importAndFirstValidateNs": 846875.0000000007,
+          "processWallNs": 29652790.999999978
+        }
+      },
+      "barrel": {
+        "samples": [
+          {
+            "importNs": 4310458.000000001,
+            "importAndFirstValidateNs": 4683874.999999999,
+            "processWallNs": 40927750.00000006
+          },
+          {
+            "importNs": 4237083,
+            "importAndFirstValidateNs": 4515124.999999999,
+            "processWallNs": 38702917.00000007
+          },
+          {
+            "importNs": 3779792.0000000005,
+            "importAndFirstValidateNs": 4045417.0000000005,
+            "processWallNs": 31089834.000000108
+          },
+          {
+            "importNs": 3527250.0000000005,
+            "importAndFirstValidateNs": 3791916.0000000005,
+            "processWallNs": 33105333.0000002
+          },
+          {
+            "importNs": 11754625,
+            "importAndFirstValidateNs": 12307834,
+            "processWallNs": 49296708.99999996
+          },
+          {
+            "importNs": 12235332.999999996,
+            "importAndFirstValidateNs": 12844583,
+            "processWallNs": 65925332.99999991
+          },
+          {
+            "importNs": 5040000.000000001,
+            "importAndFirstValidateNs": 5295916,
+            "processWallNs": 35940790.99999999
+          },
+          {
+            "importNs": 3450292.000000001,
+            "importAndFirstValidateNs": 3687167.0000000005,
+            "processWallNs": 31655708.000000004
+          },
+          {
+            "importNs": 3532792.0000000005,
+            "importAndFirstValidateNs": 3752499.9999999995,
+            "processWallNs": 31023957.999999993
+          }
+        ],
+        "medians": {
+          "importNs": 4237083,
+          "importAndFirstValidateNs": 4515124.999999999,
+          "processWallNs": 35940790.99999999
+        }
+      },
+      "direct": {
+        "samples": [
+          {
+            "importNs": 1156333,
+            "importAndFirstValidateNs": 1409499.9999999995,
+            "processWallNs": 30187791.00000006
+          },
+          {
+            "importNs": 1067542.0000000014,
+            "importAndFirstValidateNs": 1327792.0000000005,
+            "processWallNs": 30872624.99999997
+          },
+          {
+            "importNs": 1084000.0000000014,
+            "importAndFirstValidateNs": 1330375,
+            "processWallNs": 29185959.000000138
+          },
+          {
+            "importNs": 1126208,
+            "importAndFirstValidateNs": 1389042,
+            "processWallNs": 29724417.00000013
+          },
+          {
+            "importNs": 2050291.9999999988,
+            "importAndFirstValidateNs": 2373500,
+            "processWallNs": 39897959.00000013
+          },
+          {
+            "importNs": 2298750.000000002,
+            "importAndFirstValidateNs": 2574249.999999999,
+            "processWallNs": 48206582.99999991
+          },
+          {
+            "importNs": 875292,
+            "importAndFirstValidateNs": 1107292.0000000012,
+            "processWallNs": 29874792.00000007
+          },
+          {
+            "importNs": 969708.9999999999,
+            "importAndFirstValidateNs": 1196709.0000000002,
+            "processWallNs": 27263207.99999985
+          },
+          {
+            "importNs": 962457.9999999998,
+            "importAndFirstValidateNs": 1187167.0000000005,
+            "processWallNs": 28173541.000000115
+          }
+        ],
+        "medians": {
+          "importNs": 1084000.0000000014,
+          "importAndFirstValidateNs": 1330375,
+          "processWallNs": 29874792.00000007
+        }
+      }
+    },
+    "node/query": {
+      "original": {
+        "samples": [
+          {
+            "importNs": 505625.00000000023,
+            "importAndFirstValidateNs": 877834,
+            "processWallNs": 27424166.000000015
+          },
+          {
+            "importNs": 538041.9999999991,
+            "importAndFirstValidateNs": 893167,
+            "processWallNs": 34840374.99999977
+          },
+          {
+            "importNs": 548375,
+            "importAndFirstValidateNs": 932916.0000000005,
+            "processWallNs": 29518541.9999998
+          },
+          {
+            "importNs": 567083.0000000002,
+            "importAndFirstValidateNs": 941542.0000000001,
+            "processWallNs": 27984457.999999903
+          },
+          {
+            "importNs": 519666.9999999983,
+            "importAndFirstValidateNs": 866124.9999999985,
+            "processWallNs": 30334458.00000027
+          },
+          {
+            "importNs": 537499.9999999997,
+            "importAndFirstValidateNs": 883625.0000000003,
+            "processWallNs": 31280958.000000283
+          },
+          {
+            "importNs": 563124.9999999994,
+            "importAndFirstValidateNs": 915915.9999999993,
+            "processWallNs": 30647416.999999676
+          },
+          {
+            "importNs": 526083.9999999991,
+            "importAndFirstValidateNs": 874666.9999999987,
+            "processWallNs": 32822666.99999991
+          },
+          {
+            "importNs": 557916.9999999998,
+            "importAndFirstValidateNs": 907041.9999999988,
+            "processWallNs": 34647542.00000016
+          }
+        ],
+        "medians": {
+          "importNs": 538041.9999999991,
+          "importAndFirstValidateNs": 893167,
+          "processWallNs": 30647416.999999676
+        }
+      },
+      "barrel": {
+        "samples": [
+          {
+            "importNs": 3221791.999999999,
+            "importAndFirstValidateNs": 3574334.0000000005,
+            "processWallNs": 30968917.000000145
+          },
+          {
+            "importNs": 3317292,
+            "importAndFirstValidateNs": 3669917,
+            "processWallNs": 32168040.999999903
+          },
+          {
+            "importNs": 3904584,
+            "importAndFirstValidateNs": 4359584,
+            "processWallNs": 33385959.000000186
+          },
+          {
+            "importNs": 3493000.0000000005,
+            "importAndFirstValidateNs": 3865083.0000000005,
+            "processWallNs": 31646790.999999665
+          },
+          {
+            "importNs": 3331291.9999999995,
+            "importAndFirstValidateNs": 3695166.9999999995,
+            "processWallNs": 32069542.000000183
+          },
+          {
+            "importNs": 3433000,
+            "importAndFirstValidateNs": 3787250,
+            "processWallNs": 34545249.99999967
+          },
+          {
+            "importNs": 3395749.9999999995,
+            "importAndFirstValidateNs": 3745707.9999999986,
+            "processWallNs": 34630832.99999971
+          },
+          {
+            "importNs": 3688375.0000000005,
+            "importAndFirstValidateNs": 4058500.0000000005,
+            "processWallNs": 36511667.000000216
+          },
+          {
+            "importNs": 3648917.000000001,
+            "importAndFirstValidateNs": 4007875.0000000005,
+            "processWallNs": 36291459.00000003
+          }
+        ],
+        "medians": {
+          "importNs": 3433000,
+          "importAndFirstValidateNs": 3787250,
+          "processWallNs": 33385959.000000186
+        }
+      },
+      "direct": {
+        "samples": [
+          {
+            "importNs": 2806250.0000000005,
+            "importAndFirstValidateNs": 3187749.9999999995,
+            "processWallNs": 32024042.000000007
+          },
+          {
+            "importNs": 2097208.9999999995,
+            "importAndFirstValidateNs": 2455375,
+            "processWallNs": 31484958.99999989
+          },
+          {
+            "importNs": 2065624.9999999988,
+            "importAndFirstValidateNs": 2478709.0000000005,
+            "processWallNs": 36655666.99999999
+          },
+          {
+            "importNs": 1995041.0000000005,
+            "importAndFirstValidateNs": 2370833.000000001,
+            "processWallNs": 30418416.999999862
+          },
+          {
+            "importNs": 1947500.0000000016,
+            "importAndFirstValidateNs": 2327167.000000001,
+            "processWallNs": 31403375.000000324
+          },
+          {
+            "importNs": 2003292,
+            "importAndFirstValidateNs": 2355500.000000001,
+            "processWallNs": 32287917.000000108
+          },
+          {
+            "importNs": 2076166.9999999998,
+            "importAndFirstValidateNs": 2434875,
+            "processWallNs": 34271124.999999754
+          },
+          {
+            "importNs": 2104166.9999999986,
+            "importAndFirstValidateNs": 2455999.9999999995,
+            "processWallNs": 34456750.00000028
+          },
+          {
+            "importNs": 2145666.0000000005,
+            "importAndFirstValidateNs": 2496958.000000001,
+            "processWallNs": 36502207.99999988
+          }
+        ],
+        "medians": {
+          "importNs": 2076166.9999999998,
+          "importAndFirstValidateNs": 2455375,
+          "processWallNs": 32287917.000000108
+        }
+      }
+    },
+    "bun/string": {
+      "original": {
+        "samples": [
+          {
+            "importNs": 8410375.000000002,
+            "importAndFirstValidateNs": 9709083,
+            "processWallNs": 95637999.99999993
+          },
+          {
+            "importNs": 1076458.0000000002,
+            "importAndFirstValidateNs": 1266957.9999999993,
+            "processWallNs": 17973875.000000134
+          },
+          {
+            "importNs": 1108416,
+            "importAndFirstValidateNs": 1298124.9999999998,
+            "processWallNs": 18455916.999999773
+          },
+          {
+            "importNs": 1101500.0000000002,
+            "importAndFirstValidateNs": 1274792.0000000002,
+            "processWallNs": 18356249.999999817
+          },
+          {
+            "importNs": 1071874.9999999995,
+            "importAndFirstValidateNs": 1261124.9999999998,
+            "processWallNs": 17586624.999999914
+          },
+          {
+            "importNs": 1130125.0000000005,
+            "importAndFirstValidateNs": 1325583,
+            "processWallNs": 18223541.999999724
+          },
+          {
+            "importNs": 1109374.9999999995,
+            "importAndFirstValidateNs": 1292667.0000000002,
+            "processWallNs": 18689417.00000005
+          },
+          {
+            "importNs": 1211333.0000000002,
+            "importAndFirstValidateNs": 1392874.9999999995,
+            "processWallNs": 17969874.999999773
+          },
+          {
+            "importNs": 1079749.9999999998,
+            "importAndFirstValidateNs": 1279500.0000000005,
+            "processWallNs": 17091207.999999825
+          }
+        ],
+        "medians": {
+          "importNs": 1108416,
+          "importAndFirstValidateNs": 1292667.0000000002,
+          "processWallNs": 18223541.999999724
+        }
+      },
+      "barrel": {
+        "samples": [
+          {
+            "importNs": 2489333.9999999995,
+            "importAndFirstValidateNs": 2686249.9999999995,
+            "processWallNs": 24098875.000000134
+          },
+          {
+            "importNs": 1507333.0000000005,
+            "importAndFirstValidateNs": 1694583.0000000002,
+            "processWallNs": 19466540.99999978
+          },
+          {
+            "importNs": 1450125,
+            "importAndFirstValidateNs": 1654957.9999999998,
+            "processWallNs": 18555875.000000015
+          },
+          {
+            "importNs": 1416959.0000000002,
+            "importAndFirstValidateNs": 1623999.9999999998,
+            "processWallNs": 19825707.99999985
+          },
+          {
+            "importNs": 1389042,
+            "importAndFirstValidateNs": 1576667.0000000005,
+            "processWallNs": 18929999.999999836
+          },
+          {
+            "importNs": 1417875,
+            "importAndFirstValidateNs": 1614833.0000000005,
+            "processWallNs": 18396625.000000313
+          },
+          {
+            "importNs": 1496582.9999999998,
+            "importAndFirstValidateNs": 1681791,
+            "processWallNs": 19529583.000000004
+          },
+          {
+            "importNs": 1462875.0000000005,
+            "importAndFirstValidateNs": 1655500,
+            "processWallNs": 20238958.000000365
+          },
+          {
+            "importNs": 1475125.0000000002,
+            "importAndFirstValidateNs": 1675583.9999999998,
+            "processWallNs": 17460542.00000026
+          }
+        ],
+        "medians": {
+          "importNs": 1462875.0000000005,
+          "importAndFirstValidateNs": 1655500,
+          "processWallNs": 19466540.99999978
+        }
+      },
+      "direct": {
+        "samples": [
+          {
+            "importNs": 1134499.9999999995,
+            "importAndFirstValidateNs": 1296875.0000000005,
+            "processWallNs": 19203457.999999955
+          },
+          {
+            "importNs": 881208,
+            "importAndFirstValidateNs": 1048416.9999999998,
+            "processWallNs": 18688708.000000134
+          },
+          {
+            "importNs": 766957.9999999998,
+            "importAndFirstValidateNs": 933624.9999999997,
+            "processWallNs": 17702874.999999948
+          },
+          {
+            "importNs": 803042,
+            "importAndFirstValidateNs": 982582.9999999995,
+            "processWallNs": 18466790.99999983
+          },
+          {
+            "importNs": 780167,
+            "importAndFirstValidateNs": 949083.9999999997,
+            "processWallNs": 17503333.00000011
+          },
+          {
+            "importNs": 914124.9999999994,
+            "importAndFirstValidateNs": 1083458.0000000002,
+            "processWallNs": 18240792.000000056
+          },
+          {
+            "importNs": 887959,
+            "importAndFirstValidateNs": 1055624.9999999995,
+            "processWallNs": 18762791.99999999
+          },
+          {
+            "importNs": 751709.0000000003,
+            "importAndFirstValidateNs": 934125.0000000003,
+            "processWallNs": 18546291.999999993
+          },
+          {
+            "importNs": 904833,
+            "importAndFirstValidateNs": 1067083.0000000002,
+            "processWallNs": 18608666.99999997
+          }
+        ],
+        "medians": {
+          "importNs": 881208,
+          "importAndFirstValidateNs": 1048416.9999999998,
+          "processWallNs": 18546291.999999993
+        }
+      }
+    },
+    "bun/number": {
+      "original": {
+        "samples": [
+          {
+            "importNs": 1041790.9999999994,
+            "importAndFirstValidateNs": 3044083,
+            "processWallNs": 19772083.000000294
+          },
+          {
+            "importNs": 1050375.0000000002,
+            "importAndFirstValidateNs": 1283499.9999999995,
+            "processWallNs": 18288583.9999999
+          },
+          {
+            "importNs": 1100416.9999999998,
+            "importAndFirstValidateNs": 1353041.9999999998,
+            "processWallNs": 18165124.99999999
+          },
+          {
+            "importNs": 1116207.9999999998,
+            "importAndFirstValidateNs": 1356999.9999999998,
+            "processWallNs": 19202667.00000002
+          },
+          {
+            "importNs": 1077375.0000000005,
+            "importAndFirstValidateNs": 1319249.9999999998,
+            "processWallNs": 17742458.999999598
+          },
+          {
+            "importNs": 1081999.9999999998,
+            "importAndFirstValidateNs": 1328790.9999999998,
+            "processWallNs": 17188374.999999724
+          },
+          {
+            "importNs": 1050625.0000000002,
+            "importAndFirstValidateNs": 1298125.0000000007,
+            "processWallNs": 17689916.999999695
+          },
+          {
+            "importNs": 1046500.0000000005,
+            "importAndFirstValidateNs": 1282792.0000000002,
+            "processWallNs": 18138209.000000186
+          },
+          {
+            "importNs": 1120791,
+            "importAndFirstValidateNs": 1361540.9999999995,
+            "processWallNs": 19057041.000000026
+          }
+        ],
+        "medians": {
+          "importNs": 1077375.0000000005,
+          "importAndFirstValidateNs": 1328790.9999999998,
+          "processWallNs": 18165124.99999999
+        }
+      },
+      "barrel": {
+        "samples": [
+          {
+            "importNs": 1422041.9999999998,
+            "importAndFirstValidateNs": 1668167,
+            "processWallNs": 18355583.000000022
+          },
+          {
+            "importNs": 1456999.9999999998,
+            "importAndFirstValidateNs": 1695000.0000000002,
+            "processWallNs": 18625750.000000153
+          },
+          {
+            "importNs": 1470875.0000000005,
+            "importAndFirstValidateNs": 1722417,
+            "processWallNs": 18465791.999999966
+          },
+          {
+            "importNs": 1534790.9999999998,
+            "importAndFirstValidateNs": 1792040.9999999998,
+            "processWallNs": 19365041.999999903
+          },
+          {
+            "importNs": 1477958.0000000005,
+            "importAndFirstValidateNs": 1729250,
+            "processWallNs": 17927625.00000026
+          },
+          {
+            "importNs": 1438082.9999999998,
+            "importAndFirstValidateNs": 1700458.0000000002,
+            "processWallNs": 18099708.00000019
+          },
+          {
+            "importNs": 1448709.0000000005,
+            "importAndFirstValidateNs": 1700958.9999999998,
+            "processWallNs": 17720917.0000001
+          },
+          {
+            "importNs": 1427832.9999999998,
+            "importAndFirstValidateNs": 1681542.0000000002,
+            "processWallNs": 19018207.99999996
+          },
+          {
+            "importNs": 1438084,
+            "importAndFirstValidateNs": 1693500.0000000002,
+            "processWallNs": 19570999.999999914
+          }
+        ],
+        "medians": {
+          "importNs": 1448709.0000000005,
+          "importAndFirstValidateNs": 1700458.0000000002,
+          "processWallNs": 18465791.999999966
+        }
+      },
+      "direct": {
+        "samples": [
+          {
+            "importNs": 782541.9999999999,
+            "importAndFirstValidateNs": 1007750.0000000001,
+            "processWallNs": 19641708.000000108
+          },
+          {
+            "importNs": 916750,
+            "importAndFirstValidateNs": 1133416,
+            "processWallNs": 18170083.999999862
+          },
+          {
+            "importNs": 807959.0000000003,
+            "importAndFirstValidateNs": 1038041.9999999999,
+            "processWallNs": 17543125.000000145
+          },
+          {
+            "importNs": 991791.0000000001,
+            "importAndFirstValidateNs": 1285958,
+            "processWallNs": 23610083.999999914
+          },
+          {
+            "importNs": 802957.9999999999,
+            "importAndFirstValidateNs": 1043167,
+            "processWallNs": 15476500.000000214
+          },
+          {
+            "importNs": 843334.0000000005,
+            "importAndFirstValidateNs": 1069792.0000000005,
+            "processWallNs": 17259166.999999706
+          },
+          {
+            "importNs": 937749.9999999999,
+            "importAndFirstValidateNs": 1166000,
+            "processWallNs": 18058083.00000035
+          },
+          {
+            "importNs": 842625,
+            "importAndFirstValidateNs": 1075166.9999999995,
+            "processWallNs": 17915542.000000186
+          },
+          {
+            "importNs": 787417,
+            "importAndFirstValidateNs": 1022209.0000000001,
+            "processWallNs": 17130750.00000026
+          }
+        ],
+        "medians": {
+          "importNs": 842625,
+          "importAndFirstValidateNs": 1069792.0000000005,
+          "processWallNs": 17915542.000000186
+        }
+      }
+    },
+    "bun/query": {
+      "original": {
+        "samples": [
+          {
+            "importNs": 1164834.0000000005,
+            "importAndFirstValidateNs": 2348000.0000000005,
+            "processWallNs": 19934707.999999773
+          },
+          {
+            "importNs": 1091625,
+            "importAndFirstValidateNs": 1485250.0000000002,
+            "processWallNs": 18208750.000000235
+          },
+          {
+            "importNs": 1135209.0000000002,
+            "importAndFirstValidateNs": 1511958.9999999995,
+            "processWallNs": 19070166.999999855
+          },
+          {
+            "importNs": 1066207.9999999995,
+            "importAndFirstValidateNs": 1451749.9999999998,
+            "processWallNs": 18443957.99999984
+          },
+          {
+            "importNs": 1059208,
+            "importAndFirstValidateNs": 1441583.0000000005,
+            "processWallNs": 18401124.99999941
+          },
+          {
+            "importNs": 1069707.9999999998,
+            "importAndFirstValidateNs": 1444749.9999999995,
+            "processWallNs": 17201082.999999925
+          },
+          {
+            "importNs": 1011333.9999999998,
+            "importAndFirstValidateNs": 1365333.9999999998,
+            "processWallNs": 17735791.999999493
+          },
+          {
+            "importNs": 1095500.0000000005,
+            "importAndFirstValidateNs": 1448375.0000000005,
+            "processWallNs": 19137999.99999992
+          },
+          {
+            "importNs": 1073667.0000000005,
+            "importAndFirstValidateNs": 1456083.0000000005,
+            "processWallNs": 17010459.000000082
+          }
+        ],
+        "medians": {
+          "importNs": 1073667.0000000005,
+          "importAndFirstValidateNs": 1451749.9999999998,
+          "processWallNs": 18401124.99999941
+        }
+      },
+      "barrel": {
+        "samples": [
+          {
+            "importNs": 1413208,
+            "importAndFirstValidateNs": 1803290.9999999998,
+            "processWallNs": 19634250.000000067
+          },
+          {
+            "importNs": 1435124.9999999998,
+            "importAndFirstValidateNs": 1829584,
+            "processWallNs": 18663792.000000287
+          },
+          {
+            "importNs": 1486917.0000000005,
+            "importAndFirstValidateNs": 1879500.0000000007,
+            "processWallNs": 19412291.000000097
+          },
+          {
+            "importNs": 1354334.0000000002,
+            "importAndFirstValidateNs": 1750417,
+            "processWallNs": 18601707.99999969
+          },
+          {
+            "importNs": 1424000,
+            "importAndFirstValidateNs": 1824167.0000000005,
+            "processWallNs": 19177541.000000473
+          },
+          {
+            "importNs": 1396792,
+            "importAndFirstValidateNs": 1790916.9999999998,
+            "processWallNs": 18711457.999999765
+          },
+          {
+            "importNs": 1457375.0000000002,
+            "importAndFirstValidateNs": 1823875.0000000005,
+            "processWallNs": 19033582.999999452
+          },
+          {
+            "importNs": 1522124.9999999995,
+            "importAndFirstValidateNs": 1919499.9999999998,
+            "processWallNs": 20611958.999999844
+          },
+          {
+            "importNs": 1520500.0000000002,
+            "importAndFirstValidateNs": 1922500.0000000002,
+            "processWallNs": 16739750.00000064
+          }
+        ],
+        "medians": {
+          "importNs": 1435124.9999999998,
+          "importAndFirstValidateNs": 1824167.0000000005,
+          "processWallNs": 19033582.999999452
+        }
+      },
+      "direct": {
+        "samples": [
+          {
+            "importNs": 939833.0000000001,
+            "importAndFirstValidateNs": 1320000.0000000002,
+            "processWallNs": 18592083.000000004
+          },
+          {
+            "importNs": 961749.9999999999,
+            "importAndFirstValidateNs": 1326416.9999999998,
+            "processWallNs": 17716625.000000022
+          },
+          {
+            "importNs": 994499.9999999999,
+            "importAndFirstValidateNs": 1367292.0000000005,
+            "processWallNs": 17976416.999999855
+          },
+          {
+            "importNs": 966166.9999999995,
+            "importAndFirstValidateNs": 1339666.9999999995,
+            "processWallNs": 18238040.999999613
+          },
+          {
+            "importNs": 978708.0000000001,
+            "importAndFirstValidateNs": 1354375,
+            "processWallNs": 17989915.999999538
+          },
+          {
+            "importNs": 967665.9999999999,
+            "importAndFirstValidateNs": 1354583.0000000002,
+            "processWallNs": 17849374.99999978
+          },
+          {
+            "importNs": 1031832.9999999998,
+            "importAndFirstValidateNs": 1419583.0000000002,
+            "processWallNs": 20080542.000000603
+          },
+          {
+            "importNs": 1022416.9999999999,
+            "importAndFirstValidateNs": 1389792,
+            "processWallNs": 18403499.99999944
+          },
+          {
+            "importNs": 1386958.0000000007,
+            "importAndFirstValidateNs": 1788791.0000000007,
+            "processWallNs": 21535209.000000577
+          }
+        ],
+        "medians": {
+          "importNs": 978708.0000000001,
+          "importAndFirstValidateNs": 1354583.0000000002,
+          "processWallNs": 18238040.999999613
+        }
+      }
+    }
+  },
+  "completed": true
+}

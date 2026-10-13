@@ -1,0 +1,295 @@
+{
+  "date": "2026-10-11T07:35:27.608Z",
+  "scope": "minified browser ESM, live one-string schema + Standard Schema validate export; unannotated and PURE unused construction",
+  "cases": {
+    "loculus/bun/base": {
+      "bytes": 2799,
+      "gzipBytes": 1275
+    },
+    "loculus/esbuild/base": {
+      "bytes": 2754,
+      "gzipBytes": 1272
+    },
+    "loculus/rolldown/base": {
+      "bytes": 2816,
+      "gzipBytes": 1281
+    },
+    "loculus/bun/unusedPackage": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "loculus/esbuild/unusedPackage": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "loculus/rolldown/unusedPackage": {
+      "bytes": 29,
+      "gzipBytes": 49
+    },
+    "loculus/bun/empty": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "loculus/esbuild/empty": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "loculus/rolldown/empty": {
+      "bytes": 29,
+      "gzipBytes": 49
+    },
+    "loculus/bun/unusedConstruct": {
+      "bytes": 3186,
+      "gzipBytes": 1417
+    },
+    "loculus/esbuild/unusedConstruct": {
+      "bytes": 3128,
+      "gzipBytes": 1413
+    },
+    "loculus/rolldown/unusedConstruct": {
+      "bytes": 2816,
+      "gzipBytes": 1281
+    },
+    "loculus/bun/pureUnusedConstruct": {
+      "bytes": 2799,
+      "gzipBytes": 1275
+    },
+    "loculus/esbuild/pureUnusedConstruct": {
+      "bytes": 2754,
+      "gzipBytes": 1272
+    },
+    "loculus/rolldown/pureUnusedConstruct": {
+      "bytes": 2816,
+      "gzipBytes": 1281
+    },
+    "loculus/bun/unusedObject": {
+      "bytes": 3196,
+      "gzipBytes": 1420
+    },
+    "loculus/esbuild/unusedObject": {
+      "bytes": 3138,
+      "gzipBytes": 1416
+    },
+    "loculus/rolldown/unusedObject": {
+      "bytes": 2816,
+      "gzipBytes": 1281
+    },
+    "loculus/bun/pureUnusedObject": {
+      "bytes": 2799,
+      "gzipBytes": 1275
+    },
+    "loculus/esbuild/pureUnusedObject": {
+      "bytes": 2754,
+      "gzipBytes": 1272
+    },
+    "loculus/rolldown/pureUnusedObject": {
+      "bytes": 2816,
+      "gzipBytes": 1281
+    },
+    "loculus/bun/pureArgumentEffect": {
+      "bytes": 3282,
+      "gzipBytes": 1464
+    },
+    "loculus/esbuild/pureArgumentEffect": {
+      "bytes": 3224,
+      "gzipBytes": 1461
+    },
+    "loculus/rolldown/pureArgumentEffect": {
+      "bytes": 2890,
+      "gzipBytes": 1318
+    },
+    "zod/bun/base": {
+      "bytes": 81117,
+      "gzipBytes": 23141
+    },
+    "zod/esbuild/base": {
+      "bytes": 453090,
+      "gzipBytes": 93150
+    },
+    "zod/rolldown/base": {
+      "bytes": 82481,
+      "gzipBytes": 22575
+    },
+    "zod/bun/unusedPackage": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "zod/esbuild/unusedPackage": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "zod/rolldown/unusedPackage": {
+      "bytes": 29,
+      "gzipBytes": 49
+    },
+    "zod/bun/empty": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "zod/esbuild/empty": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "zod/rolldown/empty": {
+      "bytes": 29,
+      "gzipBytes": 49
+    },
+    "zod/bun/unusedConstruct": {
+      "bytes": 82748,
+      "gzipBytes": 23506
+    },
+    "zod/esbuild/unusedConstruct": {
+      "bytes": 453103,
+      "gzipBytes": 93155
+    },
+    "zod/rolldown/unusedConstruct": {
+      "bytes": 82481,
+      "gzipBytes": 22575
+    },
+    "zod/bun/pureUnusedConstruct": {
+      "bytes": 81117,
+      "gzipBytes": 23141
+    },
+    "zod/esbuild/pureUnusedConstruct": {
+      "bytes": 453090,
+      "gzipBytes": 93150
+    },
+    "zod/rolldown/pureUnusedConstruct": {
+      "bytes": 82481,
+      "gzipBytes": 22575
+    },
+    "zod/bun/unusedObject": {
+      "bytes": 82759,
+      "gzipBytes": 23509
+    },
+    "zod/esbuild/unusedObject": {
+      "bytes": 453121,
+      "gzipBytes": 93153
+    },
+    "zod/rolldown/unusedObject": {
+      "bytes": 84274,
+      "gzipBytes": 22963
+    },
+    "zod/bun/pureUnusedObject": {
+      "bytes": 81117,
+      "gzipBytes": 23140
+    },
+    "zod/esbuild/pureUnusedObject": {
+      "bytes": 453090,
+      "gzipBytes": 93150
+    },
+    "zod/rolldown/pureUnusedObject": {
+      "bytes": 82481,
+      "gzipBytes": 22575
+    },
+    "zod/bun/pureArgumentEffect": {
+      "bytes": 82849,
+      "gzipBytes": 23552
+    },
+    "zod/esbuild/pureArgumentEffect": {
+      "bytes": 453211,
+      "gzipBytes": 93205
+    },
+    "zod/rolldown/pureArgumentEffect": {
+      "bytes": 82557,
+      "gzipBytes": 22615
+    },
+    "valibot/bun/base": {
+      "bytes": 2666,
+      "gzipBytes": 1103
+    },
+    "valibot/esbuild/base": {
+      "bytes": 2591,
+      "gzipBytes": 1081
+    },
+    "valibot/rolldown/base": {
+      "bytes": 2714,
+      "gzipBytes": 1092
+    },
+    "valibot/bun/unusedPackage": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "valibot/esbuild/unusedPackage": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "valibot/rolldown/unusedPackage": {
+      "bytes": 29,
+      "gzipBytes": 49
+    },
+    "valibot/bun/empty": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "valibot/esbuild/empty": {
+      "bytes": 28,
+      "gzipBytes": 48
+    },
+    "valibot/rolldown/empty": {
+      "bytes": 29,
+      "gzipBytes": 49
+    },
+    "valibot/bun/unusedConstruct": {
+      "bytes": 2925,
+      "gzipBytes": 1170
+    },
+    "valibot/esbuild/unusedConstruct": {
+      "bytes": 2833,
+      "gzipBytes": 1144
+    },
+    "valibot/rolldown/unusedConstruct": {
+      "bytes": 2714,
+      "gzipBytes": 1092
+    },
+    "valibot/bun/pureUnusedConstruct": {
+      "bytes": 2666,
+      "gzipBytes": 1103
+    },
+    "valibot/esbuild/pureUnusedConstruct": {
+      "bytes": 2591,
+      "gzipBytes": 1081
+    },
+    "valibot/rolldown/pureUnusedConstruct": {
+      "bytes": 2714,
+      "gzipBytes": 1092
+    },
+    "valibot/bun/unusedObject": {
+      "bytes": 2935,
+      "gzipBytes": 1173
+    },
+    "valibot/esbuild/unusedObject": {
+      "bytes": 2843,
+      "gzipBytes": 1147
+    },
+    "valibot/rolldown/unusedObject": {
+      "bytes": 2714,
+      "gzipBytes": 1092
+    },
+    "valibot/bun/pureUnusedObject": {
+      "bytes": 2666,
+      "gzipBytes": 1103
+    },
+    "valibot/esbuild/pureUnusedObject": {
+      "bytes": 2591,
+      "gzipBytes": 1081
+    },
+    "valibot/rolldown/pureUnusedObject": {
+      "bytes": 2714,
+      "gzipBytes": 1092
+    },
+    "valibot/bun/pureArgumentEffect": {
+      "bytes": 3021,
+      "gzipBytes": 1219
+    },
+    "valibot/esbuild/pureArgumentEffect": {
+      "bytes": 2929,
+      "gzipBytes": 1192
+    },
+    "valibot/rolldown/pureArgumentEffect": {
+      "bytes": 2788,
+      "gzipBytes": 1127
+    }
+  },
+  "completed": true
+}

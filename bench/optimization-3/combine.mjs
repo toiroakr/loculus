@@ -1,0 +1,14 @@
+import { readFileSync,writeFileSync } from 'node:fs';
+let source=readFileSync('bench/optimization-3/scalar-candidates/compact-all-inline.ts.txt','utf8');
+const dates=readFileSync('bench/optimization-3/scalar-candidates/date-calendar-mask.ts.txt','utf8');
+const start=source.indexOf('function validateDate('),end=source.indexOf('export function date(',start);
+const ds=dates.indexOf('function validateDate('),de=dates.indexOf('export function date(',ds);
+source=source.slice(0,start)+dates.slice(ds,de)+source.slice(end);
+const replace=(from,to)=>{if(!source.includes(from))throw Error('Missing '+from);source=source.replace(from,to);};
+replace('const prefix = `v${i}=Object.hasOwn(raw,${property})?raw[${property}]:undefined;`;','const prefix = `var v${i}=own(raw,${property})?raw[${property}]:undefined;`;');
+replace('!Object.hasOwn(raw,${property})','!own(raw,${property})');
+replace('const validate = new Function("fail", "decimal", "remainder", "keys", "validators",','const validate = new Function("fail", "decimal", "remainder", "keys", "validators", "own",');
+replace('let start,first${keys.map((_, i) => `,v${i}`).join("")};','let start,first;');
+replace(')(fail, decimal, compiledRemainder, keys, compiledValidators);',')(fail, decimal, compiledRemainder, keys, compiledValidators, own);');
+writeFileSync('bench/optimization-3/candidate.ts.txt',source);
+if(process.argv.includes('--apply'))writeFileSync('src/index.ts',source);

@@ -1,0 +1,130 @@
+{
+  "date": "2026-10-11T14:05:49.486Z",
+  "baselineHash": "77754cfa558e4c48e367626d6545f1b676a51a78ddf6b03474c2862d710f3ae0",
+  "candidates": [
+    {
+      "name": "baseline",
+      "sourceHash": "77754cfa558e4c48e367626d6545f1b676a51a78ddf6b03474c2862d710f3ae0"
+    },
+    {
+      "name": "own-prototype-call",
+      "sourceHash": "6273a44218eb3ab4147b2b0bcd073aec2fd759a4a81210c6659e60a035d5c4fd"
+    },
+    {
+      "name": "own-bound-call",
+      "sourceHash": "502097b2fd751fa1cf34b5d082b42bc9a868dbdd8c5c59e93bf974b158b04b14"
+    },
+    {
+      "name": "output-preseed",
+      "sourceHash": "e4ac319b65af444ce9a8c3fa057d72882aafe68c16bed0fe92091f4f6c019fa5"
+    },
+    {
+      "name": "output-preseed-wide",
+      "sourceHash": "34fad9e9256a660df0bd7c6978f2855327f349512cc7db363b50ce5c90feb019"
+    },
+    {
+      "name": "basic-allocation-elision",
+      "sourceHash": "d686e8f5208f4e3387a39cafc811e6d56532f7b64755c65716a201d5b84c2d82"
+    },
+    {
+      "name": "preseed-wide-basic",
+      "sourceHash": "1a67840367ca4ac5ac552cfedd4ae5bdae1ba0f39a0124e1f22c26ba48702328"
+    },
+    {
+      "name": "compile-captured-own",
+      "sourceHash": "bfd5dde02dcb9f47a9afb2c395741357c0dd13c0b06228f5863ea341d49e1706"
+    },
+    {
+      "name": "validators-presized",
+      "sourceHash": "35cdb0a3df5523cadf8cb31473f7438ed21bb8d3fbef810104eb31d0caa2bf3e"
+    },
+    {
+      "name": "compile-captured-bound-own",
+      "sourceHash": "4e9bb002796432ce84653bdb7a9f640d1f492b4b9b13e81b75e47dac546575ea"
+    },
+    {
+      "name": "compile-per-field-var",
+      "sourceHash": "bf7a88ee87fc5fcce1340e60f0f429a1eace489dfaf661cc7fce5d55fecac736"
+    },
+    {
+      "name": "preseed-private-8",
+      "sourceHash": "62007063a78dbd771d32ee995afaab278c20addf85cdc281d3932c0a0bb46e81"
+    },
+    {
+      "name": "preseed-private-16",
+      "sourceHash": "e5b6be6e58a68329c22d728cea080f20ec92202723f8c6b838cb9d5795c873e7"
+    },
+    {
+      "name": "preseed-private-32",
+      "sourceHash": "60507038137dd35533d6f15a0b149b979632002c32a940e7144f59e8f2cadde1"
+    },
+    {
+      "name": "preseed-private-64",
+      "sourceHash": "896ed373a7cbf59f5412e43170375eb15a9143213d8ac354614cef9208f3ce6d"
+    },
+    {
+      "name": "preseed-clone-strip-32",
+      "sourceHash": "8c51b571d46379d001ecfd18380a551bb6ace9aaa3a98e3dc9b34becfd31edfe"
+    },
+    {
+      "name": "preseed-symbol-fallback-32",
+      "sourceHash": "98619e866a9e577687537747c2792c7f40b9f83d25e35551dc7e0ae265267a6e"
+    },
+    {
+      "name": "preseed-public-16",
+      "sourceHash": "6b9d0afba2735969e621acfedde39b06839d7721a18fe6d5dfe75e1d1577b827"
+    },
+    {
+      "name": "preseed-public-64",
+      "sourceHash": "e782e29a9c92f40560892883c1182b3d5b1403c2ddf89ea6b3a94ad2133fd1c3"
+    },
+    {
+      "name": "preseed-public-128",
+      "sourceHash": "f2abe9ee9c006527921f06d000576f6154790a13819bde64b74da94caa6c634e"
+    },
+    {
+      "name": "compile-opaque-continue",
+      "sourceHash": "5288568bc5036035aa0f7362672968f9a7336b3080fbecb6d02002569d08b347"
+    },
+    {
+      "name": "compile-opaque-captured-own",
+      "sourceHash": "28aa6030c59bd8f6e382bbfa8f366e6bac220ebb7082679c03f5fa5db9ba6a92"
+    },
+    {
+      "name": "compile-no-delete-after-issue",
+      "sourceHash": "534f67003b3f73ac90735ee161abb56051d8d3edd01896ad60846b56dce4bdf7"
+    },
+    {
+      "name": "compile-opaque-no-delete",
+      "sourceHash": "5c35a72619ca4a5c0ccd225df6957c48d49818e28661bd2670c7fa9b0a19c35d"
+    },
+    {
+      "name": "compile-opaque-exact-reads",
+      "sourceHash": "1c263093b6c25b07ee96b57015631a40187b25d4535f7c27779cd34fb87bfa8b"
+    },
+    {
+      "name": "compile-opaque-exact-captured-own",
+      "sourceHash": "b15ccf0240bf03c9eda1112bde067f66ffb51732e78dffa8938401d1cc13571a"
+    },
+    {
+      "name": "boolean-native-elision",
+      "sourceHash": "63727246d99e052efb719f7b9050df82ec1b220e3e8e3049a441b63de5afb38a"
+    },
+    {
+      "name": "boolean-coercion-elision",
+      "sourceHash": "5c3aeac3fcc76cfab92d6acb4f2af7eb98333958a564e8e17428b0b37c27b191"
+    },
+    {
+      "name": "number-native-elision",
+      "sourceHash": "cf005967f7314cddcd2581655c0714d9f3f078836687a6297908033ed3c403be"
+    },
+    {
+      "name": "shared-basic-meta",
+      "sourceHash": "9c9cb903b384cccf705a92e092e393b4c9d8afa9ea905df593d0d20e5834c7ca"
+    },
+    {
+      "name": "shared-basic-meta-standard",
+      "sourceHash": "b0d9e27f722c2b5143657a983f5e143e2c4c1d6913e0c0df41dc3d1986dc19a3"
+    }
+  ]
+}

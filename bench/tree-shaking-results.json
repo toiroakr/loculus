@@ -1,0 +1,164 @@
+{
+  "node": "v24.13.0",
+  "bundler": "esbuild",
+  "results": {
+    "named/readable": {
+      "bytes": 5192,
+      "gzipBytes": 1624,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "namespace/readable": {
+      "bytes": 5192,
+      "gzipBytes": 1624,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "unusedImports/readable": {
+      "bytes": 5192,
+      "gzipBytes": 1624,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "unusedPackage/readable": {
+      "bytes": 53,
+      "gzipBytes": 68,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "empty/readable": {
+      "bytes": 53,
+      "gzipBytes": 68,
+      "inputs": [
+        "consumer.js"
+      ]
+    },
+    "unusedSchema/readable": {
+      "bytes": 6113,
+      "gzipBytes": 1921,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "unusedObject/readable": {
+      "bytes": 6134,
+      "gzipBytes": 1926,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "pureUnusedSchema/readable": {
+      "bytes": 5192,
+      "gzipBytes": 1624,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "pureUnusedObject/readable": {
+      "bytes": 5192,
+      "gzipBytes": 1624,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "pureWithArgumentEffect/readable": {
+      "bytes": 6254,
+      "gzipBytes": 1965,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "named/minified": {
+      "bytes": 2634,
+      "gzipBytes": 1219,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "namespace/minified": {
+      "bytes": 2634,
+      "gzipBytes": 1220,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "unusedImports/minified": {
+      "bytes": 2634,
+      "gzipBytes": 1219,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "unusedPackage/minified": {
+      "bytes": 30,
+      "gzipBytes": 50,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "empty/minified": {
+      "bytes": 30,
+      "gzipBytes": 50,
+      "inputs": [
+        "consumer.js"
+      ]
+    },
+    "unusedSchema/minified": {
+      "bytes": 3150,
+      "gzipBytes": 1470,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "unusedObject/minified": {
+      "bytes": 3163,
+      "gzipBytes": 1476,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "pureUnusedSchema/minified": {
+      "bytes": 2634,
+      "gzipBytes": 1219,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "pureUnusedObject/minified": {
+      "bytes": 2634,
+      "gzipBytes": 1219,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    },
+    "pureWithArgumentEffect/minified": {
+      "bytes": 3201,
+      "gzipBytes": 1496,
+      "inputs": [
+        "dist/index.js",
+        "consumer.js"
+      ]
+    }
+  }
+}

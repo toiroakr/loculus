@@ -1,0 +1,21 @@
+{
+  "baselineHash": "4c058388e5907fd15a2ab92cfa972cc54b4c346fad0b4f0b62a5195833e2b2cf",
+  "candidates": [
+    {
+      "name": "agent-deferred-string",
+      "sourceHash": "41a39881db64a72be868d41ae53f698417830217a4fc614ad513eaddf139e364"
+    },
+    {
+      "name": "agent-single-string",
+      "sourceHash": "c2f9dcda5f5dbeb7dff40004fc5b721d819f85fc259d72638a49d6061f985976"
+    },
+    {
+      "name": "agent-deferred-string-fast",
+      "sourceHash": "2a10bb4fa4fbe309eb52f92b69d2cb20fc08ad5b8de6ace39e9be2c6b74d32e2"
+    },
+    {
+      "name": "agent-single-string-fast",
+      "sourceHash": "9cd68ece3cea620b172f174b78442ce999a05643883c50a4e063e5e435c278ba"
+    }
+  ]
+}

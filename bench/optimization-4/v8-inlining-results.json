@@ -1,0 +1,34 @@
+{
+  "valibot": {
+    "validate -> run": 4,
+    "~run -> ~run": 3,
+    "getGlobalConfig -> run": 4,
+    "run": 19,
+    "validate": 19,
+    "getGlobalConfig": 17,
+    "now": 8,
+    "wrappedFn": 5,
+    "getSchemaMessage -> _addIssue": 1,
+    "getGlobalMessage -> _addIssue": 1,
+    "getSpecificMessage -> _addIssue": 1,
+    "_stringify -> _addIssue": 1,
+    "getGlobalConfig -> validate": 1,
+    "string -> create": 1,
+    "_standardSchema -> create": 2,
+    "object -> create": 1
+  },
+  "loculus": {
+    "validateString -> validate2": 3,
+    "run": 22,
+    "now": 35,
+    "wrappedFn": 15,
+    "fail -> validate2": 2,
+    "fail -> validateString": 1,
+    "create -> run": 1,
+    "configuredField -> string": 1,
+    "string -> run": 1,
+    "object -> run": 1,
+    "string -> create": 1,
+    "object -> create": 1
+  }
+}

@@ -1,0 +1,417 @@
+{
+  "date": "2026-10-11T14:18:27.800Z",
+  "baselineHash": "77754cfa558e4c48e367626d6545f1b676a51a78ddf6b03474c2862d710f3ae0",
+  "results": [
+    {
+      "name": "baseline",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "own-prototype-call",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "own-bound-call",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "output-preseed",
+      "scenarioChecks": 50,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "enumerable-symbol-100",
+          "compiled": false,
+          "message": "output-preseed/enumerable-symbol-100/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+         ve"
+        },
+        {
+          "scenario": "enumerable-symbol-129",
+          "compiled": false,
+          "message": "output-preseed/enumerable-symbol-129/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+         ve"
+        },
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "output-preseed/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5',\n...\n "
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "output-preseed/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+       'f1"
+        }
+      ]
+    },
+    {
+      "name": "output-preseed-wide",
+      "scenarioChecks": 50,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "enumerable-symbol-100",
+          "compiled": false,
+          "message": "output-preseed-wide/enumerable-symbol-100/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+      "
+        },
+        {
+          "scenario": "enumerable-symbol-129",
+          "compiled": false,
+          "message": "output-preseed-wide/enumerable-symbol-129/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+      "
+        },
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "output-preseed-wide/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5',\n"
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "output-preseed-wide/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+     "
+        }
+      ]
+    },
+    {
+      "name": "basic-allocation-elision",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "preseed-wide-basic",
+      "scenarioChecks": 50,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "enumerable-symbol-100",
+          "compiled": false,
+          "message": "preseed-wide-basic/enumerable-symbol-100/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+       "
+        },
+        {
+          "scenario": "enumerable-symbol-129",
+          "compiled": false,
+          "message": "preseed-wide-basic/enumerable-symbol-129/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+       "
+        },
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "preseed-wide-basic/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5',\n."
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "preseed-wide-basic/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+      "
+        }
+      ]
+    },
+    {
+      "name": "compile-captured-own",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "validators-presized",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "compile-captured-bound-own",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "compile-per-field-var",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "preseed-private-8",
+      "scenarioChecks": 52,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "preseed-private-8/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5',\n.."
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "preseed-private-8/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+       "
+        }
+      ]
+    },
+    {
+      "name": "preseed-private-16",
+      "scenarioChecks": 52,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "preseed-private-16/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5',\n."
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "preseed-private-16/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+      "
+        }
+      ]
+    },
+    {
+      "name": "preseed-private-32",
+      "scenarioChecks": 52,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "preseed-private-32/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5',\n."
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "preseed-private-32/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+      "
+        }
+      ]
+    },
+    {
+      "name": "preseed-private-64",
+      "scenarioChecks": 52,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "preseed-private-64/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5',\n."
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "preseed-private-64/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+      "
+        }
+      ]
+    },
+    {
+      "name": "preseed-clone-strip-32",
+      "scenarioChecks": 52,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "preseed-clone-strip-32/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5"
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "preseed-clone-strip-32/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+  "
+        }
+      ]
+    },
+    {
+      "name": "preseed-symbol-fallback-32",
+      "scenarioChecks": 52,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "preseed-symbol-fallback-32/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n       "
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "preseed-symbol-fallback-32/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',"
+        }
+      ]
+    },
+    {
+      "name": "preseed-public-16",
+      "scenarioChecks": 50,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "enumerable-symbol-100",
+          "compiled": false,
+          "message": "preseed-public-16/enumerable-symbol-100/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+        "
+        },
+        {
+          "scenario": "enumerable-symbol-129",
+          "compiled": false,
+          "message": "preseed-public-16/enumerable-symbol-129/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+        "
+        },
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "preseed-public-16/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5',\n.."
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "preseed-public-16/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+       "
+        }
+      ]
+    },
+    {
+      "name": "preseed-public-64",
+      "scenarioChecks": 50,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "enumerable-symbol-100",
+          "compiled": false,
+          "message": "preseed-public-64/enumerable-symbol-100/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+        "
+        },
+        {
+          "scenario": "enumerable-symbol-129",
+          "compiled": false,
+          "message": "preseed-public-64/enumerable-symbol-129/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+        "
+        },
+        {
+          "scenario": "prototype-setter",
+          "compiled": false,
+          "message": "preseed-public-64/prototype-setter/plain\n+ actual - expected\n... Skipped lines\n\n  {\n+   events: [],\n-   events: [\n-     {\n-       receiverKeys: [],\n-       value: 'hello'\n-     }\n-   ],\n    result: {\n      keys: [\n+       'f0',\n        'f1',\n        'f2',\n        'f3',\n        'f4',\n        'f5',\n.."
+        },
+        {
+          "scenario": "prototype-read-only",
+          "compiled": false,
+          "message": "preseed-public-64/prototype-read-only/plain\n+ actual - expected\n\n  {\n-   error: 'TypeError',\n    events: [],\n+   result: {\n+     keys: [\n+       'f0',\n+       'f1',\n+       'f2',\n+       'f3',\n+       'f4',\n+       'f5',\n+       'f6',\n+       'f7',\n+       'f8',\n+       'f9',\n+       'f10',\n+       "
+        }
+      ]
+    },
+    {
+      "name": "preseed-public-128",
+      "scenarioChecks": 53,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "enumerable-symbol-129",
+          "compiled": false,
+          "message": "preseed-public-128/enumerable-symbol-129/plain\n+ actual - expected\n... Skipped lines\n\n  {\n    keys: [\n      'f0',\n      'f1',\n      'f2',\n...\n    value: {\n+     Symbol(loculus.test.symbol): {\n+       '~standard': {\n+         validate: [Function: validateString],\n+         vendor: 'loculus',\n+       "
+        }
+      ]
+    },
+    {
+      "name": "compile-opaque-continue",
+      "scenarioChecks": 51,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "result-accessors-invalid",
+          "compiled": true,
+          "message": "compile-opaque-continue/result-accessors-invalid/compiled\n+ actual - expected\n\n  {\n    events: [\n      'validate-a',\n      'result-issues',\n      'result-issues',\n+     'result-issues'\n    ],\n    result: {\n      issues: [\n        {\n          code: 'custom',\n"
+        },
+        {
+          "scenario": "result-accessors-missing",
+          "compiled": true,
+          "message": "compile-opaque-continue/result-accessors-missing/compiled\n+ actual - expected\n\n  {\n    events: [\n      'validate-a',\n      'result-issues',\n      'result-value',\n+     'result-issues',\n+     'result-value'\n    ],\n    result: {\n      keys: [\n        'b'\n      ],\n"
+        },
+        {
+          "scenario": "result-accessors-explicit-undefined",
+          "compiled": true,
+          "message": "compile-opaque-continue/result-accessors-explicit-undefined/compiled\n+ actual - expected\n\n  {\n    events: [\n      'validate-a',\n      'result-issues',\n      'result-value',\n+     'result-issues',\n      'result-value',\n+     'result-value'\n    ],\n    result: {\n      keys: [\n        'a',\n        'b'\n"
+        }
+      ]
+    },
+    {
+      "name": "compile-opaque-captured-own",
+      "scenarioChecks": 51,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "result-accessors-invalid",
+          "compiled": true,
+          "message": "compile-opaque-captured-own/result-accessors-invalid/compiled\n+ actual - expected\n\n  {\n    events: [\n      'validate-a',\n      'result-issues',\n      'result-issues',\n+     'result-issues'\n    ],\n    result: {\n      issues: [\n        {\n          code: 'custom',\n"
+        },
+        {
+          "scenario": "result-accessors-missing",
+          "compiled": true,
+          "message": "compile-opaque-captured-own/result-accessors-missing/compiled\n+ actual - expected\n\n  {\n    events: [\n      'validate-a',\n      'result-issues',\n      'result-value',\n+     'result-issues',\n+     'result-value'\n    ],\n    result: {\n      keys: [\n        'b'\n      ],\n"
+        },
+        {
+          "scenario": "result-accessors-explicit-undefined",
+          "compiled": true,
+          "message": "compile-opaque-captured-own/result-accessors-explicit-undefined/compiled\n+ actual - expected\n\n  {\n    events: [\n      'validate-a',\n      'result-issues',\n      'result-value',\n+     'result-issues',\n      'result-value',\n+     'result-value'\n    ],\n    result: {\n      keys: [\n        'a',\n        '"
+        }
+      ]
+    },
+    {
+      "name": "compile-no-delete-after-issue",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "compile-opaque-no-delete",
+      "scenarioChecks": 51,
+      "cspFallback": true,
+      "failures": [
+        {
+          "scenario": "result-accessors-invalid",
+          "compiled": true,
+          "message": "compile-opaque-no-delete/result-accessors-invalid/compiled\n+ actual - expected\n\n  {\n    events: [\n      'validate-a',\n      'result-issues',\n      'result-issues',\n+     'result-issues'\n    ],\n    result: {\n      issues: [\n        {\n          code: 'custom',\n"
+        },
+        {
+          "scenario": "result-accessors-missing",
+          "compiled": true,
+          "message": "compile-opaque-no-delete/result-accessors-missing/compiled\n+ actual - expected\n\n  {\n    events: [\n      'validate-a',\n      'result-issues',\n      'result-value',\n+     'result-issues',\n+     'result-value'\n    ],\n    result: {\n      keys: [\n        'b'\n      ],\n"
+        },
+        {
+          "scenario": "result-accessors-explicit-undefined",
+          "compiled": true,
+          "message": "compile-opaque-no-delete/result-accessors-explicit-undefined/compiled\n+ actual - expected\n\n  {\n    events: [\n      'validate-a',\n      'result-issues',\n      'result-value',\n+     'result-issues',\n      'result-value',\n+     'result-value'\n    ],\n    result: {\n      keys: [\n        'a',\n        'b'\n"
+        }
+      ]
+    },
+    {
+      "name": "compile-opaque-exact-reads",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "compile-opaque-exact-captured-own",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "boolean-native-elision",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "boolean-coercion-elision",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "number-native-elision",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "shared-basic-meta",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    },
+    {
+      "name": "shared-basic-meta-standard",
+      "scenarioChecks": 54,
+      "cspFallback": true,
+      "failures": []
+    }
+  ]
+}

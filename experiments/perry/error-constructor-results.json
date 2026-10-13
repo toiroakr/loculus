@@ -1,0 +1,12 @@
+{
+  "node": {
+    "exit": 0,
+    "stdout": "function\ntrue\n",
+    "stderr": ""
+  },
+  "perry": {
+    "exit": 0,
+    "stdout": "function\ntrue\n",
+    "stderr": ""
+  }
+}

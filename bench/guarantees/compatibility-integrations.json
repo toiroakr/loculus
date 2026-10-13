@@ -1,0 +1,168 @@
+{
+  "completed": true,
+  "cli": {
+    "success": true,
+    "result": {
+      "port": 42,
+      "name": "guest",
+      "mode": "a"
+    },
+    "exitCode": 0,
+    "logs": {
+      "entries": []
+    }
+  },
+  "cliDefault": {
+    "success": true,
+    "result": {
+      "port": 3000,
+      "name": "guest"
+    },
+    "exitCode": 0,
+    "logs": {
+      "entries": []
+    }
+  },
+  "cliUnknown": {
+    "success": false,
+    "error": {},
+    "exitCode": 1,
+    "logs": {
+      "entries": []
+    }
+  },
+  "cliVariant": {
+    "success": true,
+    "result": {
+      "kind": "a",
+      "a": 2
+    },
+    "exitCode": 0,
+    "logs": {
+      "entries": []
+    }
+  },
+  "inherited": {
+    "success": true,
+    "data": {
+      "port": 42,
+      "name": "guest"
+    }
+  },
+  "fields": [
+    {
+      "name": "port",
+      "cliName": "port",
+      "alias": [
+        "p"
+      ],
+      "positional": false,
+      "named": true,
+      "required": false,
+      "defaultValue": 3000,
+      "type": "number",
+      "schema": {
+        "meta": {
+          "kind": "number",
+          "optional": true,
+          "nullable": false,
+          "defaultValue": 3000
+        },
+        "~standard": {
+          "version": 1,
+          "vendor": "loculus"
+        },
+        "field": true
+      }
+    },
+    {
+      "name": "name",
+      "cliName": "name",
+      "alias": [
+        "a"
+      ],
+      "description": "First",
+      "positional": false,
+      "named": true,
+      "required": true,
+      "type": "string",
+      "schema": {
+        "meta": {
+          "kind": "string"
+        },
+        "~standard": {
+          "version": 1,
+          "vendor": "loculus"
+        },
+        "field": true
+      }
+    },
+    {
+      "name": "mode",
+      "cliName": "mode",
+      "positional": false,
+      "named": true,
+      "required": false,
+      "type": "string",
+      "schema": {
+        "meta": {
+          "kind": "string",
+          "optional": true,
+          "nullable": false
+        },
+        "~standard": {
+          "version": 1,
+          "vendor": "loculus"
+        },
+        "field": true
+      },
+      "enumValues": [
+        "a",
+        "b"
+      ]
+    }
+  ],
+  "rhf": {
+    "values": {
+      "title": "Order",
+      "items": [
+        {
+          "name": "A",
+          "quantity": 2
+        }
+      ]
+    },
+    "errors": {}
+  },
+  "rhfErrors": {
+    "values": {},
+    "errors": {
+      "title": {
+        "message": "Expected at least 1 characters",
+        "type": "",
+        "types": {
+          "0": "Expected at least 1 characters"
+        }
+      },
+      "items": [
+        {
+          "name": {
+            "message": "Expected at least 1 characters",
+            "type": "",
+            "types": {
+              "0": "Expected at least 1 characters"
+            }
+          },
+          "quantity": {
+            "message": "Expected at least 1",
+            "type": "",
+            "types": {
+              "0": "Expected at least 1"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "polittyRoot": "/Users/toiroakr/workspace/politty/feat/loculus-adapter"
+}
