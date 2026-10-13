@@ -63,3 +63,23 @@ jobs:
           OCTOCOV_CUSTOM_METRICS_BUN: bench/ci/generated/metrics-bun.json
           OCTOCOV_CUSTOM_METRICS_SIZE: bench/ci/generated/metrics-size.json
           OCTOCOV_CUSTOM_METRICS_TYPES: bench/ci/generated/metrics-types.json
+      - name: Collapse benchmark comment
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              ...context.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+            const comment = comments.findLast(({ user, body }) =>
+              user?.login === 'github-actions[bot]' && body?.includes('<!-- octocov -->')
+            );
+            if (!comment) throw new Error('Octocov benchmark comment was not found');
+            if (comment.body.startsWith('<details>\n<summary>Benchmark results</summary>')) return;
+            await github.rest.issues.updateComment({
+              ...context.repo,
+              comment_id: comment.id,
+              body: `<details>\n<summary>Benchmark results</summary>\n\n${comment.body}\n\n</details>`,
+            });
