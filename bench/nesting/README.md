@@ -11,7 +11,7 @@ node bench/nesting/run.mjs --base=a217cfdc6b99053a76842ad07cd786887f81c632
 python3 bench/coverage/significance.py --input=bench/nesting/generated/results.json --output=bench/nesting/generated/significance.json --fixtures=bench/nesting/generated/fixtures.json --modes=construct,valid
 ```
 
-The runner derives the five fixtures from `bench/single-use`, verifies acceptance and consumed outputs, then measures nine independent processes per runtime. Each process warms for 150 ms and collects seven 25 ms rounds. Construction includes schema creation and one validation. Repeated validation excludes creation. No Loculus compile or generated-validator mode is measured.
+The runner derives the five fixtures from `bench/single-use`, verifies acceptance and consumed outputs, then measures nine independent processes per runtime. Each process warms for 150 ms and collects seven 25 ms rounds. Construction includes schema creation and one validation. Repeated validation excludes creation. No Loculus compile or generated-validator mode is measured. As in the ordinary coverage harness, Zod is configured with `jitless: true`; these peer numbers do not measure its default JIT mode.
 
 ## Measurements
 
