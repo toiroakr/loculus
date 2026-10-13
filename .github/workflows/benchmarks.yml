@@ -63,7 +63,7 @@ jobs:
           OCTOCOV_CUSTOM_METRICS_BUN: bench/ci/generated/metrics-bun.json
           OCTOCOV_CUSTOM_METRICS_SIZE: bench/ci/generated/metrics-size.json
           OCTOCOV_CUSTOM_METRICS_TYPES: bench/ci/generated/metrics-types.json
-      - name: Collapse benchmark comment
+      - name: Publish side-by-side benchmark comment
         if: github.event_name == 'pull_request'
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
@@ -77,9 +77,10 @@ jobs:
               user?.login === 'github-actions[bot]' && body?.includes('<!-- octocov -->')
             );
             if (!comment) throw new Error('Octocov benchmark comment was not found');
-            if (comment.body.startsWith('<details>\n<summary>Benchmark results</summary>')) return;
+            const {readFileSync} = await import('node:fs');
+            const summary = readFileSync('bench/ci/generated/summary.md', 'utf8');
             await github.rest.issues.updateComment({
               ...context.repo,
               comment_id: comment.id,
-              body: `<details>\n<summary>Benchmark results</summary>\n\n${comment.body}\n\n</details>`,
+              body: `<details>\n<summary>Benchmark results</summary>\n\n${summary}\n\n<details>\n<summary>Octocov trends and metadata</summary>\n\n${comment.body}\n\n</details>\n\n</details>`,
             });

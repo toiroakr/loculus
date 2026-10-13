@@ -23,9 +23,9 @@ Before timing, all valid/invalid fixtures are checked, plugin results must match
 
 ## Reports
 
-The Actions summary and octocov comment group timing by scalars, arrays, objects, CLI, and forms. Ratios below 100% favor ordinary Loculus. Each case first computes the median of paired per-process ratios; the domain then takes an equally weighted geometric mean. Absolute nanoseconds, each process's rounds/checksums, and machine/version metadata stay in the artifact.
+The Actions summary and collapsed PR comment show each case with four columns: Loculus, Loculus + Rolldown, Zod, and Valibot. Runtime tables show absolute ns/op (median of process medians); bundle tables show minified/gzip bytes for all twelve cases; the type table repeats Loculus measurements in the plugin column because both share the same types. A nested octocov section groups timing by scalars, arrays, objects, CLI, and forms. Ratios below 100% favor ordinary Loculus. Each case first computes the median of paired per-process ratios; the domain then takes an equally weighted geometric mean. Each process's rounds/checksums and machine/version metadata remain in the artifact.
 
-Bundle metrics use a live exported schema and Standard Schema validator, with minified ESM and gzip. The comment includes a scalar, git, cf, and form consumer for all four library modes; the artifact contains all twelve. These consumers contain the needed exports and no benchmark datasets or timing loop.
+Bundle metrics use a live exported schema and Standard Schema validator, with minified ESM and gzip. The side-by-side table includes all twelve consumers; octocov tracks a scalar, git, cf, and form consumer for all four library modes. These consumers contain the needed exports and no benchmark datasets or timing loop.
 
 Type metrics compile twenty copies of each selected schema and infer both input/output with checked input and output assignments. Three rotated compiler processes record wall time, check time, instantiations, and memory for Loculus, Zod, and Valibot. Generated Loculus shares the ordinary type definitions.
 

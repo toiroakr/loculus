@@ -11,6 +11,7 @@ import {rolldown} from 'rolldown';
 import {loculusPlugin} from '../../packages/rolldown/dist/index.js';
 import {profiles as allProfiles, prelude} from '../single-use/fixtures.mjs';
 import {median, runtimeMetrics, metricSet} from './metrics.mjs';
+import {benchmarkSummary} from './summary.mjs';
 
 const selection = {
   'scalar-string-basic': 'scalars', 'scalar-string-trim': 'scalars',
@@ -122,15 +123,7 @@ const sizes = report.cases.filter(item => ['scalar-string-basic', 'cli-git-clone
 json(`${dir}/metrics-size.json`, metricSet(`size-${fingerprint}`, 'Browser ESM bundles', metadata, sizes));
 const types = Object.entries(report.types).flatMap(([library, samples]) => ['wallMs', 'checkSeconds', 'instantiations', 'memoryKiB'].map(key => ({key: `${library}/${key}`, name: `${library} / ${key}`, value: median(samples.map(sample => sample[key])), unit: {wallMs: 'ms', checkSeconds: 's', memoryKiB: 'KiB'}[key] ?? 'count'})));
 json(`${dir}/metrics-types.json`, metricSet(`types-${fingerprint}`, 'TypeScript input/output inference', metadata, types));
-let summary = '# Loculus benchmark report\n\nConstruction includes schema creation + one valid validation. Repeated valid/invalid validation excludes schema creation and build-time generation. Zod uses its default JIT mode. Lower is better. Ratios summarize per-case paired measurements, not statistical significance.\n\n';
-for (const runtime of Object.keys(runtimes)) {
-  summary += `## ${runtime}\n\n| Domain | Mode | Loculus ÷ Valibot | Loculus ÷ Zod | Loculus ÷ Generated |\n|---|---|---:|---:|---:|\n`;
-  const metrics = runtimeMetrics(report, runtime);
-  for (const group of [...new Set(report.cases.map(item => item.group))]) for (const mode of protocol.modes) {
-    summary += `| ${group} | ${mode} | ${['valibot', 'zod', 'generated'].map(peer => metrics.find(item => item.key === `${group}/${mode}/${peer}`).value.toFixed(1) + '%').join(' | ')} |\n`;
-  }
-}
-summary += '\nThe full JSON, fixture hashes, rounds, checksums, compiler diagnostics, and octocov metrics are available in the benchmark artifact. Different fixture/protocol/dependency/runtime versions use different metric-set keys. No universal speed or size claim is made.\n';
+const summary = benchmarkSummary(report);
 writeFileSync(dir + '/summary.md', summary);
 if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, summary);
 console.log('Benchmark reports and octocov custom metrics written to ' + dir);
