@@ -9,7 +9,7 @@ const entry=resolve('bench/build-time/generated/politty-consumer.ts');
 const source=`import * as l from 'loculus';import {arg,defineCommand,runCommand} from ${JSON.stringify(adapter)};
 export const make=()=>defineCommand({name:'serve',args:l.object({
  name:arg(l.string({min:1}),{alias:'n'}),port:arg(l.number({integer:true,gte:1,lte:65535,default:3000}),{alias:'p'}),
- cache:arg(l.boolean({default:true}),{negation:true}),tag:arg(l.array(l.string(),{optional:true}),{alias:'t'})
+ cache:arg(l.boolean({default:true}),{negation:true}),tag:arg(l.array(l.string(),{wrapScalar:true,optional:true}),{alias:'t'})
 }),run:args=>args});
 export const run=(cmd,argv)=>runCommand(cmd,argv);`;
 const outputs=[];

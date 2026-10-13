@@ -386,7 +386,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           const child=scalarExpression(array.inner);
           const validator=helpers.get(generate(array.inner.kind,array.inner.opts,'',decimal).body)!.name;
           let body='';
-          if(array.opts.wrapScalar===false)body+=`if(!Array.isArray(value)){${failure('Expected an array','invalid_type')}}`;
+          if(array.opts.wrapScalar!==true)body+=`if(!Array.isArray(value)){${failure('Expected an array','invalid_type')}}`;
           body+='const inputs=Array.isArray(value)?value:[value];';
           body+=`const output=[];let issues;for(let i=0;i<inputs.length;i++){const result=${validator}(inputs[i]);if(result.issues)for(const issue of result.issues)(issues??=[]).push({...issue,path:issue.path?[i,...issue.path]:[i]});else output.push(result.value);}if(issues)return {issues};`;
           if(array.opts.min!==undefined)body+=`if(inputs.length<${emit(array.opts.min)}){${failure(`Expected at least ${array.opts.min} items`)}}`;

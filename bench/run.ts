@@ -195,7 +195,7 @@ const mixedExpressions = [
     "l.number({optional:true,integer:true,gte:1,lte:65535})",
     "l.boolean({optional:true})",
     "l.enum(['dev','prod'],{optional:true})",
-    "l.array(l.string(),{optional:true})",
+    "l.array(l.string(),{wrapScalar:true,optional:true})",
   ],
   [
     stringRequired[1]!,

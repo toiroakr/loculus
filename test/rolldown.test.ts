@@ -292,13 +292,15 @@ test('unused whole-object kernels disappear while argument effects remain', asyn
 
 test('static arrays preserve scalar presence, bounds, metadata and fresh identities', async () => {
   const expressions=[
-    'l.array(l.string())','l.array(l.string(),{wrapScalar:false,min:1,max:3,description:"tags"})',
+    'l.array(l.string())','l.array(l.string(),{})','l.array(l.string(),{wrapScalar:undefined})','l.array(l.string(),{wrapScalar:true})','l.array(l.string(),{wrapScalar:false,min:1,max:3,description:"tags"})',
     'l.array(l.number({integer:true,gte:1}))','l.array(l.string({optional:true}))',
     'l.array(l.string({default:{undefined:"U",null:"N"}}))','l.array(l.boolean({nullish:true}),{max:3})',
   ];
   const source=`import * as l from 'loculus';export const factories=[${expressions.map(x=>`()=>${x}`).join(',')}];`;
   const before=await bundle(source,false),after=await bundle(source);
   assert.doesNotMatch(after.transformed,/l\.array\(/);
+  assert.ok(after.exports.factories[0]()['~standard'].validate('abc').issues);
+  assert.deepEqual(after.exports.factories[3]()['~standard'].validate('abc'),{value:['abc']});
   const inputs=[undefined,null,[],['a','bb'],'abc',[''],[1],new Array(2),['1','bad'],['true',false],['1',null,undefined],false,['abcde','a','b','c']];
   for(let i=0;i<expressions.length;i++){
     const a=before.exports.factories[i](),b=after.exports.factories[i](),second=after.exports.factories[i]();
@@ -334,7 +336,8 @@ test('dynamic array options, outer defaults and nested arrays keep ordinary beha
   assert.equal(after.exports.count(),1);
   for(const value of [[],['a'],'a',null])assert.deepEqual(b['~standard'].validate(value),a['~standard'].validate(value));
   assert.deepEqual(after.exports.defaulted()['~standard'].validate(undefined),{value:[]});
-  assert.deepEqual(after.exports.nested()['~standard'].validate(['a','b']), {value:[['a'],['b']]});
+  assert.deepEqual(after.exports.nested()['~standard'].validate([['a'],['b']]), {value:[['a'],['b']]});
+  assert.ok(after.exports.nested()['~standard'].validate(['a','b']).issues);
 });
 
 test('every object generation strategy matches peers for inherited inputs, strict errors and __proto__', async () => {

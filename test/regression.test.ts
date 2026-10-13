@@ -301,7 +301,7 @@ test("passthrough retains non-enumerable known inputs and ignores unknown symbol
 test("boolean arrays do not share presence configuration between schemas", () => {
   const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => library.object({
     required: library.array(library.boolean(), { wrapScalar: false }),
-    optional: library.array(library.boolean({ nullish: true }), { optional: true }),
+    optional: library.array(library.boolean({ nullish: true }), { wrapScalar: true, optional: true }),
   });
   const expected = create(before);
   const schema = create(l);

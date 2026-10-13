@@ -85,6 +85,9 @@ test("nested objects retain independent unknown-key policies and inherited field
 test("multidimensional arrays preserve per-level wrapping, bounds and indexed paths", () => {
   const row = l.array(l.number({ gte: 1 }), { wrapScalar: false, min: 1, max: 2 });
   const matrix = l.array(row, { wrapScalar: false, min: 1 });
+  const defaultMatrix = l.array(l.array(l.number()));
+  assert.deepEqual(l.parse(defaultMatrix, [["1"]]), [[1]]);
+  for (const input of ["1", ["1", "2"], [["bad"]]]) assert.ok(l.safeParse(defaultMatrix, input).issues);
   const input: l.Input<typeof matrix> = [["1", "2"], [3]] as const;
   const output: number[][] = l.parse(matrix, input);
   assert.deepEqual(output, [[1, 2], [3]]);
@@ -92,8 +95,8 @@ test("multidimensional arrays preserve per-level wrapping, bounds and indexed pa
   assert.deepEqual(l.safeParse(matrix, [["bad", 1, 2]]).issues?.map(i => i.path), [[0, 0]]);
   assert.deepEqual(l.safeParse(matrix, [[1, 2, 3]]).issues?.map(i => i.path), [[0]]);
   for (const value of ["1", ["1", "2"], [], null, undefined]) assert.ok(l.safeParse(matrix, value).issues);
-  assert.deepEqual(l.parse(l.array(l.array(l.number())), ["1", "2"]), [[1], [2]]);
-  assert.deepEqual(l.parse(l.array(l.array(l.number())), "1"), [[1]]);
+  assert.deepEqual(l.parse(l.array(l.array(l.number(), { wrapScalar: true }), { wrapScalar: true }), ["1", "2"]), [[1], [2]]);
+  assert.deepEqual(l.parse(l.array(l.array(l.number(), { wrapScalar: true }), { wrapScalar: true }), "1"), [[1]]);
   assert.deepEqual(l.parse(l.array(l.array(l.number(), { wrapScalar: false })), [["1"]]), [[1]]);
   const nested = l.object({ rows: l.array(l.array(l.object({ count: l.number() }), { wrapScalar: false }), { wrapScalar: false }) });
   assert.deepEqual(l.safeParse(nested, { rows: [[{ count: "bad" }]] }).issues?.map(i => i.path), [["rows", 0, 0, "count"]]);

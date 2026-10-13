@@ -105,12 +105,12 @@ function App() {
 
 const form = l.object({
   title: l.string({ trim: true, min: 1 }),
-  items: l.array(item, { wrapScalar: false, min: 1, max: 3 }),
+  items: l.array(item, { min: 1, max: 3 }),
   shipping: l.object({
     zip: l.string({ trim: true, min: 3 }),
     windows: l.array(l.array(l.number({ integer: true, gte: 0, lte: 23 }), {
-      wrapScalar: false, min: 2, max: 2,
-    }), { wrapScalar: false, min: 1, max: 1 }),
+      min: 2, max: 2,
+    }), { min: 1, max: 1 }),
   }, { optional: true }),
 });
 

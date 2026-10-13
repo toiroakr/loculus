@@ -53,7 +53,7 @@ test("object arrays retain nested paths, bounds and row object modes", () => {
 
 test("object arrays preserve explicit wrapping and presence defaults", () => {
   const row = { name: "apple", quantity: "2" };
-  assert.deepEqual(l.parse(l.array(item), row), [{ name: "apple", quantity: 2, tags: [] }]);
+  assert.deepEqual(l.parse(l.array(item, { wrapScalar: true }), row), [{ name: "apple", quantity: 2, tags: [] }]);
   const optional = l.object({ items: l.array(item, { optional: true, wrapScalar: false }) });
   const output = l.parse(optional, {});
   output.items satisfies l.Output<typeof item>[] | undefined;

@@ -45,7 +45,7 @@ test("all field constructors support nullish values and output defaults", () => 
     [l.boolean({ nullish: true, default: false }), "false", false],
     [l.enum(["a", "b"], { nullish: true, default: "a" }), "b", "b"],
     [l.date({ nullish: true, default: date }), "2026-10-11", date],
-    [l.array(l.number(), { nullish: true, default: [] }), "42", [42]],
+    [l.array(l.number(), { wrapScalar: true, nullish: true, default: [] }), "42", [42]],
   ];
   for (const [schema, input, output] of cases) {
     assert.deepEqual(l.parse(schema, input), output);

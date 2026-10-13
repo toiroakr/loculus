@@ -460,31 +460,31 @@ export function date(options: FieldOptions<Date> = emptyOptions): Field<any, any
     validateDate,
   );
 }
-export interface ArrayOptions<WrapScalar extends boolean = boolean> {
+export interface ArrayOptions<WrapScalar extends boolean | undefined = boolean> {
   readonly min?: number;
   readonly max?: number;
   readonly wrapScalar?: WrapScalar;
 }
-type ArrayInput<I, WrapScalar extends boolean> = WrapScalar extends false
-  ? readonly I[]
-  : I | readonly I[];
+type ArrayInput<I, WrapScalar extends boolean | undefined> = WrapScalar extends true
+  ? I | readonly I[]
+  : readonly I[];
 type ArrayElement<I, O> = Field<I, O> | (Schema<I, O> & { readonly shape: Shape });
-export function array<I, O, WrapScalar extends boolean = true>(
+export function array<I, O, WrapScalar extends boolean | undefined = false>(
   s: ArrayElement<I, O>,
   options: ArrayOptions<WrapScalar> & BasicPresence & { optional: true },
 ): Field<ArrayInput<I, WrapScalar> | undefined, O[] | undefined, true>;
-export function array<I, O, WrapScalar extends boolean = true>(
+export function array<I, O, WrapScalar extends boolean | undefined = false>(
   s: ArrayElement<I, O>,
   options?: ArrayOptions<WrapScalar> & BasicPresence & { optional?: false },
 ): Field<ArrayInput<I, WrapScalar>, O[], false>;
-export function array<I, O, WrapScalar extends boolean = true>(
+export function array<I, O, WrapScalar extends boolean | undefined = false>(
   s: ArrayElement<I, O>,
   options: ArrayOptions<WrapScalar> & BasicPresence & { optional: boolean },
 ): Field<ArrayInput<I, WrapScalar> | undefined, O[] | undefined, true>;
 export function array<I, O, const P extends ArrayOptions & FieldOptions<O[]>>(
   s: ArrayElement<I, O>,
   options: P,
-): ConfiguredField<ArrayInput<I, P extends { wrapScalar: false } ? false : true>, O[], P>;
+): ConfiguredField<ArrayInput<I, true extends FlagValue<P, "wrapScalar"> ? true : false>, O[], P>;
 /* @__NO_SIDE_EFFECTS__ */
 export function array<I, O>(
   s: ArrayElement<I, O>,
@@ -496,7 +496,7 @@ export function array<I, O>(
     { kind: "array", inner: s, enumValues: s.meta.enumValues, description: options.description },
     options,
     (value) => {
-      if (options.wrapScalar === false && !Array.isArray(value))
+      if (options.wrapScalar !== true && !Array.isArray(value))
         return fail("Expected an array", "invalid_type");
       const inputs = Array.isArray(value) ? value : [value];
       const output: O[] = [];

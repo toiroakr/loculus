@@ -13,7 +13,9 @@ python3 bench/coverage/significance.py --input=bench/nesting/generated/results.j
 
 The runner derives the five fixtures from `bench/single-use`, verifies acceptance and consumed outputs, then measures nine independent processes per runtime. Each process warms for 150 ms and collects seven 25 ms rounds. Construction includes schema creation and one validation. Repeated validation excludes creation. No Loculus compile or generated-validator mode is measured. As in the ordinary coverage harness, Zod is configured with `jitless: true`; these peer numbers do not measure its default JIT mode.
 
-## Measurements
+## Measurements before changing the array default
+
+These measurements describe the initial nesting implementation at `89317df`, before the array default changed to `wrapScalar: false`. They are historical evidence, not a measurement of the current PR head. The reproduction command measures the checked-out source and records new hashes.
 
 Apple M3; Node v24.13.0; Bun 1.4.3. Median nanoseconds; before → after.
 

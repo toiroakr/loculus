@@ -10,7 +10,7 @@ const boolean = [
   "v.optional(v.union([v.boolean(),v.pipe(v.picklist(['true','false','1','0']),v.transform(x=>x==='true'||x==='1'))]))",
 ];
 const strings = [
-  'l.array(l.string(),{optional:true})',
+  'l.array(l.string(),{wrapScalar:true,optional:true})',
   'z.union([z.array(z.string()),z.string().transform(x=>[x])]).optional()',
   'v.optional(v.union([v.array(v.string()),v.pipe(v.string(),v.transform(x=>[x]))]))',
 ];

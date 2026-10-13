@@ -9,7 +9,7 @@ const query = l.object({
   search: l.string({ trim: true, min: 1 }),
   page: l.number({ integer: true, gte: 1, default: 1 }),
   archived: l.boolean({ default: false }),
-  tag: l.array(l.enum(['docs', 'code']), { optional: true }),
+  tag: l.array(l.enum(['docs', 'code']), { wrapScalar: true, optional: true }),
 });
 
 const params = new URLSearchParams('search=hello&page=2&archived=false&tag=docs');
@@ -26,7 +26,7 @@ Use `l.fromEntries(formData)` for FormData. Repeated keys become arrays. Scalar 
 - `boolean({ optional })`: accepts true/false booleans and the strings `"true"`, `"false"`, `"1"`, `"0"`.
 - `enum(values, { optional })`, `literal(value)`: string choices.
 - `date({ optional })`: ISO calendar dates or ISO date-time strings. Returns a Date. Date-time strings permit local time, `Z`, or a colon-separated UTC offset. Hours are 00–23; `24:00` and offsets such as `+0900` are rejected, matching Zod's ISO schemas.
-- `array(fieldOrObject, { min, max, optional, wrapScalar })`: repeated values, or one value. Object schemas can describe rows in a form, and nested arrays are supported. Set `wrapScalar: false` at each level to require arrays; element conversion still applies.
+- `array(fieldOrObject, { min, max, optional, wrapScalar })`: requires arrays by default; element conversion still applies. Object schemas can describe rows in a form, and nested arrays are supported. Set `wrapScalar: true` explicitly to wrap one value as an array.
 - `{ optional: true }` is supported by string, number, boolean, enum, date, array and object constructors. Omitted optional object keys are omitted from the output.
 - All field constructors, including `literal(value, options)`, support `nullable`, `nullish` and `default`. `nullable: true` preserves null, `optional: true` preserves undefined, and `nullish: true` permits both. Null is never implicitly treated as missing.
 - `description` is available in all field constructor options, object options and the final options argument of union, xor, discriminatedUnion and intersection.
@@ -111,15 +111,20 @@ Objects can be fields in other objects, and arrays can contain other arrays:
 const form = l.object({
   address: l.object({ zip: l.string({ min: 3 }) }, { optional: true }),
   windows: l.array(l.array(l.number({ integer: true, gte: 0, lte: 23 }), {
-    wrapScalar: false, min: 2, max: 2,
-  }), { wrapScalar: false }),
+    min: 2, max: 2,
+  })),
 });
 ```
 
 `address` may be omitted, but a supplied address must contain `zip`. A nested
 failure has a full path such as `['windows', 0, 1]`. Each array layer independently
-controls scalar wrapping; `array(array(number()))` turns `['1', '2']` into
-`[[1], [2]]`. Use `wrapScalar: false` at each layer to require the declared shape.
+controls scalar wrapping and requires an array by default. `array(array(number()))`
+rejects `['1', '2']`; `array(array(number(), { wrapScalar: true }), { wrapScalar: true })`
+turns it into `[[1], [2]]`.
+
+Migrating from 0.1: add `wrapScalar: true` to any array that accepts a single CLI,
+query, or FormData value. `fromEntries()` returns a string for one occurrence and
+an array for repeated keys; it does not normalize singleton values into arrays.
 
 Object defaults require explicit targets: `object(shape, { default: { undefined:
 { count: 1 } } })` or `{ default: { nullish: { count: 1 } } }`. This avoids confusing

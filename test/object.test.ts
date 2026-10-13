@@ -62,7 +62,7 @@ test("object validation works when dynamic function construction is blocked", ()
   const shape = {
     optional: l.string({ optional: true }),
     count: l.number({ default: 42 }),
-    tags: l.array(l.string()),
+    tags: l.array(l.string(), { wrapScalar: true }),
     ["__proto__"]: l.string({ nullish: true }),
   };
   const expected = l.object(shape);

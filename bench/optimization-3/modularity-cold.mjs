@@ -20,7 +20,7 @@ else {
   l = Object.assign({}, ...await Promise.all(groups.map(group => import(${JSON.stringify(root + '/published/')} + group + '.mjs'))));
 }
 const loaded = performance.now();
-const schema = profile === 'string' ? l.object({value:l.string()}) : profile === 'number' ? l.object({count:l.number()}) : l.object({q:l.string({optional:true}),page:l.number({integer:true,gte:1,default:1}),sort:l.enum(['new','old'],{default:'new'}),tag:l.array(l.string(),{default:[]}),active:l.boolean({default:false})});
+const schema = profile === 'string' ? l.object({value:l.string()}) : profile === 'number' ? l.object({count:l.number()}) : l.object({q:l.string({optional:true}),page:l.number({integer:true,gte:1,default:1}),sort:l.enum(['new','old'],{default:'new'}),tag:l.array(l.string(),{wrapScalar:true,default:[]}),active:l.boolean({default:false})});
 const input = profile === 'string' ? {value:'hello'} : profile === 'number' ? {count:'42'} : {q:'hello',page:'2',tag:'one',active:'true'};
 const result = schema['~standard'].validate(input);
 const finished = performance.now();
