@@ -40,7 +40,7 @@ await assert.rejects(import('rolldown'), {code: 'ERR_MODULE_NOT_FOUND'});
   const optimized = await consumer('optimized', [join(work, runtime.filename), join(work, plugin.filename)]);
   await symlink(join(root, 'node_modules/rolldown'), join(optimized, 'node_modules/rolldown'), 'dir');
   const pluginManifest = JSON.parse(await readFile(join(optimized, 'node_modules/@loculus/rolldown/package.json'), 'utf8'));
-  assert.equal(pluginManifest.peerDependencies.loculus, '^0.1.0');
+  assert.equal(pluginManifest.peerDependencies.loculus, `^${runtime.version}`);
   assert.equal(pluginManifest.peerDependencies.rolldown, '>=1.2.13 <2');
   await writeFile(join(optimized, 'entry.js'), `import * as l from 'loculus'; export const query = l.object({q:l.string({trim:true,min:1}),draft:l.boolean({default:false})});`);
   await writeFile(join(optimized, 'verify.mjs'), `
