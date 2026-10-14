@@ -1,8 +1,10 @@
 import {test} from 'node:test';
+import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
-import {mkdtempSync, readFileSync, writeFileSync, rmSync, unlinkSync} from 'node:fs';
+import {mkdtempSync, readFileSync, writeFileSync, rmSync, unlinkSync, mkdirSync, existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {collect} from '../bench/ci/collect.mjs';
 
 function fixture(t) {
@@ -62,4 +64,20 @@ for (const [name, change] of [
   write('node-0.json', shard);
   assert.throws(() => collect(dir));
   assert.throws(() => readFileSync(join(dir, 'results.json')), /ENOENT/);
+});
+
+test('preparing another run removes old shards and published reports before collection', t => {
+  const root = fileURLToPath(new URL('..', import.meta.url));
+  const dir = join(root, 'bench/ci/generated');
+  mkdirSync(dir, {recursive: true});
+  t.after(() => rmSync(dir, {recursive: true, force: true}));
+  const staleFiles = ['node-0.json', 'node-4.json', 'bun-0.json', 'results.json', 'metrics-node.json', 'summary.md'];
+  for (const name of staleFiles) writeFileSync(join(dir, name), 'old run');
+  execFileSync('pnpm', ['bench:ci', '--quick', '--prepare-only'], {
+    cwd: root, env: {...process.env, BUN_BIN: process.execPath}, stdio: 'pipe',
+  });
+  for (const name of staleFiles) assert.equal(existsSync(join(dir, name)), false, `${name} survives preparation`);
+  assert.equal(JSON.parse(readFileSync(join(dir, 'prepared.json'), 'utf8')).completed, false);
+  assert.equal(JSON.parse(readFileSync(join(dir, 'manifest.json'), 'utf8')).entries.length, 48);
+  assert.throws(() => collect(dir), /ENOENT/);
 });

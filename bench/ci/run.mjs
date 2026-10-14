@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {mkdirSync, readFileSync, writeFileSync} from 'node:fs';
+import {mkdirSync, readFileSync, writeFileSync, rmSync} from 'node:fs';
 import {cpus, platform, arch} from 'node:os';
 import {resolve, relative} from 'node:path';
 import {inspect, isDeepStrictEqual} from 'node:util';
@@ -28,6 +28,7 @@ const prepareOnly = process.argv.includes('--prepare-only');
 const quick = process.argv.includes('--quick');
 const protocol = {version: 1, processes: quick ? 1 : 5, rounds: quick ? 2 : 7, warmupMs: quick ? 5 : 50, roundMs: quick ? 3 : 20, modes: ['construct', 'valid', 'invalid'], typeCopies: quick ? 1 : 20, typePasses: quick ? 1 : 3};
 const dir = resolve('bench/ci/generated');
+rmSync(dir, {recursive: true, force: true});
 mkdirSync(dir, {recursive: true});
 const json = (file, value) => writeFileSync(file, JSON.stringify(value, null, 2) + '\n');
 const hash = value => createHash('sha256').update(value).digest('hex');
