@@ -17,6 +17,20 @@ async function consumer(name, archives) {
   execFileSync('npm', ['install', '--offline', '--ignore-scripts', '--omit=dev', '--legacy-peer-deps', '--no-audit', '--no-fund', '--package-lock=false', ...archives], { cwd: directory, stdio: 'pipe' });
   return directory;
 }
+function parseVersion(version) {
+  const match = /^(\d+)\.(\d+)\.(\d+)$/.exec(version);
+  assert.ok(match, `Expected a plain x.y.z version, got ${version}`);
+  return match.slice(1).map(Number);
+}
+function assertCaret(range, version) {
+  assert.ok(range.startsWith('^'), `Expected a caret range, got ${range}`);
+  const [lo, ver] = [parseVersion(range.slice(1)), parseVersion(version)];
+  const pivot = lo.findIndex(part => part !== 0);
+  const end = pivot === -1 ? 2 : pivot;
+  const sameLine = lo.slice(0, end + 1).every((part, index) => part === ver[index]);
+  const atLeast = ver[0] - lo[0] || ver[1] - lo[1] || ver[2] - lo[2];
+  assert.ok(sameLine && atLeast >= 0, `Peer range ${range} must accept runtime version ${version}`);
+}
 try {
   const runtime = pack(root);
   const plugin = pack(join(root, 'packages/rolldown'));
@@ -40,7 +54,9 @@ await assert.rejects(import('rolldown'), {code: 'ERR_MODULE_NOT_FOUND'});
   const optimized = await consumer('optimized', [join(work, runtime.filename), join(work, plugin.filename)]);
   await symlink(join(root, 'node_modules/rolldown'), join(optimized, 'node_modules/rolldown'), 'dir');
   const pluginManifest = JSON.parse(await readFile(join(optimized, 'node_modules/@loculus/rolldown/package.json'), 'utf8'));
-  assert.equal(pluginManifest.peerDependencies.loculus, `^${runtime.version}`);
+  // Changesets leaves a peer range alone while the new release still satisfies it, so check
+  // compatibility instead of requiring the range to track the exact runtime version.
+  assertCaret(pluginManifest.peerDependencies.loculus, runtime.version);
   assert.equal(pluginManifest.peerDependencies.rolldown, '>=1.2.13 <2');
   await writeFile(join(optimized, 'entry.js'), `import * as l from 'loculus'; export const query = l.object({q:l.string({trim:true,min:1}),draft:l.boolean({default:false})});`);
   await writeFile(join(optimized, 'verify.mjs'), `
