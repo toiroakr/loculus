@@ -413,11 +413,23 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         if (spec.kind === 'number') needsDecimal = true;
         return decimal;
       };
+      let literalError: string | undefined;
       const scalarExpression = (spec: ScalarSpec): string => {
         const candidate = generate(spec, '', decimalFor(spec), enumMeta);
         let helper = helpers.get(candidate.body);
         if (!helper) {
-          helper = { name: unique(), body: candidate.body };
+          let body = candidate.body;
+          if (spec.literals && !spec.literals.multiple && typeof spec.literals.values[0] === 'number') {
+            literalError ??= unique();
+            const errors = [
+              [`Expected one of: ${spec.literals.values[0]}`, 'invalid_value'],
+              ['Expected a decimal number', 'invalid_type'],
+              ['Expected a finite number', 'invalid_value'],
+            ] as const;
+            for (const [message, code] of errors)
+              body = body.replaceAll(failure(message,code), `return ${literalError}(${emit(message)},${emit(code)});`);
+          }
+          helper = { name: unique(), body };
           helpers.set(candidate.body, helper);
         }
         const branches = spec.literals?.values.some(value => typeof value !== spec.kind)
@@ -597,6 +609,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       if (needsEnumMeta) generated += `function ${enumMeta}(values,description){const Metadata=${enumMeta}.Metadata??=class{#choices;constructor(values,description){this.description=description;this.kind="string";this.#choices=values;}get enumValues(){return this.#choices;}set enumValues(values){this.#choices=values;}};return new Metadata(values,description);}\n`;
       generated += groups.join('\n')+'\n'+chunks.join('\n')+'\n';
       if (objects.size) generated += `function ${collect}(result,key,input,output,issues){if(result.issues){issues??=[];for(const issue of result.issues)issues.push({...issue,path:issue.path?[key,...issue.path]:[key]});}else if(result.value!==void 0||key in input){output[key]=result.value;}return issues;}function ${invalid}(key,input,output,issues,message,code){return ${collect}({issues:[{message,code}]},key,input,output,issues);}\n`;
+      if (literalError) generated += `function ${literalError}(message,code){return {issues:[{message,code}]};}\n`;
       for (const helper of helpers.values()) {
         let body = helper.body;
         if (body === generate({kind:'string',opts:{}}, '', decimal, enumMeta).body) {
