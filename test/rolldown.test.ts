@@ -418,3 +418,38 @@ test('generated objects default to strict for omitted, empty, undefined and desc
   }
   assert.deepEqual(generated[suffixes.length]['~standard'].validate({name: 'guest', extra: 1}), {value: {name: 'guest'}});
 });
+
+test('non-string literals preserve ordinary and optimized values, issues and metadata', async () => {
+  const expressions = [
+    'l.literal(true)', 'l.literal(false,{default:false,description:"flag"})',
+    'l.literal(42,{nullable:true})', 'l.literal(-0.5,{default:{nullish:-0.5}})',
+    'l.array(l.literal(42),{wrapScalar:true})',
+    'l.transform(l.literal(true),value=>value?"yes":"no")',
+    'l.refine(l.literal(42),value=>value<40,"Too large")',
+    'l.object({flag:l.literal(true),count:l.literal(42,{default:42}),off:l.literal(false,{optional:true})})',
+    'l.object({items:l.array(l.literal(42)),flag:l.refine(l.literal(true),value=>value,"Enabled")})',
+    'l.discriminatedUnion("kind",[l.object({kind:l.literal(true),count:l.literal(42)}),l.object({kind:l.literal(false),count:l.literal(0)})])',
+  ];
+  const source = `import * as l from 'loculus';export const factories=[${expressions.map(expression => `()=>${expression}`).join(',')}];`;
+  const normal = await bundle(source, false);
+  const optimized = await bundle(source);
+  assert.match(optimized.transformed, /function __loculus_/);
+  const inputs = [true, false, 'true', 'false', '1', '0', 1, 0, 42, '42', '4.2e1', -0.5, '-.5',
+    undefined, null, '', ' ', '0x2a', '1e999', Infinity, NaN, [], ['42', 42], [43],
+    {flag:'1'}, {flag:false,count:42}, {flag:true,off:'false',count:'42'},
+    {items:['42',43],flag:false}, {items:['42'],flag:'true'},
+    {kind:true,count:'42'}, {kind:false,count:'0'}, {kind:'true',count:42}, {kind:true,count:0}];
+  for (let i = 0; i < expressions.length; i++) {
+    const a = normal.exports.factories[i]();
+    const b = optimized.exports.factories[i]();
+    assert.deepEqual({...b.meta,inner:undefined,shape:undefined,options:undefined}, {...a.meta,inner:undefined,shape:undefined,options:undefined}, expressions[i]);
+    if (a.meta.inner) assert.deepEqual(b.meta.inner.meta, a.meta.inner.meta);
+    if (a.shape) for (const key of Object.keys(a.shape))
+      assert.deepEqual({...b.shape[key].meta,inner:undefined}, {...a.shape[key].meta,inner:undefined});
+    for (const input of inputs)
+      assert.deepEqual(b['~standard'].validate(input), a['~standard'].validate(input), expressions[i]);
+    assert.notEqual(b.meta, optimized.exports.factories[i]().meta);
+  }
+  assert.deepEqual(optimized.exports.factories[7]()['~standard'].validate({flag:'1'}), {value:{flag:true,count:42}});
+  assert.deepEqual(optimized.exports.factories[9]()['~standard'].validate({kind:false,count:'0'}), {value:{kind:false,count:0}});
+});

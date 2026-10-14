@@ -24,7 +24,8 @@ Use `l.fromEntries(formData)` for FormData. Repeated keys become arrays. Scalar 
 - `string({ min, max, pattern, trim, description, optional })`
 - `number({ gt, gte, lt, lte, integer, description, optional })`: strings containing decimal numbers, or finite numbers. Empty strings, whitespace, hexadecimal and Infinity are rejected. `integer` requires safe integers. `gt` / `lt` exclude the boundary; `gte` / `lte` include it. Multiple bounds are combined with AND.
 - `boolean({ optional })`: accepts true/false booleans and the strings `"true"`, `"false"`, `"1"`, `"0"`.
-- `enum(values, { optional })`, `literal(value)`: string choices.
+- `enum(values, { optional })`: string choices.
+- `literal(value, options)`: a string, boolean or numeric literal with its exact output type (`literal(true)` outputs `true`, `literal(42)` outputs `42`). String literals require an exact string match. Boolean literals use the `boolean` conversion rules above; numeric literals use the `number` rules above, then require equality to the literal. For example, `literal(true)` accepts `true`, `"true"` and `"1"`, but rejects `false`, numeric `1` and `"TRUE"`; `literal(42)` accepts `42`, `"42"` and `"4.2e1"`, but rejects `41`, whitespace and hexadecimal strings. Non-finite numbers never validate; `0` and `-0` compare equal. Presence and defaults use the same options as other fields.
 - `date({ optional })`: ISO calendar dates or ISO date-time strings. Returns a Date. Date-time strings permit local time, `Z`, or a colon-separated UTC offset. Hours are 00–23; `24:00` and offsets such as `+0900` are rejected, matching Zod's ISO schemas.
 - `array(fieldOrObject, { min, max, optional, wrapScalar })`: requires arrays by default; element conversion still applies. Object schemas can describe rows in a form, and nested arrays are supported. Set `wrapScalar: true` explicitly to wrap one value as an array.
 - `{ optional: true }` is supported by string, number, boolean, enum, date, array and object constructors. Omitted optional object keys are omitted from the output.
@@ -50,6 +51,10 @@ Use `standardSchemaResolver(form)` with React Hook Form, and distinguish `Input<
 - `Input<typeof schema>` and `Output<typeof schema>` infer types. `_input`, `_output`, and `_optional` are type-only markers, absent at runtime.
 
 Custom transforms and refinements are synchronous. Exceptions from user callbacks propagate to the caller. Default objects, arrays and Dates are shared references; use a transform to produce a fresh value when needed.
+
+Non-string literals expose `meta.kind` as `"number"` or `"boolean"` and their typed choices in `meta.literalValues` (for example, `[42]` or `[true]`). String literals and enums retain `meta.enumValues: readonly string[]`. Arrays propagate the child choices; transforms and refinements retain input metadata. CLI adapters can use the input kind for conversion and inspect `literalValues` for non-string choices.
+
+`discriminatedUnion` supports boolean and numeric literal discriminants. Branch selection uses the raw input value and its type: numeric `42` and string `"42"` select distinct branches. Pass typed booleans/numbers as discriminants; their string forms are rejected unless a matching string branch exists. Selected branches still convert other fields normally.
 
 ## Build-time code generation
 
