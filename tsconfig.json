@@ -29,6 +29,7 @@
     "bench/single-use/generated",
     "bench/build-time/generated",
     "bench/whole-object/generated",
-    "bench/nesting/generated"
+    "bench/nesting/generated",
+    "bench/ci/generated"
   ]
 }

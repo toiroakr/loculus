@@ -492,7 +492,15 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       if (needsDecimal) generated += `const ${decimal}=/^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$/;\n`;
       generated += groups.join('\n')+'\n'+chunks.join('\n')+'\n';
       if (objects.size) generated += `function ${collect}(result,key,input,output,issues){if(result.issues){issues??=[];for(const issue of result.issues)issues.push({...issue,path:issue.path?[key,...issue.path]:[key]});}else if(result.value!==void 0||key in input){output[key]=result.value;}return issues;}function ${invalid}(key,input,output,issues,message,code){return ${collect}({issues:[{message,code}]},key,input,output,issues);}\n`;
-      for (const helper of helpers.values()) generated += `function ${helper.name}(value){${helper.body}}\n`;
+      for (const helper of helpers.values()) {
+        let body = helper.body;
+        if (body === generate('string', {}, '', decimal).body) {
+          const error = unique();
+          generated += `function ${error}(message,code){return {issues:[{message,code}]};}\n`;
+          body = body.replace(failure('Expected a string', 'invalid_type'), `return ${error}("Expected a string","invalid_type");`);
+        }
+        generated += `function ${helper.name}(value){${body}}\n`;
+      }
       for (const [expression,create] of scalarFactories) generated += `/* @__NO_SIDE_EFFECTS__ */ function ${create}(){return ${expression};}\n`;
       for(const helper of arrayHelpers.values()){
         generated+=`function ${helper.validate}(value){${helper.body}}\n`;
