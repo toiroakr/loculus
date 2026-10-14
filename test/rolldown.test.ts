@@ -507,6 +507,18 @@ test('generated literal discriminants retain raw typed branch selection', async 
       assert.deepEqual(after.exports.create()['~standard'].validate({kind,value}), before.exports.create()['~standard'].validate({kind,value}));
 });
 
+test('literal schemas constructed before imports initialize without errors', async () => {
+  const source = `'use client';export const schema=literal('a');export const mixed=literal(['auto',1,false]);export const result=literal([1,2])['~standard'].validate('2');import {literal} from 'loculus';`;
+  const before = await bundle(source, false);
+  await assert.doesNotReject(async () => {
+    const after = await bundle(source);
+    assert.ok(after.transformed.startsWith("'use client';"));
+    assert.deepEqual(after.exports.schema['~standard'].validate('a'), before.exports.schema['~standard'].validate('a'));
+    assert.deepEqual(after.exports.mixed['~standard'].validate('1'), {value:1});
+    assert.deepEqual(after.exports.result, {value:2});
+  });
+});
+
 test('literal-only consumers remove runtime factories and unused choice metadata', async () => {
   const after = await bundle(`import {literal} from 'loculus';const unused=literal(['unused-choice',false]);export const schema=literal([1,2]);`);
   assert.doesNotMatch(after.transformed, /literal\(/);

@@ -248,7 +248,6 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       for (const statement of ast.body as Node[]) {
         if (statement.type === 'ExpressionStatement' && statement.directive) insert = statement.end;
         if (statement.type !== 'ImportDeclaration') continue;
-        insert = statement.end;
         if (!isNode(statement.source) || !modules.has(statement.source.value as string) || statement.importKind === 'type') continue;
         for (const specifier of statement.specifiers as Node[]) {
           const local = name(specifier.local);
