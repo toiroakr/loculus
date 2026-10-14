@@ -519,6 +519,18 @@ test('literal schemas constructed before imports initialize without errors', asy
   });
 });
 
+test('generated literal helpers preserve executable module hashbangs', async () => {
+  for (const newline of ['\n','\r\n','\r','\u2028','\u2029']) {
+    const hashbang = `#!/usr/bin/env node${newline}`;
+    const source = `${hashbang}export const schema=literal('a');import {literal} from 'loculus';`;
+    await assert.doesNotReject(async () => {
+      const after = await bundle(source);
+      assert.ok(after.transformed.startsWith(hashbang));
+      assert.deepEqual(after.exports.schema['~standard'].validate('a'), {value:'a'});
+    });
+  }
+});
+
 test('literal-only consumers remove runtime factories and unused choice metadata', async () => {
   const after = await bundle(`import {literal} from 'loculus';const unused=literal(['unused-choice',false]);export const schema=literal([1,2]);`);
   assert.doesNotMatch(after.transformed, /literal\(/);

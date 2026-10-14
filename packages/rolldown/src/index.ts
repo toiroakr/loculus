@@ -244,7 +244,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         lang: extension.endsWith('tsx') ? 'tsx' : extension.endsWith('jsx') ? 'jsx' : extension.includes('t') ? 'ts' : 'js',
       }) as unknown as Node;
       const imports = new Map<string, Factory | '*'>();
-      let insert = 0;
+      let insert = /^#![^\r\n\u2028\u2029]*(?:\r\n|[\r\n\u2028\u2029]|$)/.exec(code)?.[0].length ?? 0;
       for (const statement of ast.body as Node[]) {
         if (statement.type === 'ExpressionStatement' && statement.directive) insert = statement.end;
         if (statement.type !== 'ImportDeclaration') continue;
