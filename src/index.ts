@@ -412,18 +412,50 @@ export function enum_<const T extends readonly [string, ...string[]]>(
   );
 }
 export { enum_ as enum };
+type LiteralValue = string | number | boolean;
 type LiteralInput<T> = T extends string ? T : T extends number ? string | number : string | boolean;
+export function literal<const T extends readonly [LiteralValue, ...LiteralValue[]]>(
+  values: T,
+): Field<LiteralInput<T[number]>, T[number], false>;
+export function literal<const T extends readonly [LiteralValue, ...LiteralValue[]], const P extends FieldOptions<T[number]>>(
+  values: T,
+  options: P,
+): ConfiguredField<LiteralInput<T[number]>, T[number], P>;
 export function literal<const T extends string | number | boolean>(value: T): Field<LiteralInput<T>, T, false>;
 export function literal<const T extends string | number | boolean, const P extends FieldOptions<T>>(
   value: T,
   options: P,
 ): ConfiguredField<LiteralInput<T>, T, P>;
 /* @__NO_SIDE_EFFECTS__ */
-export function literal<const T extends string | number | boolean>(
-  value: T,
+export function literal<const T extends LiteralValue>(
+  value: T | readonly [T, ...T[]],
   options: FieldOptions<T> = emptyOptions,
 ): Field<any, any, boolean> {
   if (options !== emptyOptions) options = { ...options };
+  if (typeof value === "object") {
+    if (!value.length) throw new TypeError("Expected at least one literal value");
+    const allowed = [...value] as [T, ...T[]];
+    if (allowed.some(value => typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean"))
+      throw new TypeError("Expected string, number or boolean literal values");
+    if (allowed.every(value => typeof value === "string"))
+      return enum_(allowed as [string, ...string[]], options as FieldOptions<string>);
+    const branches = allowed.map(value => literal(value));
+    const kind = branches[0]!.meta.kind;
+    const homogeneous = branches.every(branch => branch.meta.kind === kind);
+    let message: string;
+    return configuredField<LiteralInput<T>, T>(
+      { kind: homogeneous ? kind : "union", literalValues: allowed,
+        ...(homogeneous ? {} : { options: branches }), description: options.description },
+      options,
+      input => {
+        for (const branch of branches) {
+          const result = branch["~standard"].validate(input);
+          if (!result.issues) return result;
+        }
+        return fail(message ??= `Expected one of: ${allowed.join(", ")}`);
+      },
+    );
+  }
   let message: string;
   const convert = typeof value === "number" ? number()["~standard"].validate
     : validateBoolean;
@@ -710,7 +742,7 @@ export function discriminatedUnion<
         for (const option of branches) {
           const meta = option.shape[key]!.meta;
           const values = meta.literalValues ?? meta.enumValues;
-          if ((meta.kind !== "string" && meta.kind !== "number" && meta.kind !== "boolean") || !values?.length)
+          if ((meta.kind !== "string" && meta.kind !== "number" && meta.kind !== "boolean" && !(meta.kind === "union" && meta.literalValues)) || !values?.length)
             throw new TypeError("Discriminator must be an enum or literal");
           const add = (value: unknown) => {
             if (map.has(value)) {
@@ -718,7 +750,7 @@ export function discriminatedUnion<
               map.set(value, null);
             } else map.set(value, option);
           };
-          for (const value of values) add(value);
+          for (const value of new Set(values)) add(value);
           if (meta.optional) add(undefined);
           if (meta.nullable) add(null);
         }
