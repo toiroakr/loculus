@@ -2,7 +2,7 @@ import {test} from "node:test";
 import assert from "node:assert/strict";
 import {median, geometricMean, runtimeMetrics, metricSet, orderedEntries} from "../bench/ci/metrics.mjs";
 
-test("benchmark summaries use per-process paired ratios and equal case weights", () => {
+test("octocov tracks only Loculus latency with equal case weights", () => {
   const samples = (values: number[]) => values.map(median => ({median}));
   const measured = (left: number[], right: number[]) => ({node: {
     loculus: {valid: samples(left)}, generated: {valid: samples(right)},
@@ -12,8 +12,12 @@ test("benchmark summaries use per-process paired ratios and equal case weights",
     {group: "scalars", runtime: measured([1, 2, 100], [100, 1, 2])},
     {group: "scalars", runtime: measured([1, 1, 1], [2, 2, 2])},
   ]};
-  for (const metric of runtimeMetrics(report, "node")) assert.ok(Math.abs(metric.value - 100) < 1e-10);
-  assert.equal(runtimeMetrics({...report, cases: report.cases.slice(0, 1)}, "node")[0]?.value, 200);
+  const metrics = runtimeMetrics(report, "node");
+  assert.deepEqual(metrics.map(metric => metric.key), ["scalars/valid/loculus", "scalars/valid/generated"]);
+  assert.deepEqual(metrics.map(metric => metric.unit), ["ns/op", "ns/op"]);
+  assert.ok(Math.abs(metrics[0]!.value - Math.sqrt(2)) < 1e-10);
+  assert.equal(metrics[1]!.value, 2);
+  assert.equal(runtimeMetrics({...report, cases: report.cases.slice(0, 1)}, "node")[0]?.value, 2);
 });
 
 test("benchmark aggregates reject missing and invalid observations", () => {

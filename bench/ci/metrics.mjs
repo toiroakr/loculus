@@ -13,10 +13,9 @@ export function runtimeMetrics(report, runtime) {
   const metrics = [];
   for (const group of [...new Set(report.cases.map(item => item.group))]) {
     const cases = report.cases.filter(item => item.group === group);
-    for (const mode of report.protocol.modes) for (const peer of ['generated', 'zod', 'valibot']) {
-      const ratios = cases.map(item => median(item.runtime[runtime].loculus[mode].map((sample, pass) =>
-        sample.median / item.runtime[runtime][peer][mode][pass].median)));
-      metrics.push({key: `${group}/${mode}/${peer}`, name: `${group} / ${mode} / Loculus ÷ ${peer}`, value: geometricMean(ratios) * 100, unit: '%'});
+    for (const mode of report.protocol.modes) for (const library of ['loculus', 'generated']) {
+      const latencies = cases.map(item => median(item.runtime[runtime][library][mode].map(sample => sample.median)));
+      metrics.push({key: `${group}/${mode}/${library}`, name: `${group} / ${mode} / ${library}`, value: geometricMean(latencies), unit: 'ns/op'});
     }
   }
   return metrics;

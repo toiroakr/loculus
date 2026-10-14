@@ -21,6 +21,6 @@ export function benchmarkSummary(report) {
   summary += table('Metric', ['wallMs', 'checkSeconds', 'instantiations', 'memoryKiB'].map(key =>
     row({wallMs: 'Wall time (ms)', checkSeconds: 'Check time (s)', instantiations: 'Instantiations', memoryKiB: 'Memory (KiB)'}[key], libraries.map(library =>
       median(report.types[library === 'generated' ? 'loculus' : library].map(sample => sample[key])).toFixed(key === 'checkSeconds' ? 3 : 1)))));
-  summary += '\nThe Rolldown plugin shares Loculus type definitions; its type column repeats the same measurement, rather than a separate compiler run.\n\n</details>\n\nOctocov retains grouped paired runtime ratios and baseline comparisons. Full samples, rounds, checksums, fixture/harness hashes, environment versions, and compiler diagnostics are in the benchmark artifact.\n';
+  summary += '\nThe Rolldown plugin shares Loculus type definitions; its type column repeats the same measurement, rather than a separate compiler run.\n\n</details>\n\nOctocov tracks only Loculus and Loculus + Rolldown for main-branch comparisons; Zod and Valibot remain in the side-by-side tables. Full samples, rounds, checksums, fixture/harness hashes, environment versions, and compiler diagnostics are in the benchmark artifact.\n';
   return summary;
 }
