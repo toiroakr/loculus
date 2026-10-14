@@ -79,5 +79,5 @@ jobs:
             await github.rest.issues.updateComment({
               ...context.repo,
               comment_id: comment.id,
-              body: `<details>\n<summary>Benchmark results</summary>\n\n${summary}\n\n<details>\n<summary>Octocov trends and metadata</summary>\n\n${comment.body}\n\n</details>\n\n</details>`,
+              body: `${summary}\n\n<details>\n<summary>Octocov trends and metadata</summary>\n\n${comment.body}\n\n</details>`,
             });
