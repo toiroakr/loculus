@@ -531,6 +531,22 @@ test('generated literal helpers preserve executable module hashbangs', async () 
   }
 });
 
+test('literal import aliases named after built-ins retain ordinary validation', async () => {
+  for (const [source,input,expected] of [
+    [`import {literal as Object} from 'loculus';export const create=()=>Object('a');`,'a','a'],
+    [`import {literal as Number} from 'loculus';export const create=()=>Number([1,2]);`,'2',2],
+    [`import * as Object from 'loculus';export const create=()=>Object.literal(['a','b']);`,'b','b'],
+    [`import * as Number from 'loculus';export const create=()=>Number.literal(42);`,'42',42],
+    [`import {literal as Array,array} from 'loculus';export const create=()=>array(Array([1,2]));`,['2'],[2]],
+  ] as const) {
+    await assert.doesNotReject(async () => {
+      const after = await bundle(source);
+      assert.deepEqual(after.exports.create()['~standard'].validate(input), {value:expected});
+      assert.equal(after.transformed, source);
+    });
+  }
+});
+
 test('literal-only consumers remove runtime factories and unused choice metadata', async () => {
   const after = await bundle(`import {literal} from 'loculus';const unused=literal(['unused-choice',false]);export const schema=literal([1,2]);`);
   assert.doesNotMatch(after.transformed, /literal\(/);

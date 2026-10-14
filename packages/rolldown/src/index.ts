@@ -309,7 +309,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       const scalar = (node: Node): ScalarSpec | undefined => {
         const kind = factory(node);
         if (kind === 'literal') {
-          if (bindings.has('undefined')) return;
+          if (bindings.has('undefined') || ['undefined','Object','Number','Array'].some(name => imports.has(name))) return;
           const args = unwrap(node).arguments as Node[];
           if (args.length < 1 || args.length > 2) return;
           const source = unwrap(args[0]!);
