@@ -5,6 +5,8 @@
 ```sh
 pnpm bench:ci
 pnpm bench:ci --quick
+pnpm bench:ci --prepare-only
+node bench/ci/collect.mjs
 ```
 
 Install Bun on PATH or set `BUN_BIN=/absolute/path/to/bun`. The quick mode verifies the complete pipeline with shorter timings and fewer repetitions; its metric-set keys differ from the full run. Outputs are under ignored `bench/ci/generated/`.
@@ -29,7 +31,11 @@ Bundle metrics use a live exported schema and Standard Schema validator, with mi
 
 Type metrics compile twenty copies of each selected schema and infer both input/output with checked input and output assignments. Three rotated compiler processes record wall time, check time, instantiations, and memory for Loculus, Zod, and Valibot. Generated Loculus shares the ordinary type definitions. Octocov retains only the Loculus compiler measurements.
 
-The `measure` job has read-only repository access. A separate `report` job downloads its artifact and gives octocov permission to comment on same-repository PRs. Fork PRs still get measurements/artifacts and the job summary; the privileged reporter is skipped. Raw artifacts are retained for fourteen days.
+The `prepare` job builds and validates all bundles and measures type inference once, then uploads portable fixtures. A ten-job matrix (`node` / `bun` × passes 0–4) runs one worker process per runner without installing dependencies. All four libraries stay on the same runner within each pass. Each case/mode retains its 50 ms warmup and seven approximately 20 ms rounds. The `aggregate` job requires all ten shards, checks their fingerprint, pass, runtime version, platform, architecture, and sample completeness, then writes the same reports and process-median metrics. CPU and runtime metadata from each worker are retained in `results.json` and metric metadata. Runner CPU models may differ between passes. The aggregate job also produces the summary for fork PRs.
+
+`--prepare-only` writes `prepared.json` and `manifest.json` without runtime measurements. Each matrix job invokes its runtime with `bench/ci/worker.mjs bench/ci/generated/manifest.json bench/ci/generated/<runtime>-<pass>.json <pass>`. `collect.mjs` aggregates the prepared report and all expected worker files; it can be rerun without accumulating duplicate samples. Local `pnpm bench:ci` continues to run all workers sequentially. Changes to the harness start a new octocov series, so the first main run after this change establishes a fresh baseline.
+
+The preparation, measurement, and aggregation jobs have read-only repository access. A separate `report` job downloads its artifact and gives octocov permission to comment on same-repository PRs. Fork PRs still get measurements/artifacts and the job summary; the privileged reporter is skipped. Raw artifacts are retained for fourteen days.
 
 Octocov saves the default-branch metrics as `octocov-benchmarks` artifacts and compares PRs against those reports. The first PR has no stored baseline; after merging this workflow, main runs initialize it. Metric-set keys include fixture, harness, protocol, dependency, and runtime versions, so changed experiments start a new comparison series. A missing or expired baseline cannot establish a regression.
 

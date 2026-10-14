@@ -10,9 +10,9 @@ concurrency:
   group: benchmarks-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
-  measure:
+  prepare:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -25,8 +25,72 @@ jobs:
         with:
           bun-version: 1.4.3
       - run: pnpm install --frozen-lockfile
-      - name: Measure runtime, browser bundles, and type inference
-        run: pnpm bench:ci
+      - name: Prepare runtime fixtures and measure bundles and type inference
+        run: pnpm bench:ci --prepare-only
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: benchmark-prepared
+          path: bench/ci/generated/
+          if-no-files-found: error
+          retention-days: 14
+  measure:
+    needs: prepare
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        runtime: [node, bun]
+        pass: [0, 1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        if: matrix.runtime == 'node'
+        with:
+          node-version: 24
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        if: matrix.runtime == 'bun'
+        with:
+          bun-version: 1.4.3
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: benchmark-prepared
+          path: bench/ci/generated
+      - name: Measure one runtime process
+        env:
+          BENCH_RUNTIME: ${{ matrix.runtime }}
+          BENCH_PASS: ${{ matrix.pass }}
+        run: '"$BENCH_RUNTIME" bench/ci/worker.mjs bench/ci/generated/manifest.json "bench/ci/generated/$BENCH_RUNTIME-$BENCH_PASS.json" "$BENCH_PASS"'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: benchmark-shard-${{ matrix.runtime }}-${{ matrix.pass }}
+          path: bench/ci/generated/${{ matrix.runtime }}-${{ matrix.pass }}.json
+          if-no-files-found: error
+          retention-days: 14
+  aggregate:
+    needs: measure
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: benchmark-prepared
+          path: bench/ci/generated
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: benchmark-shard-*
+          merge-multiple: true
+          path: bench/ci/generated
+      - name: Aggregate all runtime processes
+        run: node bench/ci/collect.mjs
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: benchmark-measurements
@@ -34,7 +98,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
   report:
-    needs: measure
+    needs: aggregate
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-24.04
     timeout-minutes: 5

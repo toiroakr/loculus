@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict';
 import {readFileSync, writeFileSync} from 'node:fs';
+import {cpus, platform, arch} from 'node:os';
 import {pathToFileURL} from 'node:url';
 import {median, orderedEntries} from './metrics.mjs';
 
 const [manifestFile, outputFile, passText] = process.argv.slice(2);
 const manifest = JSON.parse(readFileSync(manifestFile, 'utf8'));
 const pass = Number(passText);
+assert.ok(Number.isInteger(pass) && pass >= 0 && pass < manifest.protocol.processes, 'Invalid benchmark pass');
+const runtime = process.versions.bun ? 'bun' : 'node';
+const environment = {runtime, version: runtime === 'bun' ? process.versions.bun : process.version, cpu: cpus()[0].model, platform: platform(), arch: arch()};
+assert.equal(environment.version, manifest.environment[runtime], 'Runtime version differs from preparation');
 function consume(value) {
   if (value === undefined || value === null) return 1;
   if (typeof value === 'string') return value.length + 1;
@@ -45,4 +50,4 @@ for (const entry of orderedEntries(manifest.entries, pass)) {
     output[entry.key][mode] = {median: median(samples), samples, checksum, iterations, warmup};
   }
 }
-writeFileSync(outputFile, JSON.stringify(output));
+writeFileSync(outputFile, JSON.stringify({fingerprint: manifest.fingerprint, pass, environment, measurements: output}));
