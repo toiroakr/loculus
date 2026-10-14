@@ -419,6 +419,123 @@ test('generated objects default to strict for omitted, empty, undefined and desc
   assert.deepEqual(generated[suffixes.length]['~standard'].validate({name: 'guest', extra: 1}), {value: {name: 'guest'}});
 });
 
+test('static literals generate validators and preserve scalar errors, metadata and identities', async () => {
+  const expressions = [
+    `l.literal('a')`, `l.literal('a',{optional:true})`, `l.literal(['a','b','a'] as const)`,
+    `l.literal(42)`, `l.literal(true)`, `l.literal(false)`, `l.literal(-0)`,
+    `l.literal([42])`, `l.literal([true])`, `l.literal([false])`,
+    `l.literal([200,201,204])`, `l.literal([true,false])`, `l.literal([-0,0,1])`,
+    `l.literal([0,-0])`, `l.literal(['auto',1,false])`, `l.literal(['1',1,true])`,
+    `l.literal([1,'1',true])`, `l.literal([true,1,'1'])`,
+    `l.literal([1,2],{nullable:true,description:'codes'})`,
+    `l.literal(['a','b'],{default:{nullish:'a'}})`,
+    `l.literal([1,2],{default:{undefined:1,null:2}})`,
+    `l.literal([true,false],{nullish:true})`,
+    `l.literal([1,2],{default:{null:undefined},optional:true})`,
+    `l.literal([1,2],{default:undefined,optional:false})`,
+    `l.array(l.literal([1,2]),{wrapScalar:true,min:1,max:3})`,
+    `l.array(l.literal(['auto',1,false]))`,
+    `l.transform(l.literal([1,2]),value=>value*2)`,
+    `l.refine(l.literal([1,2]),value=>value===1,'one')`,
+  ];
+  const source = `import * as l from 'loculus';export const factories=[${expressions.map(expression => `()=>${expression}`).join(',')}];`;
+  const before = await bundle(source, false), after = await bundle(source);
+  assert.doesNotMatch(after.transformed, /l\.(literal|array)\(/);
+  const metadata = (schema: l.AnySchema): unknown => ({
+    ...schema.meta, enumValues:schema.meta.enumValues,
+    inner:schema.meta.inner ? metadata(schema.meta.inner) : undefined,
+    options:schema.meta.options?.map(metadata),
+  });
+  const inputs = [undefined,null,'',' ','a','b','auto','true','false','1','0','2','42','+42','4.2e1','200','201','204',
+    ' 42','0x2a','1e999',true,false,0,-0,1,2,42,200,201,204,NaN,Infinity,{},[],['1',2],[3],new Array(2)];
+  for (let i = 0; i < expressions.length; i++) {
+    const normal = before.exports.factories[i](), generated = after.exports.factories[i]();
+    const second = after.exports.factories[i]();
+    assert.deepEqual(metadata(generated), metadata(normal), expressions[i]);
+    assert.deepEqual(Object.keys(generated.meta), Object.keys(normal.meta), expressions[i]);
+    assert.notEqual(generated.meta, second.meta);
+    assert.notEqual(generated['~standard'], second['~standard']);
+    const choices = generated.meta.literalValues ?? generated.meta.enumValues;
+    if (choices) assert.notEqual(choices, second.meta.literalValues ?? second.meta.enumValues);
+    if (generated.meta.options) {
+      assert.notEqual(generated.meta.options, second.meta.options);
+      assert.notEqual(generated.meta.options[0], second.meta.options[0]);
+    }
+    for (const input of inputs)
+      assert.deepEqual(generated['~standard'].validate(input), normal['~standard'].validate(input), `${expressions[i]}: ${String(input)}`);
+  }
+  const validate = after.exports.factories[3]()['~standard'].validate;
+  const first = validate('bad'), second = validate('bad');
+  assert.notEqual(first.issues, second.issues);
+  assert.notEqual(first.issues[0], second.issues[0]);
+});
+
+test('literal object kernels inline comparisons across strategies and preserve read order', async () => {
+  const fields = Array.from({length:40},(_,index)=>`f${index}:l.literal([1,2])`).join(',');
+  const source = `import * as l from 'loculus';export const create=()=>l.object({${fields},flag:l.literal(true),mode:l.literal(['auto',1,false]),optional:l.literal(['a','b'],{optional:true})});`;
+  const before = await bundle(source, false);
+  for (const objects of ['auto','unroll','loop','chunked',false] as const) {
+    const after = await bundle(source, true, 'ts', '/loculus-test', {objects});
+    assert.doesNotMatch(after.transformed, /l\.literal\(/);
+    if (objects !== false) {
+      assert.doesNotMatch(after.transformed, /l\.object\(|const v\d+=/);
+      assert.match(after.transformed, /numeric===1/);
+    }
+    const a = before.exports.create(), b = after.exports.create();
+    const createInput = (invalid: boolean) => {
+      const input: Record<string,unknown> = Object.fromEntries(Array.from({length:40},(_,index)=>[`f${index}`,'1']));
+      input.flag = 'true'; input.mode = 'auto';
+      Object.defineProperty(input,'f0',{enumerable:true,get(){input.f1=invalid?'bad':'2';return '1';}});
+      return input;
+    };
+    for (const invalid of [false,true])
+      assert.deepEqual(b['~standard'].validate(createInput(invalid)), a['~standard'].validate(createInput(invalid)), String(objects));
+    assert.equal(b['~standard'].validate(createInput(false)).value.f1, 2);
+    assert.equal('optional' in b['~standard'].validate(createInput(false)).value, false);
+  }
+});
+
+test('generated literal discriminants retain raw typed branch selection', async () => {
+  const source = `import * as l from 'loculus';export const create=()=>l.discriminatedUnion('kind',[
+    l.object({kind:l.literal(['auto',1,true]),value:l.literal([1,2])}),
+    l.object({kind:l.literal([2,false]),value:l.literal([3,4])})
+  ]);`;
+  const before = await bundle(source, false), after = await bundle(source);
+  assert.doesNotMatch(after.transformed, /l\.literal\(/);
+  for (const kind of ['auto',1,true,2,false,'1','true',null,undefined])
+    for (const value of [1,2,3,4,'1','4','bad'])
+      assert.deepEqual(after.exports.create()['~standard'].validate({kind,value}), before.exports.create()['~standard'].validate({kind,value}));
+});
+
+test('literal-only consumers remove runtime factories and unused choice metadata', async () => {
+  const after = await bundle(`import {literal} from 'loculus';const unused=literal(['unused-choice',false]);export const schema=literal([1,2]);`);
+  assert.doesNotMatch(after.transformed, /literal\(/);
+  assert.doesNotMatch(after.code, /unused-choice|Invalid default targets|Expected at least one literal value/);
+  assert.deepEqual(after.exports.schema['~standard'].validate('2'), {value:2});
+});
+
+test('dynamic and unsupported literals preserve factory effects and fallback', async () => {
+  const source = `import * as l from 'loculus';let calls=0;
+    const values=[1,2],opts={get optional(){calls++;return true;}};
+    export const create=()=>[l.literal(values),l.literal([1,...values]),l.literal([(calls++,1),2]),l.literal([1,2],opts),l.literal([1,2],{...opts}),l.literal(1e999),l.literal([NaN,Infinity])];
+    export const invalid=()=>l.literal([]);export const count=()=>calls;`;
+  const after = await bundle(source), before = await bundle(source + 'export const ordinary=true;', false);
+  assert.equal(after.transformed, source);
+  after.exports.create(); before.exports.create();
+  assert.equal(after.exports.count(), 3);
+  assert.equal(after.exports.count(), before.exports.count());
+  assert.throws(after.exports.invalid, /at least one literal/);
+  for (const source of [
+    `import {literal} from 'loculus';const Number={};export const create=()=>literal([1,2]);`,
+    `import {literal} from 'loculus';const Object={};export const create=()=>literal(['a','b']);`,
+    `import {literal} from 'loculus';export const call=(literal)=>literal(1);`,
+    `import * as l from 'loculus';const undefined=1;export const create=()=>l.literal(true);`,
+  ]) assert.equal((await bundle(source)).transformed, source);
+  const aliased = await bundle(`import {literal as choice} from 'loculus';export const create=()=>choice([1,2] as const);`);
+  assert.doesNotMatch(aliased.transformed, /choice\(/);
+  assert.deepEqual(aliased.exports.create()['~standard'].validate('2'), {value:2});
+});
+
 test('multiple literal choices preserve generated object validation and metadata', async () => {
   const source = `import * as l from 'loculus';export const create=()=>l.object({
     status:l.literal(['draft','published']),

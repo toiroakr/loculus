@@ -58,20 +58,24 @@ await assert.rejects(import('rolldown'), {code: 'ERR_MODULE_NOT_FOUND'});
   // compatibility instead of requiring the range to track the exact runtime version.
   assertCaret(pluginManifest.peerDependencies.loculus, runtime.version);
   assert.equal(pluginManifest.peerDependencies.rolldown, '>=1.2.13 <2');
-  await writeFile(join(optimized, 'entry.js'), `import * as l from 'loculus'; export const query = l.object({q:l.string({trim:true,min:1}),draft:l.boolean({default:false})});`);
+  await writeFile(join(optimized, 'entry.js'), `import * as l from 'loculus'; export const query = l.object({q:l.string({trim:true,min:1}),draft:l.boolean({default:false})});export const choices=l.object({code:l.literal([200,201]),mode:l.literal(['auto',1,false]),items:l.array(l.literal([1,2]))});`);
   await writeFile(join(optimized, 'verify.mjs'), `
 import assert from 'node:assert/strict';
 import {rolldown} from 'rolldown';
 import {loculusPlugin} from '@loculus/rolldown';
 let generated = false;
-const build = await rolldown({input: new URL('./entry.js', import.meta.url).pathname, plugins:[loculusPlugin(),{name:'check',transform(code,id){if(id.endsWith('/entry.js'))generated=code.includes('function __loculus_');}}]});
+let literalsGenerated = false;
+const build = await rolldown({input: new URL('./entry.js', import.meta.url).pathname, plugins:[loculusPlugin(),{name:'check',transform(code,id){if(id.endsWith('/entry.js')){generated=code.includes('function __loculus_');literalsGenerated=!/l\\.literal\\(/.test(code);}}}]});
 try {
   const {output} = await build.generate({format:'esm',minify:true});
   assert.equal(generated,true);
-  const {query} = await import('data:text/javascript;base64,'+Buffer.from(output[0].code).toString('base64'));
+  assert.equal(literalsGenerated,true);
+  const {query,choices} = await import('data:text/javascript;base64,'+Buffer.from(output[0].code).toString('base64'));
   assert.deepEqual(query['~standard'].validate({q:' hello ',draft:'false'}),{value:{q:'hello',draft:false}});
   assert.deepEqual(query['~standard'].validate({q:'hello'}),{value:{q:'hello',draft:false}});
   assert.deepEqual(query['~standard'].validate({q:'hello',extra:'value'}).issues[0].path,['extra']);
+  assert.deepEqual(choices['~standard'].validate({code:'201',mode:'1',items:['1',2]}),{value:{code:201,mode:1,items:[1,2]}});
+  assert.deepEqual(choices['~standard'].validate({code:'202',mode:'auto',items:[3]}).issues.map(issue=>issue.path),[['code'],['items',0]]);
 } finally { await build.close(); }
 `);
   execFileSync(process.execPath, ['verify.mjs'], { cwd: optimized, stdio: 'pipe' });
