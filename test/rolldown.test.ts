@@ -7,7 +7,7 @@ import { loculusPlugin, type LoculusPluginOptions } from '../packages/rolldown/s
 import {z} from 'zod';
 import * as v from 'valibot';
 
-async function bundle(source: string, optimized = true, extension = 'ts', directory = '/loculus-test', options: LoculusPluginOptions = {}) {
+async function bundle(source: string, optimized = true, extension = 'ts', directory = '/loculus-test', options: LoculusPluginOptions = {}, files: Record<string,string> = {}) {
   const id = `${directory}/entry.${extension}`;
   let transformed = '';
   const build = await rolldown({
@@ -17,10 +17,12 @@ async function bundle(source: string, optimized = true, extension = 'ts', direct
         name: 'fixture',
         resolveId(module) {
           if (module === id) return id;
+          if (Object.hasOwn(files, module)) return module;
           if (module === 'loculus') return fileURLToPath(new URL('../src/index.ts', import.meta.url));
         },
         load(module) {
           if (module === id) return { code: source, moduleType: extension.startsWith('tsx') ? 'tsx' : extension.startsWith('ts') ? 'ts' : 'js' };
+          if (Object.hasOwn(files, module)) return {code:files[module]!,moduleType:'ts'};
         },
       },
       ...(optimized ? [loculusPlugin(options)] : []),
@@ -544,6 +546,69 @@ test('literal import aliases named after built-ins retain ordinary validation', 
       assert.deepEqual(after.exports.create()['~standard'].validate(input), {value:expected});
       assert.equal(after.transformed, source);
     });
+  }
+});
+
+test('literal metadata initializes during circular dependency construction', async () => {
+  for (const expression of [`l.literal('a')`,`l.literal(['a',1,false])`]) {
+    const source = `import * as l from 'loculus';import {schema,second} from '/loculus-cycle/consumer.ts';export function create(){return ${expression};}export {schema,second};`;
+    const files = {'/loculus-cycle/consumer.ts':`import {create} from '/loculus-cycle/entry.ts';export const schema=create();export const second=create();`};
+    const before = await bundle(source, false, 'ts', '/loculus-cycle', {}, files);
+    await assert.doesNotReject(async () => {
+      const after = await bundle(source, true, 'ts', '/loculus-cycle', {}, files);
+      assert.deepEqual(after.exports.schema['~standard'].validate('a'), before.exports.schema['~standard'].validate('a'));
+      const meta = (schema: l.AnySchema) => schema.meta.options?.[0]?.meta ?? schema.meta;
+      assert.equal(Object.getPrototypeOf(meta(after.exports.schema)), Object.getPrototypeOf(meta(after.exports.second)));
+    });
+  }
+});
+
+test('literal validation can run before a circular importing module executes', async () => {
+  for (const [expression,input] of [
+    [`l.literal(42)`,'42'], [`l.literal([1,2])`,'2'],
+    [`l.array(l.literal([1,2]))`,['1','2']],
+    [`l.object({a:l.literal([1,2]),b:l.literal([1,2]),c:l.literal([1,2])})`,{a:'1',b:'2',c:'1'}],
+  ] as const) {
+    const source = `import * as l from 'loculus';import {result} from '/loculus-cycle/consumer.ts';export function create(){return ${expression};}export {result};`;
+    const files = {'/loculus-cycle/consumer.ts':`import {create} from '/loculus-cycle/entry.ts';export const result=create()['~standard'].validate(${JSON.stringify(input)});`};
+    const before = await bundle(source, false, 'ts', '/loculus-cycle', {}, files);
+    await assert.doesNotReject(async () => {
+      const after = await bundle(source, true, 'ts', '/loculus-cycle', {}, files);
+      assert.deepEqual(after.exports.result, before.exports.result);
+    });
+  }
+});
+
+test('non-string literal branches preserve inherited issue getter reads', async () => {
+  for (const expression of [`l.literal([1,2])`,`l.literal([true,false])`,`l.literal(['1',1,false])`,`l.literal(1)`,`l.literal(true)`]) {
+    const source = `import * as l from 'loculus';export const create=()=>l.object({a:${expression},b:${expression},c:${expression}});`;
+    const before = await bundle(source, false), after = await bundle(source);
+    const run = (factory:()=>l.AnySchema, pattern: number) => {
+      let reads = 0;
+      const schema = factory();
+      const previous = Object.getOwnPropertyDescriptor(Object.prototype,'issues');
+      const input = {get a(){Object.defineProperty(Object.prototype,'issues',{configurable:true,get(){reads++;return pattern===0 || (pattern===2 && reads%2===0) ? undefined : [{message:'inherited',code:'custom'}];}});return '1';},b:'1',c:'1'};
+      try {return {result:schema['~standard'].validate(input),reads};}
+      catch(error) {return {error:error instanceof Error ? error.name : String(error),reads};}
+      finally {if(previous)Object.defineProperty(Object.prototype,'issues',previous);else delete (Object.prototype as {issues?:unknown}).issues;}
+    };
+    for (const pattern of [0,1,2]) assert.deepEqual(run(after.exports.create,pattern), run(before.exports.create,pattern), expression);
+  }
+});
+
+test('larger string tuples retain ordinary adaptive lookup', async () => {
+  for (const size of [8,9,32]) {
+    const values = Array.from({length:size},(_,index)=>`choice-${index}`);
+    const source = `import {literal} from 'loculus';export const create=()=>literal(${JSON.stringify(values)});`;
+    const after = await bundle(source);
+    if (size > 8) assert.equal(after.transformed, source);
+    else assert.doesNotMatch(after.transformed, /literal\(/);
+    const schema = after.exports.create();
+    for (let pass = 0; pass < 12; pass++) {
+      assert.deepEqual(schema['~standard'].validate(values[0]), {value:values[0]});
+      assert.deepEqual(schema['~standard'].validate(values.at(-1)), {value:values.at(-1)});
+      assert.ok(schema['~standard'].validate('missing').issues);
+    }
   }
 });
 

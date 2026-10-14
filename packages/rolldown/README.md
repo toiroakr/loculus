@@ -77,7 +77,7 @@ The plugin recognizes direct named imports, aliases and namespace imports from
 | `string` | Literal `min`, `max`, `trim`, descriptions, presence flags and primitive defaults/default targets. |
 | `number` | Literal `gt`, `gte`, `lt`, `lte`, `integer`, descriptions, presence flags and primitive defaults/default targets. |
 | `boolean` | Literal descriptions, presence flags and primitive defaults/default targets. |
-| `literal` | Static string, numeric and boolean choices, including non-empty mixed tuples, with descriptions and presence/default options. |
+| `literal` | Static string, numeric and boolean choices, including non-empty mixed tuples, with descriptions and presence/default options. All-string tuples with more than eight choices retain ordinary adaptive lookup. |
 | `array` | Direct static scalar children, with literal `min`, `max`, `wrapScalar` and `description` options. |
 | `object` | Static shapes with recognized factory calls, literal `unknownKeys` and `description` options. |
 
@@ -101,6 +101,8 @@ generate shared validators; object fields inline their comparisons, and literal 
 elements use generated validators. Mixed choices preserve declaration order and scalar
 conversion rules, including typed discriminator metadata. Dynamic choices, spreads,
 side effects and unsupported values retain ordinary literal construction.
+String-only tuples with more than eight choices also retain ordinary construction
+so repeated validation can use the runtime's adaptive `Set` lookup.
 
 ## Plugin options
 

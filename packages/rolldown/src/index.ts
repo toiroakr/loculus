@@ -145,22 +145,45 @@ function options(args: unknown[], kind: Kind): Options | undefined {
 function emit(value: Scalar): string {
   return value === undefined ? 'void 0' : Object.is(value, -0) ? '-0' : JSON.stringify(value);
 }
+function issueResult(message: string, code = 'invalid_value'): string {
+  return `{issues:[{message:${JSON.stringify(message)},code:${JSON.stringify(code)}}]}`;
+}
 function failure(message: string, code = 'invalid_value'): string {
-  return `return {issues:[{message:${JSON.stringify(message)},code:${JSON.stringify(code)}}]};`;
+  return `return ${issueResult(message,code)};`;
 }
 function numericConversion(decimal: string): string {
   return `if(typeof value!=="number"){if(typeof value!=="string"||!${decimal}.test(value)){${failure('Expected a decimal number', 'invalid_type')}}value=Number(value);}if(!Number.isFinite(value)){${failure('Expected a finite number')}}`;
 }
-function literalValidation(choices: NonNullable<ScalarSpec['literals']>, decimal: string): string {
+function literalIssueChecks(choices: NonNullable<ScalarSpec['literals']>, decimal: string): string {
+  if (choices.values.every(value => typeof value === 'string')) return '';
+  let body = '';
+  for (const value of choices.values) {
+    const mismatch = issueResult(`Expected one of: ${value}`);
+    body += '{let branchResult;';
+    if (typeof value === 'number') {
+      const finite = issueResult('Expected a finite number');
+      body += `if(typeof value==="number")branchResult=Number.isFinite(value)?{value}:${finite};else if(typeof value==="string"&&${decimal}.test(value)){const numeric=Number(value);branchResult=Number.isFinite(numeric)?{value:numeric}:${finite};}else branchResult=${issueResult('Expected a decimal number','invalid_type')};`;
+    } else if (typeof value === 'boolean') {
+      body += `branchResult=value===true||value==="true"||value==="1"?{value:true}:value===false||value==="false"||value==="0"?{value:false}:${issueResult('Expected true, false, 1 or 0','invalid_type')};`;
+    }
+    if (typeof value === 'string') body += `branchResult=value===${emit(value)}?{value:${emit(value)}}:${mismatch};`;
+    else body += `if(!branchResult.issues)branchResult=branchResult.value===${emit(value)}?{value:${emit(value)}}:${mismatch};`;
+    body += choices.multiple ? 'if(!branchResult.issues)return branchResult;}' : 'return branchResult;}';
+  }
+  if (choices.multiple) body += failure(`Expected one of: ${choices.values.join(', ')}`);
+  return `if("issues" in {}){${body}}`;
+}
+function literalValidation(choices: NonNullable<ScalarSpec['literals']>, decimal: string, checkIssues: boolean): string {
   const { values, multiple } = choices;
   const mismatch = failure(`Expected one of: ${values.join(', ')}`);
+  const inherited = checkIssues ? literalIssueChecks(choices, decimal) : '';
   if (!multiple && typeof values[0] === 'number')
-    return numericConversion(decimal) + `if(value===${emit(values[0])})return {value:${emit(values[0])}};` + mismatch;
+    return inherited + numericConversion(decimal) + `if(value===${emit(values[0])})return {value:${emit(values[0])}};` + mismatch;
   if (!multiple && typeof values[0] === 'boolean') {
     const success = `return {value:${emit(values[0])}};`;
-    return `if(value===true||value==="true"||value==="1"){${values[0] ? success : mismatch}}if(value===false||value==="false"||value==="0"){${values[0] ? mismatch : success}}` + failure('Expected true, false, 1 or 0', 'invalid_type');
+    return inherited + `if(value===true||value==="true"||value==="1"){${values[0] ? success : mismatch}}if(value===false||value==="false"||value==="0"){${values[0] ? mismatch : success}}` + failure('Expected true, false, 1 or 0', 'invalid_type');
   }
-  let body = '';
+  let body = inherited;
   const numeric = values.every(value => typeof value === 'number');
   if (numeric) body += `const numeric=typeof value==="number"?value:typeof value==="string"&&${decimal}.test(value)?Number(value):void 0;`;
   for (const value of values) {
@@ -172,7 +195,7 @@ function literalValidation(choices: NonNullable<ScalarSpec['literals']>, decimal
   }
   return body + mismatch;
 }
-function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta: string, branches: string[] = []): { expression: string; body: string } {
+function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta: string, branches: string[] = [], checkIssues = true): { expression: string; body: string } {
   const { kind, opts, literals } = spec;
   let missing: Scalar;
   let nil: Scalar = null;
@@ -204,7 +227,7 @@ function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta
   if (optional) body += `if(value===void 0)return {value:${emit(missing)}};`;
   if (nullable) body += `if(value===null)return {value:${emit(nil)}};`;
   if (literals) {
-    body += literalValidation(literals, decimal);
+    body += literalValidation(literals, decimal, checkIssues);
   } else if (kind === 'string') {
     body += `if(typeof value!=="string"){${failure('Expected a string', 'invalid_type')}}`;
     if (opts.trim) body += 'value=value.trim();';
@@ -227,7 +250,7 @@ function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta
     body += failure('Expected true, false, 1 or 0', 'invalid_type');
   }
   return {
-    expression: `({meta:${stringChoices ? `Object.assign(new ${enumMeta}([${literals!.values.map(emit).join(',')}],${emit(opts.description as Scalar)}),{${meta}})` : `{${meta}}`},"~standard":{version:1,vendor:"loculus",validate:${validator}},field:true})`,
+    expression: `({meta:${stringChoices ? `Object.assign(${enumMeta}([${literals!.values.map(emit).join(',')}],${emit(opts.description as Scalar)}),{${meta}})` : `{${meta}}`},"~standard":{version:1,vendor:"loculus",validate:${validator}},field:true})`,
     body,
   };
 }
@@ -287,10 +310,12 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         return value;
       };
       const decimal = unique();
+      const literalDecimal = unique();
       const collect = unique();
       const invalid = unique();
       const enumMeta = unique();
       let needsDecimal = false;
+      let needsLiteralDecimal = false;
       let needsEnumMeta = false;
       const helpers = new Map<string, { name: string; body: string }>();
       const scalarFactories = new Map<string, string>();
@@ -322,6 +347,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
             if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') return;
             values.push(value);
           }
+          if (values.length > 8 && values.every(value => typeof value === 'string')) return;
           if ((values.some(value => typeof value === 'number') && bindings.has('Number')) ||
               (values.some(value => typeof value === 'string') && bindings.has('Object'))) return;
           const opts = options(args.slice(1), 'boolean');
@@ -379,8 +405,16 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         objects.set(node, { ...parsedOptions, fields });
       });
       if (!scalars.size && !objects.size && !arrays.size) return;
+      const decimalFor = (spec: ScalarSpec): string => {
+        if (spec.literals) {
+          if (spec.literals.values.some(value => typeof value === 'number')) needsLiteralDecimal = true;
+          return `${literalDecimal}()`;
+        }
+        if (spec.kind === 'number') needsDecimal = true;
+        return decimal;
+      };
       const scalarExpression = (spec: ScalarSpec): string => {
-        const candidate = generate(spec, '', decimal, enumMeta);
+        const candidate = generate(spec, '', decimalFor(spec), enumMeta);
         let helper = helpers.get(candidate.body);
         if (!helper) {
           helper = { name: unique(), body: candidate.body };
@@ -389,9 +423,8 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         const branches = spec.literals?.values.some(value => typeof value !== spec.kind)
           ? spec.literals.values.map(value => scalarExpression({ kind: typeof value as Kind, opts: {}, literals: { values: [value], multiple: false } }))
           : [];
-        const expression = generate(spec, helper.name, decimal, enumMeta, branches).expression;
+        const expression = generate(spec, helper.name, decimalFor(spec), enumMeta, branches).expression;
         if (spec.literals?.values.some(value => typeof value === 'string')) needsEnumMeta = true;
-        if (spec.kind === 'number' || spec.literals?.values.some(value => typeof value === 'number')) needsDecimal = true;
         let create = scalarFactories.get(expression);
         if (!create) { create = unique(); scalarFactories.set(expression,create); }
         return `/* @__PURE__ */ ${create}()`;
@@ -404,8 +437,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       const consume = (key: string, dynamic = false): string => `issues=${collect}(result,${dynamic?key:emit(key)},input,output,issues);`;
       const inline = (spec: ScalarSpec, key: string, label: string, dynamic = false): string => {
         const keyExpression = dynamic ? key : emit(key);
-        const body = generate(spec, '', decimal, enumMeta).body;
-        if (spec.kind === 'number' || spec.literals?.values.some(value => typeof value === 'number')) needsDecimal = true;
+        const body = generate(spec, '', decimalFor(spec), enumMeta, [], false).body;
         const prefix = 'function validate(value){';
         const parsed = this.parse(prefix + body + '}') as unknown as Node;
         const replacements: { start: number; end: number; value: string }[] = [];
@@ -431,6 +463,11 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         });
         let emitted = body;
         for (const replacement of replacements.sort((a,b)=>b.start-a.start)) emitted = emitted.slice(0,replacement.start)+replacement.value+emitted.slice(replacement.end);
+        if (spec.literals?.values.some(value => typeof value !== 'string')) {
+          scalarExpression(spec);
+          const validator = helpers.get(generate(spec,'',decimalFor(spec),enumMeta).body)!.name;
+          emitted = `if("issues" in {}){const result=${validator}(value);${consume(key,dynamic)}break ${label};}` + emitted;
+        }
         return `${label}:{let value=input[${keyExpression}];${emitted}}`;
       };
       const arrayValidators = new Map<Node,string>();
@@ -443,7 +480,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         const array=arrays.get(node);
         if(array){
           const child=scalarExpression(array.inner);
-          const validator=helpers.get(generate(array.inner,'',decimal,enumMeta).body)!.name;
+          const validator=helpers.get(generate(array.inner,'',decimalFor(array.inner),enumMeta).body)!.name;
           let body='';
           if(array.opts.wrapScalar!==true)body+=`if(!Array.isArray(value)){${failure('Expected an array','invalid_type')}}`;
           body+='const inputs=Array.isArray(value)?value:[value];';
@@ -467,10 +504,10 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
             const [key,child] = fields[index]!;
             if (child.scalar) {
               let end = index + 1;
-              const signature = generate(child.scalar,'',decimal,enumMeta).body;
+              const signature = generate(child.scalar,'',decimalFor(child.scalar),enumMeta).body;
               while (end < fields.length) {
                 const next = fields[end]![1].scalar;
-                if (!next || generate(next,'',decimal,enumMeta).body !== signature) break;
+                if (!next || generate(next,'',decimalFor(next),enumMeta).body !== signature) break;
                 end++;
               }
               const threshold = opts.objects === 'unroll' ? Infinity : opts.objects === 'loop' ? 2 : 3;
@@ -484,8 +521,14 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
                 index=end-1;
               } else if (end - index >= threshold) {
                 const keys = unique();
-                groups.push(`const ${keys}=${JSON.stringify(fields.slice(index,end).map(([key])=>key))};`);
-                body += `for(let index=0;index<${keys}.length;index++){const key=${keys}[index];${inline(child.scalar,'key',`field${index}`,true)}}`;
+                const values = JSON.stringify(fields.slice(index,end).map(([key])=>key));
+                if (child.scalar.literals) {
+                  groups.push(`function ${keys}(){return ${keys}.values??=${values};}`);
+                  body += `{const keys=${keys}();for(let index=0;index<keys.length;index++){const key=keys[index];${inline(child.scalar,'key',`field${index}`,true)}}}`;
+                } else {
+                  groups.push(`const ${keys}=${values};`);
+                  body += `for(let index=0;index<${keys}.length;index++){const key=${keys}[index];${inline(child.scalar,'key',`field${index}`,true)}}`;
+                }
                 index = end - 1;
               } else body += inline(child.scalar,key,`field${index}`);
             } else if(arrays.has(child.node)) {
@@ -548,8 +591,10 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       };
       select(ast);
       let generated = '\n';
-      if (needsDecimal) generated += `const ${decimal}=/^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$/;\n`;
-      if (needsEnumMeta) generated += `class ${enumMeta}{#choices;constructor(values,description){this.description=description;this.kind="string";this.#choices=values;}get enumValues(){return this.#choices;}set enumValues(values){this.#choices=values;}}\n`;
+      const decimalPattern = '/^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$/';
+      if (needsDecimal) generated += `const ${decimal}=${decimalPattern};\n`;
+      if (needsLiteralDecimal) generated += `function ${literalDecimal}(){return ${literalDecimal}.pattern??=${decimalPattern};}\n`;
+      if (needsEnumMeta) generated += `function ${enumMeta}(values,description){const Metadata=${enumMeta}.Metadata??=class{#choices;constructor(values,description){this.description=description;this.kind="string";this.#choices=values;}get enumValues(){return this.#choices;}set enumValues(values){this.#choices=values;}};return new Metadata(values,description);}\n`;
       generated += groups.join('\n')+'\n'+chunks.join('\n')+'\n';
       if (objects.size) generated += `function ${collect}(result,key,input,output,issues){if(result.issues){issues??=[];for(const issue of result.issues)issues.push({...issue,path:issue.path?[key,...issue.path]:[key]});}else if(result.value!==void 0||key in input){output[key]=result.value;}return issues;}function ${invalid}(key,input,output,issues,message,code){return ${collect}({issues:[{message,code}]},key,input,output,issues);}\n`;
       for (const helper of helpers.values()) {
