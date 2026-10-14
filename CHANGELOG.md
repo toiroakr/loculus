@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3
+
+### Patch Changes
+
+- e766e95: Accept non-empty tuples of string, numeric and boolean values in `literal`, inferring the union of their output types. Preserve scalar conversion rules and presence/default options, and support multiple literal choices as discriminants.
+
 ## 0.2.2
 
 ### Patch Changes
