@@ -419,6 +419,30 @@ test('generated objects default to strict for omitted, empty, undefined and desc
   assert.deepEqual(generated[suffixes.length]['~standard'].validate({name: 'guest', extra: 1}), {value: {name: 'guest'}});
 });
 
+test('multiple literal choices preserve generated object validation and metadata', async () => {
+  const source = `import * as l from 'loculus';export const create=()=>l.object({
+    status:l.literal(['draft','published']),
+    code:l.literal([200,201],{default:200}),
+    flag:l.literal([true,false],{optional:true}),
+    mixed:l.literal(['auto',1,false]),
+    items:l.array(l.literal([1,2]))
+  });`;
+  const normal = await bundle(source, false), optimized = await bundle(source);
+  assert.match(optimized.transformed, /function __loculus_/);
+  const a = normal.exports.create(), b = optimized.exports.create();
+  for (const key of Object.keys(a.shape)) {
+    assert.equal(b.shape[key].meta.kind, a.shape[key].meta.kind);
+    assert.deepEqual(b.shape[key].meta.enumValues, a.shape[key].meta.enumValues);
+    assert.deepEqual(b.shape[key].meta.literalValues, a.shape[key].meta.literalValues);
+    const choices = (branch: l.AnySchema) => [branch.meta.kind, branch.meta.enumValues, branch.meta.literalValues];
+    assert.deepEqual(b.shape[key].meta.options?.map(choices), a.shape[key].meta.options?.map(choices));
+  }
+  const input = {status:'draft',flag:'0',mixed:'1',items:['1',2]};
+  assert.deepEqual(b['~standard'].validate(input), {value:{status:'draft',code:200,flag:false,mixed:1,items:[1,2]}});
+  for (const raw of [input, {...input,status:'other'}, {...input,code:'202'}, {...input,mixed:true}, {...input,items:[3]}, null])
+    assert.deepEqual(b['~standard'].validate(raw), a['~standard'].validate(raw));
+});
+
 test('non-string literals preserve ordinary and optimized values, issues and metadata', async () => {
   const expressions = [
     'l.literal(true)', 'l.literal(false,{default:false,description:"flag"})',

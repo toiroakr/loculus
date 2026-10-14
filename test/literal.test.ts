@@ -1,6 +1,117 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import * as l from "../src/index.js";
+import { z } from "zod";
+
+test("multiple string literals infer choices and match Zod", () => {
+  const schema = l.literal(["draft", "published"]);
+  const peer = z.literal(["draft", "published"]);
+  const standard: import("@standard-schema/spec").StandardSchemaV1<"draft" | "published", "draft" | "published"> = schema;
+  assert.equal(standard["~standard"].vendor, "loculus");
+  for (const input of ["draft", "published", "other", 1, true, null, undefined, []]) {
+    const result = l.safeParse(schema, input);
+    const expected = peer.safeParse(input);
+    assert.equal(!result.issues, expected.success);
+    if (!result.issues && expected.success) assert.equal(result.value, expected.data);
+  }
+  assert.deepEqual(schema.meta.enumValues, ["draft", "published"]);
+  assert.equal(l.parse(l.literal(["only"]), "only"), "only");
+});
+
+test("multiple numeric and boolean literals retain scalar conversions", () => {
+  const numbers = l.literal([200, 201, 204]);
+  const output: 200 | 201 | 204 = l.parse(numbers, "2.01e2");
+  assert.equal(output, 201);
+  assert.equal(numbers.meta.kind, "number");
+  assert.deepEqual(numbers.meta.literalValues, [200, 201, 204]);
+  for (const input of [202, "202", "", " 200", "0xc8", Infinity, NaN, true])
+    assert.ok(l.safeParse(numbers, input).issues);
+  const flags = l.literal([true, false]);
+  for (const input of [true, "true", "1"]) assert.equal(l.parse(flags, input), true);
+  for (const input of [false, "false", "0"]) assert.equal(l.parse(flags, input), false);
+  for (const input of [1, 0, "TRUE", "", null]) assert.ok(l.safeParse(flags, input).issues);
+  assert.equal(flags.meta.kind, "boolean");
+  assert.deepEqual(flags.meta.literalValues, [true, false]);
+  assert.equal(l.parse(l.literal([0, 1]), "-0"), 0);
+  for (const input of [NaN, Infinity, -Infinity])
+    assert.ok(l.safeParse(l.literal([NaN, Infinity, -Infinity]), input).issues);
+});
+
+test("mixed literal choices resolve conversions in declaration order", () => {
+  const schema = l.literal(["auto", 1, false]);
+  const standard: import("@standard-schema/spec").StandardSchemaV1<string | number | boolean, "auto" | 1 | false> = schema;
+  assert.deepEqual(standard["~standard"].validate("auto"), { value: "auto" });
+  assert.equal(l.parse(schema, "1"), 1);
+  assert.equal(l.parse(schema, "0"), false);
+  assert.equal(l.parse(schema, false), false);
+  assert.ok(l.safeParse(schema, true).issues);
+  assert.equal(schema.meta.kind, "union");
+  assert.deepEqual(schema.meta.literalValues, ["auto", 1, false]);
+  assert.deepEqual(schema.meta.options?.map(branch => branch.meta.kind), ["string", "number", "boolean"]);
+  assert.equal(l.parse(l.literal(["1", 1, true]), "1"), "1");
+  assert.equal(l.parse(l.literal([1, "1", true]), "1"), 1);
+  assert.equal(l.parse(l.literal([true, 1, "1"]), "1"), true);
+});
+
+test("multiple literals preserve presence, defaults and definition snapshots", () => {
+  const values: ["a" | "b", "a" | "b"] = ["a", "b"];
+  const options = { default: "b" as const, description: "Choices" };
+  const schema = l.literal(values, options);
+  values[0] = "b";
+  options.description = "Changed";
+  const output: "a" | "b" = l.parse(schema, undefined);
+  assert.equal(output, "b");
+  assert.equal(l.parse(schema, "a"), "a");
+  assert.deepEqual(schema.meta.enumValues, ["a", "b"]);
+  assert.equal(schema.meta.description, "Choices");
+  const mixedValues: ["auto" | "changed", 1, false] = ["auto", 1, false];
+  const mixed = l.literal(mixedValues);
+  mixedValues[0] = "changed";
+  assert.equal(l.parse(mixed, "auto"), "auto");
+  assert.ok(l.safeParse(mixed, "changed").issues);
+  assert.deepEqual(mixed.meta.literalValues, ["auto", 1, false]);
+  const nullable: 1 | 2 | null = l.parse(l.literal([1, 2], { nullable: true }), null);
+  assert.equal(nullable, null);
+  const optional: true | false | undefined = l.parse(l.literal([true, false], { optional: true }), undefined);
+  assert.equal(optional, undefined);
+  const defaults = l.literal([1, 2], { default: { null: 1, undefined: 2 } });
+  assert.equal(l.parse(defaults, null), 1);
+  assert.equal(l.parse(defaults, undefined), 2);
+  assert.equal(l.parse(l.literal([true, false], { nullish: true }), null), null);
+  assert.equal(l.parse(l.literal([true, false], { nullish: true }), undefined), undefined);
+  assert.throws(() => Reflect.apply(l.literal, undefined, [[]]), /at least one literal/);
+  assert.throws(() => Reflect.apply(l.literal, undefined, [["a", {}]]), /string, number or boolean/);
+  const choices = l.literal(["a", "b"] as const);
+  if (false) {
+    // @ts-expect-error Literal choices cannot be empty.
+    l.literal([]);
+    // @ts-expect-error Defaults must be among the literal choices.
+    l.literal([1, 2], { default: 3 });
+    // @ts-expect-error Null is a presence option, not a literal choice.
+    l.literal(["a", null]);
+    // @ts-expect-error String literal inputs must be among the choices.
+    const input: l.Input<typeof choices> = "c";
+  }
+});
+
+test("multiple literals compose with arrays and discriminated object variants", () => {
+  const schema = l.object({ values: l.array(l.literal([1, 2])), optional: l.literal(["a", "b"], { optional: true }) });
+  const output: { values: (1 | 2)[]; optional?: "a" | "b" } = l.parse(schema, { values: [1, "2"] });
+  assert.deepEqual(output, { values: [1, 2] });
+  assert.deepEqual(l.safeParse(schema, { values: [1, 3] }).issues?.[0]?.path, ["values", 1]);
+  assert.deepEqual(schema.shape.values.meta.literalValues, [1, 2]);
+  const variants = l.discriminatedUnion("kind", [
+    l.object({ kind: l.literal(["a", "b", "a"]), value: l.literal(1) }),
+    l.object({ kind: l.literal([2, true, 2]), value: l.literal(2) }),
+  ]);
+  for (const kind of ["a", "b"]) assert.deepEqual(l.parse(variants, { kind, value: "1" }), { kind, value: 1 });
+  for (const kind of [2, true]) assert.deepEqual(l.parse(variants, { kind, value: "2" }), { kind, value: 2 });
+  assert.ok(l.safeParse(variants, { kind: "2", value: 2 }).issues);
+  const duplicate = l.discriminatedUnion("kind", [
+    l.object({ kind: l.literal(["a", "b"]) }), l.object({ kind: l.literal(["b", "c"]) }),
+  ]);
+  assert.throws(() => l.parse(duplicate, { kind: "a" }), /Duplicate discriminator/);
+});
 
 test("boolean literals accept matching booleans and boolean string forms", () => {
   const schema = l.literal(true);
