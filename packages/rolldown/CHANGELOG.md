@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.1
+
+### Patch Changes
+
+- 4a71ea3: Add reproducible Node/Bun benchmark CI with Loculus-only octocov main-branch comparisons, browser bundle sizes, and TypeScript inference metrics.
+  
+  Move basic generated string errors into a separate allocation function to improve failure-path execution while preserving fresh issues and schema specialization.
+- Updated dependencies [4a71ea3]
+  - loculus@0.2.1
+
 ## 0.2.0
 
 ### Minor Changes
