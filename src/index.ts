@@ -31,6 +31,7 @@ export interface Meta {
   readonly defaultValue?: unknown;
   readonly description?: string;
   readonly enumValues?: readonly string[];
+  readonly literalValues?: readonly (string | number | boolean)[];
   readonly inner?: AnySchema;
   readonly shape?: Shape;
   readonly options?: readonly AnySchema[];
@@ -411,22 +412,32 @@ export function enum_<const T extends readonly [string, ...string[]]>(
   );
 }
 export { enum_ as enum };
-export function literal<const T extends string>(value: T): Field<T, T, false>;
-export function literal<const T extends string, const P extends FieldOptions<T>>(
+type LiteralInput<T> = T extends string ? T : T extends number ? string | number : string | boolean;
+export function literal<const T extends string | number | boolean>(value: T): Field<LiteralInput<T>, T, false>;
+export function literal<const T extends string | number | boolean, const P extends FieldOptions<T>>(
   value: T,
   options: P,
-): ConfiguredField<T, T, P>;
+): ConfiguredField<LiteralInput<T>, T, P>;
 /* @__NO_SIDE_EFFECTS__ */
-export function literal<const T extends string>(
+export function literal<const T extends string | number | boolean>(
   value: T,
   options: FieldOptions<T> = emptyOptions,
 ): Field<any, any, boolean> {
   if (options !== emptyOptions) options = { ...options };
   let message: string;
-  return configuredField<T, T>(
-    new EnumMeta(value, options.description),
+  const convert = typeof value === "number" ? number()["~standard"].validate
+    : validateBoolean;
+  return configuredField<LiteralInput<T>, T>(
+    typeof value === "string" ? new EnumMeta(value, options.description)
+      : { kind: typeof value as "number" | "boolean", literalValues: [value], description: options.description },
     options,
-    (input) => typeof input === "string" && input === value ? { value } : fail(message ??= `Expected one of: ${value}`),
+    (input) => {
+      if (typeof value === "string")
+        return input === value ? { value } : fail(message ??= `Expected one of: ${value}`);
+      const result = convert(input);
+      if (result.issues) return result;
+      return result.value === value ? { value } : fail(message ??= `Expected one of: ${value}`);
+    },
   );
 }
 function validateDate(value: unknown): Result<Date> {
@@ -493,7 +504,7 @@ export function array<I, O>(
   if (options !== emptyOptions) options = { ...options };
   const innerValidate = s["~standard"].validate;
   return configuredField<I | readonly I[], O[]>(
-    { kind: "array", inner: s, enumValues: s.meta.enumValues, description: options.description },
+    { kind: "array", inner: s, enumValues: s.meta.enumValues, ...(s.meta.literalValues ? { literalValues: s.meta.literalValues } : {}), description: options.description },
     options,
     (value) => {
       if (options.wrapScalar !== true && !Array.isArray(value))
@@ -698,8 +709,8 @@ export function discriminatedUnion<
         const map = new Map<unknown, AnySchema | null>();
         for (const option of branches) {
           const meta = option.shape[key]!.meta;
-          const values = meta.enumValues;
-          if (meta.kind !== "string" || !values?.length)
+          const values = meta.literalValues ?? meta.enumValues;
+          if ((meta.kind !== "string" && meta.kind !== "number" && meta.kind !== "boolean") || !values?.length)
             throw new TypeError("Discriminator must be an enum or literal");
           const add = (value: unknown) => {
             if (map.has(value)) {
