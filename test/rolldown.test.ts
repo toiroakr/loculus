@@ -90,6 +90,23 @@ test('generated scalar validators preserve values, issues, metadata and fresh id
   }
 });
 
+test('generated basic string errors have fresh results, arrays and issues on every validation', async () => {
+  const built = await bundle(`import {string} from 'loculus';export const schema=string();`);
+  const validate = built.exports.schema['~standard'].validate;
+  const first = validate(null);
+  const second = validate(42);
+  assert.deepEqual(first, l.string()['~standard'].validate(null));
+  assert.deepEqual(second, first);
+  assert.ok(first.issues && second.issues);
+  assert.ok(first.issues[0]);
+  assert.notEqual(first, second);
+  assert.notEqual(first.issues, second.issues);
+  assert.notEqual(first.issues[0], second.issues[0]);
+  Object.defineProperty(first.issues[0], 'message', {value: 'changed'});
+  assert.deepEqual(validate(undefined), second);
+  assert.deepEqual(validate('hello'), {value: 'hello'});
+});
+
 test('generated fields work in objects and arrays with snapshot and input getter behavior', async () => {
   const source = `import * as l from 'loculus';
     export const create=()=>l.object({a:l.string({optional:true}),b:l.number(),items:l.array(l.object({title:l.string({min:1})}))},{unknownKeys:'passthrough'});`;
