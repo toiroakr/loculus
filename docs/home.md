@@ -45,4 +45,19 @@ no deployment secret is required.
 The public URL is <https://toiroakr.github.io/loculus/>. Only `docs/site/` is
 uploaded. The workflow tests that same `/loculus/` project path, including runtime
 assets, compatibility results, and the standalone form on desktop and mobile.
-Pull requests build an artifact but do not deploy it.
+Pull requests upload three standalone HTML previews: the website, the form,
+and the compatibility report. CSS, JavaScript, and icons are embedded so each
+page works in GitHub's HTML artifact viewer. The website links to the other
+preview artifacts. GitHub sign-in is required; the files expire after 14 days.
+
+The workflow summary always contains the preview links. For same-repository
+pull requests, a separate job posts or updates one preview comment. Fork pull
+requests expose links through the workflow summary without comment permissions.
+Preview builds do not replace the production Pages deployment.
+
+Build standalone previews locally after `pnpm docs:build`:
+
+```sh
+pnpm docs:preview
+python3 -m http.server 4194 --bind 127.0.0.1 --directory docs/generated/pr-preview
+```

@@ -34,6 +34,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test test/*.test.* && pnpm check:tree-shaking && pnpm check:packages",
     "docs:build": "pnpm build && node examples/react-hook-form/build.mjs && node docs/compatibility/audit.mjs && bun docs/compatibility/audit.mjs docs/generated/compatibility/bun.json && node docs/compatibility/render.mjs && node docs/build-home.mjs",
+    "docs:preview": "node docs/build-preview.mjs",
     "docs:check": "node docs/check-home.mjs",
     "demo:rhf": "pnpm build && node examples/react-hook-form/build.mjs && node examples/react-hook-form/serve.mjs",
     "test:rhf": "pnpm build && tsc -p examples/react-hook-form/tsconfig.json && node examples/react-hook-form/build.mjs && playwright test --config examples/react-hook-form/playwright.config.ts",
