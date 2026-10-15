@@ -58,6 +58,7 @@
     "entities": "^8.1.0",
     "esbuild": "^0.28.2",
     "pkg-pr-new": "0.0.91",
+    "prettier": "^3.9.10",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-hook-form": "^7.89.0",

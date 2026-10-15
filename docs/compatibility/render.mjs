@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { highlightBlock, syntaxCSS } from '../highlight.mjs';
+import { format } from 'prettier';
 
 const read = file => JSON.parse(readFileSync(file, 'utf8'));
 const node = read('docs/generated/compatibility/node.json');
@@ -17,13 +18,17 @@ for (const [file, expected] of Object.entries(node.sourceHashes)) {
 const escape = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const code = highlightBlock;
 const observations = rows => JSON.stringify(rows.map(({ index, jitless, input, results, matches }) => ({ index, jitless, input, results, matches })), null, 2);
-const profiles = [...new Set(node.results.map(row => row.profile))].map(id => {
+const profiles = [];
+for (const id of new Set(node.results.map(row => row.profile))) {
   const rows = node.results.filter(row => row.profile === id);
-  return `<details><summary>${escape(id)} · ${rows.length} comparisons per runtime</summary>
-<div class="codes">${['Loculus', 'Zod', 'Valibot'].map((name, index) => `<section><h3>${name}</h3>${code(rows[0].code[index])}</section>`).join('')}</div>
+  const schemas = await Promise.all(rows[0].code.map(source => format(source, {
+    parser: 'typescript', printWidth: 36, tabWidth: 2, singleQuote: true,
+  })));
+  profiles.push(`<details><summary>${escape(id)} · ${rows.length} comparisons per runtime</summary>
+<div class="codes">${['Loculus', 'Zod', 'Valibot'].map((name, index) => `<section><h3>${name}</h3>${code(schemas[index])}</section>`).join('')}</div>
 <details><summary>Node inputs, outputs, and issue paths</summary>${code(observations(rows), 'json')}</details>
-<details><summary>Bun inputs, outputs, and issue paths</summary>${code(observations(bun.results.filter(row => row.profile === id)), 'json')}</details></details>`;
-}).join('\n');
+<details><summary>Bun inputs, outputs, and issue paths</summary>${code(observations(bun.results.filter(row => row.profile === id)), 'json')}</details></details>`);
+}
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Loculus compatibility</title><link rel="icon" href="assets/mark.svg"><style>
@@ -37,7 +42,7 @@ ${syntaxCSS}</style></head><body><main>
 <p>Fixtures compose equivalent numeric and boolean conversions, scalar wrapping, presence, and defaults. These are explicit peer configurations, rather than claims that the libraries have identical defaults.</p>
 <p>Issue paths are recorded, but error wording, codes, and union error structures are specific to each library. The audit does not establish equivalence for every possible input or unsupported schema mutation, and it makes no performance claim.</p>
 <p>Native comparisons and generated-mode regressions are also covered by <code>test/compatibility.test.ts</code> and <code>test/rolldown.test.ts</code>. The working form has its own desktop and mobile browser tests.</p>
-<h2>Schemas and observed results</h2>${profiles}
+<h2>Schemas and observed results</h2>${profiles.join('\n')}
 <h2>Reproduce</h2>${code('pnpm test\npnpm typecheck\npnpm test:rhf\npnpm docs:build', 'bash')}
 <p>Raw audit results are generated locally under <code>docs/generated/compatibility/</code>. The build rejects incomplete or stale evidence.</p>
 <details><summary>Source hashes</summary>${code(JSON.stringify(node.sourceHashes, null, 2), 'json')}</details>
