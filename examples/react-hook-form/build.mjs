@@ -24,7 +24,7 @@ const css = await readFile(dir + 'style.css', 'utf8');
 const code = output[0].code.replaceAll('</script', '<\\/script');
 await mkdir(dir + 'generated', { recursive: true });
 await writeFile(dir + 'generated/index.html', `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>loculus × React Hook Form</title><style>${css}</style></head>
 <body><div id="root"></div><script>${code}</script></body></html>`);
 console.log('Built standalone React Hook Form demo with Rolldown code generation.');

@@ -62,7 +62,7 @@ test('nested objects and arrays preserve generated children and ordinary contain
 test('generated scalar validators preserve values, issues, metadata and fresh identities', async () => {
   const expressions = [
     'l.string()', 'l.string({})', 'l.string(undefined)',
-    'l.string({trim:true,min:2,max:4,description:"名前"})',
+    'l.string({trim:true,min:2,max:4,description:"Name"})',
     'l.string({optional:true})', 'l.string({nullable:true})', 'l.string({nullish:true})',
     'l.string({default:"",min:2})', 'l.string({default:{undefined:"missing",null:"nil"}})',
     'l.string({default:{nullish:"same"}})', 'l.string({default:{null:undefined},optional:true})',
@@ -161,13 +161,13 @@ test('aliases optimize and shadowed names retain their meaning', async () => {
 });
 
 test('Unicode offsets, directives, helper collisions, TSX and sourcemaps survive transformation', async () => {
-  const source = `'use client';import {string} from 'loculus';const __loculus_0='日本語😀';
+  const source = `'use client';import {string} from 'loculus';const __loculus_0='abc😀';
     export const create=():unknown=>string({min:1,description:__loculus_0});
-    export const field=string({description:'日本語😀',min:1});`;
+    export const field=string({description:'abc😀',min:1});`;
   const after = await bundle(source, true, 'tsx');
   assert.ok(after.transformed.startsWith("'use client';"));
   assert.match(after.transformed, /description:__loculus_0/);
-  assert.equal(after.exports.field.meta.description, '日本語😀');
+  assert.equal(after.exports.field.meta.description, 'abc😀');
   assert.deepEqual(after.exports.field['~standard'].validate(''), l.string({min:1})['~standard'].validate(''));
   assert.ok(after.map?.mappings.length);
 });

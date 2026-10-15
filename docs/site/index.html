@@ -1,29 +1,29 @@
 <!doctype html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f6f5ef">
-<meta name="description" content="CLIオプション、URLクエリ、テキストフォームのためのTypeScriptスキーマ。LoculusのAPI、設計、動作するサンプルと限界。">
-<title>Loculus | 文字列入力のためのスキーマ</title>
+<meta name="description" content="TypeScript schemas for CLI options, URL queries, and text forms. Explore the Loculus API, design, working examples, and limits.">
+<title>Loculus | Schemas for string inputs</title>
 <link rel="icon" type="image/svg+xml" href="assets/mark.svg">
 <link rel="stylesheet" href="assets/style.css">
 <script type="module" src="assets/app.js"></script>
 </head>
 <body>
-<a class="skip" href="#main">本文へ</a>
+<a class="skip" href="#main">Skip to content</a>
 <header class="topbar">
-<a class="brand" href="#" aria-label="Loculus ホーム"><img src="assets/mark.svg" width="29" height="29" alt=""><span>loculus</span><span class="version">開発中</span></a>
-<nav aria-label="ページ内ナビゲーション"><a href="#design">設計</a><a href="#api">API</a><a href="#integrations">連携</a><a href="#limits">限界</a></nav>
+<a class="brand" href="#" aria-label="Loculus home"><img src="assets/mark.svg" width="29" height="29" alt=""><span>loculus</span><span class="version" data-package-version>0.2.5</span></a>
+<nav aria-label="On this page"><a href="#design">Design</a><a href="#api">API</a><a href="#integrations">Integrations</a><a href="#limits">Limits</a></nav>
 <a class="source-link" href="https://github.com/toiroakr/loculus">GitHub <span aria-hidden="true">↗</span></a>
 </header>
 <main id="main">
 <section class="hero wrap">
-<div class="hero-copy"><p class="eyebrow">TYPE YOUR INPUT.</p><h1>文字列の入力を、<br><span>使える値へ。</span></h1>
-<p class="lead">CLIオプション、URLクエリ、テキストフォーム。<br class="desktop">Loculusは、その入力境界のための<br class="desktop">小さなTypeScriptスキーマライブラリです。</p>
-<div class="actions"><a class="button primary" href="#playground">ブラウザで試す <span aria-hidden="true">↓</span></a><a class="text-link" href="#limits">向いている用途を知る <span aria-hidden="true">↗</span></a></div>
-<p class="hero-note">ESM / TypeScript · 実行時依存なし · Standard Schema v1</p></div>
-<div class="hero-code code-panel"><div class="code-title"><span class="dot"></span><span>query.ts</span><button class="copy" data-copy="hero-code">コピー</button></div>
+<div class="hero-copy"><p class="eyebrow">TYPE YOUR INPUT.</p><h1>String inputs.<br><span>Useful values.</span></h1>
+<p class="lead">A small TypeScript schema library for CLI options, URL queries, and text forms.</p>
+<div class="actions"><a class="button primary" href="#playground">Try it in your browser <span aria-hidden="true">↓</span></a><a class="text-link" href="#limits">Find your use case <span aria-hidden="true">↗</span></a></div>
+<p class="hero-note">ESM / TypeScript · No runtime dependencies · Standard Schema v1</p></div>
+<div class="hero-code code-panel"><div class="code-title"><span class="dot"></span><span>query.ts</span><button class="copy" data-copy="hero-code">Copy</button></div>
 <pre><code id="hero-code"><span class="kw">import</span> * <span class="kw">as</span> l <span class="kw">from</span> <span class="str">'loculus'</span>;
 
 <span class="kw">const</span> query = l.<span class="fn">object</span>({
@@ -39,13 +39,13 @@
 
 <span class="kw">const</span> params = <span class="kw">new</span> URLSearchParams(location.search);
 <span class="kw">const</span> value = l.<span class="fn">parse</span>(query, l.<span class="fn">fromEntries</span>(params));</code></pre>
-<div class="code-footer"><span>入力は文字列。</span><span>出力は型のついた値。</span></div></div>
+<div class="code-footer"><span>Strings in.</span><span>Typed values out.</span></div></div>
 </section>
-<div class="boundary wrap" aria-label="入力から出力まで"><span>CLI <i>/</i> QUERY <i>/</i> FORM</span><div class="boundary-line"></div><span class="boundary-center">検証 ＋ 変換</span><div class="boundary-line"></div><span>APPLICATION VALUES</span></div>
+<div class="boundary wrap" aria-label="From input to output"><span>CLI <i>/</i> QUERY <i>/</i> FORM</span><div class="boundary-line"></div><span class="boundary-center">VALIDATE + CONVERT</span><div class="boundary-line"></div><span>APPLICATION VALUES</span></div>
 <section id="playground" class="section wrap">
-<div class="section-heading"><div><p class="eyebrow">01 / TRY IT</p><h2>その値、どう受け取る？</h2></div><p>表示したスキーマを実際に動かします。<br>入力を編集して、変換とエラーを確かめてください。</p></div>
+<div class="section-heading"><div><p class="eyebrow">01 / TRY IT</p><h2>What will your input become?</h2></div><p>This runs the schema shown below.<br>Edit the input to explore conversions and errors.</p></div>
 <div class="playground">
-<div class="schema-side"><div class="pane-label"><span>スキーマ</span><button class="copy" data-copy="playground-schema">コピー</button></div>
+<div class="schema-side"><div class="pane-label"><span>Schema</span><button class="copy" data-copy="playground-schema">Copy</button></div>
 <pre><code id="playground-schema"><span class="kw">import</span> * <span class="kw">as</span> l <span class="kw">from</span> <span class="str">'loculus'</span>;
 
 <span class="kw">const</span> query = l.<span class="fn">object</span>({
@@ -58,32 +58,32 @@
     wrapScalar: <span class="lit">true</span>, optional: <span class="lit">true</span>,
   }),
 });</code></pre>
-<p class="schema-note">すべての入力例に適用。objectは既定でstrictです。</p></div>
-<div class="input-side"><div class="pane-label"><label for="query-input">URLクエリ</label><span>文字列として届く入力</span></div>
+<p class="schema-note">The same schema handles every example. Objects are strict by default.</p></div>
+<div class="input-side"><div class="pane-label"><label for="query-input">URL query</label><span>Input arrives as strings</span></div>
 <textarea id="query-input" rows="4" spellcheck="false">q=loculus&amp;page=2&amp;draft=false&amp;tag=docs&amp;tag=code</textarea>
-<div class="samples" role="group" aria-label="入力例"><button data-sample="valid" aria-pressed="true">正常</button><button data-sample="defaults" aria-pressed="false">省略</button><button data-sample="empty" aria-pressed="false">空の数値</button><button data-sample="extra" aria-pressed="false">余分なキー</button><button data-sample="repeated" aria-pressed="false">数値の重複</button></div>
-<p id="sample-note" class="input-note">pageはnumber、draftはboolean、繰り返したtagは配列になります。</p>
-<details class="raw-input"><summary>変換前のオブジェクトを見る</summary><pre id="raw-output"></pre></details></div>
-<div class="output-side"><div class="pane-label"><span>検証結果</span><span id="result-status" class="status" aria-live="polite">読み込み中</span></div><pre id="result-output" aria-live="polite" aria-atomic="true"></pre><div id="output-note" class="output-note">LoculusのJavaScript実装で検証しています。</div></div>
+<div class="samples" role="group" aria-label="Sample inputs"><button data-sample="valid" aria-pressed="true">Valid</button><button data-sample="defaults" aria-pressed="false">Defaults</button><button data-sample="empty" aria-pressed="false">Empty number</button><button data-sample="extra" aria-pressed="false">Unknown key</button><button data-sample="repeated" aria-pressed="false">Repeated number</button></div>
+<p id="sample-note" class="input-note">page becomes a number, draft becomes a boolean, and repeated tag values become an array.</p>
+<details class="raw-input"><summary>View the input object</summary><pre id="raw-output"></pre></details></div>
+<div class="output-side"><div class="pane-label"><span>Validation result</span><span id="result-status" class="status" aria-live="polite">Loading</span></div><pre id="result-output" aria-live="polite" aria-atomic="true"></pre><div id="output-note" class="output-note">Validated by the Loculus JavaScript runtime.</div></div>
 </div>
-<noscript><p>サンプルの実行にはJavaScriptが必要です。説明とAPIはそのまま読めます。</p></noscript>
+<noscript><p>JavaScript is required to run the examples. The documentation and API reference remain available.</p></noscript>
 </section>
 <section id="design" class="section philosophy">
-<div class="wrap philosophy-grid"><div><p class="eyebrow">02 / DESIGN</p><h2>入力の形から、<br>APIを考える。</h2><p class="design-intro">多くのCLIやフォームは、名前と文字列の組み合わせです。Loculusはその形に合わせて、変換・制約・省略時の扱いをひとつの定義にまとめます。</p></div>
-<div class="principles"><article><span class="index">01</span><div><h3>文字列の意味を決める</h3><p><code>"false"</code>はfalse。空文字や空白は数値に変換しません。JavaScriptの真偽値判定やNumber()をそのまま適用せず、入力として許可する表現を決めています。</p></div></article>
-<article><span class="index">02</span><div><h3>制約も省略も、オプションに</h3><p><code>string({ min: 1, optional: true })</code>のように書きます。optional・nullable・defaultをラッパーで重ねる必要はありません。数値の境界はgt / gte / lt / lteで区別します。</p></div></article>
-<article><span class="index">03</span><div><h3>余分な入力は、まずエラーに</h3><p><code>object()</code>の既定値はstrict。オプション名の誤字や想定外のキーを拒否します。不要なキーを捨てるstrip、残すpassthroughも明示して選べます。</p></div></article>
-<article><span class="index">04</span><div><h3>一度だけ使うコストも考える</h3><p>CLIや送信時の検証では、スキーマを作る時間も処理の一部です。作成と1回の検証を合わせて最適化します。繰り返しの検証には、作成済みのスキーマをそのまま使えます。</p></div></article></div></div>
+<div class="wrap philosophy-grid"><div><p class="eyebrow">02 / DESIGN</p><h2>An API shaped<br>by your inputs.</h2><p class="design-intro">Many CLIs and forms work with names and strings. Loculus brings conversion, constraints, and missing-value handling together in one definition.</p></div>
+<div class="principles"><article><span class="index">01</span><div><h3>Give strings a clear meaning</h3><p><code>"false"</code> becomes false. Empty strings and whitespace never become numbers. Accepted input formats are explicit, rather than relying on JavaScript truthiness or Number().</p></div></article>
+<article><span class="index">02</span><div><h3>Constraints and presence as options</h3><p>Write <code>string({ min: 1, optional: true })</code>. No layers of optional, nullable, and default wrappers. Use gt / gte / lt / lte for exclusive and inclusive numeric bounds.</p></div></article>
+<article><span class="index">03</span><div><h3>Reject unexpected input by default</h3><p><code>object()</code> defaults to strict, catching misspelled options and unknown keys. Explicitly choose strip to discard extra keys, or passthrough to keep them.</p></div></article>
+<article><span class="index">04</span><div><h3>Count the cost of using it once</h3><p>For a CLI or form submission, schema construction is part of the work. Loculus optimizes construction plus one validation. Reuse the same schema when you need repeated validation.</p></div></article></div></div>
 </section>
 <section id="api" class="section wrap">
-<div class="section-heading"><div><p class="eyebrow">03 / API ESSENTIALS</p><h2>迷いやすい扱いを、明示する。</h2></div><p>undefined、null、空文字は別の入力です。<br>どれを許し、どれを補うか選べます。</p></div>
-<div class="api-grid"><article class="api-block"><h3>省略・null・デフォルト</h3><div class="table-scroll"><table><thead><tr><th>オプション</th><th>undefined</th><th>null</th></tr></thead><tbody>
-<tr><td><code>optional: true</code></td><td>そのまま</td><td>エラー</td></tr><tr><td><code>nullable: true</code></td><td>エラー</td><td>そのまま</td></tr><tr><td><code>nullish: true</code></td><td>そのまま</td><td>そのまま</td></tr><tr><td><code>default: 'guest'</code></td><td>'guest'</td><td>エラー</td></tr><tr><td><code>default: { nullish: 'guest' }</code></td><td>'guest'</td><td>'guest'</td></tr><tr><td><code>default: { null: 'anonymous' }</code></td><td>エラー</td><td>'anonymous'</td></tr></tbody></table></div>
-<p class="small">stringに各設定を単独で指定した場合。空文字や不正な値ではdefaultは使われません。</p>
+<div class="section-heading"><div><p class="eyebrow">03 / API ESSENTIALS</p><h2>Make edge cases explicit.</h2></div><p>undefined, null, and empty strings are different inputs.<br>Choose which to accept and which to replace.</p></div>
+<div class="api-grid"><article class="api-block"><h3>Missing values, null, and defaults</h3><div class="table-scroll"><table><thead><tr><th>Option</th><th>undefined</th><th>null</th></tr></thead><tbody>
+<tr><td><code>optional: true</code></td><td>Preserved</td><td>Error</td></tr><tr><td><code>nullable: true</code></td><td>Error</td><td>Preserved</td></tr><tr><td><code>nullish: true</code></td><td>Preserved</td><td>Preserved</td></tr><tr><td><code>default: 'guest'</code></td><td>'guest'</td><td>Error</td></tr><tr><td><code>default: { nullish: 'guest' }</code></td><td>'guest'</td><td>'guest'</td></tr><tr><td><code>default: { null: 'anonymous' }</code></td><td>Error</td><td>'anonymous'</td></tr></tbody></table></div>
+<p class="small">Each option is shown on its own with string(). Defaults do not replace empty strings or invalid values.</p>
 <pre class="light-code"><code>l.string({
   default: { undefined: 'guest', null: 'anonymous' },
-});</code></pre><p class="small">省略とnullに別の補完値も指定できます。default値は検証済みの出力として扱います。<a href="#default-limit">制約を通らない点に注意</a>してください。</p></article>
-<article class="api-block"><h3>境界・繰り返し・エラー</h3><pre class="light-code"><code>l.string({ trim: true, min: 1, max: 80 });
+});</code></pre><p class="small">Missing and null inputs can have different replacements. Defaults are treated as validated outputs and <a href="#default-limit">bypass constraints</a>.</p></article>
+<article class="api-block"><h3>Bounds, repeated values, and errors</h3><pre class="light-code"><code>l.string({ trim: true, min: 1, max: 80 });
 l.number({ gt: 0, lte: 100 });
 l.array(l.string());
 l.array(l.string(), { wrapScalar: true });
@@ -94,15 +94,15 @@ if (result.issues) {
 } else {
   console.log(result.value);
 }</code></pre>
-<p><code>gt / lt</code>は境界を含まず、<code>gte / lte</code>は含みます。<code>array()</code>は既定で配列だけを受け取ります。<code>wrapScalar: true</code>を明示すると単一値を1要素の配列にします。</p><p>safeParseは<code>{ value }</code>または<code>{ issues }</code>を返します。parseは失敗時にValidationErrorを投げます。同じフィールド内では最初の制約エラーで止まり、別のフィールドのエラーは集めます。</p></article></div>
-<details class="api-more"><summary>基本の型と変換ルールを見る <span aria-hidden="true">＋</span></summary><div class="table-scroll"><table><thead><tr><th>API</th><th>受け取る値・主なオプション</th></tr></thead><tbody>
-<tr><td><code>string()</code></td><td>文字列のみ。trim / min / max / pattern。長さはUTF-16コード単位。</td></tr><tr><td><code>number()</code></td><td>10進数の文字列、有限の数値。空白・16進表記・Infinityは拒否。integerは安全な整数。</td></tr><tr><td><code>boolean()</code></td><td>boolean値と文字列の"true" / "false" / "1" / "0"。数値の0 / 1は拒否。</td></tr><tr><td><code>enum() / literal()</code></td><td>文字列の選択肢・固定値。</td></tr><tr><td><code>date()</code></td><td>ISO日付・日時の文字列。Date値は入力に使えず、出力はDate。日時はローカル時刻・Z・±HH:MMに対応。</td></tr><tr><td><code>array()</code></td><td>フィールド・行オブジェクト・配列を要素にできます。min / max / wrapScalar。</td></tr><tr><td><code>object()</code></td><td>ネストと親全体のoptional / nullable / nullishに対応。unknownKeysはstrict / strip / passthrough。defaultは対象を明示する形式。</td></tr><tr><td><code>transform() / refine()</code></td><td>同期の変換・追加検証。ユーザー定義コールバックの例外は伝播。</td></tr><tr><td><code>union() / xor()</code></td><td>複数の候補から選ぶ、または一致する候補を1つに限定。</td></tr><tr><td><code>discriminatedUnion() / intersection()</code></td><td>判別フィールドで分岐、または両方の検証結果をマージ。</td></tr></tbody></table></div><p class="small">全フィールドコンストラクタでoptional / nullable / nullish / default / descriptionを使えます。dateのタイムゾーンなし日時は実行環境のローカル時刻として解釈されます。</p></details>
-<div class="type-strip"><span class="type-badge">INPUT ≠ OUTPUT</span><div><h3>変換の前後を、型でも分ける。</h3><p><code>Input&lt;typeof query&gt;</code>と<code>Output&lt;typeof query&gt;</code>を推論できます。たとえばpageは入力時には文字列や数値、省略を許し、検証後は必須のnumberになります。</p></div></div>
+<p><code>gt / lt</code> exclude the bound; <code>gte / lte</code> include it. <code>array()</code> accepts only arrays by default. Set <code>wrapScalar: true</code> to wrap a single value in a one-element array.</p><p>safeParse returns <code>{ value }</code> or <code>{ issues }</code>. parse throws ValidationError on failure. Constraints stop at the first error within each field; errors from sibling fields are collected.</p></article></div>
+<details class="api-more"><summary>Basic types and conversion rules <span aria-hidden="true">+</span></summary><div class="table-scroll"><table><thead><tr><th>API</th><th>Accepted values and key options</th></tr></thead><tbody>
+<tr><td><code>string()</code></td><td>Strings only. trim / min / max / pattern. Length uses UTF-16 code units.</td></tr><tr><td><code>number()</code></td><td>Decimal strings and finite numbers. Rejects whitespace, hexadecimal notation, and Infinity. integer requires safe integers.</td></tr><tr><td><code>boolean()</code></td><td>Booleans and the strings "true" / "false" / "1" / "0". Rejects numeric 0 / 1.</td></tr><tr><td><code>enum() / literal()</code></td><td>String choices and fixed string values.</td></tr><tr><td><code>date()</code></td><td>ISO date and date-time strings. Returns a Date; Date objects are not accepted as input. Supports local time, Z, and ±HH:MM.</td></tr><tr><td><code>array()</code></td><td>Fields, row objects, or arrays as elements. min / max / wrapScalar.</td></tr><tr><td><code>object()</code></td><td>Nested objects and optional / nullable / nullish parents. unknownKeys: strict / strip / passthrough. Object defaults require an explicit target.</td></tr><tr><td><code>transform() / refine()</code></td><td>Synchronous conversion and extra validation. Exceptions from user callbacks propagate.</td></tr><tr><td><code>union() / xor()</code></td><td>Accept any matching branch, or require exactly one matching branch.</td></tr><tr><td><code>discriminatedUnion() / intersection()</code></td><td>Select by a discriminator, or merge both validation outputs.</td></tr></tbody></table></div><p class="small">All field constructors support optional / nullable / nullish / default / description. Date-time strings without a time zone use the runtime's local time.</p></details>
+<div class="type-strip"><span class="type-badge">INPUT ≠ OUTPUT</span><div><h3>Types before and after conversion.</h3><p>Infer <code>Input&lt;typeof query&gt;</code> and <code>Output&lt;typeof query&gt;</code>. For example, page accepts a string, number, or missing value on input and becomes a required number after validation.</p></div></div>
 </section>
 <section id="integrations" class="section integrations wrap">
-<div class="section-heading"><div><p class="eyebrow">04 / INTEGRATIONS</p><h2>フォームにも、CLIにも。</h2></div><p><a href="https://standardschema.dev/">Standard Schema v1</a>を実装しています。<br>対応するツールにはスキーマを直接渡せます。</p></div>
-<div class="integration-grid"><article><div class="integration-label">REACT HOOK FORM</div><h3>繰り返す行は、array(object)で。</h3><p>明細や商品リストは、行のスキーマを配列に入れます。useFieldArrayと合わせて使え、エラーのパスはitems → 0 → quantityのように行まで指します。</p>
-<div class="code-panel"><div class="code-title"><span>form.ts</span><button class="copy" data-copy="form-code">コピー</button></div><pre><code id="form-code">import * as l from 'loculus';
+<div class="section-heading"><div><p class="eyebrow">04 / INTEGRATIONS</p><h2>For forms. For CLIs.</h2></div><p>Implements <a href="https://standardschema.dev/">Standard Schema v1</a>.<br>Pass schemas directly to compatible tools.</p></div>
+<div class="integration-grid"><article><div class="integration-label">REACT HOOK FORM</div><h3>Repeated rows with array(object).</h3><p>Put a row schema inside an array for line items and product lists. Use it with useFieldArray; error paths such as items → 0 → quantity identify the row.</p>
+<div class="code-panel"><div class="code-title"><span>form.ts</span><button class="copy" data-copy="form-code">Copy</button></div><pre><code id="form-code">import * as l from 'loculus';
 import { useForm } from 'react-hook-form';
 import { standardSchemaResolver }
   from '@hookform/resolvers/standard-schema';
@@ -118,8 +118,8 @@ const form = l.object({
 
 useForm&lt;l.Input&lt;typeof form&gt;, unknown, l.Output&lt;typeof form&gt;&gt;({
   resolver: standardSchemaResolver(form),
-});</code></pre></div><a class="text-link" href="rhf.html">動作するフォームを見る <span aria-hidden="true">↗</span></a><p class="small">実ブラウザで追加・削除・並べ替え・エラー表示を検証しています。FormDataのドット区切りの名前を解釈する機能は別途必要です。</p></article>
-<article class="cli-card"><div class="integration-label">POLITTY</div><h3>CLIの引数定義にも、同じスキーマ。</h3><p>@politty/loculusアダプタを実装しています。値の検証に加えて、alias・環境変数・説明などCLIのメタデータを付けられます。</p>
+});</code></pre></div><a class="text-link" href="rhf.html">Try the working form <span aria-hidden="true">↗</span></a><p class="small">Browser tests cover adding, removing, and reordering rows, and displaying errors. Parsing dotted FormData field names requires a separate step.</p></article>
+<article class="cli-card"><div class="integration-label">POLITTY</div><h3>The same schemas for CLI arguments.</h3><p>The @politty/loculus adapter adds CLI metadata such as aliases, environment variables, and descriptions alongside value validation.</p>
 <pre class="light-code"><code>import * as l from 'loculus';
 import { arg, defineCommand }
   from '@politty/loculus';
@@ -133,31 +133,29 @@ const serve = defineCommand({
     }), { alias: 'p', env: 'PORT' }),
   }),
   run: ({ port }) =&gt; console.log(port),
-});</code></pre><a class="text-link" href="https://github.com/toiroakr/politty/pull/894">アダプタのdraft PR <span aria-hidden="true">↗</span></a><p class="small">アダプタは開発中です。公開済みパッケージとしての利用案内ではありません。</p></article></div>
+});</code></pre><a class="text-link" href="https://github.com/toiroakr/politty/pull/894">Adapter implementation <span aria-hidden="true">↗</span></a><p class="small">See the adapter repository for its release status and installation instructions.</p></article></div>
 </section>
 <section id="performance" class="section performance"><div class="wrap">
-<div class="section-heading"><div><p class="eyebrow">05 / ENGINEERING</p><h2>小さく、速く。<br>主張は、測った範囲で。</h2></div><p>必要な保証を保ったうえで最適化します。<br>万能な最速という評価はしていません。</p></div>
-<div class="evidence-grid"><article><span class="stat">0</span><h3>実行時の依存パッケージ</h3><p>通常のエントリは単独で使えます。ESMとsideEffects設定、ツリーシェイキングの検証を用意しています。バンドルサイズは使うAPIとビルド設定で変わります。</p></article><article><span class="stat">96<span> profiles</span></span><h3>仕様を比較するケース群</h3><p>Node・Bunそれぞれで1,078ケースを比較。受理・拒否と成功時の値が、設定を合わせたZod・Valibotの少なくとも片方と一致しました。全入力やエラー表現の同一性を保証するものではありません。</p><a href="compatibility.html">比較コードと検証結果を見る ↗</a></article><article><span class="stat word-stat">build-time</span><h3>必要なら、ビルド時に最適化</h3><p>@loculus/rolldownで静的なスキーマを専用コードにできます。通常APIを保ち、未対応の定義は通常処理に戻します。実行時のcompileやevalはありません。</p></article></div>
-<details class="performance-detail"><summary>性能を評価する条件と、プラグインの使い方 <span aria-hidden="true">＋</span></summary><div class="performance-detail-grid"><div><h3>単発と反復を分けて測る</h3><p>単発はスキーマ作成＋1回の検証。反復は作成済みスキーマの検証だけを測ります。過去の比較にはGitやCloudflareのcfコマンドを模した定義、行を持つフォームも含まれます。</p><p>ただし過去の速度・サイズ・型チェックの比較は、その時点の実装が対象です。strictの既定値や互換性を変更した現行実装の、全面的な優位を示すものではありません。</p><p>生成コードは大きくなる場合があり、エンジンや定義によって通常処理より遅くなる場合もあります。プラグインはTypeScriptの型チェックを速くする機能ではありません。</p></div><div><pre class="light-code"><code>import { defineConfig } from 'tsdown';
+<div class="section-heading"><div><p class="eyebrow">05 / ENGINEERING</p><h2>Small and fast.<br>Claims backed by measurements.</h2></div><p>Optimization preserves the required guarantees.<br>There is no claim to be fastest for every use case.</p></div>
+<div class="evidence-grid"><article><span class="stat">0</span><h3>Runtime dependencies</h3><p>The ordinary entry point stands alone. ESM, sideEffects metadata, and tree-shaking checks help keep bundles small. Size depends on the APIs and build settings you use.</p></article><article><span class="stat">96<span> profiles</span></span><h3>Compatibility profiles</h3><p>1,078 cases are checked on each of Node and Bun. Acceptance and successful outputs match at least one explicitly configured Zod or Valibot peer. This does not prove equivalence for every input or error representation.</p><a href="compatibility.html">View comparison code and results ↗</a></article><article><span class="stat word-stat">build-time</span><h3>Optional build-time optimization</h3><p>@loculus/rolldown specializes static schemas while preserving the ordinary API. Unsupported definitions use ordinary processing. No runtime compile or eval is needed.</p></article></div>
+<details class="performance-detail"><summary>Measurement scope and plugin usage <span aria-hidden="true">+</span></summary><div class="performance-detail-grid"><div><h3>Measure single use and reuse separately</h3><p>Single use includes schema construction plus one validation. Repeated-use measurements validate an existing schema. Benchmark CI includes schemas inspired by Git and Cloudflare cf commands, and forms with repeated rows.</p><p>Benchmark CI reports runtime latency, browser bundle sizes, and TypeScript inference costs separately. Results apply to the measured schemas and environments; they do not establish overall superiority.</p><p>Generated code may be larger or slower, depending on the engine and schema. The plugin does not speed up TypeScript type checking.</p></div><div><pre class="light-code"><code>import { defineConfig } from 'tsdown';
 import { loculusPlugin } from '@loculus/rolldown';
 
 export default defineConfig({
   entry: ['src/main.ts'],
   plugins: [loculusPlugin()],
-});</code></pre><p class="small">Rolldown 1.2.13以上・2未満に対応。静的なstring / number / boolean、一部のarray / objectを最適化します。動的な設定などは通常処理になります。</p><p class="small">未使用の構築呼び出しを除去できるかは、ビルド設定次第です。検証済みのケースではRolldownのminifyが除去し、esbuildでは呼び出し側の@__PURE__が必要です。</p></div></div></details>
+});</code></pre><p class="small">Supports Rolldown &gt;=1.2.13 and &lt;2. Optimizes static string / number / boolean schemas and some array / object schemas. Dynamic options use ordinary processing.</p><p class="small">Removing unused construction calls depends on build settings. Tested Rolldown minification removes them; esbuild requires @__PURE__ annotations at call sites.</p></div></div></details>
 </div></section>
 <section id="limits" class="section wrap limits">
-<div class="section-heading"><div><p class="eyebrow">06 / SCOPE &amp; LIMITS</p><h2>使う前に、知っておくこと。</h2></div><p>入力境界への特化には、制約があります。<br>アプリ全体のデータモデルを担う設計ではありません。</p></div>
-<div class="fit-grid"><article class="fit"><span class="fit-label">向いている</span><h3>名前と値で表せる入力</h3><p>CLIのオプション、一覧画面の検索クエリ、テキスト中心のフォーム。値の変換と省略時の扱いを、短い定義にまとめたい場合に向いています。</p><p>フォームの繰り返す行にはarray(object)を使えます。1階層の入力を中心に、用途を絞ったライブラリとして評価しています。</p></article><article class="consider"><span class="fit-label">他のライブラリも検討する</span><h3>広いデータ型や非同期処理</h3><p>自己再帰するスキーマ、Map・Set・タプル、豊富な専用フォーマット、非同期検証が必要ならZod・Valibotの機能を確認してください。</p><p>Loculusは独自のエラー表現を持ちます。Standard Schemaに対応していても、Zodのエラーコードやunionのエラー形式を前提とする処理には、そのまま置き換えられません。</p><div class="peer-links"><a href="https://zod.dev/api">ZodのAPI ↗</a><a href="https://valibot.dev/api/">ValibotのAPI ↗</a></div></article></div>
-<div class="caveats"><details open><summary>ネストしたフォーム値に対応。自己再帰スキーマは非対応</summary><p><code>object({ address: object(...) })</code>や<code>array(array(...))</code>を使えます。親objectのoptionalと子フィールドのoptionalは独立です。各階層で配列だけを受け取るのが既定です。単一値を包む階層には<code>wrapScalar: true</code>を指定します。自己再帰・lazyスキーマには対応しません。</p></details>
-<details id="default-limit" open><summary>default値はフィールドの制約を通らない</summary><p><code>number({ gte: 10, default: 5 })</code>はundefinedを5で補います。defaultは出力値として扱うためです。外側のrefine・transformは動きます。配列・object・Dateのdefaultは同じ参照を返すので、書き換える場合はコピーが必要です。</p></details>
-<details><summary>FormDataの名前解釈とファイル処理は別の役割</summary><p><code>fromEntries()</code>は重複キーを配列にし、情報を落とさず渡します。<code>items[0].name</code>や<code>items.0.name</code>を行構造へ展開しません。文字列フィールドはFileを拒否します。バイナリファイル用の組み込みスキーマはありません。</p></details>
-<details><summary>同期処理・スキーマ定義の不変性を前提とする</summary><p>非同期のrefine・transformは非対応です。コールバックの例外はissuesに変換せず伝播します。作成後にshape、選択肢、メタデータを書き換える使い方も非対応。変更する場合は新しいスキーマを作ってください。実行時にすべてをfreezeしているわけではありません。</p></details>
-<details><summary>文字列長・プロパティアクセスにも仕様がある</summary><p>min / maxはUTF-16コード単位で数えます。絵文字の表示文字数とは異なります。宣言済みのフィールドは継承プロパティも読み、出力は通常のオブジェクトです。宣言された__proto__は検証・出力から除外し、passthroughでも残しません。</p></details>
-<details><summary>公開・採用実績と性能の評価は、これから</summary><p>開発版0.1.0の段階です。2026年10月13日の確認ではnpmのloculus/latestは未公開でした。実装はTypeScriptからのJavaScript出力で、MoonBitやWasmの試作は配布対象に含みません。速度・サイズ・型チェックすべてでZod・Valibotを上回るという最終評価には、現行仕様での再計測が必要です。</p></details></div>
+<div class="section-heading"><div><p class="eyebrow">06 / SCOPE &amp; LIMITS</p><h2>Before you use it.</h2></div><p>Specializing in input boundaries has limits.<br>Loculus is not a full application data-modeling library.</p></div>
+<div class="fit-grid"><article class="fit"><span class="fit-label">A GOOD FIT</span><h3>Inputs expressed as names and values</h3><p>CLI options, search queries, and text-focused forms. Define conversions and missing-value handling together in a short schema.</p><p>Use array(object) for repeated form rows. The library focuses on flat inputs with selected support for nesting.</p></article><article class="consider"><span class="fit-label">ALSO CONSIDER OTHER LIBRARIES</span><h3>Broader types and asynchronous work</h3><p>For recursive schemas, Map, Set, tuples, specialized formats, or asynchronous validation, explore Zod and Valibot.</p><p>Loculus has its own error representation. Standard Schema support does not make it a direct replacement for code that expects Zod error codes or union error structures.</p><div class="peer-links"><a href="https://zod.dev/api">Zod API ↗</a><a href="https://valibot.dev/api/">Valibot API ↗</a></div></article></div>
+<div class="caveats"><details open><summary>Nested form values are supported; recursive schemas are not</summary><p>Use <code>object({ address: object(...) })</code> or <code>array(array(...))</code>. Parent optionality and child optionality are independent. Each array level requires an array by default; explicitly set wrapScalar on every level that should wrap scalars.</p></details>
+<details id="default-limit"><summary>Defaults bypass constraints and transformations</summary><p>Defaults are treated as validated outputs. In <code>string({ min: 5, default: 'x' })</code>, a missing value returns 'x' without a length error. Use defaults that satisfy your output contract. Referenced defaults keep their identity.</p></details>
+<details><summary>Inherited properties and schema immutability</summary><p>Declared fields read ordinary JavaScript properties, including inherited values. Treat schemas and introspection metadata as immutable after creation. Construct a new schema when a definition changes. Declared __proto__ fields are skipped, and passthrough excludes that key.</p></details>
+<details><summary>Runtime and measurement scope</summary><p>Distributed packages contain JavaScript compiled from TypeScript. The benchmark workflow measures selected cases on Node and Bun. Compare results for your own schemas and environment before drawing performance conclusions.</p></details></div>
 </section>
-<section class="closing wrap"><img src="assets/mark.svg" width="44" height="44" alt=""><div><h2>入力のルールを、ひとつの場所に。</h2><p>まずはクエリの例から。変換と拒否の理由まで、スキーマで表してみてください。</p></div><a class="button primary" href="#playground">サンプルを試す ↑</a></section>
+<section class="closing wrap"><img src="assets/mark.svg" width="44" height="44" alt=""><div><h2>Input rules, in one place.</h2><p>Start with the query example. Express conversions and rejection rules in your schema.</p></div><a class="button primary" href="#playground">Try the example ↑</a></section>
 </main>
-<footer class="wrap footer"><div><a class="brand" href="#">loculus</a><span>MIT · 開発版0.1.0 · Node.js 24以上 / ブラウザ</span></div><div><a href="README.md">README</a><a href="compatibility.html">仕様の比較</a><a href="https://github.com/toiroakr/loculus">GitHub ↗</a></div><p>現行実装と検証結果に基づくドキュメント · 2026.10.13</p></footer>
+<footer class="wrap footer"><div><a class="brand" href="#">loculus</a><span>MIT · <span data-package-version>0.2.5</span> · Node.js <span data-node-range>&gt;=22.18.0</span> / browsers</span></div><div><a href="https://github.com/toiroakr/loculus#readme">README</a><a href="compatibility.html">Compatibility</a><a href="https://github.com/toiroakr/loculus">GitHub ↗</a></div><p>Documentation backed by the current implementation and compatibility checks.</p></footer>
 </body>
 </html>

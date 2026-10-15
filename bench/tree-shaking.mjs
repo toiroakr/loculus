@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
 import { gzipSync } from 'node:zlib';
-import { writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 
 import { sources } from './tree-shaking-fixtures.mjs';
 
@@ -46,6 +46,7 @@ for (const minify of [false, true]) {
     assert.ok(report.results['named/readable'].inputs.some(path => path.endsWith('dist/index.js')));
   }
 }
-writeFileSync('bench/tree-shaking-results.json', `${JSON.stringify(report, null, 2)}\n`);
+mkdirSync('bench/generated', { recursive: true });
+writeFileSync('bench/generated/tree-shaking-results.json', `${JSON.stringify(report, null, 2)}\n`);
 console.log('Tree-shaking checks passed (readable and minified browser ESM; published dist entry).');
 console.table(Object.fromEntries(Object.entries(report.results).filter(([name]) => name.endsWith('/minified')).map(([name, value]) => [name, { bytes: value.bytes, gzipBytes: value.gzipBytes }])));

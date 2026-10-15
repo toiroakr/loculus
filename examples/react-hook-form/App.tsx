@@ -17,27 +17,27 @@ function App() {
 
   return <main>
     <span className="eyebrow">LOCULUS × REACT HOOK FORM</span>
-    <h1>明細のあるフォーム</h1>
-    <p>行を追加・削除して、ネストしたエラーと送信時の型変換を試せます。</p>
+    <h1>Order form with line items</h1>
+    <p>Add and remove rows to explore nested errors and type conversion on submission.</p>
     <form noValidate onSubmit={handleSubmit(data => setSubmitted(data), () => setSubmitted(null))}>
-      <label htmlFor="title">注文名</label>
+      <label htmlFor="title">Order title</label>
       <input id="title" {...register("title")} aria-invalid={!!errors.title}
-        aria-describedby={errors.title ? "title-error" : undefined} placeholder="週末の買い物" />
+        aria-describedby={errors.title ? "title-error" : undefined} placeholder="Weekend shopping" />
       {errors.title && <p id="title-error" role="alert">{errors.title.message}</p>}
       <label className="toggle"><input type="checkbox" checked={shippingEnabled} onChange={event => {
         const enabled = event.target.checked;
         setShippingEnabled(enabled);
         if (enabled) setValue("shipping", { zip: "", windows: [["9", "17"]] });
         else unregister("shipping");
-      }} />配送先を指定する</label>
+      }} />Specify delivery details</label>
       {shippingEnabled && <fieldset>
-        <legend>配送先と時間帯</legend>
-        <label htmlFor="shipping-zip">郵便番号</label>
+        <legend>Delivery address and time window</legend>
+        <label htmlFor="shipping-zip">Postal code</label>
         <input id="shipping-zip" {...register("shipping.zip")} aria-invalid={!!errors.shipping?.zip}
           aria-describedby={errors.shipping?.zip ? "shipping-zip-error" : undefined} />
         {errors.shipping?.zip && <p id="shipping-zip-error" role="alert">{errors.shipping.zip.message}</p>}
         <div className="row">{[0, 1].map(index => <div key={index}>
-          <label htmlFor={`shipping-hour-${index}`}>{index === 0 ? "開始時刻" : "終了時刻"}</label>
+          <label htmlFor={`shipping-hour-${index}`}>{index === 0 ? "Start time" : "End time"}</label>
           <input id={`shipping-hour-${index}`} type="number" {...register(`shipping.windows.0.${index}` as const)}
             aria-invalid={!!errors.shipping?.windows?.[0]?.[index]}
             aria-describedby={errors.shipping?.windows?.[0]?.[index] ? `shipping-hour-${index}-error` : undefined} />
@@ -46,23 +46,23 @@ function App() {
           </p>}
         </div>)}</div>
       </fieldset>}
-      <div className="section-title"><h2>商品</h2><span>{fields.length} / 3 行</span></div>
-      <p className="hint">1〜3行。商品名は必須、数量は1〜99の整数です。</p>
+      <div className="section-title"><h2>Item</h2><span>{fields.length} / 3 rows</span></div>
+      <p className="hint">Use 1–3 rows. Each item needs a name and an integer quantity from 1 to 99.</p>
       {fields.map((field, index) => <fieldset key={field.id} data-testid="item-row">
-        <legend>商品 {index + 1}</legend>
+        <legend>Item {index + 1}</legend>
         <div className="row">
           <div>
-            <label htmlFor={`${field.id}-name`}>商品名 {index + 1}</label>
+            <label htmlFor={`${field.id}-name`}>Item name {index + 1}</label>
             <input id={`${field.id}-name`} {...register(`items.${index}.name` as const)}
               aria-invalid={!!errors.items?.[index]?.name}
               aria-describedby={errors.items?.[index]?.name ? `${field.id}-name-error` : undefined}
-              placeholder="りんご" />
+              placeholder="Apple" />
             {errors.items?.[index]?.name && <p id={`${field.id}-name-error`} role="alert">
               {errors.items[index]?.name?.message}
             </p>}
           </div>
           <div>
-            <label htmlFor={`${field.id}-quantity`}>数量 {index + 1}</label>
+            <label htmlFor={`${field.id}-quantity`}>Quantity {index + 1}</label>
             <input id={`${field.id}-quantity`} type="number" {...register(`items.${index}.quantity` as const)}
               aria-invalid={!!errors.items?.[index]?.quantity}
               aria-describedby={errors.items?.[index]?.quantity ? `${field.id}-quantity-error` : undefined} />
@@ -73,31 +73,31 @@ function App() {
         </div>
         <div className="actions">
           <button type="button" className="secondary" onClick={() => remove(index)}
-            aria-label={`商品 ${index + 1} を削除`}>この行を削除</button>
+            aria-label={`Remove item ${index + 1}`}>Remove this row</button>
           {index > 0 && <button type="button" className="secondary" onClick={() => move(index, index - 1)}
-            aria-label={`商品 ${index + 1} を上へ移動`}>上へ移動</button>}
+            aria-label={`Move item ${index + 1} up`}>Move up</button>}
         </div>
       </fieldset>)}
       {arrayError && <p role="alert" data-testid="array-error">{arrayError}</p>}
-      <button type="button" className="secondary" onClick={() => append({ name: "", quantity: "1" })}>商品を追加</button>
+      <button type="button" className="secondary" onClick={() => append({ name: "", quantity: "1" })}>Add item</button>
       <div className="actions">
-        <button type="submit">送信して検証</button>
+        <button type="submit">Submit and validate</button>
         <button type="button" className="secondary" onClick={() => {
           setShippingEnabled(false);
           unregister("shipping");
           reset(initialValues);
           setSubmitted(null);
-        }}>リセット</button>
+        }}>Reset</button>
       </div>
     </form>
     <section className="output" aria-live="polite">
-      <h2>検証後のデータ</h2>
-      <p className="hint">入力中の数量は文字列です。送信時に loculus が number に変換します。</p>
+      <h2>Validated data</h2>
+      <p className="hint">Quantities are strings while editing. Loculus converts them to numbers on submission.</p>
       {submitted ? <pre data-testid="submitted">{JSON.stringify(submitted, null, 2)}</pre>
-        : <p>まだ有効なデータを送信していません。</p>}
+        : <p>No valid data submitted yet.</p>}
     </section>
     <details>
-      <summary>使用するスキーマ</summary>
+      <summary>Schema</summary>
       <pre>{`const item = l.object({
   name: l.string({ trim: true, min: 1 }),
   quantity: l.number({ integer: true, gte: 1, lte: 99 }),
