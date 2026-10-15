@@ -930,3 +930,27 @@ test('converted discriminator probes never invoke error callbacks across generat
     }
   }
 });
+
+test('generated scalar results customize inherited issues with the original field input', async () => {
+  const source = `import * as l from 'loculus';
+    export const seen=[];
+    export const create=()=>l.object({a:l.string()});
+    export const setup=()=>{seen.length=0;l.config({customError:issue=>{seen.push(issue.received);return 'Translated';}});};`;
+  const ordinary = await bundle(source,false);
+  const run = (built:typeof ordinary) => {
+    const schema = built.exports.create();
+    built.exports.setup();
+    let reads = 0;
+    const previous = Object.getOwnPropertyDescriptor(Object.prototype,'issues');
+    const input = {get a(){Object.defineProperty(Object.prototype,'issues',{configurable:true,get(){reads++;return [{message:'inherited',code:'custom'}];}});return 'original';}};
+    try {return {result:schema['~standard'].validate(input),reads,seen:[...built.exports.seen]};}
+    finally {if(previous)Object.defineProperty(Object.prototype,'issues',previous);else delete (Object.prototype as {issues?:unknown}).issues;}
+  };
+  const expected = run(ordinary);
+  assert.deepEqual(expected.result,{issues:[{message:'Translated',code:'custom',path:['a']}]});
+  assert.deepEqual(expected.seen,['original']);
+  for (const objects of ['auto','unroll','loop','chunked'] as const) {
+    const generated = await bundle(source,true,'ts','/loculus-test',{objects});
+    assert.deepEqual(run(generated),expected,objects);
+  }
+});

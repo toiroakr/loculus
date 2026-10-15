@@ -500,7 +500,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
             }
             replacements.push({ start: node.start - prefix.length, end: node.end - prefix.length,
               value: value
-                ? `{if("issues" in {}){const result=${result};${consume(key,dynamic)}}else{${assign}}break ${label};}`
+                ? `{if("issues" in {}){const result=${resolveResult}(${result},raw);${consume(key,dynamic)}}else{${assign}}break ${label};}`
                 : `{${failed}break ${label};}` });
           });
           let emitted = body;
