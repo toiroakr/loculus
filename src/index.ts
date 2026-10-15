@@ -2,6 +2,8 @@ export interface Issue {
   readonly message: string;
   readonly path?: readonly (PropertyKey | { readonly key: PropertyKey })[];
   readonly code?: string;
+  readonly expected?: string;
+  readonly received?: unknown;
   readonly origin?: "string" | "number" | "array";
   readonly min?: number;
   readonly max?: number;
@@ -9,6 +11,7 @@ export interface Issue {
 }
 export interface ErrorContext extends Issue {
   readonly input: unknown;
+  readonly received: unknown;
 }
 export type ErrorCustomization = string | ((issue: ErrorContext) => string | { readonly message: string } | undefined);
 export interface ErrorOptions {
@@ -101,9 +104,25 @@ function field<I, O, Optional extends boolean = undefined extends O ? true : fal
 function fail(message: string, code = "invalid_value", details?: Omit<Issue, "message" | "code" | "path">): { issues: Issue[] } {
   return { issues: [{ message, code, ...details }] };
 }
+function formatReceived(value: unknown): string {
+  if (typeof value === "string") return JSON.stringify(value);
+  if (typeof value === "bigint") return `${value}n`;
+  if (typeof value === "number" && Object.is(value, -0)) return "-0";
+  if (typeof value === "function") return "[Function]";
+  if (value === null || typeof value !== "object") return String(value);
+  try { return JSON.stringify(value) ?? "[Object]"; }
+  catch { return "[Object]"; }
+}
+function typeIssue(expected: string, received: unknown, message: string): Issue {
+  return { message: `${message}, received ${formatReceived(received)}`, code: "invalid_type", expected, received };
+}
+export { typeIssue as _typeIssue };
+function typeFail(expected: string, received: unknown, message: string): { issues: Issue[] } {
+  return { issues: [typeIssue(expected, received, message)] };
+}
 function customizeIssue(issue: Issue, input: unknown, error?: ErrorCustomization): Issue {
   if (error === undefined && configuration.customError === undefined) return issue;
-  const context = { ...issue, input };
+  const context = { ...issue, input, received: input };
   const local = typeof error === "function" ? error(context) : error;
   const fallback = configuration.customError;
   const custom = local ?? (typeof fallback === "function" ? fallback(context) : fallback);
@@ -187,7 +206,7 @@ function errorField(meta: Meta, validate: (value: unknown) => Result<any>, error
 }
 const emptyOptions = {};
 function validateString(value: unknown): Result<string> {
-  return typeof value === "string" ? { value } : fail("Expected a string", "invalid_type");
+  return typeof value === "string" ? { value } : typeFail("string", value, "Expected a string");
 }
 function configuredField<I, O>(
   meta: Meta,
@@ -301,7 +320,7 @@ export function string(
     !options.trim && options.min === undefined && options.max === undefined && !options.pattern
       ? validateString
       : (value) => {
-      if (typeof value !== "string") return fail("Expected a string", "invalid_type");
+      if (typeof value !== "string") return typeFail("string", value, "Expected a string");
       const output = options.trim ? value.trim() : value;
       if (options.min !== undefined && output.length < options.min)
         return fail(`Expected at least ${options.min} characters`, "too_small", { origin: "string", min: options.min, inclusive: true });
@@ -349,7 +368,7 @@ export function number(
     (value) => {
       if (typeof value !== "number") {
         if (typeof value !== "string" || !decimal.test(value))
-          return fail("Expected a decimal number", "invalid_type");
+          return typeFail("number", value, "Expected a decimal number");
         value = Number(value);
       }
       const output = value as number;
@@ -371,7 +390,7 @@ export function number(
 function validateBoolean(value: unknown): Result<boolean> {
   if (value === true || value === "true" || value === "1") return { value: true };
   if (value === false || value === "false" || value === "0") return { value: false };
-  return fail("Expected true, false, 1 or 0", "invalid_type");
+  return typeFail("boolean", value, "Expected true, false, 1 or 0");
 }
 export function boolean(
   options: BasicPresence & { optional: true },
@@ -586,7 +605,7 @@ export function array<I, O>(
     options,
     (value) => {
       if (options.wrapScalar !== true && !Array.isArray(value))
-        return fail("Expected an array", "invalid_type");
+        return typeFail("array", value, "Expected an array");
       const inputs = Array.isArray(value) ? value : [value];
       const output: O[] = [];
       let issues: Issue[] | undefined;
@@ -682,7 +701,7 @@ export function object<S extends Shape>(
   const mode = options.unknownKeys ?? "strict";
   const validate = (input: unknown): Result<ObjectOutput<S>> => {
     if (typeof input !== "object" || input === null || Array.isArray(input))
-      return { issues: [customizeIssue({ message: "Expected an object", code: "invalid_type" }, input, error)] };
+      return { issues: [customizeIssue(typeIssue("object", input, "Expected an object"), input, error)] };
     const raw = input as Record<string, unknown>;
     const output: Record<string, unknown> = {};
     let issues: Issue[] | undefined;
@@ -782,7 +801,7 @@ export function discriminatedUnion<
     },
     (input) => {
       if (typeof input !== "object" || input === null || Array.isArray(input))
-        return { issues: [customizeIssue({ message: "Expected an object", code: "invalid_type" }, input, undefined)] };
+        return { issues: [customizeIssue(typeIssue("object", input, "Expected an object"), input, undefined)] };
       const value = (input as Record<string, unknown>)[key];
       if (!lookup) {
         const map = new Map<unknown, AnySchema | null>();

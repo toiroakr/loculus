@@ -21,12 +21,12 @@ test('error callbacks receive original input and can fall back to built-in messa
     seen.push(issue);
     return issue.input === undefined ? required : undefined;
   } });
-  assert.deepEqual(l.safeParse(field, undefined), { issues: [{ message: '入力してください', code: 'invalid_type' }] });
+  assert.deepEqual(l.safeParse(field, undefined), { issues: [{ message: '入力してください', code: 'invalid_type', expected: 'string', received: undefined }] });
   required = 'Required';
   assert.equal(l.safeParse(field, undefined).issues?.[0]?.message, 'Required');
   assert.deepEqual(l.safeParse(field, ''), { issues: [{ message: 'Expected at least 3 characters', code: 'too_small', origin: 'string', min: 3, inclusive: true }] });
-  assert.deepEqual(seen[0], { message: 'Expected a string', code: 'invalid_type', input: undefined });
-  assert.deepEqual(seen[2], { message: 'Expected at least 3 characters', code: 'too_small', origin: 'string', min: 3, inclusive: true, input: '' });
+  assert.deepEqual(seen[0], { message: 'Expected a string, received undefined', code: 'invalid_type', expected: 'string', received: undefined, input: undefined });
+  assert.deepEqual(seen[2], { message: 'Expected at least 3 characters', code: 'too_small', origin: 'string', min: 3, inclusive: true, input: '', received: '' });
   assert.deepEqual(l.safeParse(l.number({ gte: 1, error: issue => ({ message: `Invalid: ${issue.input}` }) }), '0'),
     { issues: [{ message: 'Invalid: 0', code: 'too_small', origin: 'number', min: 1, inclusive: true }] });
   assert.equal(l.safeParse(l.string({ error: '' }), 1).issues?.[0]?.message, '');
@@ -68,12 +68,12 @@ test('parent array and object errors preserve child messages and nested paths', 
   assert.equal(l.safeParse(form, { rows: [{ name: 'a' }, { name: 'b' }, { name: 'c' }] }).issues?.[0]?.message, '行数が不正です');
   assert.equal(l.safeParse(form, { rows: 'bad' }).issues?.[0]?.message, '行数が不正です');
   assert.deepEqual(l.safeParse(form, { rows: [null] }), { issues: [
-    { message: 'Row: Expected an object', code: 'invalid_type', path: ['rows', 0] },
+    { message: 'Row: Expected an object, received null', code: 'invalid_type', expected: 'object', received: null, path: ['rows', 0] },
   ] });
   assert.deepEqual(l.safeParse(form, { rows: [{ name: 'a', extra: true }] }), { issues: [
     { message: 'Row: Unknown key: extra', code: 'unrecognized_key', path: ['rows', 0, 'extra'] },
   ] });
-  assert.deepEqual(l.safeParse(form, null), { issues: [{ message: 'フォームが不正です', code: 'invalid_type' }] });
+  assert.deepEqual(l.safeParse(form, null), { issues: [{ message: 'フォームが不正です', code: 'invalid_type', expected: 'object', received: null }] });
 });
 
 test('custom errors work through presence options, transforms, refinements and composition', () => {
@@ -103,7 +103,7 @@ test('Standard Schema and ValidationError expose the customized messages', () =>
   const form = l.object({ rows: l.array(l.object({ name: l.string({ error: '名前が必要です' }) })) });
   const input = { rows: [{}] };
   assert.deepEqual(form['~standard'].validate(input), { issues: [
-    { message: '名前が必要です', code: 'invalid_type', path: ['rows', 0, 'name'] },
+    { message: '名前が必要です', code: 'invalid_type', expected: 'string', received: undefined, path: ['rows', 0, 'name'] },
   ] });
   assert.throws(() => l.parse(form, input), (error: unknown) => {
     assert.ok(error instanceof l.ValidationError);
@@ -162,7 +162,7 @@ test('min and max errors can be mapped globally after schema creation', () => {
   try {
     assert.equal(l.safeParse(field, 'a').issues?.[0]?.message, '3文字以上で入力してください');
     assert.equal(l.safeParse(field, 'abcdefghijk').issues?.[0]?.message, '10文字以下で入力してください');
-    assert.equal(l.safeParse(field, 1).issues?.[0]?.message, 'Expected a string');
+    assert.equal(l.safeParse(field, 1).issues?.[0]?.message, 'Expected a string, received 1');
   } finally { l.config({ customError: undefined }); }
 });
 
@@ -213,7 +213,7 @@ test('global messages reach existing nested Standard Schema and React Hook Form 
     const issue = form['~standard'].validate(input).issues![0]!;
     assert.equal(issue.message, 'Translated too_small');
     assert.deepEqual(issue.path, ['rows', 0, 'name']);
-    assert.deepEqual(seen[0], { message: 'Expected at least 3 characters', code: 'too_small', origin: 'string', min: 3, inclusive: true, input: '' });
+    assert.deepEqual(seen[0], { message: 'Expected at least 3 characters', code: 'too_small', origin: 'string', min: 3, inclusive: true, input: '', received: '' });
     assert.equal(seen.length, 1);
     assert.equal('input' in issue, false);
     assert.throws(() => l.parse(form, input), /rows.0.name: Translated too_small/);
@@ -254,4 +254,52 @@ test('global messages handle composition-owned issues and callback exceptions', 
     l.config({ customError: () => { throw new Error('Translation failed'); } });
     assert.throws(() => l.safeParse(l.string(), null), /Translation failed/);
   } finally { l.config({ customError: undefined }); }
+});
+
+test('type errors expose the expected type and the actual received value', () => {
+  assert.deepEqual(l.safeParse(l.string(), 42), { issues: [{
+    message: 'Expected a string, received 42', code: 'invalid_type', expected: 'string', received: 42,
+  }] });
+  assert.deepEqual(l.safeParse(l.number(), 'abc'), { issues: [{
+    message: 'Expected a decimal number, received "abc"', code: 'invalid_type', expected: 'number', received: 'abc',
+  }] });
+  assert.deepEqual(l.safeParse(l.string(), undefined), { issues: [{
+    message: 'Expected a string, received undefined', code: 'invalid_type', expected: 'string', received: undefined,
+  }] });
+});
+
+
+test('received retains original values through custom messages and nested issues', () => {
+  const value = { id: 42 };
+  const seen: l.ErrorContext[] = [];
+  const form = l.object({ name: l.string({ error: issue => { seen.push(issue); return 'Name required'; } }) });
+  const issue = l.safeParse(form, { name: value }).issues![0]!;
+  assert.equal(issue.expected, 'string');
+  assert.equal(issue.received, value);
+  assert.equal(issue.message, 'Name required');
+  assert.deepEqual(issue.path, ['name']);
+  assert.equal(seen[0]?.received, value);
+  assert.equal(seen[0]?.input, value);
+  assert.equal(seen[0]?.message, 'Expected a string, received {"id":42}');
+  assert.equal(l.safeParse(l.boolean(), 'bad').issues?.[0]?.expected, 'boolean');
+  assert.equal(l.safeParse(l.array(l.string()), 'bad').issues?.[0]?.expected, 'array');
+  assert.equal(l.safeParse(l.object({}), []).issues?.[0]?.expected, 'object');
+});
+
+test('received values are readable even when JSON cannot serialize them', () => {
+  const circular: { self?: unknown } = {};
+  circular.self = circular;
+  const throwing = { toJSON() { throw new Error('Cannot serialize'); } };
+  const cases = [
+    [null, 'null'], [undefined, 'undefined'], [NaN, 'NaN'], [Infinity, 'Infinity'],
+    [-Infinity, '-Infinity'], [-0, '-0'], [42n, '42n'], [Symbol('value'), 'Symbol(value)'],
+    [[1, 2], '[1,2]'], [circular, '[Object]'], [throwing, '[Object]'],
+  ] as const;
+  for (const [value, rendered] of cases) {
+    const issue = l.safeParse(l.string(), value).issues![0]!;
+    assert.equal(issue.message, `Expected a string, received ${rendered}`);
+    assert.ok(Object.is(issue.received, value));
+  }
+  const quote = l.safeParse(l.number(), '"\n').issues![0]!;
+  assert.equal(quote.message, 'Expected a decimal number, received '+JSON.stringify('"\n'));
 });

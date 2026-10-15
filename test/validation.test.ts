@@ -57,7 +57,7 @@ test("wide defaults and transforms preserve mutations and fallback paths", () =>
       return { result: library.safeParse(schema, input), events };
     };
     const actual = run(l), prior = run(before);
-    assert.deepEqual(actual.result, prior.result);
+    assert.deepEqual(legacyResult(actual.result), prior.result);
     assert.deepEqual(actual.events, ["get defaulted", "get changed", "transform", ...Array.from({length: 40}, (_, i) => `get s${i}`)]);
   }
 });
@@ -94,7 +94,7 @@ test("fields preserve presence, conversions, bounds and issue details", () => {
   const number = l.number({ default: { nullish: 1 } });
   const referenceNumber = before.number({ default: { nullish: 1 } });
   for (const input of values)
-    assert.deepEqual(l.safeParse(number, input), before.safeParse(referenceNumber, input === "" ? null : input));
+    assert.deepEqual(legacyResult(l.safeParse(number, input)), before.safeParse(referenceNumber, input === "" ? null : input));
 });
 
 test("field options and array validators are captured at construction", () => {

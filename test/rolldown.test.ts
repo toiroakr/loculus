@@ -127,14 +127,14 @@ test('generated basic string errors have fresh results, arrays and issues on eve
   const first = validate(null);
   const second = validate(42);
   assert.deepEqual(first, l.string()['~standard'].validate(null));
-  assert.deepEqual(second, first);
+  assert.deepEqual(second, l.string()['~standard'].validate(42));
   assert.ok(first.issues && second.issues);
   assert.ok(first.issues[0]);
   assert.notEqual(first, second);
   assert.notEqual(first.issues, second.issues);
   assert.notEqual(first.issues[0], second.issues[0]);
   Object.defineProperty(first.issues[0], 'message', {value: 'changed'});
-  assert.deepEqual(validate(undefined), second);
+  assert.deepEqual(validate(undefined), l.string()['~standard'].validate(undefined));
   assert.deepEqual(validate('hello'), {value: 'hello'});
 });
 

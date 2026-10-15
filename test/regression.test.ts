@@ -222,7 +222,7 @@ test("independent boolean schemas preserve presence when configured variants are
   l.boolean({ nullable: true });
   const expected = before.object({ value: before.boolean() });
   for (const input of [{ value: "true" }, { value: "0" }, {}, { value: null }, { value: "other" }])
-    assert.deepEqual(l.safeParse(required, input), before.safeParse(expected, input));
+    assert.deepEqual(legacyResult(l.safeParse(required, input)), before.safeParse(expected, input));
 });
 
 test("passthrough defines unknown properties without invoking inherited setters", () => {
@@ -314,6 +314,6 @@ test("boolean arrays do not share presence configuration between schemas", () =>
     { required: "true", optional: null },
   ]) {
     const result = before.safeParse(expected, input);
-    assert.deepEqual(l.safeParse(schema, input), result);
+    assert.deepEqual(legacyResult(l.safeParse(schema, input)), result);
   }
 });

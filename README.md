@@ -73,7 +73,7 @@ l.config({
       return `${issue.min}文字以上で入力してください`;
     if (issue.code === "too_big" && issue.origin === "string")
       return `${issue.max}文字以下で入力してください`;
-    if (issue.code === "invalid_type" && issue.input === undefined)
+    if (issue.code === "invalid_type" && issue.received === undefined)
       return "必須項目です";
     return undefined;
   },
@@ -107,10 +107,13 @@ with `l.config({ customError: undefined })`. Calling `l.config()` returns the
 current read-only configuration. Configuration is shared within the loaded
 runtime instance; use schema callbacks for request-specific locale selection.
 
-Callbacks receive `ErrorContext`, with the original `input` to the failing schema,
-its default `message`, optional `code`, and optional local `path`. They run during
+Callbacks receive `ErrorContext`, with the original value in `received` (`input`
+is retained as an alias), its default `message`, optional `code`, and optional
+local `path`. They run during
 validation and can read the current locale from your translation function.
-Exceptions propagate to the caller. Input is not added to returned issues.
+Exceptions propagate to the caller. Type errors also include `expected` and the
+actual `received` value in returned issues; objects and arrays retain their
+original references. Other issue kinds expose the received value in callbacks.
 Array and object options customize their own failures, including unknown object
 keys, while children retain their own messages. Callback paths are local to the
 schema; returned issues have the full enclosing path.
@@ -119,11 +122,28 @@ schema; returned issues have the full enclosing path.
 | --- | --- |
 | `too_small` | `origin`: `"string"`, `"number"` or `"array"`; `min`; `inclusive`. |
 | `too_big` | `origin`: `"string"`, `"number"` or `"array"`; `max`; `inclusive`. |
-| `invalid_type` | Input cannot be accepted or converted to the expected type. |
+| `invalid_type` | `expected`: expected output type; `received`: actual input value, before conversion. |
 | `invalid_format` | String pattern check failed. |
 | `unrecognized_key` | Unknown object key; `path` contains that key. |
 | `custom` | Failed `refine` check, with its explicit message. |
 | `invalid_value` | Other failures, including literal, date and composition checks. |
+
+Type-error messages include the received value, quoting strings to distinguish
+them from numbers and missing values:
+
+```ts
+l.safeParse(l.string(), 42);
+// { issues: [{ code: "invalid_type", expected: "string", received: 42,
+//   message: "Expected a string, received 42" }] }
+
+l.safeParse(l.number(), "abc");
+// message: 'Expected a decimal number, received "abc"'
+```
+
+`received` is the value itself, not its type name. JSON-serializable objects and
+arrays are rendered as JSON; values that cannot be serialized use `[Object]` in
+the message while `issue.received` still retains the actual value. `undefined`,
+`NaN`, infinities, negative zero, bigints and symbols have readable representations.
 
 String limits count JavaScript string length; array limits count items; number
 limits use the converted numeric value. `gt` and `lt` have `inclusive: false`;
