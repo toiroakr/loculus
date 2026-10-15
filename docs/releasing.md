@@ -9,9 +9,9 @@ The published library requires Node 24 or newer; CI tests Node 24 and 26.
 ## Normal releases
 
 1. Run `pnpm changeset` for a library change and include the file in its PR.
-2. After the PR is merged into `main`, `.github/workflows/release.yml` runs the
-   typecheck, schema tests, tree-shaking checks, and React Hook Form browser tests.
-   Changesets opens or updates `chore: release` with the version and changelog.
+2. CI runs the typecheck, schema tests, tree-shaking checks, and React Hook Form
+   browser tests. After the PR is merged into `main`, `.github/workflows/release.yml`
+   uses Changesets to open or update `chore: release` with the version and changelog.
 3. Review and merge that release PR. The same workflow publishes the unpublished
    version to npm and creates its GitHub release and version tag.
 
