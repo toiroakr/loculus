@@ -90,17 +90,17 @@ test("object arrays preserve row callback order, converted values and nested err
     {
       input: { items: [{ name: "apple", quantity: "0" }, { name: "forbidden", quantity: "2" }], after: "" },
       result: { issues: [
-        { message: "Expected at least 1", code: "invalid_value", path: ["items", 0, "quantity"] },
+        { message: "Expected at least 1", code: "too_small", origin: "number", min: 1, inclusive: true, path: ["items", 0, "quantity"] },
         { message: "Forbidden item", code: "custom", path: ["items", 1] },
-        { message: "Expected at least 1 characters", code: "invalid_value", path: ["after"] },
+        { message: "Expected at least 1 characters", code: "too_small", origin: "string", min: 1, inclusive: true, path: ["after"] },
       ] },
       events: ["transform", "transform"],
     },
     {
       input: { items: null, after: "" },
       result: { issues: [
-        { message: "Expected an array", code: "invalid_type", path: ["items"] },
-        { message: "Expected at least 1 characters", code: "invalid_value", path: ["after"] },
+        { message: "Expected an array, received null", code: "invalid_type", expected: "array", received: null, path: ["items"] },
+        { message: "Expected at least 1 characters", code: "too_small", origin: "string", min: 1, inclusive: true, path: ["after"] },
       ] },
       events: [],
     },

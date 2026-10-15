@@ -54,6 +54,12 @@ await assert.rejects(import('loculus/rolldown'), {code: 'ERR_PACKAGE_PATH_NOT_EX
 await assert.rejects(import('rolldown'), {code: 'ERR_MODULE_NOT_FOUND'});
 `);
   execFileSync(process.execPath, ['verify.mjs'], { cwd: runtimeOnly, stdio: 'pipe' });
+  await writeFile(join(runtimeOnly, 'verify-types.ts'), `
+import {config} from 'loculus';
+config({customError: () => 'Translated'});
+config({customError: undefined});
+`);
+  execFileSync(join(root, 'node_modules/.bin/tsc'), ['--noEmit', '--strict', '--exactOptionalPropertyTypes', '--skipLibCheck', '--target', 'ES2022', '--module', 'NodeNext', 'verify-types.ts'], { cwd: runtimeOnly, encoding: 'utf8', stdio: 'pipe' });
   const optimized = await consumer('optimized', [join(work, runtime.filename), join(work, plugin.filename)]);
   await symlink(join(root, 'node_modules/rolldown'), join(optimized, 'node_modules/rolldown'), 'dir');
   const pluginManifest = JSON.parse(await readFile(join(optimized, 'node_modules/@loculus/rolldown/package.json'), 'utf8'));

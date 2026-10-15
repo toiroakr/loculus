@@ -113,7 +113,7 @@ test("arrays require arrays by default and only explicit wrapping accepts scalar
   for (const options of [undefined, {}, { wrapScalar: undefined }, { wrapScalar: false }]) {
     const schema = l.array(l.number(), options);
     for (const value of ["42", 42, null, undefined]) assert.deepEqual(l.safeParse(schema, value), {
-      issues: [{ message: "Expected an array", code: "invalid_type" }],
+      issues: [{ message: `Expected an array, received ${typeof value === "string" ? JSON.stringify(value) : String(value)}`, code: "invalid_type", expected: "array", received: value }],
     });
   }
   if (false) {
