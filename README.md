@@ -55,7 +55,7 @@ Custom transforms and refinements are synchronous. Exceptions from user callback
 
 Non-string literals expose `meta.kind` as `"number"` or `"boolean"` and their typed choices in `meta.literalValues` (for example, `[42]` or `[true]`). Mixed-type literals expose `meta.kind: "union"`, their choices in `meta.literalValues`, and the individual literal schemas in `meta.options`. String literals and enums retain `meta.enumValues: readonly string[]`. Arrays propagate the child choices; transforms and refinements retain input metadata. CLI adapters can use the input kind for conversion and inspect `literalValues` for non-string choices.
 
-`discriminatedUnion` supports boolean and numeric literal discriminants. Branch selection uses the raw input value and its type: numeric `42` and string `"42"` select distinct branches. Pass typed booleans/numbers as discriminants; their string forms are rejected unless a matching string branch exists. Selected branches still convert other fields normally.
+`discriminatedUnion` supports boolean and numeric literal discriminants. Exact typed matches take precedence: numeric `42` and string `"42"` select distinct branches. When no exact match exists, string inputs use the discriminator fields' scalar conversions (for example, `"42.0"` to `42` or `"true"` to `true`). If multiple branches accept the converted input, the first declared branch wins. The selected branch performs ordinary validation; a failure does not retry other branches. Inputs shared by enclosing union, xor or intersection branches are not mutated.
 
 ## Build-time code generation
 

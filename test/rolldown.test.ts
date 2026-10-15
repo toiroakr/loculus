@@ -497,7 +497,7 @@ test('literal object kernels inline comparisons across strategies and preserve r
   }
 });
 
-test('generated literal discriminants retain raw typed branch selection', async () => {
+test('generated literal discriminants retain typed matches and scalar conversions', async () => {
   const source = `import * as l from 'loculus';export const create=()=>l.discriminatedUnion('kind',[
     l.object({kind:l.literal(['auto',1,true]),value:l.literal([1,2])}),
     l.object({kind:l.literal([2,false]),value:l.literal([3,4])})
@@ -698,4 +698,61 @@ test('non-string literals preserve ordinary and optimized values, issues and met
   }
   assert.deepEqual(optimized.exports.factories[7]()['~standard'].validate({flag:'1'}), {value:{flag:true,count:42}});
   assert.deepEqual(optimized.exports.factories[9]()['~standard'].validate({kind:false,count:'0'}), {value:{kind:false,count:0}});
+});
+
+test('discriminator scalar conversions survive every object optimization strategy and composite wrapper', async () => {
+  const source = `import * as l from 'loculus';
+    const numeric=()=>l.discriminatedUnion('edition',[
+      l.object({edition:l.literal(1),value:l.string()},{unknownKeys:'strip'}),
+      l.object({edition:l.literal(2),value:l.string()},{unknownKeys:'strip'})
+    ]);
+    const wrap=schema=>l.transform(l.refine(schema,value=>!('value' in value)||value.value!=='bad','Bad value'),value=>({...value,transformed:true}));
+    export const createCallbacks=()=>{
+      let calls=0;
+      return {count:()=>calls,schema:l.discriminatedUnion('kind',[
+        l.object({kind:l.transform(l.refine(l.literal(1),()=>{calls++;return true},'Rejected'),value=>{calls++;return value})}),
+        l.object({kind:l.literal(true)})
+      ]),rejected:l.discriminatedUnion('kind',[
+        l.object({kind:l.refine(l.literal(1),()=>false,'Rejected')}),l.object({kind:l.literal(true)})
+      ])};
+    };
+    export const factories=[numeric,
+      ()=>l.discriminatedUnion('edition',[l.object({edition:l.literal(true)}),l.object({edition:l.literal(false)})]),
+      ()=>l.discriminatedUnion('edition',[l.object({edition:l.literal(1)}),l.object({edition:l.literal(true)}),l.object({edition:l.literal('1')})]),
+      ()=>l.discriminatedUnion('edition',[l.object({edition:l.literal(true)}),l.object({edition:l.literal(1)})]),
+      ()=>wrap(l.union([numeric(),l.object({other:l.string()})])),
+      ()=>wrap(l.xor([numeric(),l.object({other:l.string()})])),
+      ()=>wrap(l.intersection(numeric(),l.object({extra:l.string()},{unknownKeys:'strip'})))
+    ];`;
+  const before = await bundle(source, false);
+  const inputs = [
+    {edition:'2',value:'hello'}, {edition:'2.0',value:'hello',extra:'kept'},
+    {edition:'2e0',value:'bad',extra:'kept'}, {edition:'+2',value:'hello',extra:'kept'},
+    {edition:2,value:42}, {edition:'3',value:'hello',extra:'kept'},
+    {edition:' 2',value:'hello'}, {edition:'0x2',value:'hello'},
+    ...['true','false','1','0',1,true,'TRUE',null,undefined].map(edition=>({edition})), null, [],
+  ];
+  for (const objects of ['auto','unroll','loop','chunked',false] as const) {
+    const after = await bundle(source, true, 'ts', '/loculus-test', {objects});
+    assert.doesNotMatch(after.transformed, /l\.literal\(/);
+    for (let i = 0; i < before.exports.factories.length; i++) {
+      const normal = before.exports.factories[i](), optimized = after.exports.factories[i]();
+      for (const input of inputs)
+        assert.deepEqual(optimized['~standard'].validate(input), normal['~standard'].validate(input), `${objects}: ${i}`);
+    }
+    const validate = (index: number, input: unknown) => after.exports.factories[index]()['~standard'].validate(input);
+    assert.deepEqual(validate(0,{edition:'2.0',value:'hello'}), {value:{edition:2,value:'hello'}});
+    assert.deepEqual(validate(1,{edition:'0'}), {value:{edition:false}});
+    assert.deepEqual(validate(2,{edition:'1'}), {value:{edition:'1'}});
+    assert.deepEqual(validate(3,{edition:'1'}), {value:{edition:true}});
+    const callbacks = after.exports.createCallbacks();
+    assert.deepEqual(callbacks.schema['~standard'].validate({kind:'1'}), {value:{kind:1}});
+    assert.equal(callbacks.count(), 2);
+    assert.equal(callbacks.rejected['~standard'].validate({kind:'1'}).issues?.[0]?.message, 'Rejected');
+    for (const i of [4,5,6]) {
+      assert.deepEqual(validate(i,{edition:'2.0',value:'hello',extra:'kept'}),
+        {value:{edition:2,value:'hello',...(i===6?{extra:'kept'}:{}),transformed:true}});
+      assert.equal(validate(i,{edition:'2.0',value:'bad',extra:'kept'}).issues?.[0]?.message, 'Bad value');
+    }
+  }
 });
