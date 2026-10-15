@@ -18,6 +18,22 @@ try {
     await page.waitForFunction(() => document.getElementById('result-status').textContent === 'VALID');
     const schema = page.locator('#playground-schema');
     assert.equal(await schema.isVisible(), true);
+    const contrasts = await page.locator('.schema-side .twinkleplop .tok, .code-panel .twinkleplop .tok').evaluateAll(tokens => {
+      const luminance = color => {
+        const rgb = color.match(/[\d.]+/g).slice(0, 3).map(value => {
+          const channel = Number(value) / 255;
+          return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+        });
+        return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722;
+      };
+      return tokens.map(token => {
+        const foreground = luminance(getComputedStyle(token).color);
+        const background = luminance(getComputedStyle(token.closest('.schema-side, .code-panel')).backgroundColor);
+        return { text: token.textContent, ratio: (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05) };
+      });
+    });
+    for (const { text, ratio } of contrasts) assert.ok(ratio >= 4.5, `Schema token ${JSON.stringify(text)} has insufficient contrast: ${ratio.toFixed(2)}:1`);
+    await page.locator('.schema-side').screenshot({ path: dir + width + '-schema.png' });
     const hero = await page.locator('#hero-code').textContent();
     const keyword = page.locator('#hero-code .keyword').first();
     const string = page.locator('#hero-code .string').first();

@@ -8,7 +8,7 @@ import { codeContents, highlightJson } from './site/assets/highlight.js';
 const ts = typescript();
 const shell = bash();
 const lightCSS = await readFile(new URL(import.meta.resolve('@twinkleplop/theme-github/light')), 'utf8');
-export const syntaxCSS = lightCSS + '\n.code-panel .twinkleplop{' + Object.entries(dark)
+export const syntaxCSS = lightCSS + '\n.code-panel .twinkleplop,.schema-side .twinkleplop{' + Object.entries(dark)
   .filter(([key]) => key !== 'background_color')
   .map(([key, value]) => `--twp-${key}:${value};`).join('') + '}';
 export function highlightContents(source, lang = 'typescript') {
