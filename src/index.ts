@@ -281,9 +281,6 @@ function configuredField<I, O>(
   return customize ? errorField(meta, validate) : field(meta, validate);
 }
 
-export function configure(options: Config): void {
-  config(options);
-}
 export function countString(value: string, length: StringLength | undefined = configuration.stringLength): number {
   if (!length) return value.length;
   const count = length(value);
