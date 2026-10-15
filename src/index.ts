@@ -149,6 +149,7 @@ function configuredField<I, O>(
   meta: Meta,
   options: FieldOptions<O>,
   validate: (value: unknown) => Result<O>,
+  emptyAsNull = false,
 ): Field<any, any, boolean> {
   if (options === emptyOptions) return { meta, "~standard": { version: 1, vendor: "loculus", validate }, field: true } as Field<any, any, boolean>;
   const value = own(options, "default") ? options.default : undefined;
@@ -175,7 +176,7 @@ function configuredField<I, O>(
     const base = validate;
     if (optional || nullable) validate = (input: unknown): Result<any> => {
       if (input === undefined && optional) return { value: missing };
-      if (input === null && nullable) return { value: defaults & 2 ? nil : null };
+      if (nullable && (input === null || (emptyAsNull && input === ""))) return { value: defaults & 2 ? nil : null };
       return base(input);
     };
     (meta as { optional: boolean }).optional = optional;
@@ -320,6 +321,7 @@ export function number(
         return fail(`Expected at most ${options.lte}`);
       return { value: output };
     },
+    true,
   );
 }
 function validateBoolean(value: unknown): Result<boolean> {
