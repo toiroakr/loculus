@@ -106,14 +106,18 @@ try {
 `);
   execFileSync(process.execPath, ['verify.mjs'], { cwd: optimized, stdio: 'pipe' });
   const release = join(work, 'release');
-  for (const path of ['package.json', 'pnpm-workspace.yaml', '.changeset', 'THIRD_PARTY_NOTICES', 'dist', 'packages/rolldown/package.json', 'packages/rolldown/dist']) {
+  for (const path of ['package.json', 'pnpm-workspace.yaml', '.changeset/config.json', 'THIRD_PARTY_NOTICES', 'dist', 'packages/rolldown/package.json', 'packages/rolldown/dist']) {
     await mkdir(join(release, path, '..'), { recursive: true });
     await cp(join(root, path), join(release, path), { recursive: true });
   }
+  await writeFile(join(release, '.changeset/packed-release.md'), '---\n"loculus": minor\n---\n\nVerify the next runtime release and plugin peer dependency.\n');
   await symlink(join(root, 'node_modules'), join(release, 'node_modules'), 'dir');
   execFileSync('pnpm', ['exec', 'changeset', 'version'], { cwd: release, stdio: 'pipe' });
   const releasedRuntime = pack(release);
   const releasedPlugin = pack(join(release, 'packages/rolldown'));
+  const [major, minor] = parseVersion(runtime.version);
+  assert.equal(releasedRuntime.version, `${major}.${minor + 1}.0`);
+  assert.notEqual(releasedPlugin.version, plugin.version);
   const released = await consumer('released', [join(work, releasedRuntime.filename), join(work, releasedPlugin.filename)]);
   const releasedManifest = JSON.parse(await readFile(join(released, 'node_modules/@loculus/rolldown/package.json'), 'utf8'));
   assert.equal(releasedManifest.peerDependencies.loculus, `^${releasedRuntime.version}`);
