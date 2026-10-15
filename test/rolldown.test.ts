@@ -756,3 +756,90 @@ test('discriminator scalar conversions survive every object optimization strateg
     }
   }
 });
+
+test('custom errors preserve messages and callbacks in generated parents and runtime fallbacks', async () => {
+  const source = `import * as l from 'loculus';
+    export const seen=[];
+    const error=issue=>{seen.push(issue);return issue.input===undefined?'Required':undefined;};
+    export const factories=[
+      ()=>l.string({min:2,error:'Name'}),
+      ()=>l.number({gte:1,error}),
+      ()=>l.boolean({error:'Flag'}),
+      ()=>l.enum(['a','b'],{error:'Choice'}),
+      ()=>l.literal([42,true,'a'],{error:'Literal'}),
+      ()=>l.date({error:'Date'}),
+      ()=>l.array(l.number({error:'Number'}),{min:1,error:'Rows'}),
+      ()=>l.object({name:l.string({error:'Name'}),count:l.number()}),
+      ()=>l.object({name:l.string({min:2})},{error:'Object'}),
+      ()=>l.object({rows:l.array(l.object({name:l.string({error})}),{min:1,error:'Rows'})}),
+      ()=>l.object({name:l.string({error})},{optional:true,error:'Object'}),
+    ];`;
+  const before = await bundle(source, false);
+  const after = await bundle(source);
+  assert.match(after.transformed, /function __loculus_/);
+  for (let i = 0; i < before.exports.factories.length; i++) {
+    const ordinary = before.exports.factories[i]();
+    const optimized = after.exports.factories[i]();
+    for (const input of [undefined, null, '', 'a', 'bad', '0', 1, true, [], ['bad'], {},
+      { name: 1 }, { name: 'a', extra: true }, { rows: [] }, { rows: [{}] }, { rows: [{ name: 1 }] }]) {
+      assert.deepEqual(optimized['~standard'].validate(input), ordinary['~standard'].validate(input), `${i}: ${JSON.stringify(input)}`);
+    }
+  }
+  assert.deepEqual(after.exports.seen, before.exports.seen);
+});
+
+test('global error maps and structured bounds match runtime in every generated object strategy', async () => {
+  const source = `import * as l from 'loculus';
+    export const seen=[];
+    export const setup=prefix=>l.config({customError:prefix===undefined?undefined:issue=>{seen.push(issue);return prefix+':'+issue.code+':'+issue.origin+':'+(issue.min??issue.max)+':'+issue.inclusive;}});
+    export const schemas=[
+      l.string({min:3,max:10,trim:true}),
+      l.number({gt:3,lt:10}),
+      l.array(l.string({min:3,max:10}),{min:1,max:2}),
+      l.object({name:l.string({min:3,max:10}),count:l.number({gte:1,lte:5}),local:l.string({min:1,error:'Local'})}),
+      l.object({rows:l.array(l.number({gte:1,lte:5}),{min:1,max:2})}),
+      l.object({${Array.from({length:40},(_,i)=>`f${i}:l.string({min:3,max:10})`).join(',')}}),
+    ];`;
+  const ordinary = await bundle(source, false);
+  for (const strategy of ['auto', 'unroll', 'loop', 'chunked'] as const) {
+    const generated = await bundle(source, true, 'ts', '/loculus-test', {objects:strategy});
+    assert.match(generated.transformed, /function __loculus_/);
+    for (const prefix of ['ja', 'en', undefined]) {
+      ordinary.exports.seen.length = 0;
+      generated.exports.seen.length = 0;
+      ordinary.exports.setup(prefix);
+      generated.exports.setup(prefix);
+      for (let i=0;i<ordinary.exports.schemas.length;i++) {
+        for (const input of [undefined, null, '', '  a  ', 'abcdefghijk', '3', '10', 'bad', [], ['a'], ['abc', 'def', 'ghi'],
+          {name:'',count:'0',local:''}, {name:'abcdefghijk',count:'6',local:'a',extra:true},
+          {rows:['0','6']}, {rows:[]}, Object.fromEntries(Array.from({length:40},(_,i)=>[`f${i}`,i%2?'a':'abcdefghijk']))]) {
+          assert.deepEqual(generated.exports.schemas[i]['~standard'].validate(input), ordinary.exports.schemas[i]['~standard'].validate(input), `${strategy}: ${i}: ${JSON.stringify(input)}`);
+        }
+      }
+      assert.deepEqual(generated.exports.seen,ordinary.exports.seen);
+    }
+  }
+});
+
+test('generated field errors read accessors once and pass the original value to error maps', async () => {
+  const source = `import * as l from 'loculus';
+    export const form=l.object({name:l.string({min:3}),count:l.number({gte:1})});
+    export const run=custom=>{
+      const reads=[];
+      const seen=[];
+      l.config({customError:custom?issue=>{seen.push(issue.input);return 'Translated';}:undefined});
+      const input={
+        get name(){reads.push('name');return reads.filter(key=>key==='name').length===1?'a':'changed';},
+        get count(){reads.push('count');return reads.filter(key=>key==='count').length===1?'0':'2';},
+      };
+      return {result:form['~standard'].validate(input),reads,seen};
+    };`;
+  const ordinary = await bundle(source, false);
+  const generated = await bundle(source);
+  for (const custom of [false, true]) {
+    const expected = ordinary.exports.run(custom);
+    assert.deepEqual(expected.reads, ['name', 'count']);
+    if (custom) assert.deepEqual(expected.seen, ['a', '0']);
+    assert.deepEqual(generated.exports.run(custom), expected);
+  }
+});

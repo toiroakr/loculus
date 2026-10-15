@@ -145,11 +145,12 @@ function options(args: unknown[], kind: Kind): Options | undefined {
 function emit(value: Scalar): string {
   return value === undefined ? 'void 0' : Object.is(value, -0) ? '-0' : JSON.stringify(value);
 }
-function issueResult(message: string, code = 'invalid_value'): string {
-  return `{issues:[{message:${JSON.stringify(message)},code:${JSON.stringify(code)}}]}`;
+function issueResult(message: string, code = 'invalid_value', details: Record<string, Scalar> = {}): string {
+  const extra = Object.entries(details).map(([key, value]) => `,${key}:${emit(value)}`).join('');
+  return `{issues:[{message:${JSON.stringify(message)},code:${JSON.stringify(code)}${extra}}]}`;
 }
-function failure(message: string, code = 'invalid_value'): string {
-  return `return ${issueResult(message,code)};`;
+function failure(message: string, code = 'invalid_value', details: Record<string, Scalar> = {}): string {
+  return `return ${issueResult(message,code,details)};`;
 }
 function numericConversion(decimal: string): string {
   return `if(typeof value!=="number"){if(typeof value!=="string"||!${decimal}.test(value)){${failure('Expected a decimal number', 'invalid_type')}}value=Number(value);}if(!Number.isFinite(value)){${failure('Expected a finite number')}}`;
@@ -231,8 +232,8 @@ function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta
   } else if (kind === 'string') {
     body += `if(typeof value!=="string"){${failure('Expected a string', 'invalid_type')}}`;
     if (opts.trim) body += 'value=value.trim();';
-    if (opts.min !== undefined) body += `if(value.length<${emit(opts.min as number)}){${failure(`Expected at least ${opts.min} characters`)}}`;
-    if (opts.max !== undefined) body += `if(value.length>${emit(opts.max as number)}){${failure(`Expected at most ${opts.max} characters`)}}`;
+    if (opts.min !== undefined) body += `if(value.length<${emit(opts.min as number)}){${failure(`Expected at least ${opts.min} characters`, 'too_small', { origin: 'string', min: opts.min as number, inclusive: true })}}`;
+    if (opts.max !== undefined) body += `if(value.length>${emit(opts.max as number)}){${failure(`Expected at most ${opts.max} characters`, 'too_big', { origin: 'string', max: opts.max as number, inclusive: true })}}`;
     body += 'return {value};';
   } else if (kind === 'number') {
     body += numericConversion(decimal);
@@ -241,7 +242,7 @@ function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta
       ['gt', '>', 'Expected greater than'], ['gte', '>=', 'Expected at least'],
       ['lt', '<', 'Expected less than'], ['lte', '<=', 'Expected at most'],
     ]) {
-      if (opts[key!] !== undefined) body += `if(!(value${operator}${emit(opts[key!] as number)})){${failure(`${message} ${opts[key!]}`)}}`;
+      if (opts[key!] !== undefined) body += `if(!(value${operator}${emit(opts[key!] as number)})){${failure(`${message} ${opts[key!]}`, key === 'gt' || key === 'gte' ? 'too_small' : 'too_big', { origin: 'number', [key === 'gt' || key === 'gte' ? 'min' : 'max']: opts[key!] as number, inclusive: key === 'gte' || key === 'lte' })}}`;
     }
     body += 'return {value};';
   } else {
@@ -267,11 +268,13 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         lang: extension.endsWith('tsx') ? 'tsx' : extension.endsWith('jsx') ? 'jsx' : extension.includes('t') ? 'ts' : 'js',
       }) as unknown as Node;
       const imports = new Map<string, Factory | '*'>();
+      let runtimeModule: string | undefined;
       let insert = /^#![^\r\n\u2028\u2029]*(?:\r\n|[\r\n\u2028\u2029]|$)/.exec(code)?.[0].length ?? 0;
       for (const statement of ast.body as Node[]) {
         if (statement.type === 'ExpressionStatement' && statement.directive) insert = statement.end;
         if (statement.type !== 'ImportDeclaration') continue;
         if (!isNode(statement.source) || !modules.has(statement.source.value as string) || statement.importKind === 'type') continue;
+        runtimeModule ??= statement.source.value as string;
         for (const specifier of statement.specifiers as Node[]) {
           const local = name(specifier.local);
           if (!local || specifier.importKind === 'type') continue;
@@ -314,6 +317,9 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       const collect = unique();
       const invalid = unique();
       const enumMeta = unique();
+      const resolveIssue = unique();
+      const resolveResult = unique();
+      const configuration = unique();
       let needsDecimal = false;
       let needsLiteralDecimal = false;
       let needsEnumMeta = false;
@@ -464,9 +470,9 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           let failed = '';
           if (!value) {
             const list = props.issues!;
-            const issue = properties((list.elements as Node[])[0])!;
             const src = prefix+body+'}';
-            failed = `issues=${invalid}(${keyExpression},input,output,issues,${src.slice(issue.message!.start,issue.message!.end)},${src.slice(issue.code!.start,issue.code!.end)});`;
+            const issueNode = (list.elements as Node[])[0]!;
+            failed = `issues=${invalid}(${keyExpression},input,output,issues,${src.slice(issueNode.start,issueNode.end)},raw);`;
           }
           replacements.push({ start: node.start - prefix.length, end: node.end - prefix.length,
             value: value
@@ -480,7 +486,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           const validator = helpers.get(generate(spec,'',decimalFor(spec),enumMeta).body)!.name;
           emitted = `if("issues" in {}){const result=${validator}(value);${consume(key,dynamic)}break ${label};}` + emitted;
         }
-        return `${label}:{let value=input[${keyExpression}];${emitted}}`;
+        return `${label}:{const raw=input[${keyExpression}];let value=raw;${emitted}}`;
       };
       const arrayValidators = new Map<Node,string>();
       const arrayHelpers = new Map<string, {factory:string;validate:string;body:string;description:Scalar}>();
@@ -497,8 +503,8 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           if(array.opts.wrapScalar!==true)body+=`if(!Array.isArray(value)){${failure('Expected an array','invalid_type')}}`;
           body+='const inputs=Array.isArray(value)?value:[value];';
           body+=`const output=[];let issues;for(let i=0;i<inputs.length;i++){const result=${validator}(inputs[i]);if(result.issues)for(const issue of result.issues)(issues??=[]).push({...issue,path:issue.path?[i,...issue.path]:[i]});else output.push(result.value);}if(issues)return {issues};`;
-          if(array.opts.min!==undefined)body+=`if(inputs.length<${emit(array.opts.min)}){${failure(`Expected at least ${array.opts.min} items`)}}`;
-          if(array.opts.max!==undefined)body+=`if(inputs.length>${emit(array.opts.max)}){${failure(`Expected at most ${array.opts.max} items`)}}`;
+          if(array.opts.min!==undefined)body+=`if(inputs.length<${emit(array.opts.min)}){${failure(`Expected at least ${array.opts.min} items`, 'too_small', { origin: 'array', min: array.opts.min, inclusive: true })}}`;
+          if(array.opts.max!==undefined)body+=`if(inputs.length>${emit(array.opts.max)}){${failure(`Expected at most ${array.opts.max} items`, 'too_big', { origin: 'array', max: array.opts.max, inclusive: true })}}`;
           body+='return {value:output};';
           const signature=JSON.stringify([body,array.opts.description]);
           let helper=arrayHelpers.get(signature);
@@ -564,7 +570,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
             }
             unknown = `!Object.hasOwn(${index},key)`;
           }
-          if (object.mode === 'strict') body += `for(const key in input)if(${unknown}){(issues??=[]).push({message:"Unknown key: "+key,code:"unrecognized_key",path:[key]});break;}`;
+          if (object.mode === 'strict') body += `for(const key in input)if(${unknown}){(issues??=[]).push(${resolveIssue}({message:"Unknown key: "+key,code:"unrecognized_key",path:[key]},input));break;}`;
           if (object.mode === 'passthrough') body += `for(const key in input)if(key!=="__proto__"&&${unknown}){const value=input[key];if(key in output)Object.defineProperty(output,key,{value,enumerable:true,writable:true,configurable:true});else output[key]=value;}`;
           body += 'return issues?{issues}:{value:output};';
           const signature = JSON.stringify([body, captures, object.mode, object.description]);
@@ -602,13 +608,14 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         }
       };
       select(ast);
-      let generated = '\n';
+      let generated = `\nimport { _resolveIssue as ${resolveIssue}, config as ${configuration} } from ${JSON.stringify(runtimeModule)};\n`;
+      generated += `function ${resolveResult}(result,input){if(${configuration}().customError===void 0)return result;return result.issues?{issues:result.issues.map(issue=>issue.path?.length?issue:${resolveIssue}(issue,input))}:result;}\n`;
       const decimalPattern = '/^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$/';
       if (needsDecimal) generated += `const ${decimal}=${decimalPattern};\n`;
       if (needsLiteralDecimal) generated += `function ${literalDecimal}(){return ${literalDecimal}.pattern??=${decimalPattern};}\n`;
       if (needsEnumMeta) generated += `function ${enumMeta}(values,description){const Metadata=${enumMeta}.Metadata??=class{#choices;constructor(values,description){this.description=description;this.kind="string";this.#choices=values;}get enumValues(){return this.#choices;}set enumValues(values){this.#choices=values;}};return new Metadata(values,description);}\n`;
       generated += groups.join('\n')+'\n'+chunks.join('\n')+'\n';
-      if (objects.size) generated += `function ${collect}(result,key,input,output,issues){if(result.issues){issues??=[];for(const issue of result.issues)issues.push({...issue,path:issue.path?[key,...issue.path]:[key]});}else if(result.value!==void 0||key in input){output[key]=result.value;}return issues;}function ${invalid}(key,input,output,issues,message,code){return ${collect}({issues:[{message,code}]},key,input,output,issues);}\n`;
+      if (objects.size) generated += `function ${collect}(result,key,input,output,issues){if(result.issues){issues??=[];for(const issue of result.issues)issues.push({...issue,path:issue.path?[key,...issue.path]:[key]});}else if(result.value!==void 0||key in input){output[key]=result.value;}return issues;}function ${invalid}(key,input,output,issues,issue,raw){return ${collect}({issues:[${resolveIssue}(issue,raw)]},key,input,output,issues);}\n`;
       if (literalError) generated += `function ${literalError}(message,code){return {issues:[{message,code}]};}\n`;
       for (const helper of helpers.values()) {
         let body = helper.body;
@@ -617,16 +624,16 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           generated += `function ${error}(message,code){return {issues:[{message,code}]};}\n`;
           body = body.replace(failure('Expected a string', 'invalid_type'), `return ${error}("Expected a string","invalid_type");`);
         }
-        generated += `function ${helper.name}(value){${body}}\n`;
+        generated += `function ${helper.name}(value){const input=value;const result=(()=>{${body}})();return ${resolveResult}(result,input);}\n`;
       }
       for (const [expression,create] of scalarFactories) generated += `/* @__NO_SIDE_EFFECTS__ */ function ${create}(){return ${expression};}\n`;
       for(const helper of arrayHelpers.values()){
-        generated+=`function ${helper.validate}(value){${helper.body}}\n`;
+        generated+=`function ${helper.validate}(value){const result=(()=>{${helper.body}})();return ${resolveResult}(result,value);}\n`;
         generated+=`/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(inner){return {meta:{kind:"array",inner,enumValues:inner.meta.enumValues,...(inner.meta.literalValues?{literalValues:inner.meta.literalValues}:{}),description:${emit(helper.description)}},"~standard":{version:1,vendor:"loculus",validate:${helper.validate}},field:true};}\n`;
       }
       for (const helper of objectHelpers.values()) {
         const args = helper.captures.map((_,index)=>`v${index}`);
-        generated += `function ${helper.validate}(input${args.length?','+args.join(','):''}){${helper.body}}\n`;
+        generated += `function ${helper.validate}(input${args.length?','+args.join(','):''}){const result=(()=>{${helper.body}})();return ${resolveResult}(result,input);}\n`;
         generated += `/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(shape){${helper.captures.map((key,index)=>`const v${index}=shape[${emit(key)}]["~standard"].validate;`).join('')}return {meta:{kind:"object",shape,unknownKeys:${emit(helper.spec.mode)},description:${emit(helper.spec.description)}},"~standard":{version:1,vendor:"loculus",validate:${args.length?`(input)=>${helper.validate}(input,${args.join(',')})`:helper.validate}},shape,field:true};}\n`;
       }
       for (const replacement of replacements) output.overwrite(replacement.node.start,replacement.node.end,replacement.value);

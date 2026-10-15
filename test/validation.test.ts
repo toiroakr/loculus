@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as l from "../src/index.js";
+import { legacyResult } from "./helpers/legacy-result.js";
 import * as before from "../bench/single-use/before/index.js";
 
 test("wide objects preserve changing Result accessors and exceptions", () => {
@@ -88,7 +89,7 @@ test("fields preserve presence, conversions, bounds and issue details", () => {
     const normal = l.object({ value: field });
     const reference = before.object({ value: references[index]! });
     for (const input of [{}, ...values.map((value) => ({ value }))])
-      assert.deepEqual(l.safeParse(normal, input), before.safeParse(reference, input));
+      assert.deepEqual(legacyResult(l.safeParse(normal, input)), before.safeParse(reference, input));
   }
 });
 
@@ -135,7 +136,7 @@ test("validation remains independent of public field metadata", () => {
   Object.assign(field.meta, { kind: "boolean", enumValues: ["other"] });
   const reference = before.object({ value: before.string({ min: 1, max: 3 }) });
   for (const value of ["a", "", "abcd", true, undefined, null])
-    assert.deepEqual(l.safeParse(schema, { value }), before.safeParse(reference, { value }));
+    assert.deepEqual(legacyResult(l.safeParse(schema, { value })), before.safeParse(reference, { value }));
 });
 
 test("objects support opaque callable field validators", () => {

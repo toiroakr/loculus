@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as l from "../src/index.js";
+import { legacyResult } from "./helpers/legacy-result.js";
 import * as before from "../bench/optimization-2/before/index.js";
 import * as v from "valibot";
 import {z} from "zod";
@@ -275,7 +276,7 @@ test("numeric failures retain raw coercion semantics and field order", () => {
   const current = create(l);
   for (const value of ["1e309", "NaN", "Infinity", "0x10", " 2 ", "", "-0", "99.5", "1e2", NaN, Infinity, -Infinity, null, undefined]) {
     const input = { first: value, second: value };
-    assert.deepEqual(l.safeParse(current, input), before.safeParse(expected, input));
+    assert.deepEqual(legacyResult(l.safeParse(current, input)), before.safeParse(expected, input));
   }
   for (const input of [{ first: "2", second: "3" }, { second: "3", first: "2", optional: undefined }]) {
     const result = l.parse(current, input);

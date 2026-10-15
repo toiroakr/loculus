@@ -2,6 +2,25 @@ export interface Issue {
   readonly message: string;
   readonly path?: readonly (PropertyKey | { readonly key: PropertyKey })[];
   readonly code?: string;
+  readonly origin?: "string" | "number" | "array";
+  readonly min?: number;
+  readonly max?: number;
+  readonly inclusive?: boolean;
+}
+export interface ErrorContext extends Issue {
+  readonly input: unknown;
+}
+export type ErrorCustomization = string | ((issue: ErrorContext) => string | { readonly message: string } | undefined);
+export interface ErrorOptions {
+  readonly error?: ErrorCustomization;
+}
+export interface Config {
+  readonly customError?: ErrorCustomization;
+}
+let configuration: Config = {};
+export function config(options?: Config): Readonly<Config> {
+  if (options !== undefined) configuration = { ...configuration, ...options };
+  return configuration;
 }
 export type Result<T> = { value: T; issues?: undefined } | { issues: readonly Issue[] };
 export interface Schema<I = unknown, O = unknown> {
@@ -79,8 +98,27 @@ function field<I, O, Optional extends boolean = undefined extends O ? true : fal
 ): Field<I, O, Optional> {
   return { meta, "~standard": { version: 1, vendor: "loculus", validate }, field: true } as Field<I, O, Optional>;
 }
-function fail(message: string, code = "invalid_value"): { issues: Issue[] } {
-  return { issues: [{ message, code }] };
+function fail(message: string, code = "invalid_value", details?: Omit<Issue, "message" | "code" | "path">): { issues: Issue[] } {
+  return { issues: [{ message, code, ...details }] };
+}
+function customizeIssue(issue: Issue, input: unknown, error?: ErrorCustomization): Issue {
+  if (error === undefined && configuration.customError === undefined) return issue;
+  const context = { ...issue, input };
+  const local = typeof error === "function" ? error(context) : error;
+  const fallback = configuration.customError;
+  const custom = local ?? (typeof fallback === "function" ? fallback(context) : fallback);
+  if (custom === undefined) return issue;
+  return { ...issue, message: typeof custom === "string" ? custom : custom.message };
+}
+export { customizeIssue as _resolveIssue };
+function withError<O>(validate: (value: unknown) => Result<O>, error?: ErrorCustomization): (value: unknown) => Result<O> {
+  return input => {
+    const result = validate(input);
+    if (error === undefined && configuration.customError === undefined) return result;
+    return result.issues ? { issues: result.issues.map(issue =>
+      issue.path?.length ? issue : customizeIssue(issue, input, error),
+    ) } : result;
+  };
 }
 export function safeParse<S extends AnySchema>(schema: S, value: unknown): Result<Output<S>> {
   return schema["~standard"].validate(value);
@@ -107,14 +145,14 @@ export type DefaultTargets<T> =
   | { readonly nullish: T; readonly undefined?: never; readonly null?: never }
   | { readonly undefined: T; readonly null?: T; readonly nullish?: never }
   | { readonly null: T; readonly undefined?: T; readonly nullish?: never };
-export interface FieldOptions<T> {
+export interface FieldOptions<T> extends ErrorOptions {
   readonly description?: string;
   readonly optional?: boolean;
   readonly nullable?: boolean;
   readonly nullish?: boolean;
   readonly default?: T | DefaultTargets<T>;
 }
-type BasicPresence = { description?: string; nullable?: false; nullish?: false; default?: never };
+type BasicPresence = ErrorOptions & { description?: string; nullable?: false; nullish?: false; default?: never };
 type FlagValue<P, K extends PropertyKey> = K extends keyof P ? P[K] : never;
 type DefaultFlags<P> = P extends { default: infer D }
   ? D extends undefined ? [false, false]
@@ -141,6 +179,12 @@ type ConfiguredOutput<O, P> = O | UndefinedDefault<P>
   | (PresenceFlags<P>[0] extends true ? false extends DefaultFlags<P>[0] ? undefined : never : never)
   | (PresenceFlags<P>[1] extends true ? false extends DefaultFlags<P>[1] ? null : never : never);
 type ConfiguredField<I, O, P> = Field<ConfiguredInput<I, P>, ConfiguredOutput<O, P>>;
+const rawValidators = new WeakMap<AnySchema, (value: unknown) => Result<any>>();
+function errorField(meta: Meta, validate: (value: unknown) => Result<any>, error?: ErrorCustomization): Field<any, any, boolean> {
+  const result = field(meta, withError(validate, error));
+  rawValidators.set(result, validate);
+  return result;
+}
 const emptyOptions = {};
 function validateString(value: unknown): Result<string> {
   return typeof value === "string" ? { value } : fail("Expected a string", "invalid_type");
@@ -149,8 +193,9 @@ function configuredField<I, O>(
   meta: Meta,
   options: FieldOptions<O>,
   validate: (value: unknown) => Result<O>,
+  customize = true,
 ): Field<any, any, boolean> {
-  if (options === emptyOptions) return { meta, "~standard": { version: 1, vendor: "loculus", validate }, field: true } as Field<any, any, boolean>;
+  if (options === emptyOptions) return customize ? errorField(meta, validate) : field(meta, validate);
   const value = own(options, "default") ? options.default : undefined;
   if (options.optional || options.nullable || options.nullish || value !== undefined) {
     let defaults = 0;
@@ -182,10 +227,10 @@ function configuredField<I, O>(
     (meta as { nullable: boolean }).nullable = nullable;
     if (defaults & 1) (meta as { defaultValue?: O }).defaultValue = missing;
   }
-  return { meta, "~standard": { version: 1, vendor: "loculus", validate }, field: true } as Field<any, any, boolean>;
+  return customize ? errorField(meta, validate, options.error) : field(meta, validate);
 }
 
-export interface StringOptions {
+export interface StringOptions extends ErrorOptions {
   readonly min?: number;
   readonly max?: number;
   readonly pattern?: RegExp;
@@ -259,20 +304,20 @@ export function string(
       if (typeof value !== "string") return fail("Expected a string", "invalid_type");
       const output = options.trim ? value.trim() : value;
       if (options.min !== undefined && output.length < options.min)
-        return fail(`Expected at least ${options.min} characters`);
+        return fail(`Expected at least ${options.min} characters`, "too_small", { origin: "string", min: options.min, inclusive: true });
       if (options.max !== undefined && output.length > options.max)
-        return fail(`Expected at most ${options.max} characters`);
+        return fail(`Expected at most ${options.max} characters`, "too_big", { origin: "string", max: options.max, inclusive: true });
       if (options.pattern) {
         const pattern = options.pattern;
         pattern.lastIndex = 0;
         const valid = pattern.test(output);
-        if (!valid) return fail("Invalid format");
+        if (!valid) return fail("Invalid format", "invalid_format");
       }
       return { value: output };
     },
   );
 }
-export interface NumberOptions {
+export interface NumberOptions extends ErrorOptions {
   readonly gt?: number;
   readonly gte?: number;
   readonly lt?: number;
@@ -311,13 +356,13 @@ export function number(
       if (!Number.isFinite(output)) return fail("Expected a finite number");
       if (options.integer && !Number.isSafeInteger(output)) return fail("Expected a safe integer");
       if (options.gt !== undefined && !(output > options.gt))
-        return fail(`Expected greater than ${options.gt}`);
+        return fail(`Expected greater than ${options.gt}`, "too_small", { origin: "number", min: options.gt, inclusive: false });
       if (options.gte !== undefined && !(output >= options.gte))
-        return fail(`Expected at least ${options.gte}`);
+        return fail(`Expected at least ${options.gte}`, "too_small", { origin: "number", min: options.gte, inclusive: true });
       if (options.lt !== undefined && !(output < options.lt))
-        return fail(`Expected less than ${options.lt}`);
+        return fail(`Expected less than ${options.lt}`, "too_big", { origin: "number", max: options.lt, inclusive: false });
       if (options.lte !== undefined && !(output <= options.lte))
-        return fail(`Expected at most ${options.lte}`);
+        return fail(`Expected at most ${options.lte}`, "too_big", { origin: "number", max: options.lte, inclusive: true });
       return { value: output };
     },
   );
@@ -449,7 +494,7 @@ export function literal<const T extends LiteralValue>(
       options,
       input => {
         for (const branch of branches) {
-          const result = branch["~standard"].validate(input);
+          const result = rawValidators.get(branch)!(input);
           if (!result.issues) return result;
         }
         return fail(message ??= `Expected one of: ${allowed.join(", ")}`);
@@ -457,7 +502,7 @@ export function literal<const T extends LiteralValue>(
     );
   }
   let message: string;
-  const convert = typeof value === "number" ? number()["~standard"].validate
+  const convert = typeof value === "number" ? rawValidators.get(number())!
     : validateBoolean;
   return configuredField<LiteralInput<T>, T>(
     typeof value === "string" ? new EnumMeta(value, options.description)
@@ -503,7 +548,7 @@ export function date(options: FieldOptions<Date> = emptyOptions): Field<any, any
     validateDate,
   );
 }
-export interface ArrayOptions<WrapScalar extends boolean | undefined = boolean> {
+export interface ArrayOptions<WrapScalar extends boolean | undefined = boolean> extends ErrorOptions {
   readonly min?: number;
   readonly max?: number;
   readonly wrapScalar?: WrapScalar;
@@ -553,9 +598,9 @@ export function array<I, O>(
       }
       if (issues) return { issues };
       if (options.min !== undefined && inputs.length < options.min)
-        return fail(`Expected at least ${options.min} items`);
+        return fail(`Expected at least ${options.min} items`, "too_small", { origin: "array", min: options.min, inclusive: true });
       if (options.max !== undefined && inputs.length > options.max)
-        return fail(`Expected at most ${options.max} items`);
+        return fail(`Expected at most ${options.max} items`, "too_big", { origin: "array", max: options.max, inclusive: true });
       return { value: output };
     },
   );
@@ -599,7 +644,7 @@ function objectPresence<S extends Shape>(
   const defaultValue = own(options, "default") ? options.default : undefined;
   if (!optional && !nullable && !nullish && defaultValue === undefined) return result;
   return {
-    ...configuredField<ObjectInput<S>, ObjectOutput<S>>(result.meta, { optional, nullable, nullish, default: defaultValue }, result["~standard"].validate),
+    ...configuredField<ObjectInput<S>, ObjectOutput<S>>(result.meta, { optional, nullable, nullish, default: defaultValue }, result["~standard"].validate, false),
     shape: result.shape,
   };
 }
@@ -624,6 +669,7 @@ export function object<S extends Shape>(
   shape: S,
   options: ObjectOptions<ObjectOutput<S>> = emptyOptions,
 ): ObjectSchema<S, any, any, boolean> {
+  const error = options.error;
   const fields = { ...shape };
   const keys = Object.keys(fields);
   const validators: ((value: unknown) => Result<any>)[] = [];
@@ -635,7 +681,7 @@ export function object<S extends Shape>(
   const mode = options.unknownKeys ?? "strict";
   const validate = (input: unknown): Result<ObjectOutput<S>> => {
     if (typeof input !== "object" || input === null || Array.isArray(input))
-      return fail("Expected an object", "invalid_type");
+      return { issues: [customizeIssue({ message: "Expected an object", code: "invalid_type" }, input, error)] };
     const raw = input as Record<string, unknown>;
     const output: Record<string, unknown> = {};
     let issues: Issue[] | undefined;
@@ -654,7 +700,7 @@ export function object<S extends Shape>(
     if (mode === "strict") {
       for (const key in raw)
         if (!own(fields, key)) {
-          (issues ??= []).push({ message: `Unknown key: ${key}`, code: "unrecognized_key", path: [key] });
+          (issues ??= []).push(customizeIssue({ message: `Unknown key: ${key}`, code: "unrecognized_key", path: [key] }, input, error));
           break;
         }
     } else if (mode === "passthrough") {
@@ -706,11 +752,11 @@ export function xor<const S extends readonly [AnySchema, AnySchema, ...AnySchema
     for (const s of branches) {
       const result = s["~standard"].validate(input);
       if (!result.issues) {
-        if (success) return fail("Expected exactly one matching schema");
+        if (success) return { issues: [customizeIssue({ message: "Expected exactly one matching schema", code: "invalid_value" }, input, undefined)] };
         success = result;
       }
     }
-    return success ?? fail("No matching schema");
+    return success ?? { issues: [customizeIssue({ message: "No matching schema", code: "invalid_value" }, input, undefined)] };
   });
 }
 /* @__NO_SIDE_EFFECTS__ */
@@ -735,7 +781,7 @@ export function discriminatedUnion<
     },
     (input) => {
       if (typeof input !== "object" || input === null || Array.isArray(input))
-        return fail("Expected an object", "invalid_type");
+        return { issues: [customizeIssue({ message: "Expected an object", code: "invalid_type" }, input, undefined)] };
       const value = (input as Record<string, unknown>)[key];
       if (!lookup) {
         const map = new Map<unknown, AnySchema | null>();
@@ -761,7 +807,7 @@ export function discriminatedUnion<
         for (const option of branches) {
           let discriminator: AnySchema = option.shape[key]!;
           while (discriminator.meta.inner) discriminator = discriminator.meta.inner;
-          if (!discriminator["~standard"].validate(value).issues) {
+          if (!(rawValidators.get(discriminator) ?? discriminator["~standard"].validate)(value).issues) {
             selected = option;
             break;
           }
@@ -769,7 +815,7 @@ export function discriminatedUnion<
       }
       return selected
         ? selected["~standard"].validate(input)
-        : { issues: [{ message: `Invalid discriminator: ${key}`, path: [key] }] };
+        : { issues: [customizeIssue({ message: `Invalid discriminator: ${key}`, code: "invalid_value", path: [key] }, input, undefined)] };
     },
   );
 }
@@ -786,7 +832,8 @@ export function intersection<A extends AnySchema, B extends AnySchema>(
       const right = b["~standard"].validate(input);
       if (left.issues || right.issues)
         return { issues: [...(left.issues ?? []), ...(right.issues ?? [])] };
-      return mergeOutputs(left.value, right.value);
+      const merged = mergeOutputs(left.value, right.value);
+      return merged.issues ? { issues: merged.issues.map(issue => customizeIssue(issue, input, undefined)) } : merged;
     },
   );
 }

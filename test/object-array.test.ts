@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import * as l from "../src/index.js";
+import { legacyResult } from "./helpers/legacy-result.js";
 import * as before from "../bench/single-use/before/index.js";
 
 const item = l.object({
@@ -91,7 +92,7 @@ test("object arrays preserve row callbacks and results from before compiler remo
   ]) {
     events.length = 0;
     expectedEvents.length = 0;
-    assert.deepEqual(l.safeParse(form, input), before.safeParse(reference, input));
+    assert.deepEqual(legacyResult(l.safeParse(form, input)), before.safeParse(reference, input));
     assert.deepEqual(events, expectedEvents);
   }
   const original = globalThis.Function;
