@@ -60,7 +60,7 @@ test("wide defaults and transforms preserve mutations and fallback paths", () =>
     const actual = run(l);
     const tails = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`s${i}`, i === 0 ? "changed" : "v"]));
     assert.deepEqual(actual.result, invalid
-      ? { issues: [{ message: "Expected a string", code: "invalid_type", path: ["s20"] }] }
+      ? { issues: [{ message: "Expected a string, received undefined", code: "invalid_type", expected: "string", received: undefined, path: ["s20"] }] }
       : { value: { defaulted: "D", changed: "SOURCE", ...tails } });
     assert.deepEqual(actual.events, ["get defaulted", "get changed", "transform", ...Array.from({length: 40}, (_, i) => `get s${i}`)]);
   }
@@ -143,11 +143,13 @@ test("validation remains independent of public field metadata", () => {
   const schema = l.object({ value: field });
   Object.assign(field.meta, { kind: "boolean", enumValues: ["other"] });
   assert.deepEqual(l.parse(schema, { value: "a" }), { value: "a" });
-  for (const [value, message, code] of [
-    ["", "Expected at least 1 characters", "invalid_value"],
-    ["abcd", "Expected at most 3 characters", "invalid_value"],
-    ...[true, undefined, null].map(value => [value, "Expected a string", "invalid_type"]),
-  ]) assert.deepEqual(l.safeParse(schema, { value }), { issues: [{ message, code, path: ["value"] }] });
+  for (const [value, issue] of [
+    ["", { message: "Expected at least 1 characters", code: "too_small", origin: "string", min: 1, inclusive: true }],
+    ["abcd", { message: "Expected at most 3 characters", code: "too_big", origin: "string", max: 3, inclusive: true }],
+    [true, { message: "Expected a string, received true", code: "invalid_type", expected: "string", received: true }],
+    [undefined, { message: "Expected a string, received undefined", code: "invalid_type", expected: "string", received: undefined }],
+    [null, { message: "Expected a string, received null", code: "invalid_type", expected: "string", received: null }],
+  ] as const) assert.deepEqual(l.safeParse(schema, { value }), { issues: [{ ...issue, path: ["value"] }] });
 });
 
 test("objects support opaque callable field validators", () => {

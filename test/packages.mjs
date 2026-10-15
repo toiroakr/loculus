@@ -63,12 +63,15 @@ await assert.rejects(import('rolldown'), {code: 'ERR_MODULE_NOT_FOUND'});
 `);
   execFileSync(process.execPath, ['verify.mjs'], { cwd: runtimeOnly, stdio: 'pipe' });
   await writeFile(join(runtimeOnly, 'config.ts'), `
-import { configure, type Config } from 'loculus';
+import { config, configure, type Config } from 'loculus';
 const reset: Config = { stringLength: undefined };
 configure({ stringLength: value => value.length });
 configure({});
 configure(reset);
 configure({ stringLength: undefined });
+config({ stringLength: undefined, customError: undefined });
+config({ customError: () => 'Translated' });
+config({ customError: undefined });
 `);
   execFileSync(join(root, 'node_modules/.bin/tsc'), [
     '--noEmit', '--strict', '--exactOptionalPropertyTypes', '--skipLibCheck',

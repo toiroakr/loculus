@@ -2,9 +2,42 @@ export interface Issue {
   readonly message: string;
   readonly path?: readonly (PropertyKey | { readonly key: PropertyKey })[];
   readonly code?: string;
+  readonly expected?: string;
+  readonly received?: unknown;
+  readonly origin?: "string" | "number" | "array";
+  readonly min?: number;
+  readonly max?: number;
+  readonly inclusive?: boolean;
+}
+export interface ErrorContext extends Issue {
+  readonly input: unknown;
+  readonly received: unknown;
+}
+export type ErrorCustomization = string | ((issue: ErrorContext) => string | { readonly message: string } | undefined);
+export interface ErrorOptions {
+  readonly error?: ErrorCustomization;
+}
+export type StringLength = (value: string) => number;
+export interface Config {
+  readonly stringLength?: StringLength | undefined;
+  readonly customError?: ErrorCustomization | undefined;
+}
+let configuration: Config = {};
+export function config(options?: Config): Readonly<Config> {
+  if (options !== undefined) {
+    const next = { ...configuration, ...options };
+    if (next.stringLength !== undefined && typeof next.stringLength !== "function")
+      throw new TypeError("Expected stringLength to be a function");
+    configuration = next;
+  }
+  return configuration;
 }
 export type Result<T> = { value: T; issues?: undefined } | { issues: readonly Issue[] };
+const rawValidate = Symbol.for("loculus.rawValidate");
+const rawMode = Symbol();
+export { rawValidate as _rawValidate };
 export interface Schema<I = unknown, O = unknown> {
+  readonly [rawValidate]?: (value: unknown) => Result<O>;
   readonly _input: I;
   readonly _output: O;
   readonly "~standard": {
@@ -79,8 +112,55 @@ function field<I, O, Optional extends boolean = undefined extends O ? true : fal
 ): Field<I, O, Optional> {
   return { meta, "~standard": { version: 1, vendor: "loculus", validate }, field: true } as Field<I, O, Optional>;
 }
-function fail(message: string, code = "invalid_value"): { issues: Issue[] } {
-  return { issues: [{ message, code }] };
+function fail(message: string, code = "invalid_value", details?: Omit<Issue, "message" | "code" | "path">): { issues: Issue[] } {
+  return { issues: [details ? { message, code, ...details } : { message, code }] };
+}
+const needsJsonEscape = /["\\\u0000-\u001f\ud800-\udfff]/;
+function formatReceived(value: unknown): string {
+  if (typeof value === "string") return needsJsonEscape.test(value) ? JSON.stringify(value) : `"${value}"`;
+  if (typeof value === "bigint") return `${value}n`;
+  if (typeof value === "number" && Object.is(value, -0)) return "-0";
+  if (typeof value === "function") return "[Function]";
+  if (value === null || typeof value !== "object") return String(value);
+  try { return Array.isArray(value) ? "[Array]" : "[Object]"; }
+  catch { return "[Object]"; }
+}
+function typeIssue(expected: string, received: unknown, message: string): Issue {
+  return { message: `${message}, received ${formatReceived(received)}`, code: "invalid_type", expected, received };
+}
+export { typeIssue as _typeIssue };
+function typeFail(expected: string, received: unknown, message: string, error?: ErrorSetting): { issues: Issue[] } {
+  let issue = typeIssue(expected, received, message);
+  if (error !== false && (error !== undefined || configuration.customError !== undefined))
+    issue = customizeIssue(issue, received, error);
+  return { issues: [issue] };
+}
+function customizeIssue(issue: Issue, input: unknown, error?: ErrorCustomization): Issue {
+  if (error === undefined && configuration.customError === undefined) return issue;
+  const context = { ...issue, input, received: input };
+  const local = typeof error === "function" ? error(context) : error;
+  const fallback = configuration.customError;
+  const custom = local ?? (typeof fallback === "function" ? fallback(context) : fallback);
+  if (custom === undefined) return issue;
+  return { ...issue, message: typeof custom === "string" ? custom : custom.message };
+}
+export { customizeIssue as _resolveIssue };
+type ErrorSetting = ErrorCustomization | false;
+function resolveFieldResult<O>(result: Result<O>, input: unknown, error?: ErrorSetting): Result<O> {
+  if (error === false || (error === undefined && configuration.customError === undefined)) return result;
+  return result.issues ? { issues: result.issues.map(issue =>
+    issue.path?.length ? issue : customizeIssue(issue, input, error),
+  ) } : result;
+}
+function fieldValue<O>(value: O, input: unknown, error?: ErrorSetting): Result<O> {
+  const result = { value };
+  return "issues" in {} ? resolveFieldResult(result, input, error) : result;
+}
+function fieldFail(message: string, input: unknown, error?: ErrorSetting, code = "invalid_value", details?: Omit<Issue, "message" | "code" | "path">): Result<never> {
+  let issue: Issue = details ? { message, code, ...details } : { message, code };
+  if (error !== false && (error !== undefined || configuration.customError !== undefined))
+    issue = customizeIssue(issue, input, error);
+  return { issues: [issue] };
 }
 export function safeParse<S extends AnySchema>(schema: S, value: unknown): Result<Output<S>> {
   return schema["~standard"].validate(value);
@@ -107,14 +187,14 @@ export type DefaultTargets<T> =
   | { readonly nullish: T; readonly undefined?: never; readonly null?: never }
   | { readonly undefined: T; readonly null?: T; readonly nullish?: never }
   | { readonly null: T; readonly undefined?: T; readonly nullish?: never };
-export interface FieldOptions<T> {
+export interface FieldOptions<T> extends ErrorOptions {
   readonly description?: string;
   readonly optional?: boolean;
   readonly nullable?: boolean;
   readonly nullish?: boolean;
   readonly default?: T | DefaultTargets<T>;
 }
-type BasicPresence = { description?: string; nullable?: false; nullish?: false; default?: never };
+type BasicPresence = ErrorOptions & { description?: string; nullable?: false; nullish?: false; default?: never };
 type FlagValue<P, K extends PropertyKey> = K extends keyof P ? P[K] : never;
 type DefaultFlags<P> = P extends { default: infer D }
   ? D extends undefined ? [false, false]
@@ -141,17 +221,31 @@ type ConfiguredOutput<O, P> = O | UndefinedDefault<P>
   | (PresenceFlags<P>[0] extends true ? false extends DefaultFlags<P>[0] ? undefined : never : never)
   | (PresenceFlags<P>[1] extends true ? false extends DefaultFlags<P>[1] ? null : never : never);
 type ConfiguredField<I, O, P> = Field<ConfiguredInput<I, P>, ConfiguredOutput<O, P>>;
+function errorField(meta: Meta, validate: (value: unknown, mode?: unknown) => Result<any>): Field<any, any, boolean> {
+  const raw = (value: unknown) => validate(value, rawMode);
+  return { meta, "~standard": { version: 1, vendor: "loculus", validate }, field: true, [rawValidate]: raw } as Field<any, any, boolean>;
+}
+function localErrors<O>(validate: (value: unknown, mode?: unknown) => Result<O>, error?: ErrorCustomization): (value: unknown, mode?: unknown) => Result<O> {
+  if (error === undefined) return validate;
+  return (input, mode) => {
+    const result = validate(input, rawMode);
+    return mode === rawMode ? result : resolveFieldResult(result, input, error);
+  };
+}
 const emptyOptions = {};
-function validateString(value: unknown): Result<string> {
-  return typeof value === "string" ? { value } : fail("Expected a string", "invalid_type");
+function validateString(value: unknown, mode?: unknown): Result<string> {
+  const error = mode === rawMode ? false : undefined;
+  if (typeof value !== "string") return typeFail("string", value, "Expected a string", error);
+  const result = { value };
+  return "issues" in {} ? resolveFieldResult(result, value, error) : result;
 }
 function configuredField<I, O>(
   meta: Meta,
   options: FieldOptions<O>,
-  validate: (value: unknown) => Result<O>,
-  emptyAsNull = false,
+  validate: (value: unknown, mode?: unknown) => Result<O>,
+  { customize = true, emptyAsNull = false }: { customize?: boolean; emptyAsNull?: boolean } = emptyOptions,
 ): Field<any, any, boolean> {
-  if (options === emptyOptions) return { meta, "~standard": { version: 1, vendor: "loculus", validate }, field: true } as Field<any, any, boolean>;
+  if (options === emptyOptions) return customize ? errorField(meta, validate) : field(meta, validate);
   const value = own(options, "default") ? options.default : undefined;
   if (options.optional || options.nullable || options.nullish || value !== undefined) {
     let defaults = 0;
@@ -174,32 +268,23 @@ function configuredField<I, O>(
     const optional = !!(options.optional || options.nullish || (defaults & 1));
     const nullable = !!(options.nullable || options.nullish || (defaults & 2));
     const base = validate;
-    if (optional || nullable) validate = (input: unknown): Result<any> => {
-      if (input === undefined && optional) return { value: missing };
-      if (nullable && (input === null || (emptyAsNull && input === ""))) return { value: defaults & 2 ? nil : null };
-      return base(input);
+    if (optional || nullable) validate = (input: unknown, mode?: unknown): Result<any> => {
+      const error = mode === rawMode ? false : options.error;
+      if (input === undefined && optional) return fieldValue(missing, input, customize ? error : false);
+      if (nullable && (input === null || (emptyAsNull && input === ""))) return fieldValue(defaults & 2 ? nil : null, input, customize ? error : false);
+      return base(input, mode);
     };
     (meta as { optional: boolean }).optional = optional;
     (meta as { nullable: boolean }).nullable = nullable;
     if (defaults & 1) (meta as { defaultValue?: O }).defaultValue = missing;
   }
-  return { meta, "~standard": { version: 1, vendor: "loculus", validate }, field: true } as Field<any, any, boolean>;
+  return customize ? errorField(meta, validate) : field(meta, validate);
 }
 
-export type StringLength = (value: string) => number;
-export interface Config {
-  readonly stringLength?: StringLength | undefined;
-}
-let defaultStringLength: StringLength | undefined;
 export function configure(options: Config): void {
-  if ("stringLength" in options) {
-    const length = options.stringLength;
-    if (length !== undefined && typeof length !== "function")
-      throw new TypeError("Expected stringLength to be a function");
-    defaultStringLength = length;
-  }
+  config(options);
 }
-export function countString(value: string, length: StringLength | undefined = defaultStringLength): number {
+export function countString(value: string, length: StringLength | undefined = configuration.stringLength): number {
   if (!length) return value.length;
   const count = length(value);
   if (!Number.isSafeInteger(count) || count < 0)
@@ -207,7 +292,7 @@ export function countString(value: string, length: StringLength | undefined = de
   return count;
 }
 
-export interface StringOptions {
+export interface StringOptions extends ErrorOptions {
   readonly length?: StringLength;
   readonly min?: number;
   readonly max?: number;
@@ -276,28 +361,29 @@ export function string(
   return configuredField<string, string>(
     { kind: "string", description: options.description },
     options,
-    !options.trim && options.min === undefined && options.max === undefined && !options.pattern
+    !options.trim && options.min === undefined && options.max === undefined && !options.pattern && options.error === undefined
       ? validateString
-      : (value) => {
-      if (typeof value !== "string") return fail("Expected a string", "invalid_type");
+      : (value, mode) => {
+      const error = mode === rawMode ? false : options.error;
+      if (typeof value !== "string") return typeFail("string", value, "Expected a string", error);
       const output = options.trim ? value.trim() : value;
       const length = options.min !== undefined || options.max !== undefined
         ? countString(output, options.length) : 0;
       if (options.min !== undefined && length < options.min)
-        return fail(`Expected at least ${options.min} characters`);
+        return fieldFail(`Expected at least ${options.min} characters`, value, error, "too_small", { origin: "string", min: options.min, inclusive: true });
       if (options.max !== undefined && length > options.max)
-        return fail(`Expected at most ${options.max} characters`);
+        return fieldFail(`Expected at most ${options.max} characters`, value, error, "too_big", { origin: "string", max: options.max, inclusive: true });
       if (options.pattern) {
         const pattern = options.pattern;
         pattern.lastIndex = 0;
         const valid = pattern.test(output);
-        if (!valid) return fail("Invalid format");
+        if (!valid) return fieldFail("Invalid format", value, error, "invalid_format");
       }
-      return { value: output };
+      return fieldValue(output, value, error);
     },
   );
 }
-export interface NumberOptions {
+export interface NumberOptions extends ErrorOptions {
   readonly gt?: number;
   readonly gte?: number;
   readonly lt?: number;
@@ -326,32 +412,35 @@ export function number(
   return configuredField<string | number, number>(
     { kind: "number", description: options.description },
     options,
-    (value) => {
+    (value, mode) => {
+      const error = mode === rawMode ? false : options.error;
+      const input = value;
       if (typeof value !== "number") {
         if (typeof value !== "string" || !decimal.test(value))
-          return fail("Expected a decimal number", "invalid_type");
+          return typeFail("number", value, "Expected a decimal number", error);
         value = Number(value);
       }
       const output = value as number;
-      if (!Number.isFinite(output)) return fail("Expected a finite number");
-      if (options.integer && !Number.isSafeInteger(output)) return fail("Expected a safe integer");
+      if (!Number.isFinite(output)) return fieldFail("Expected a finite number", input, error);
+      if (options.integer && !Number.isSafeInteger(output)) return fieldFail("Expected a safe integer", input, error);
       if (options.gt !== undefined && !(output > options.gt))
-        return fail(`Expected greater than ${options.gt}`);
+        return fieldFail(`Expected greater than ${options.gt}`, input, error, "too_small", { origin: "number", min: options.gt, inclusive: false });
       if (options.gte !== undefined && !(output >= options.gte))
-        return fail(`Expected at least ${options.gte}`);
+        return fieldFail(`Expected at least ${options.gte}`, input, error, "too_small", { origin: "number", min: options.gte, inclusive: true });
       if (options.lt !== undefined && !(output < options.lt))
-        return fail(`Expected less than ${options.lt}`);
+        return fieldFail(`Expected less than ${options.lt}`, input, error, "too_big", { origin: "number", max: options.lt, inclusive: false });
       if (options.lte !== undefined && !(output <= options.lte))
-        return fail(`Expected at most ${options.lte}`);
-      return { value: output };
+        return fieldFail(`Expected at most ${options.lte}`, input, error, "too_big", { origin: "number", max: options.lte, inclusive: true });
+      return fieldValue(output, input, error);
     },
-    true,
+    { emptyAsNull: true },
   );
 }
-function validateBoolean(value: unknown): Result<boolean> {
-  if (value === true || value === "true" || value === "1") return { value: true };
-  if (value === false || value === "false" || value === "0") return { value: false };
-  return fail("Expected true, false, 1 or 0", "invalid_type");
+function validateBoolean(value: unknown, mode?: unknown): Result<boolean> {
+  const error = mode === rawMode ? false : undefined;
+  if (value === true || value === "true" || value === "1") return fieldValue(true, value, error);
+  if (value === false || value === "false" || value === "0") return fieldValue(false, value, error);
+  return typeFail("boolean", value, "Expected true, false, 1 or 0", error);
 }
 export function boolean(
   options: BasicPresence & { optional: true },
@@ -371,7 +460,7 @@ export function boolean(options: FieldOptions<boolean> = emptyOptions): Field<an
   return configuredField<string | boolean, boolean>(
     { kind: "boolean", description: options.description },
     options,
-    validateBoolean,
+    localErrors(validateBoolean, options.error),
   );
 }
 class EnumMeta {
@@ -430,10 +519,11 @@ export function enum_<const T extends readonly [string, ...string[]]>(
   return configuredField<T[number], T[number]>(
     new EnumMeta(allowed, options.description),
     options,
-    (value) => {
+    (value, mode) => {
+      const error = mode === rawMode ? false : options.error;
       return typeof value === "string" && contains(value)
-        ? { value: value as T[number] }
-        : fail(message ??= `Expected one of: ${allowed.join(", ")}`);
+        ? fieldValue(value as T[number], value, error)
+        : fieldFail(message ??= `Expected one of: ${allowed.join(", ")}`, value, error);
     },
   );
 }
@@ -473,42 +563,45 @@ export function literal<const T extends LiteralValue>(
       { kind: homogeneous ? kind : "union", literalValues: allowed,
         ...(homogeneous ? {} : { options: branches }), description: options.description },
       options,
-      input => {
+      (input, mode) => {
+        const error = mode === rawMode ? false : options.error;
         for (const branch of branches) {
-          const result = branch["~standard"].validate(input);
+          const result = branch[rawValidate]!(input);
           if (!result.issues) return result;
         }
-        return fail(message ??= `Expected one of: ${allowed.join(", ")}`);
+        return fieldFail(message ??= `Expected one of: ${allowed.join(", ")}`, input, error);
       },
     );
   }
   let message: string;
-  const convert = typeof value === "number" ? number()["~standard"].validate
-    : validateBoolean;
+  const convert = typeof value === "number" ? number()[rawValidate]!
+    : (input: unknown) => validateBoolean(input, rawMode);
   return configuredField<LiteralInput<T>, T>(
     typeof value === "string" ? new EnumMeta(value, options.description)
       : { kind: typeof value as "number" | "boolean", literalValues: [value], description: options.description },
     options,
-    (input) => {
+    (input, mode) => {
+      const error = mode === rawMode ? false : options.error;
       if (typeof value === "string")
-        return input === value ? { value } : fail(message ??= `Expected one of: ${value}`);
+        return input === value ? fieldValue(value, input, error) : fieldFail(message ??= `Expected one of: ${value}`, input, error);
       const result = convert(input);
-      if (result.issues) return result;
-      return result.value === value ? { value } : fail(message ??= `Expected one of: ${value}`);
+      if (result.issues) return resolveFieldResult(result, input, error);
+      return result.value === value ? fieldValue(value, input, error) : fieldFail(message ??= `Expected one of: ${value}`, input, error);
     },
   );
 }
-function validateDate(value: unknown): Result<Date> {
+function validateDate(value: unknown, mode?: unknown): Result<Date> {
+  const error = mode === rawMode ? false : undefined;
   if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:T(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?$/.test(value))
-    return fail("Expected an ISO date");
+    return fieldFail("Expected an ISO date", value, error);
   const output = new Date(value);
-  if (!Number.isFinite(output.getTime())) return fail("Invalid date");
+  if (!Number.isFinite(output.getTime())) return fieldFail("Invalid date", value, error);
   const year = +value.slice(0, 4);
   const month = +value.slice(5, 7);
   const day = +value.slice(8, 10);
   const days = month === 2 ? (year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0) ? 29 : 28) : 31 - ((((1 << 4) | (1 << 6) | (1 << 9) | (1 << 11)) >> month) & 1);
-  if (month < 1 || month > 12 || day < 1 || day > days) return fail("Invalid date");
-  return { value: output };
+  if (month < 1 || month > 12 || day < 1 || day > days) return fieldFail("Invalid date", value, error);
+  return fieldValue(output, value, error);
 }
 export function date(
   options: BasicPresence & { optional: true },
@@ -526,10 +619,10 @@ export function date(options: FieldOptions<Date> = emptyOptions): Field<any, any
   return configuredField<string, Date>(
     { kind: "date", description: options.description },
     options,
-    validateDate,
+    localErrors(validateDate, options.error),
   );
 }
-export interface ArrayOptions<WrapScalar extends boolean | undefined = boolean> {
+export interface ArrayOptions<WrapScalar extends boolean | undefined = boolean> extends ErrorOptions {
   readonly min?: number;
   readonly max?: number;
   readonly wrapScalar?: WrapScalar;
@@ -564,9 +657,10 @@ export function array<I, O>(
   return configuredField<I | readonly I[], O[]>(
     { kind: "array", inner: s, enumValues: s.meta.enumValues, ...(s.meta.literalValues ? { literalValues: s.meta.literalValues } : {}), description: options.description },
     options,
-    (value) => {
+    (value, mode) => {
+      const error = mode === rawMode ? false : options.error;
       if (options.wrapScalar !== true && !Array.isArray(value))
-        return fail("Expected an array", "invalid_type");
+        return typeFail("array", value, "Expected an array", error);
       const inputs = Array.isArray(value) ? value : [value];
       const output: O[] = [];
       let issues: Issue[] | undefined;
@@ -579,10 +673,10 @@ export function array<I, O>(
       }
       if (issues) return { issues };
       if (options.min !== undefined && inputs.length < options.min)
-        return fail(`Expected at least ${options.min} items`);
+        return fieldFail(`Expected at least ${options.min} items`, value, error, "too_small", { origin: "array", min: options.min, inclusive: true });
       if (options.max !== undefined && inputs.length > options.max)
-        return fail(`Expected at most ${options.max} items`);
-      return { value: output };
+        return fieldFail(`Expected at most ${options.max} items`, value, error, "too_big", { origin: "array", max: options.max, inclusive: true });
+      return fieldValue(output, value, error);
     },
   );
 }
@@ -625,7 +719,7 @@ function objectPresence<S extends Shape>(
   const defaultValue = own(options, "default") ? options.default : undefined;
   if (!optional && !nullable && !nullish && defaultValue === undefined) return result;
   return {
-    ...configuredField<ObjectInput<S>, ObjectOutput<S>>(result.meta, { optional, nullable, nullish, default: defaultValue }, result["~standard"].validate),
+    ...configuredField<ObjectInput<S>, ObjectOutput<S>>(result.meta, { optional, nullable, nullish, default: defaultValue }, result["~standard"].validate, { customize: false }),
     shape: result.shape,
   };
 }
@@ -650,6 +744,7 @@ export function object<S extends Shape>(
   shape: S,
   options: ObjectOptions<ObjectOutput<S>> = emptyOptions,
 ): ObjectSchema<S, any, any, boolean> {
+  const error = options.error;
   const fields = { ...shape };
   const keys = Object.keys(fields);
   const validators: ((value: unknown) => Result<any>)[] = [];
@@ -661,7 +756,7 @@ export function object<S extends Shape>(
   const mode = options.unknownKeys ?? "strict";
   const validate = (input: unknown): Result<ObjectOutput<S>> => {
     if (typeof input !== "object" || input === null || Array.isArray(input))
-      return fail("Expected an object", "invalid_type");
+      return { issues: [customizeIssue(typeIssue("object", input, "Expected an object"), input, error)] };
     const raw = input as Record<string, unknown>;
     const output: Record<string, unknown> = {};
     let issues: Issue[] | undefined;
@@ -680,7 +775,7 @@ export function object<S extends Shape>(
     if (mode === "strict") {
       for (const key in raw)
         if (!own(fields, key)) {
-          (issues ??= []).push({ message: `Unknown key: ${key}`, code: "unrecognized_key", path: [key] });
+          (issues ??= []).push(customizeIssue({ message: `Unknown key: ${key}`, code: "unrecognized_key", path: [key] }, input, error));
           break;
         }
     } else if (mode === "passthrough") {
@@ -732,11 +827,11 @@ export function xor<const S extends readonly [AnySchema, AnySchema, ...AnySchema
     for (const s of branches) {
       const result = s["~standard"].validate(input);
       if (!result.issues) {
-        if (success) return fail("Expected exactly one matching schema");
+        if (success) return { issues: [customizeIssue({ message: "Expected exactly one matching schema", code: "invalid_value" }, input, undefined)] };
         success = result;
       }
     }
-    return success ?? fail("No matching schema");
+    return success ?? { issues: [customizeIssue({ message: "No matching schema", code: "invalid_value" }, input, undefined)] };
   });
 }
 /* @__NO_SIDE_EFFECTS__ */
@@ -761,7 +856,7 @@ export function discriminatedUnion<
     },
     (input) => {
       if (typeof input !== "object" || input === null || Array.isArray(input))
-        return fail("Expected an object", "invalid_type");
+        return { issues: [customizeIssue(typeIssue("object", input, "Expected an object"), input, undefined)] };
       const value = (input as Record<string, unknown>)[key];
       if (!lookup) {
         const map = new Map<unknown, AnySchema | null>();
@@ -787,7 +882,9 @@ export function discriminatedUnion<
         for (const option of branches) {
           let discriminator: AnySchema = option.shape[key]!;
           while (discriminator.meta.inner) discriminator = discriminator.meta.inner;
-          if (!discriminator["~standard"].validate(value).issues) {
+          const raw = discriminator[rawValidate];
+          const result = raw ? raw(value) : discriminator["~standard"].validate(value);
+          if (!result.issues) {
             selected = option;
             break;
           }
@@ -795,7 +892,7 @@ export function discriminatedUnion<
       }
       return selected
         ? selected["~standard"].validate(input)
-        : { issues: [{ message: `Invalid discriminator: ${key}`, path: [key] }] };
+        : { issues: [customizeIssue({ message: `Invalid discriminator: ${key}`, code: "invalid_value", path: [key] }, input, undefined)] };
     },
   );
 }
@@ -812,7 +909,8 @@ export function intersection<A extends AnySchema, B extends AnySchema>(
       const right = b["~standard"].validate(input);
       if (left.issues || right.issues)
         return { issues: [...(left.issues ?? []), ...(right.issues ?? [])] };
-      return mergeOutputs(left.value, right.value);
+      const merged = mergeOutputs(left.value, right.value);
+      return merged.issues ? { issues: merged.issues.map(issue => customizeIssue(issue, input, undefined)) } : merged;
     },
   );
 }

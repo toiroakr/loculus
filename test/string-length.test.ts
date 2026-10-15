@@ -69,3 +69,20 @@ test("invalid custom counts fail clearly and missing values bypass the counter",
   assert.ok(l.safeParse(l.string({ length, max: 1 }), 1).issues);
   assert.throws(() => l.configure({ stringLength: "bad" as unknown as l.StringLength }), TypeError);
 });
+
+test("string length defaults compose with error configuration", () => {
+  const previous = l.config();
+  const schema = l.string({ max: 1 });
+  try {
+    l.config({ stringLength: graphemes, customError: issue => `Limit: ${issue.max}` });
+    assert.equal(l.parse(schema, "👨‍👩‍👧‍👦"), "👨‍👩‍👧‍👦");
+    assert.equal(l.safeParse(schema, "ab").issues?.[0]?.message, "Limit: 1");
+    l.config({ customError: undefined });
+    assert.equal(l.parse(schema, "👨‍👩‍👧‍👦"), "👨‍👩‍👧‍👦");
+    l.configure({ stringLength: undefined });
+    assert.equal(l.config().stringLength, undefined);
+    assert.ok(l.safeParse(schema, "😀").issues);
+  } finally {
+    l.config({ stringLength: previous.stringLength, customError: previous.customError });
+  }
+});

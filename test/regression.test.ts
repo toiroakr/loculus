@@ -220,9 +220,9 @@ test("independent boolean schemas preserve presence when configured variants are
   l.boolean({ nullable: true });
   assert.deepEqual(l.parse(required, { value: "true" }), { value: true });
   assert.deepEqual(l.parse(required, { value: "0" }), { value: false });
-  for (const input of [{}, { value: null }, { value: "other" }])
+  for (const [input, received, rendered] of [[{}, undefined, "undefined"], [{value:null}, null, "null"], [{value:"other"}, "other", '\"other\"']] as const)
     assert.deepEqual(l.safeParse(required, input), { issues: [
-      { message: "Expected true, false, 1 or 0", code: "invalid_type", path: ["value"] },
+      { message: `Expected true, false, 1 or 0, received ${rendered}`, code: "invalid_type", expected: "boolean", received, path: ["value"] },
     ] });
 });
 
@@ -275,16 +275,28 @@ test("numeric failures retain raw coercion semantics and field order", () => {
   });
   const current = create(l);
   const failures = [
-    ...["1e309", NaN, Infinity, -Infinity].map(value => ({ value, messages: ["Expected a finite number", "Expected a finite number"], code: "invalid_value" })),
-    ...["NaN", "Infinity", "0x10", " 2 ", "", null, undefined].map(value => ({ value, messages: ["Expected a decimal number", "Expected a decimal number"], code: "invalid_type" })),
-    { value: "-0", messages: ["Expected greater than 0", "Expected at least 1"], code: "invalid_value" },
-    { value: "99.5", messages: ["Expected a safe integer"], code: "invalid_value" },
-    { value: "1e2", messages: ["Expected at most 99", "Expected less than 100"], code: "invalid_value" },
+    ...["1e309", NaN, Infinity, -Infinity].map(value => ({ value, issues: [
+      { message: "Expected a finite number", code: "invalid_value" },
+      { message: "Expected a finite number", code: "invalid_value" },
+    ] })),
+    ...[["NaN", '\"NaN\"'], ["Infinity", '\"Infinity\"'], ["0x10", '\"0x10\"'], [" 2 ", '\" 2 \"'], ["", '\"\"'], [null, "null"], [undefined, "undefined"]].map(([value, rendered]) => ({ value, issues: [
+      { message: `Expected a decimal number, received ${rendered}`, code: "invalid_type", expected: "number", received: value },
+      { message: `Expected a decimal number, received ${rendered}`, code: "invalid_type", expected: "number", received: value },
+    ] })),
+    { value: "-0", issues: [
+      { message: "Expected greater than 0", code: "too_small", origin: "number", min: 0, inclusive: false },
+      { message: "Expected at least 1", code: "too_small", origin: "number", min: 1, inclusive: true },
+    ] },
+    { value: "99.5", issues: [{ message: "Expected a safe integer", code: "invalid_value" }] },
+    { value: "1e2", issues: [
+      { message: "Expected at most 99", code: "too_big", origin: "number", max: 99, inclusive: true },
+      { message: "Expected less than 100", code: "too_big", origin: "number", max: 100, inclusive: false },
+    ] },
   ];
-  for (const { value, messages, code } of failures) {
+  for (const { value, issues } of failures) {
     const input = { first: value, second: value };
-    assert.deepEqual(l.safeParse(current, input), { issues: messages.map((message, index) => ({
-      message, code, path: [index === 0 ? "first" : "second"],
+    assert.deepEqual(l.safeParse(current, input), { issues: issues.map((issue, index) => ({
+      ...issue, path: [index === 0 ? "first" : "second"],
     })) });
   }
   assert.deepEqual(l.parse(current, { first: "2", second: "3" }), { first: 2, second: 3 });
@@ -320,11 +332,13 @@ test("boolean arrays do not share presence configuration between schemas", () =>
   }), { required: [true, false, true], optional: [null, undefined, false] });
   assert.deepEqual(l.parse(schema, { required: [] }), { required: [] });
   assert.deepEqual(l.safeParse(schema, { required: [null, "other"], optional: ["1", "other"] }), {
-    issues: [["required", 0], ["required", 1], ["optional", 1]].map(path => ({
-      message: "Expected true, false, 1 or 0", code: "invalid_type", path,
-    })),
+    issues: [
+      { message: "Expected true, false, 1 or 0, received null", code: "invalid_type", expected: "boolean", received: null, path: ["required", 0] },
+      { message: 'Expected true, false, 1 or 0, received "other"', code: "invalid_type", expected: "boolean", received: "other", path: ["required", 1] },
+      { message: 'Expected true, false, 1 or 0, received "other"', code: "invalid_type", expected: "boolean", received: "other", path: ["optional", 1] },
+    ],
   });
   assert.deepEqual(l.safeParse(schema, { required: "true", optional: null }), {
-    issues: [{ message: "Expected an array", code: "invalid_type", path: ["required"] }],
+    issues: [{ message: 'Expected an array, received "true"', code: "invalid_type", expected: "array", received: "true", path: ["required"] }],
   });
 });

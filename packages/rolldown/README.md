@@ -5,7 +5,7 @@ The `loculus` runtime has no dependency on this package or Rolldown.
 
 ## Installation
 
-Requires Node.js 22.18.0 or newer, Rolldown `>=1.2.13 <2`, and Loculus `^0.2.6`.
+Requires Node.js 22.18.0 or newer, Rolldown `>=1.2.13 <2`, and Loculus `^0.3.0`.
 The plugin and runtime have independent patch versions; use compatible versions
 from the same Loculus minor release that satisfy the published peer range.
 
@@ -71,6 +71,12 @@ without requiring a separate schema API or a runtime compilation step.
 
 The plugin recognizes direct named imports, aliases and namespace imports from
 `loculus`. Factory calls and supported options must be statically recognizable.
+Schemas with custom `error` options retain runtime validation, including callback
+execution and default-message fallback. Supported surrounding schemas can still
+be specialized. Generated validators use the runtime's current
+`config({ customError })` and preserve structured bound issues (`too_small`,
+`too_big`, `origin`, limits and inclusivity). Configuration updates also affect
+already-created generated schemas.
 
 | Schema | Specialized forms |
 | --- | --- |
