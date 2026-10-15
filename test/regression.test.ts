@@ -1,11 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as l from "../src/index.js";
-import * as before from "../bench/optimization-2/before/index.js";
 import * as v from "valibot";
 import {z} from "zod";
 import {isDeepStrictEqual} from "node:util";
-import { profiles, prelude, type Profile } from "../bench/coverage/fixtures.mjs";
+import { profiles, prelude, type Profile } from "../bench/fixtures/schemas.mjs";
 
 test("invalid ISO calendar input returns issues instead of throwing RangeError", () => {
   const schema = l.date();
@@ -60,7 +59,7 @@ function inputFor(profile: Profile, input: unknown): unknown {
 test("representative API profiles match at least one equivalent peer configuration", () => {
   for (const profile of profiles) {
     const create = new Function("l", prelude + "\nreturn " + profile.expressions[0]) as
-      (library: Omit<typeof before, "compile" | "discriminatedUnion">) => l.AnySchema;
+      (library: typeof l) => l.AnySchema;
     const current = create(l);
     const peers = profile.expressions.slice(1).map(expression => new Function("z", "v", prelude + "\nreturn " + expression)(z, v));
     const variants = [current];
@@ -85,7 +84,7 @@ test("representative API profiles match at least one equivalent peer configurati
 });
 
 test("seeded heterogeneous rows preserve values, issue order and paths", () => {
-  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => library.object({
+  const create = (library: typeof l) => library.object({
     title: library.string({ trim: true, min: 1 }),
     items: library.array(library.object({
       name: library.string({ min: 1 }),
@@ -219,9 +218,12 @@ test("independent boolean schemas preserve presence when configured variants are
   const required = l.object({ value: l.boolean() });
   l.boolean({ default: true });
   l.boolean({ nullable: true });
-  const expected = before.object({ value: before.boolean() });
-  for (const input of [{ value: "true" }, { value: "0" }, {}, { value: null }, { value: "other" }])
-    assert.deepEqual(l.safeParse(required, input), before.safeParse(expected, input));
+  assert.deepEqual(l.parse(required, { value: "true" }), { value: true });
+  assert.deepEqual(l.parse(required, { value: "0" }), { value: false });
+  for (const input of [{}, { value: null }, { value: "other" }])
+    assert.deepEqual(l.safeParse(required, input), { issues: [
+      { message: "Expected true, false, 1 or 0", code: "invalid_type", path: ["value"] },
+    ] });
 });
 
 test("passthrough defines unknown properties without invoking inherited setters", () => {
@@ -266,21 +268,29 @@ test("passthrough checks inherited setters after reading each unknown getter", (
 });
 
 test("numeric failures retain raw coercion semantics and field order", () => {
-  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => library.object({
+  const create = (library: typeof l) => library.object({
     first: library.number({ integer: true, gt: 0, lte: 99 }),
     second: library.number({ gte: 1, lt: 100 }),
     optional: library.string({ optional: true }),
   });
-  const expected = create(before);
   const current = create(l);
-  for (const value of ["1e309", "NaN", "Infinity", "0x10", " 2 ", "", "-0", "99.5", "1e2", NaN, Infinity, -Infinity, null, undefined]) {
+  const failures = [
+    ...["1e309", NaN, Infinity, -Infinity].map(value => ({ value, messages: ["Expected a finite number", "Expected a finite number"], code: "invalid_value" })),
+    ...["NaN", "Infinity", "0x10", " 2 ", "", null, undefined].map(value => ({ value, messages: ["Expected a decimal number", "Expected a decimal number"], code: "invalid_type" })),
+    { value: "-0", messages: ["Expected greater than 0", "Expected at least 1"], code: "invalid_value" },
+    { value: "99.5", messages: ["Expected a safe integer"], code: "invalid_value" },
+    { value: "1e2", messages: ["Expected at most 99", "Expected less than 100"], code: "invalid_value" },
+  ];
+  for (const { value, messages, code } of failures) {
     const input = { first: value, second: value };
-    assert.deepEqual(l.safeParse(current, input), before.safeParse(expected, input));
+    assert.deepEqual(l.safeParse(current, input), { issues: messages.map((message, index) => ({
+      message, code, path: [index === 0 ? "first" : "second"],
+    })) });
   }
-  for (const input of [{ first: "2", second: "3" }, { second: "3", first: "2", optional: undefined }]) {
-    const result = l.parse(current, input);
-    assert.deepEqual(Object.keys(result), Object.keys(before.parse(expected, input)));
-  }
+  assert.deepEqual(l.parse(current, { first: "2", second: "3" }), { first: 2, second: 3 });
+  const result = l.parse(current, { second: "3", first: "2", optional: undefined });
+  assert.deepEqual(result, { first: 2, second: 3, optional: undefined });
+  assert.deepEqual(Object.keys(result), ["first", "second", "optional"]);
 });
 
 test("passthrough retains non-enumerable known inputs and ignores unknown symbol properties", () => {
@@ -299,20 +309,22 @@ test("passthrough retains non-enumerable known inputs and ignores unknown symbol
 });
 
 test("boolean arrays do not share presence configuration between schemas", () => {
-  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => library.object({
+  const create = (library: typeof l) => library.object({
     required: library.array(library.boolean(), { wrapScalar: false }),
     optional: library.array(library.boolean({ nullish: true }), { wrapScalar: true, optional: true }),
   });
-  const expected = create(before);
   const schema = create(l);
   l.boolean({ default: false });
-  for (const input of [
-    { required: ["true", "0", true], optional: [null, undefined, "false"] },
-    { required: [] },
-    { required: [null, "other"], optional: ["1", "other"] },
-    { required: "true", optional: null },
-  ]) {
-    const result = before.safeParse(expected, input);
-    assert.deepEqual(l.safeParse(schema, input), result);
-  }
+  assert.deepEqual(l.parse(schema, {
+    required: ["true", "0", true], optional: [null, undefined, "false"],
+  }), { required: [true, false, true], optional: [null, undefined, false] });
+  assert.deepEqual(l.parse(schema, { required: [] }), { required: [] });
+  assert.deepEqual(l.safeParse(schema, { required: [null, "other"], optional: ["1", "other"] }), {
+    issues: [["required", 0], ["required", 1], ["optional", 1]].map(path => ({
+      message: "Expected true, false, 1 or 0", code: "invalid_type", path,
+    })),
+  });
+  assert.deepEqual(l.safeParse(schema, { required: "true", optional: null }), {
+    issues: [{ message: "Expected an array", code: "invalid_type", path: ["required"] }],
+  });
 });

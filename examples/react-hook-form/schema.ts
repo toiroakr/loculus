@@ -10,9 +10,11 @@ export const formSchema = l.object({
   items: l.array(itemSchema, { min: 1, max: 3 }),
   shipping: l.object({
     zip: l.string({ trim: true, min: 3 }),
-    windows: l.array(l.array(l.number({ integer: true, gte: 0, lte: 23 }), {
-      min: 2, max: 2,
-    }), { min: 1, max: 1 }),
+    windows: l.array(l.refine(
+      l.array(l.number({ integer: true, gte: 0, lte: 23 }), { min: 2, max: 2 }),
+      ([start, end]) => start! < end!,
+      "End time must be later than start time.",
+    ), { min: 1, max: 1 }),
   }, { optional: true }),
 });
 

@@ -2,6 +2,8 @@
 
 Flat schemas for CLI options, HTTP query parameters and text form fields. No runtime dependencies. ESM with TypeScript declarations and [Standard Schema v1](https://standardschema.dev/) validation.
 
+[Documentation and interactive examples](https://toiroakr.github.io/loculus/).
+
 ```ts
 import * as l from 'loculus';
 
@@ -92,7 +94,7 @@ The `objects` option controls the size/speed tradeoff:
 
 Use `loculusPlugin({objects: 'loop'})` to prioritize size. No strategy guarantees the fastest result for every engine and input. Dynamic scalar options, regular expressions and unsupported factories retain ordinary validation. Shadowed imports, local built-in names, `eval`, and unsafe syntax are conservatively skipped. The plugin uses Rolldown's native parser and source-map support. It does not execute user schemas during the build. Function identity and source text can change across optimized builds.
 
-There is no runtime `compile`, `eval`, or `new Function` in generated validation code. Fresh and reusable schemas use the same generated output. See [the full measurement protocol and limitations](bench/whole-object/README.md). The React Hook Form demo uses this plugin.
+There is no runtime `compile`, `eval`, or `new Function` in generated validation code. Fresh and reusable schemas use the same generated output. See [benchmark CI](bench/ci/README.md) for the measurement protocol and limitations. The React Hook Form demo uses this plugin.
 
 ## Presence and defaults
 
@@ -175,43 +177,49 @@ const serve = defineCommand({
 await runMain(serve);
 ```
 
-## Development and measurement
+## Development
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm typecheck
 pnpm test
 pnpm build
-pnpm bench
+pnpm test:rhf
 ```
 
-The benchmark saves environment, dependency versions, every type-check sample, and runtime medians in `bench/results.json`. See [the measurement protocol](bench/README.md). Performance claims apply only to the measured cases. They do not establish superiority for every expressible schema or every compiler and engine.
+`pnpm test` checks runtime behavior, generated validation, package consumers,
+and tree shaking with esbuild and Rolldown. `pnpm test:rhf` exercises the form
+example in desktop and mobile browsers.
 
-Bun 1.4.3 and Node comparisons cover repeated validation, construction plus one validation, process startup, browser bundles, and Bun standalone executables. Loculus uses ordinary schemas; Zod JIT modes are reported separately. See [the Bun protocol](experiments/bun/README.md) and [results](experiments/bun/RESULTS.md). Run `BUN_BIN=/absolute/path/to/bun pnpm bench:bun` to use a specific Bun installation.
+## Documentation
+
+[The public site](https://toiroakr.github.io/loculus/) includes an interactive
+query playground, the working form, and a compatibility comparison.
+Run `pnpm docs:build` with Bun on PATH to rebuild the site and its Node/Bun
+compatibility evidence. See [site development and deployment](docs/home.md).
+
+The compatibility audit compares acceptance and successful outputs in 96
+composed API profiles against Zod and Valibot, with Zod JIT enabled and disabled.
+It checks the current implementation; it does not establish equivalence for
+all inputs, error wording, vendor-specific codes, or union error structures.
+Constraints stop at the first error within a field, corresponding to Valibot's
+`abortPipeEarly: true`; sibling fields still collect their errors.
+
+## Benchmarks
+
+`Benchmarks` runs Node/Bun latency, browser bundle, and TypeScript inference
+measurements on pull requests and main. Octocov groups results into scalars,
+arrays, objects, CLI, and forms. Raw results remain in Actions artifacts.
+Construction includes one validation; repeated validation excludes construction
+and build-time generation.
+
+Run `pnpm bench:ci` with Bun on PATH, or `pnpm bench:ci --quick` to verify the
+pipeline. See [benchmark CI](bench/ci/README.md) for the protocol, reporting
+permissions, and limitations of comparisons across CI machines. Performance
+results apply only to the measured inputs, build settings, and runtimes.
 
 ## Releases
 
 Library changes use `pnpm changeset`. After merge, the release workflow creates a
 version PR; merging it publishes to npm through trusted publishing. See the
 [release guide](docs/releasing.md) for initial GitHub App and npm setup.
-
-## MoonBit
-
-The initial implementation uses TypeScript. The JavaScript API needs TypeScript inference, Standard Schema objects and callback support. A MoonBit implementation would still need this binding layer. MoonBit JS and Wasm GC prototypes have now been measured, including JS boundary costs. Neither improved overall throughput or size over TypeScript in the representative cases, so they remain experimental. Run `pnpm bench:moonbit`; see [the experiment and limitations](experiments/moonbit/README.md) and [results](experiments/moonbit/RESULTS.md). They are not shipped in this release.
-
-
-The optimization comparison preserves the original implementation and compares it with the current build in nine independent Node/Bun processes for every previously identified deficit. The report uses exact permutation tests and Holm adjustment, separates these results from short exploratory timings, and keeps remaining losses visible. See [the measurement protocol](bench/coverage/README.md) and [all results](bench/coverage/RESULTS.md). Absent `meta.optional` and `meta.nullable` flags mean false; adapters should test their truthiness.
-
-The current performance priority is single use: field/schema construction plus one validation, bundle size and type checking. The schema compiler API has been removed, including its per-field preparation. See [the single-use protocol](bench/single-use/README.md) and [the current report](docs/performance-tuning.html). Earlier compiler experiments are [historical evidence](docs/performance-history.html).
-
-The API supports reuse with the same ordinary schema, while performance work prioritizes creation plus one validation. Object shape and validator snapshots, defaults, coercion and callback behavior remain part of the contract.
-
-The [compatibility audit](bench/guarantees/compatibility-audit.json) compares acceptance and successful outputs in 96 composed API profiles against Zod and Valibot, with Zod JIT enabled and disabled. Native comparisons and generated-mode regression cases are in `test/compatibility.test.ts` and `test/rolldown.test.ts`. Constraint checks stop at the first error within a field, corresponding to Valibot's `abortPipeEarly: true`; object and array siblings still collect their errors. Error messages, vendor-specific codes and union error representation are Loculus-specific. String conversion, scalar wrapping and targeted null defaults use the explicit peer compositions recorded in the audit. Earlier performance reports measure the previous contract and do not establish current performance after these compatibility changes.
-
-The [command option benchmarks](bench/cli/README.md) add selected schemas inspired by Git log/clone and Cloudflare cf deploy/DNS records list, each with sparse and densely specified inputs. Their ordinary schemas are included in the single-use measurements, with code for all three libraries, output checks and live browser bundles. Previous compiled measurements are historical.
-
-## Benchmark CI
-
-`Benchmarks` runs Node/Bun runtime, browser bundle, and TypeScript inference measurements on pull requests and main. Octocov groups the comparisons into scalars, arrays, objects, CLI, and forms, while raw results remain in Actions artifacts. Construction includes one validation; repeated validation excludes creation and build-time generation.
-
-Run `pnpm bench:ci` locally with Bun on PATH, or `pnpm bench:ci --quick` to verify the pipeline. See [benchmark CI](bench/ci/README.md) for the protocol, reporting permissions, and limits of comparisons across CI machines.

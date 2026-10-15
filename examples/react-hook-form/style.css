@@ -7,6 +7,9 @@ h1 { font-size: 1.8rem; margin: 12px 0; }
 h2 { font-size: 1.15rem; }
 p { line-height: 1.65; }
 .hint { color: #617088; font-size: .9rem; }
+.hint code { overflow-wrap: anywhere; }
+a { color: #3159bb; }
+#validation-schema { border-top: 1px solid #dce3ef; margin-top: 28px; padding-top: 14px; scroll-margin-top: 24px; }
 label { display: block; margin: 12px 0 6px; font-weight: 600; }
 input { width: 100%; min-height: 46px; border: 1px solid #bac5d6; border-radius: 8px; padding: 10px 12px; font: inherit; }
 input:focus { outline: 2px solid #4265c1; outline-offset: 2px; }

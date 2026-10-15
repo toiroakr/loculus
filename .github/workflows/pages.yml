@@ -1,0 +1,171 @@
+name: GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      site_url: ${{ steps.preview-site.outputs.artifact-url }}
+      form_url: ${{ steps.preview-form.outputs.artifact-url }}
+      compatibility_url: ${{ steps.preview-compatibility.outputs.artifact-url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: 26
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
+        with:
+          cache: true
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version: 1.4.3
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm docs:build
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Build standalone preview pages
+        if: github.event_name == 'pull_request'
+        run: pnpm docs:preview
+        env:
+          PREVIEW_BACK_URL: ${{ github.event.pull_request.html_url }}
+      - name: Check the site under the GitHub Pages project path
+        run: |
+          mkdir -p docs/generated/preview/loculus
+          cp -R docs/site/. docs/generated/preview/loculus/
+          if [ "$CHECK_PREVIEW" = true ]; then
+            mkdir -p docs/generated/preview/standalone
+            cp -R docs/generated/pr-preview/. docs/generated/preview/standalone/
+          fi
+          python3 -m http.server 4193 --bind 127.0.0.1 --directory docs/generated/preview &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          for attempt in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:4193/loculus/ > /dev/null; then break; fi
+            sleep 1
+          done
+          kill -0 "$server_pid"
+          pnpm docs:check
+          if [ "$CHECK_PREVIEW" = true ]; then
+            LOCULUS_DOCS_URL=http://127.0.0.1:4193/standalone/ pnpm docs:check
+          fi
+        env:
+          LOCULUS_DOCS_URL: http://127.0.0.1:4193/loculus/
+          CHECK_PREVIEW: ${{ github.event_name == 'pull_request' }}
+      - uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b
+        with:
+          path: docs/site
+
+      - name: Upload form preview
+        if: github.event_name == 'pull_request'
+        id: preview-form
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: docs/generated/pr-preview/rhf.html
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload compatibility preview
+        if: github.event_name == 'pull_request'
+        id: preview-compatibility
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: docs/generated/pr-preview/compatibility.html
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
+      - name: Link preview pages
+        if: github.event_name == 'pull_request'
+        run: pnpm docs:preview
+        env:
+          PREVIEW_BACK_URL: ${{ github.event.pull_request.html_url }}
+          FORM_PREVIEW_URL: ${{ steps.preview-form.outputs.artifact-url }}
+          COMPATIBILITY_PREVIEW_URL: ${{ steps.preview-compatibility.outputs.artifact-url }}
+      - name: Upload website preview
+        if: github.event_name == 'pull_request'
+        id: preview-site
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          path: docs/generated/pr-preview/index.html
+          archive: false
+          if-no-files-found: error
+          retention-days: 14
+      - name: Add preview links to the workflow summary
+        if: github.event_name == 'pull_request'
+        env:
+          SITE_URL: ${{ steps.preview-site.outputs.artifact-url }}
+          FORM_URL: ${{ steps.preview-form.outputs.artifact-url }}
+          COMPATIBILITY_URL: ${{ steps.preview-compatibility.outputs.artifact-url }}
+        run: |
+          {
+            echo '## Website preview'
+            echo
+            echo "[Website]($SITE_URL) · [Form]($FORM_URL) · [Compatibility]($COMPATIBILITY_URL)"
+            echo
+            echo 'Open the HTML preview in GitHub while signed in. Preview files expire after 14 days.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  preview-comment:
+    name: Site preview comment
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3
+        env:
+          SITE_URL: ${{ needs.build.outputs.site_url }}
+          FORM_URL: ${{ needs.build.outputs.form_url }}
+          COMPATIBILITY_URL: ${{ needs.build.outputs.compatibility_url }}
+        with:
+          script: |
+            const pull = context.payload.pull_request;
+            const { data: current } = await github.rest.pulls.get({ ...context.repo, pull_number: pull.number });
+            if (current.state !== 'open' || current.head.sha !== pull.head.sha) return;
+            const marker = '<!-- loculus-site-preview -->';
+            const body = [
+              marker,
+              '## Website preview',
+              '',
+              `[Website](${process.env.SITE_URL}) · [Form](${process.env.FORM_URL}) · [Compatibility](${process.env.COMPATIBILITY_URL})`,
+              '',
+              `Built from ${pull.head.sha}. Open the HTML preview in GitHub while signed in. Preview files expire after 14 days.`,
+            ].join('\n');
+            const comments = await github.paginate(github.rest.issues.listComments, { ...context.repo, issue_number: pull.number, per_page: 100 });
+            const existing = comments.find(comment => comment.user?.login === 'github-actions[bot]' && comment.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ ...context.repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ ...context.repo, issue_number: pull.number, body });
+            }
+
+  deploy:
+    if: github.repository == 'toiroakr/loculus' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@983d7736d9b0ae728b81ab479565c72886d7745b
+      - uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e
+        id: deployment

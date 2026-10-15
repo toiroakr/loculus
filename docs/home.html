@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f6f5ef">
+<meta name="description" content="TypeScript schemas for CLI options, URL queries, and text forms. Explore the Loculus API, design, working examples, and limits.">
+<title>Loculus | Schemas for string inputs</title>
+<link rel="icon" type="image/svg+xml" href="assets/mark.svg">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/syntax.css">
+<script type="module" src="assets/playground.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+<a class="brand" href="#" aria-label="Loculus home"><img src="assets/mark.svg" width="29" height="29" alt=""><span>loculus</span><span class="version" data-package-version>0.2.5</span></a>
+<nav aria-label="On this page"><a href="#design">Design</a><a href="#api">API</a><a href="#integrations">Integrations</a><a href="#limits">Limits</a></nav>
+<a class="source-link" href="https://github.com/toiroakr/loculus">GitHub <span aria-hidden="true">↗</span></a>
+</header>
+<main id="main">
+<section class="hero wrap">
+<div class="hero-copy"><p class="eyebrow">TYPE YOUR INPUT.</p><h1>String inputs.<br><span>Useful values.</span></h1>
+<p class="lead">A small TypeScript schema library for CLI options, URL queries, and text forms.</p>
+<div class="actions"><a class="button primary" href="#playground">Try it in your browser <span aria-hidden="true">↓</span></a><a class="text-link" href="#limits">Find your use case <span aria-hidden="true">↗</span></a></div>
+<p class="hero-note">ESM / TypeScript · No runtime dependencies · Standard Schema v1</p></div>
+<div class="hero-code code-panel"><div class="code-title"><span class="dot"></span><span>query.ts</span><button class="copy" data-copy="hero-code">Copy</button></div>
+<pre><code id="hero-code">import * as l from 'loculus';
+
+const query = l.object({
+  q: l.string({ trim: true, min: 1 }),
+  page: l.number({
+    integer: true, gte: 1, default: 1,
+  }),
+  draft: l.boolean({ default: false }),
+  tag: l.array(l.enum(['docs', 'code']), {
+    wrapScalar: true, optional: true,
+  }),
+});
+
+const params = new URLSearchParams(location.search);
+const value = l.parse(query, l.fromEntries(params));</code></pre>
+<div class="code-footer"><span>Strings in.</span><span>Typed values out.</span></div></div>
+</section>
+<div class="boundary wrap" aria-label="From input to output"><span>CLI <i>/</i> QUERY <i>/</i> FORM</span><div class="boundary-line"></div><span class="boundary-center">VALIDATE + CONVERT</span><div class="boundary-line"></div><span>APPLICATION VALUES</span></div>
+<section id="playground" class="section wrap">
+<div class="section-heading"><div><p class="eyebrow">01 / TRY IT</p><h2>What will your input become?</h2></div><p>This runs the schema shown below.<br>Edit the input to explore conversions and errors.</p></div>
+<div class="playground">
+<div class="schema-side"><div class="pane-label"><span>Schema</span><button class="copy" data-copy="playground-schema">Copy</button></div>
+<pre><code id="playground-schema">import * as l from 'loculus';
+
+const query = l.object({
+  q: l.string({ trim: true, min: 1 }),
+  page: l.number({
+    integer: true, gte: 1, default: 1,
+  }),
+  draft: l.boolean({ default: false }),
+  tag: l.array(l.enum(['docs', 'code']), {
+    wrapScalar: true, optional: true,
+  }),
+});</code></pre>
+<p class="schema-note">The same schema handles every example. Objects are strict by default.</p></div>
+<div class="input-side"><div class="pane-label"><label for="query-input">URL query</label><span>Input arrives as strings</span></div>
+<textarea id="query-input" rows="4" spellcheck="false">q=loculus&amp;page=2&amp;draft=false&amp;tag=docs&amp;tag=code</textarea>
+<div class="samples" role="group" aria-label="Sample inputs"><button data-sample="valid" aria-pressed="true">Valid</button><button data-sample="defaults" aria-pressed="false">Defaults</button><button data-sample="empty" aria-pressed="false">Empty number</button><button data-sample="extra" aria-pressed="false">Unknown key</button><button data-sample="repeated" aria-pressed="false">Repeated number</button></div>
+<p id="sample-note" class="input-note">page becomes a number, draft becomes a boolean, and repeated tag values become an array.</p>
+<details class="raw-input"><summary>View the input object</summary><pre id="raw-output" class="twinkleplop"></pre></details></div>
+<div class="output-side"><div class="pane-label"><span>Validation result</span><span id="result-status" class="status" aria-live="polite">Loading</span></div><pre class="twinkleplop" id="result-output" aria-live="polite" aria-atomic="true"></pre><div id="output-note" class="output-note">Validated by the Loculus JavaScript runtime.</div></div>
+</div>
+<noscript><p>JavaScript is required to run the examples. The documentation and API reference remain available.</p></noscript>
+</section>
+<section id="design" class="section philosophy">
+<div class="wrap philosophy-grid"><div><p class="eyebrow">02 / DESIGN</p><h2>An API shaped<br>by your inputs.</h2><p class="design-intro">Many CLIs and forms work with names and strings. Loculus brings conversion, constraints, and missing-value handling together in one definition.</p></div>
+<div class="principles"><article><span class="index">01</span><div><h3>Give strings a clear meaning</h3><p><code>"false"</code> becomes false. number() treats an empty string as null for presence and defaults. Whitespace remains invalid. Accepted input formats are explicit, rather than relying on JavaScript truthiness or Number().</p></div></article>
+<article><span class="index">02</span><div><h3>Constraints and presence as options</h3><p>Write <code>string({ min: 1, optional: true })</code>. No layers of optional, nullable, and default wrappers. Use gt / gte / lt / lte for exclusive and inclusive numeric bounds.</p></div></article>
+<article><span class="index">03</span><div><h3>Reject unexpected input by default</h3><p><code>object()</code> defaults to strict, catching misspelled options and unknown keys. Explicitly choose strip to discard extra keys, or passthrough to keep them.</p></div></article>
+<article><span class="index">04</span><div><h3>Count the cost of using it once</h3><p>For a CLI or form submission, schema construction is part of the work. Loculus optimizes construction plus one validation. Reuse the same schema when you need repeated validation.</p></div></article></div></div>
+</section>
+<section id="api" class="section wrap">
+<div class="section-heading"><div><p class="eyebrow">03 / API ESSENTIALS</p><h2>Make edge cases explicit.</h2></div><p>undefined, null, and empty strings are different inputs.<br>Choose which to accept and which to replace.</p></div>
+<div class="api-grid"><article class="api-block"><h3>Missing values, null, and defaults</h3><div class="table-scroll"><table><thead><tr><th>Option</th><th>undefined</th><th>null</th></tr></thead><tbody>
+<tr><td><code>optional: true</code></td><td>Preserved</td><td>Error</td></tr><tr><td><code>nullable: true</code></td><td>Error</td><td>Preserved</td></tr><tr><td><code>nullish: true</code></td><td>Preserved</td><td>Preserved</td></tr><tr><td><code>default: 'guest'</code></td><td>'guest'</td><td>Error</td></tr><tr><td><code>default: { nullish: 'guest' }</code></td><td>'guest'</td><td>'guest'</td></tr><tr><td><code>default: { null: 'anonymous' }</code></td><td>Error</td><td>'anonymous'</td></tr></tbody></table></div>
+<p class="small">Each option is shown on its own with string(). Defaults do not replace empty strings or invalid values.</p>
+<pre class="light-code"><code>l.string({
+  default: { undefined: 'guest', null: 'anonymous' },
+});</code></pre><p class="small">Missing and null inputs can have different replacements. Defaults are treated as validated outputs and <a href="#default-limit">bypass constraints</a>.</p></article>
+<article class="api-block"><h3>Bounds, repeated values, and errors</h3><pre class="light-code"><code>l.string({ trim: true, min: 1, max: 80 });
+l.number({ gt: 0, lte: 100 });
+l.array(l.string());
+l.array(l.string(), { wrapScalar: true });
+
+const result = l.safeParse(query, input);
+if (result.issues) {
+  console.log(result.issues);
+} else {
+  console.log(result.value);
+}</code></pre>
+<p><code>gt / lt</code> exclude the bound; <code>gte / lte</code> include it. <code>array()</code> accepts only arrays by default. Set <code>wrapScalar: true</code> to wrap a single value in a one-element array.</p><p>safeParse returns <code>{ value }</code> or <code>{ issues }</code>. parse throws ValidationError on failure. Constraints stop at the first error within each field; errors from sibling fields are collected.</p></article></div>
+<details class="api-more"><summary>Basic types and conversion rules <span aria-hidden="true">+</span></summary><div class="table-scroll"><table><thead><tr><th>API</th><th>Accepted values and key options</th></tr></thead><tbody>
+<tr><td><code>string()</code></td><td>Strings only. trim / min / max / pattern. Length uses UTF-16 code units.</td></tr><tr><td><code>number()</code></td><td>Decimal strings and finite numbers. Empty strings follow null presence/default settings. Rejects whitespace, hexadecimal notation, and Infinity. integer requires safe integers.</td></tr><tr><td><code>boolean()</code></td><td>Booleans and the strings "true" / "false" / "1" / "0". Rejects numeric 0 / 1.</td></tr><tr><td><code>enum() / literal()</code></td><td>enum uses string choices; literal supports fixed string, numeric, and boolean choices.</td></tr><tr><td><code>date()</code></td><td>ISO date and date-time strings. Returns a Date; Date objects are not accepted as input. Supports local time, Z, and ±HH:MM.</td></tr><tr><td><code>array()</code></td><td>Fields, row objects, or arrays as elements. min / max / wrapScalar.</td></tr><tr><td><code>object()</code></td><td>Nested objects and optional / nullable / nullish parents. unknownKeys: strict / strip / passthrough. Object defaults require an explicit target.</td></tr><tr><td><code>transform() / refine()</code></td><td>Synchronous conversion and extra validation. Exceptions from user callbacks propagate.</td></tr><tr><td><code>union() / xor()</code></td><td>Accept any matching branch, or require exactly one matching branch.</td></tr><tr><td><code>discriminatedUnion() / intersection()</code></td><td>Select by a discriminator, or merge both validation outputs.</td></tr></tbody></table></div><p class="small">All field constructors support optional / nullable / nullish / default / description. Date-time strings without a time zone use the runtime's local time.</p></details>
+<div class="type-strip"><span class="type-badge">INPUT ≠ OUTPUT</span><div><h3>Types before and after conversion.</h3><p>Infer <code>Input&lt;typeof query&gt;</code> and <code>Output&lt;typeof query&gt;</code>. For example, page accepts a string, number, or missing value on input and becomes a required number after validation.</p></div></div>
+</section>
+<section id="integrations" class="section integrations wrap">
+<div class="section-heading"><div><p class="eyebrow">04 / INTEGRATIONS</p><h2>For forms. For CLIs.</h2></div><p>Implements <a href="https://standardschema.dev/">Standard Schema v1</a>.<br>Pass schemas directly to compatible tools.</p></div>
+<div class="integration-grid"><article><div class="integration-label">REACT HOOK FORM</div><h3>Repeated rows with array(object).</h3><p>Put a row schema inside an array for line items and product lists. Use it with useFieldArray; error paths such as items → 0 → quantity identify the row.</p>
+<div class="code-panel"><div class="code-title"><span>form.ts</span><button class="copy" data-copy="form-code">Copy</button></div><pre><code id="form-code">import * as l from 'loculus';
+import { useForm } from 'react-hook-form';
+import { standardSchemaResolver }
+  from '@hookform/resolvers/standard-schema';
+
+const item = l.object({
+  name: l.string({ min: 1 }),
+  quantity: l.number({ integer: true, gte: 1 }),
+});
+const form = l.object({
+  title: l.string({ min: 1 }),
+  items: l.array(item, { wrapScalar: false, min: 1 }),
+});
+
+useForm&lt;l.Input&lt;typeof form&gt;, unknown, l.Output&lt;typeof form&gt;&gt;({
+  resolver: standardSchemaResolver(form),
+});</code></pre></div><a class="text-link" href="rhf.html">Try the working form <span aria-hidden="true">↗</span></a><p class="small">Browser tests cover adding, removing, and reordering rows, and displaying errors. Parsing dotted FormData field names requires a separate step.</p></article>
+<article class="cli-card"><div class="integration-label">POLITTY</div><h3>The same schemas for CLI arguments.</h3><p>The @politty/loculus adapter adds CLI metadata such as aliases, environment variables, and descriptions alongside value validation.</p>
+<pre class="light-code"><code>import * as l from 'loculus';
+import { arg, defineCommand }
+  from '@politty/loculus';
+
+const serve = defineCommand({
+  name: 'serve',
+  args: l.object({
+    port: arg(l.number({
+      integer: true, gte: 1,
+      lte: 65535, default: 3000,
+    }), { alias: 'p', env: 'PORT' }),
+  }),
+  run: ({ port }) =&gt; console.log(port),
+});</code></pre><a class="text-link" href="https://github.com/toiroakr/politty/pull/894">Adapter implementation <span aria-hidden="true">↗</span></a><p class="small">See the adapter repository for its release status and installation instructions.</p></article></div>
+</section>
+<section id="performance" class="section performance"><div class="wrap">
+<div class="section-heading"><div><p class="eyebrow">05 / ENGINEERING</p><h2>Small and fast.<br>Claims backed by measurements.</h2></div><p>Optimization preserves the required guarantees.<br>There is no claim to be fastest for every use case.</p></div>
+<div class="evidence-grid"><article><span class="stat">0</span><h3>Runtime dependencies</h3><p>The ordinary entry point stands alone. ESM, sideEffects metadata, and tree-shaking checks help keep bundles small. Size depends on the APIs and build settings you use.</p></article><article><span class="stat" data-compat-profiles>96<span> profiles</span></span><h3>Compatibility profiles</h3><p><span data-compat-cells>1,082</span> cases are checked on each of Node and Bun. Acceptance and successful outputs match at least one explicitly configured Zod or Valibot peer. This does not prove equivalence for every input or error representation.</p><a href="compatibility.html">View comparison code and results ↗</a></article><article><span class="stat word-stat">build-time</span><h3>Optional build-time optimization</h3><p>@loculus/rolldown specializes static schemas while preserving the ordinary API. Unsupported definitions use ordinary processing. No runtime compile or eval is needed.</p></article></div>
+<details class="performance-detail"><summary>Measurement scope and plugin usage <span aria-hidden="true">+</span></summary><div class="performance-detail-grid"><div><h3>Measure single use and reuse separately</h3><p>Single use includes schema construction plus one validation. Repeated-use measurements validate an existing schema. Benchmark CI includes schemas inspired by Git and Cloudflare cf commands, and forms with repeated rows.</p><p>Benchmark CI reports runtime latency, browser bundle sizes, and TypeScript inference costs separately. Results apply to the measured schemas and environments; they do not establish overall superiority.</p><p>Generated code may be larger or slower, depending on the engine and schema. The plugin does not speed up TypeScript type checking.</p></div><div><pre class="light-code"><code>import { defineConfig } from 'tsdown';
+import { loculusPlugin } from '@loculus/rolldown';
+
+export default defineConfig({
+  entry: ['src/main.ts'],
+  plugins: [loculusPlugin()],
+});</code></pre><p class="small">Supports Rolldown &gt;=1.2.13 and &lt;2. Optimizes static string / number / boolean schemas and some array / object schemas. Dynamic options use ordinary processing.</p><p class="small">Removing unused construction calls depends on build settings. Tested Rolldown minification removes them; esbuild requires @__PURE__ annotations at call sites.</p></div></div></details>
+</div></section>
+<section id="limits" class="section wrap limits">
+<div class="section-heading"><div><p class="eyebrow">06 / SCOPE &amp; LIMITS</p><h2>Before you use it.</h2></div><p>Specializing in input boundaries has limits.<br>Loculus is not a full application data-modeling library.</p></div>
+<div class="fit-grid"><article class="fit"><span class="fit-label">A GOOD FIT</span><h3>Inputs expressed as names and values</h3><p>CLI options, search queries, and text-focused forms. Define conversions and missing-value handling together in a short schema.</p><p>Use array(object) for repeated form rows. The library focuses on flat inputs with selected support for nesting.</p></article><article class="consider"><span class="fit-label">ALSO CONSIDER OTHER LIBRARIES</span><h3>Broader types and asynchronous work</h3><p>For recursive schemas, Map, Set, tuples, specialized formats, or asynchronous validation, explore Zod and Valibot.</p><p>Loculus has its own error representation. Standard Schema support does not make it a direct replacement for code that expects Zod error codes or union error structures.</p><div class="peer-links"><a href="https://zod.dev/api">Zod API ↗</a><a href="https://valibot.dev/api/">Valibot API ↗</a></div></article></div>
+<div class="caveats"><details open><summary>Nested form values are supported; recursive schemas are not</summary><p>Use <code>object({ address: object(...) })</code> or <code>array(array(...))</code>. Parent optionality and child optionality are independent. Each array level requires an array by default; explicitly set wrapScalar on every level that should wrap scalars.</p></details>
+<details id="default-limit"><summary>Defaults bypass constraints and transformations</summary><p>Defaults are treated as validated outputs. In <code>string({ min: 5, default: 'x' })</code>, a missing value returns 'x' without a length error. Use defaults that satisfy your output contract. Referenced defaults keep their identity.</p></details>
+<details><summary>Inherited properties and schema immutability</summary><p>Declared fields read ordinary JavaScript properties, including inherited values. Treat schemas and introspection metadata as immutable after creation. Construct a new schema when a definition changes. Declared __proto__ fields are skipped, and passthrough excludes that key.</p></details>
+<details><summary>Runtime and measurement scope</summary><p>Distributed packages contain JavaScript compiled from TypeScript. The benchmark workflow measures selected cases on Node and Bun. Compare results for your own schemas and environment before drawing performance conclusions.</p></details></div>
+</section>
+<section class="closing wrap"><img src="assets/mark.svg" width="44" height="44" alt=""><div><h2>Input rules, in one place.</h2><p>Start with the query example. Express conversions and rejection rules in your schema.</p></div><a class="button primary" href="#playground">Try the example ↑</a></section>
+</main>
+<footer class="wrap footer"><div><a class="brand" href="#">loculus</a><span>MIT · <span data-package-version>0.2.5</span> · Node.js <span data-node-range>&gt;=22.18.0</span> / browsers</span></div><div><a href="https://github.com/toiroakr/loculus#readme">README</a><a href="compatibility.html">Compatibility</a><a href="https://github.com/toiroakr/loculus">GitHub ↗</a></div><p>Documentation backed by the current implementation and compatibility checks.</p></footer>
+</body>
+</html>

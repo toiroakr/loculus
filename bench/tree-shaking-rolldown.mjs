@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { rolldown } from 'rolldown';
 import { gzipSync } from 'node:zlib';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { sources } from './tree-shaking-fixtures.mjs';
 
@@ -51,6 +51,7 @@ for (const minify of [false, true]) {
     }
   }
 }
-writeFileSync('bench/tree-shaking-rolldown-results.json', `${JSON.stringify(report, null, 2)}\n`);
+mkdirSync('bench/generated', { recursive: true });
+writeFileSync('bench/generated/tree-shaking-rolldown-results.json', `${JSON.stringify(report, null, 2)}\n`);
 console.log('Rolldown tree-shaking checks passed, including unannotated consumer construction.');
 console.table(Object.fromEntries(Object.entries(report.results).filter(([name]) => name.endsWith('/minified')).map(([name, value]) => [name, value])));

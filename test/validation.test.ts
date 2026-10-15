@@ -1,11 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as l from "../src/index.js";
-import * as before from "../bench/single-use/before/index.js";
 
 test("wide objects preserve changing Result accessors and exceptions", () => {
   for (const mode of ["changing", "missing", "throw", "issues"]) {
-    const run = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => {
+    const run = (library: typeof l) => {
       const events: string[] = [];
       let values = 0;
       let issues = 0;
@@ -27,8 +26,11 @@ test("wide objects preserve changing Result accessors and exceptions", () => {
       try { return { result: library.safeParse(schema, input), events }; }
       catch (error) { return { error: (error as Error).message, events }; }
     };
-    const actual = run(l), prior = run(before);
-    assert.deepEqual('result' in actual ? actual.result : actual.error, 'result' in prior ? prior.result : prior.error, mode);
+    const actual = run(l);
+    const tails = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`s${i}`, "v"]));
+    if (mode === "throw") assert.equal(actual.error, "value failed");
+    else assert.deepEqual(actual.result, mode === "issues" ? { issues: [] }
+      : { value: mode === "changing" ? { first: undefined, ...tails } : tails }, mode);
     const prefix = mode === "issues" ? ["get first", "issues 1", "issues 2"] : mode === "missing" ? ["get first", "issues 1", "value 1"] : ["get first", "issues 1", "value 1", "value 2"];
     assert.deepEqual(actual.events, [...prefix, ...(mode === "throw" ? [] : Array.from({length: 40}, (_, i) => `get s${i}`))]);
   }
@@ -36,7 +38,7 @@ test("wide objects preserve changing Result accessors and exceptions", () => {
 
 test("wide defaults and transforms preserve mutations and fallback paths", () => {
   for (const invalid of [false, true]) {
-    const run = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => {
+    const run = (library: typeof l) => {
       const events: string[] = [];
       const raw: Record<string, unknown> = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`s${i}`, "v"]));
       const schema = library.object({
@@ -55,14 +57,17 @@ test("wide defaults and transforms preserve mutations and fallback paths", () =>
       });
       return { result: library.safeParse(schema, input), events };
     };
-    const actual = run(l), prior = run(before);
-    assert.deepEqual(actual.result, prior.result);
+    const actual = run(l);
+    const tails = Object.fromEntries(Array.from({ length: 40 }, (_, i) => [`s${i}`, i === 0 ? "changed" : "v"]));
+    assert.deepEqual(actual.result, invalid
+      ? { issues: [{ message: "Expected a string", code: "invalid_type", path: ["s20"] }] }
+      : { value: { defaulted: "D", changed: "SOURCE", ...tails } });
     assert.deepEqual(actual.events, ["get defaulted", "get changed", "transform", ...Array.from({length: 40}, (_, i) => `get s${i}`)]);
   }
 });
 
-test("fields preserve presence, conversions, bounds and issue details", () => {
-  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">) => [
+test("object fields preserve standalone presence, conversions, bounds and issue details", () => {
+  const create = (library: typeof l) => [
     library.string(), library.string({ min: 1, max: 3 }), library.string({ trim: true, pattern: /^a/g }),
     library.string({ nullish: true }), library.string({ default: { undefined: "u", null: "n" } }),
     library.string({ default: { undefined: undefined } } as any),
@@ -70,7 +75,7 @@ test("fields preserve presence, conversions, bounds and issue details", () => {
     library.number({ gte: -Number.MAX_SAFE_INTEGER, lt: Number.MAX_SAFE_INTEGER + 1, integer: true }),
     library.number({ gt: -Number.MAX_SAFE_INTEGER, lte: Number.MAX_SAFE_INTEGER, integer: true }),
     library.number({ gt: -Infinity, gte: -Infinity, lt: Infinity, lte: Infinity }),
-    library.boolean(), library.boolean({ optional: true }),
+    library.number({ default: { nullish: 1 } }), library.boolean(), library.boolean({ optional: true }),
     library.enum(["a", "b"]), library.date(), library.transform(library.string(), () => undefined),
     library.array(library.string(), { wrapScalar: true }), library.array(library.number({ integer: true }), { wrapScalar: true }),
     library.array(library.boolean(), { wrapScalar: false, min: 1, max: 2 }),
@@ -83,17 +88,17 @@ test("fields preserve presence, conversions, bounds and issue details", () => {
     "true", "false", "1.1", NaN, Infinity, -Infinity, -0, 2, Number.MAX_SAFE_INTEGER,
     -Number.MAX_SAFE_INTEGER, Number.MAX_SAFE_INTEGER + 1, {}, [], ["a"], ["", "a"], [1, "2"]];
   const fields = create(l);
-  const references = create(before);
-  for (const [index, field] of fields.entries()) {
+  for (const field of fields) {
     const normal = l.object({ value: field });
-    const reference = before.object({ value: references[index]! });
-    for (const input of [{}, ...values.map((value) => ({ value }))])
-      assert.deepEqual(l.safeParse(normal, input), before.safeParse(reference, input));
+    for (const input of [{}, ...values.map((value) => ({ value }))]) {
+      const value = "value" in input ? input.value : undefined;
+      const result = l.safeParse(field, value);
+      const expected = result.issues
+        ? { issues: result.issues.map(issue => ({ ...issue, path: ["value", ...(issue.path ?? [])] })) }
+        : { value: result.value === undefined && !("value" in input) ? {} : { value: result.value } };
+      assert.deepEqual(l.safeParse(normal, input), expected);
+    }
   }
-  const number = l.number({ default: { nullish: 1 } });
-  const referenceNumber = before.number({ default: { nullish: 1 } });
-  for (const input of values)
-    assert.deepEqual(l.safeParse(number, input), before.safeParse(referenceNumber, input === "" ? null : input));
 });
 
 test("field options and array validators are captured at construction", () => {
@@ -137,9 +142,12 @@ test("validation remains independent of public field metadata", () => {
   const field = l.string({ min: 1, max: 3 });
   const schema = l.object({ value: field });
   Object.assign(field.meta, { kind: "boolean", enumValues: ["other"] });
-  const reference = before.object({ value: before.string({ min: 1, max: 3 }) });
-  for (const value of ["a", "", "abcd", true, undefined, null])
-    assert.deepEqual(l.safeParse(schema, { value }), before.safeParse(reference, { value }));
+  assert.deepEqual(l.parse(schema, { value: "a" }), { value: "a" });
+  for (const [value, message, code] of [
+    ["", "Expected at least 1 characters", "invalid_value"],
+    ["abcd", "Expected at most 3 characters", "invalid_value"],
+    ...[true, undefined, null].map(value => [value, "Expected a string", "invalid_type"]),
+  ]) assert.deepEqual(l.safeParse(schema, { value }), { issues: [{ message, code, path: ["value"] }] });
 });
 
 test("objects support opaque callable field validators", () => {

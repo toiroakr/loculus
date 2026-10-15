@@ -37,7 +37,7 @@ Run the browser checks:
 pnpm test:rhf
 ```
 
-Local checks use installed Google Chrome. CI installs Playwright Chromium. Desktop and an iPhone 13 viewport each run seven tests:
+Local checks use installed Google Chrome. CI installs Playwright Chromium. Desktop and an iPhone 13 viewport each run eleven tests:
 
 - Required field and nested numeric errors prevent submission; corrections clear errors and produce trimmed strings and numeric output.
 - Moving a row preserves its values, identity and the reassigned error paths.
@@ -46,9 +46,15 @@ Local checks use installed Google Chrome. CI installs Playwright Chromium. Deskt
 - Reset clears errors and restores defaults; the layout does not overflow the viewport.
 - Empty, fractional, and excessive quantities fail; the inclusive upper bound succeeds.
 - Opting into shipping validates a direct nested object and a two-dimensional time-window array. Corrected nested values submit as numbers; disabling shipping removes the optional container.
+- Same-day delivery windows require integer hours from 0 to 23 and a strictly later end. Equal or reversed hours produce an error associated with both endpoints; changing either endpoint can clear it.
+- Empty, fractional, and out-of-range hours produce field errors before the window comparison runs.
+- The visible schema matches the actual source file, including the cross-field refinement, on desktop and mobile.
 
 Mobile checks emulate Chromium's viewport and touch behavior, rather than running on a physical iPhone or Safari. The example typecheck compiles against the generated package declarations. `test/object-array.test.ts` also covers optional/nullish/default arrays, row object modes, nested paths, ordinary/generated scalar parity, and validator snapshot behavior.
 
-`array(object(...))` originally widened array element types without changing the emitted runtime JS. Subsequent performance changes are measured in `bench/optimization-2/` and the latest full pass in `bench/optimization-3/`. The pre-extension JS is retained in `bench/coverage/array-object-before/`; compare it with a freshly built `dist/index.js`. The original extension retained the same flat validation and browser bundle bytes with the same dependencies and bundler. Type instantiations have a small additional cost, measured separately in `bench/coverage/array-object-type-results.json`. `verification.json` records the latest installed runtime hash and browser checks.
 
 Direct nested object fields and arrays of arrays are supported. The optional `shipping` container in `schema.ts` contains a ZIP string and `windows: number[][]`, with strict array inputs at both levels by default. RHF's `register('shipping.windows.0.0')` supplies structured values to the resolver, and errors retain that full path. Circular/lazy schemas and parsing dotted/bracketed names from native `FormData` remain outside this extension. `fromEntries()` preserves literal field names; it does not reconstruct nested data. Defaults are output values, bypass constraints, and reuse the same object or array reference.
+
+The demo displays `schema.ts` directly from the build input, rather than maintaining a separate schema snippet. The window uses `l.refine` after parsing both hours, so comparisons use converted numbers. A refinement issue is attached to the window array at `shipping.windows.0`; the UI associates it with both hour inputs. Overnight delivery is not supported in this example.
+
+Twinkleplop highlights the displayed TypeScript schema during the build and JSON results after submission. The GitHub theme CSS is embedded in the standalone page; no CDN is required. User text is escaped by the highlighter and remains unchanged when copied or parsed.
