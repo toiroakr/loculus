@@ -954,3 +954,18 @@ test('generated scalar results customize inherited issues with the original fiel
     assert.deepEqual(run(generated),expected,objects);
   }
 });
+
+test('generated scalar success paths leave rejected literal probes uncustomized', async () => {
+  const source = `import * as l from 'loculus';
+    export const seen=[];
+    export const setup=()=>{seen.length=0;l.config({customError:issue=>{seen.push(issue.received);return 'Translated';}});};
+    export const fields=[l.string(),l.number(),l.boolean(),l.literal([42,true,'a'])];`;
+  const built = await bundle(source);
+  built.exports.setup();
+  for (const [index,input,value] of [[0,'ok','ok'],[1,'42',42],[2,'true',true],[3,'true',true]] as const)
+    assert.deepEqual(built.exports.fields[index]['~standard'].validate(input),{value});
+  assert.deepEqual(built.exports.seen,[]);
+  for (const field of built.exports.fields)
+    assert.equal(field['~standard'].validate({}).issues[0].message,'Translated');
+  assert.equal(built.exports.seen.length,4);
+});

@@ -641,6 +641,31 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         generated += groups.join('\n')+'\n'+chunks.join('\n')+'\n';
         if (objects.size) generated += `function ${collect}(result,key,input,output,issues){if(result.issues){issues??=[];for(const issue of result.issues)issues.push({...issue,path:issue.path?[key,...issue.path]:[key]});}else if(result.value!==void 0||key in input){output[key]=result.value;}return issues;}function ${invalid}(key,input,output,issues,issue,raw){return ${collect}({issues:[${resolveIssue}(issue,raw)]},key,input,output,issues);}\n`;
         if (literalError) generated += `function ${literalError}(message,code,raw){return {issues:[code==="invalid_type"?${typeIssue}("number",raw,message):{message,code}]};}\n`;
+        const resolvedBody = (body: string): string => {
+          const prefix = 'function validate(value){';
+          const source = prefix + body + '}';
+          const parsed = this.parse(source) as unknown as Node;
+          const edits: { start: number; end: number; value: string }[] = [];
+          const visit = (node: Node): void => {
+            if (node.type.includes('Function')) return;
+            if (node.type === 'ReturnStatement' && isNode(node.argument)) {
+              const expression = source.slice(node.argument.start, node.argument.end);
+              const resolved = `${resolveResult}(${expression},raw)`;
+              const success = properties(node.argument)?.value;
+              edits.push({ start: node.start - prefix.length, end: node.end - prefix.length,
+                value: `return ${success ? `"issues" in {}?${resolved}:${expression}` : resolved};` });
+              return;
+            }
+            for (const [key, value] of Object.entries(node)) {
+              if (key === 'parent' || key === 'comments') continue;
+              for (const child of Array.isArray(value) ? value : [value]) if (isNode(child)) visit(child);
+            }
+          };
+          visit((parsed.body as Node[])[0]!.body as Node);
+          let result = body;
+          for (const edit of edits.sort((a,b)=>b.start-a.start)) result = result.slice(0,edit.start)+edit.value+result.slice(edit.end);
+          return result;
+        };
         for (const helper of helpers.values()) {
           let body = helper.body;
           if (body === generate({kind:'string',opts:{}}, '', decimal, enumMeta, typeIssue).body) {
@@ -649,7 +674,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
             body = body.replace(failure('Expected a string', 'invalid_type', { expected: 'string' }, typeIssue), `return ${error}("Expected a string","invalid_type",raw);`);
           }
           generated += `function ${helper.raw}(value){const raw=value;${body}}\n`;
-          generated += `function ${helper.name}(value){return ${resolveResult}(${helper.raw}(value),value);}\n`;
+          generated += `function ${helper.name}(value){const raw=value;${resolvedBody(body)}}\n`;
         }
         for (const [expression,create] of scalarFactories) generated += `/* @__NO_SIDE_EFFECTS__ */ function ${create}(){return ${expression};}\n`;
         for(const helper of arrayHelpers.values()){
