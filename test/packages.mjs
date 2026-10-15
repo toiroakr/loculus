@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtemp, mkdir, readFile, writeFile, symlink, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, writeFile, symlink, rm, cp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const work = await mkdtemp(join(tmpdir(), 'loculus-packages-'));
 function pack(directory) {
-  return JSON.parse(execFileSync('npm', ['pack', '--json', '--pack-destination', work], { cwd: directory, encoding: 'utf8' }))[0];
+  const packed = JSON.parse(execFileSync('pnpm', ['pack', '--json', '--pack-destination', work], { cwd: directory, encoding: 'utf8' }));
+  return { ...packed, filename: basename(packed.filename) };
 }
 async function consumer(name, archives) {
   const directory = join(work, name);
@@ -47,6 +48,8 @@ try {
 import assert from 'node:assert/strict';
 import * as l from 'loculus';
 assert.deepEqual(l.parse(l.object({ flag: l.boolean(), count: l.number({default: 1}) }), {flag: 'false'}), {flag: false, count: 1});
+assert.equal(l.parse(l.number({nullish:true}), ''), null);
+assert.equal(l.parse(l.number({default:{null:10}}), ''), 10);
 await assert.rejects(import('loculus/rolldown'), {code: 'ERR_PACKAGE_PATH_NOT_EXPORTED'});
 await assert.rejects(import('rolldown'), {code: 'ERR_MODULE_NOT_FOUND'});
 `);
@@ -54,11 +57,9 @@ await assert.rejects(import('rolldown'), {code: 'ERR_MODULE_NOT_FOUND'});
   const optimized = await consumer('optimized', [join(work, runtime.filename), join(work, plugin.filename)]);
   await symlink(join(root, 'node_modules/rolldown'), join(optimized, 'node_modules/rolldown'), 'dir');
   const pluginManifest = JSON.parse(await readFile(join(optimized, 'node_modules/@loculus/rolldown/package.json'), 'utf8'));
-  // Changesets leaves a peer range alone while the new release still satisfies it, so check
-  // compatibility instead of requiring the range to track the exact runtime version.
   assertCaret(pluginManifest.peerDependencies.loculus, runtime.version);
   assert.equal(pluginManifest.peerDependencies.rolldown, '>=1.2.13 <2');
-  await writeFile(join(optimized, 'entry.js'), `import * as l from 'loculus'; export const query = l.object({q:l.string({trim:true,min:1}),draft:l.boolean({default:false})});export const choices=l.object({code:l.literal([200,201]),mode:l.literal(['auto',1,false]),items:l.array(l.literal([1,2]))});`);
+  await writeFile(join(optimized, 'entry.js'), `import * as l from 'loculus'; export const query = l.object({q:l.string({trim:true,min:1}),draft:l.boolean({default:false}),count:l.number({nullish:true}),fallback:l.number({optional:true,default:{null:10}})});export const choices=l.object({code:l.literal([200,201]),mode:l.literal(['auto',1,false]),items:l.array(l.literal([1,2]))});`);
   await writeFile(join(optimized, 'verify.mjs'), `
 import assert from 'node:assert/strict';
 import {rolldown} from 'rolldown';
@@ -73,11 +74,29 @@ try {
   const {query,choices} = await import('data:text/javascript;base64,'+Buffer.from(output[0].code).toString('base64'));
   assert.deepEqual(query['~standard'].validate({q:' hello ',draft:'false'}),{value:{q:'hello',draft:false}});
   assert.deepEqual(query['~standard'].validate({q:'hello'}),{value:{q:'hello',draft:false}});
+  assert.deepEqual(query['~standard'].validate({q:'hello',count:'',fallback:''}),{value:{q:'hello',draft:false,count:null,fallback:10}});
   assert.deepEqual(query['~standard'].validate({q:'hello',extra:'value'}).issues[0].path,['extra']);
   assert.deepEqual(choices['~standard'].validate({code:'201',mode:'1',items:['1',2]}),{value:{code:201,mode:1,items:[1,2]}});
   assert.deepEqual(choices['~standard'].validate({code:'202',mode:'auto',items:[3]}).issues.map(issue=>issue.path),[['code'],['items',0]]);
 } finally { await build.close(); }
 `);
   execFileSync(process.execPath, ['verify.mjs'], { cwd: optimized, stdio: 'pipe' });
+  const release = join(work, 'release');
+  for (const path of ['package.json', 'pnpm-workspace.yaml', '.changeset', 'dist', 'packages/rolldown/package.json', 'packages/rolldown/dist']) {
+    await mkdir(join(release, path, '..'), { recursive: true });
+    await cp(join(root, path), join(release, path), { recursive: true });
+  }
+  await symlink(join(root, 'node_modules'), join(release, 'node_modules'), 'dir');
+  execFileSync('pnpm', ['exec', 'changeset', 'version'], { cwd: release, stdio: 'pipe' });
+  const releasedRuntime = pack(release);
+  const releasedPlugin = pack(join(release, 'packages/rolldown'));
+  const released = await consumer('released', [join(work, releasedRuntime.filename), join(work, releasedPlugin.filename)]);
+  const releasedManifest = JSON.parse(await readFile(join(released, 'node_modules/@loculus/rolldown/package.json'), 'utf8'));
+  assert.equal(releasedManifest.peerDependencies.loculus, `^${releasedRuntime.version}`);
+  console.log(`Release tarballs require loculus@${releasedRuntime.version}.`);
+  await symlink(join(root, 'node_modules/rolldown'), join(released, 'node_modules/rolldown'), 'dir');
+  await cp(join(optimized, 'entry.js'), join(released, 'entry.js'));
+  await cp(join(optimized, 'verify.mjs'), join(released, 'verify.mjs'));
+  execFileSync(process.execPath, ['verify.mjs'], { cwd: released, stdio: 'pipe' });
   console.log('Packed runtime works without Rolldown; standalone @loculus/rolldown generates and validates consumer schemas.');
 } finally { await rm(work, { recursive: true, force: true }); }
