@@ -186,7 +186,29 @@ function configuredField<I, O>(
   return { meta, "~standard": { version: 1, vendor: "loculus", validate }, field: true } as Field<any, any, boolean>;
 }
 
+export type StringLength = (value: string) => number;
+export interface Config {
+  readonly stringLength?: StringLength;
+}
+let defaultStringLength: StringLength | undefined;
+export function configure(options: Config): void {
+  if ("stringLength" in options) {
+    const length = options.stringLength;
+    if (length !== undefined && typeof length !== "function")
+      throw new TypeError("Expected stringLength to be a function");
+    defaultStringLength = length;
+  }
+}
+export function countString(value: string, length: StringLength | undefined = defaultStringLength): number {
+  if (!length) return value.length;
+  const count = length(value);
+  if (!Number.isSafeInteger(count) || count < 0)
+    throw new RangeError("Expected string length to be a non-negative safe integer");
+  return count;
+}
+
 export interface StringOptions {
+  readonly length?: StringLength;
   readonly min?: number;
   readonly max?: number;
   readonly pattern?: RegExp;
@@ -259,9 +281,11 @@ export function string(
       : (value) => {
       if (typeof value !== "string") return fail("Expected a string", "invalid_type");
       const output = options.trim ? value.trim() : value;
-      if (options.min !== undefined && output.length < options.min)
+      const length = options.min !== undefined || options.max !== undefined
+        ? countString(output, options.length) : 0;
+      if (options.min !== undefined && length < options.min)
         return fail(`Expected at least ${options.min} characters`);
-      if (options.max !== undefined && output.length > options.max)
+      if (options.max !== undefined && length > options.max)
         return fail(`Expected at most ${options.max} characters`);
       if (options.pattern) {
         const pattern = options.pattern;

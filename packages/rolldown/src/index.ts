@@ -195,7 +195,7 @@ function literalValidation(choices: NonNullable<ScalarSpec['literals']>, decimal
   }
   return body + mismatch;
 }
-function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta: string, branches: string[] = [], checkIssues = true): { expression: string; body: string } {
+function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta: string, countString: string, branches: string[] = [], checkIssues = true): { expression: string; body: string } {
   const { kind, opts, literals } = spec;
   let missing: Scalar;
   let nil: Scalar = null;
@@ -231,8 +231,9 @@ function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta
   } else if (kind === 'string') {
     body += `if(typeof value!=="string"){${failure('Expected a string', 'invalid_type')}}`;
     if (opts.trim) body += 'value=value.trim();';
-    if (opts.min !== undefined) body += `if(value.length<${emit(opts.min as number)}){${failure(`Expected at least ${opts.min} characters`)}}`;
-    if (opts.max !== undefined) body += `if(value.length>${emit(opts.max as number)}){${failure(`Expected at most ${opts.max} characters`)}}`;
+    if (opts.min !== undefined || opts.max !== undefined) body += `const length=${countString}(value);`;
+    if (opts.min !== undefined) body += `if(length<${emit(opts.min as number)}){${failure(`Expected at least ${opts.min} characters`)}}`;
+    if (opts.max !== undefined) body += `if(length>${emit(opts.max as number)}){${failure(`Expected at most ${opts.max} characters`)}}`;
     body += 'return {value};';
   } else if (kind === 'number') {
     body += numericConversion(decimal);
@@ -267,11 +268,13 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         lang: extension.endsWith('tsx') ? 'tsx' : extension.endsWith('jsx') ? 'jsx' : extension.includes('t') ? 'ts' : 'js',
       }) as unknown as Node;
       const imports = new Map<string, Factory | '*'>();
+      const sources = new Set<string>();
       let insert = /^#![^\r\n\u2028\u2029]*(?:\r\n|[\r\n\u2028\u2029]|$)/.exec(code)?.[0].length ?? 0;
       for (const statement of ast.body as Node[]) {
         if (statement.type === 'ExpressionStatement' && statement.directive) insert = statement.end;
         if (statement.type !== 'ImportDeclaration') continue;
         if (!isNode(statement.source) || !modules.has(statement.source.value as string) || statement.importKind === 'type') continue;
+        sources.add(statement.source.value as string);
         for (const specifier of statement.specifiers as Node[]) {
           const local = name(specifier.local);
           if (!local || specifier.importKind === 'type') continue;
@@ -280,7 +283,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           if (imported && factories.has(imported as Factory)) imports.set(local, imported as Factory);
         }
       }
-      if (!imports.size) return;
+      if (!imports.size || sources.size !== 1) return;
       const identifiers = new Set<string>();
       const bindings = new Set<string>();
       let unsafe = false;
@@ -309,6 +312,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         identifiers.add(value);
         return value;
       };
+      const countString = unique();
       const decimal = unique();
       const literalDecimal = unique();
       const collect = unique();
@@ -415,7 +419,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       };
       let literalError: string | undefined;
       const scalarExpression = (spec: ScalarSpec): string => {
-        const candidate = generate(spec, '', decimalFor(spec), enumMeta);
+        const candidate = generate(spec, '', decimalFor(spec), enumMeta, countString);
         let helper = helpers.get(candidate.body);
         if (!helper) {
           let body = candidate.body;
@@ -435,7 +439,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         const branches = spec.literals?.values.some(value => typeof value !== spec.kind)
           ? spec.literals.values.map(value => scalarExpression({ kind: typeof value as Kind, opts: {}, literals: { values: [value], multiple: false } }))
           : [];
-        const expression = generate(spec, helper.name, decimalFor(spec), enumMeta, branches).expression;
+        const expression = generate(spec, helper.name, decimalFor(spec), enumMeta, countString, branches).expression;
         if (spec.literals?.values.some(value => typeof value === 'string')) needsEnumMeta = true;
         let create = scalarFactories.get(expression);
         if (!create) { create = unique(); scalarFactories.set(expression,create); }
@@ -449,7 +453,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       const consume = (key: string, dynamic = false): string => `issues=${collect}(result,${dynamic?key:emit(key)},input,output,issues);`;
       const inline = (spec: ScalarSpec, key: string, label: string, dynamic = false): string => {
         const keyExpression = dynamic ? key : emit(key);
-        const body = generate(spec, '', decimalFor(spec), enumMeta, [], false).body;
+        const body = generate(spec, '', decimalFor(spec), enumMeta, countString, [], false).body;
         const prefix = 'function validate(value){';
         const parsed = this.parse(prefix + body + '}') as unknown as Node;
         const replacements: { start: number; end: number; value: string }[] = [];
@@ -477,7 +481,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         for (const replacement of replacements.sort((a,b)=>b.start-a.start)) emitted = emitted.slice(0,replacement.start)+replacement.value+emitted.slice(replacement.end);
         if (spec.literals?.values.some(value => typeof value !== 'string')) {
           scalarExpression(spec);
-          const validator = helpers.get(generate(spec,'',decimalFor(spec),enumMeta).body)!.name;
+          const validator = helpers.get(generate(spec,'',decimalFor(spec),enumMeta,countString).body)!.name;
           emitted = `if("issues" in {}){const result=${validator}(value);${consume(key,dynamic)}break ${label};}` + emitted;
         }
         return `${label}:{let value=input[${keyExpression}];${emitted}}`;
@@ -492,7 +496,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         const array=arrays.get(node);
         if(array){
           const child=scalarExpression(array.inner);
-          const validator=helpers.get(generate(array.inner,'',decimalFor(array.inner),enumMeta).body)!.name;
+          const validator=helpers.get(generate(array.inner,'',decimalFor(array.inner),enumMeta,countString).body)!.name;
           let body='';
           if(array.opts.wrapScalar!==true)body+=`if(!Array.isArray(value)){${failure('Expected an array','invalid_type')}}`;
           body+='const inputs=Array.isArray(value)?value:[value];';
@@ -516,10 +520,10 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
             const [key,child] = fields[index]!;
             if (child.scalar) {
               let end = index + 1;
-              const signature = generate(child.scalar,'',decimalFor(child.scalar),enumMeta).body;
+              const signature = generate(child.scalar,'',decimalFor(child.scalar),enumMeta,countString).body;
               while (end < fields.length) {
                 const next = fields[end]![1].scalar;
-                if (!next || generate(next,'',decimalFor(next),enumMeta).body !== signature) break;
+                if (!next || generate(next,'',decimalFor(next),enumMeta,countString).body !== signature) break;
                 end++;
               }
               const threshold = opts.objects === 'unroll' ? Infinity : opts.objects === 'loop' ? 2 : 3;
@@ -612,7 +616,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       if (literalError) generated += `function ${literalError}(message,code){return {issues:[{message,code}]};}\n`;
       for (const helper of helpers.values()) {
         let body = helper.body;
-        if (body === generate({kind:'string',opts:{}}, '', decimal, enumMeta).body) {
+        if (body === generate({kind:'string',opts:{}}, '', decimal, enumMeta, countString).body) {
           const error = unique();
           generated += `function ${error}(message,code){return {issues:[{message,code}]};}\n`;
           body = body.replace(failure('Expected a string', 'invalid_type'), `return ${error}("Expected a string","invalid_type");`);
@@ -629,6 +633,8 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         generated += `function ${helper.validate}(input${args.length?','+args.join(','):''}){${helper.body}}\n`;
         generated += `/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(shape){${helper.captures.map((key,index)=>`const v${index}=shape[${emit(key)}]["~standard"].validate;`).join('')}return {meta:{kind:"object",shape,unknownKeys:${emit(helper.spec.mode)},description:${emit(helper.spec.description)}},"~standard":{version:1,vendor:"loculus",validate:${args.length?`(input)=>${helper.validate}(input,${args.join(',')})`:helper.validate}},shape,field:true};}\n`;
       }
+      if (generated.includes(`${countString}(value)`))
+        generated = `\nimport {countString as ${countString}} from ${emit([...sources][0])};\n` + generated;
       for (const replacement of replacements) output.overwrite(replacement.node.start,replacement.node.end,replacement.value);
       output.appendLeft(insert, generated);
       return { code: output };

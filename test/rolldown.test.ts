@@ -784,3 +784,27 @@ test('discriminator scalar conversions survive every object optimization strateg
     }
   }
 });
+
+
+test('generated string bounds follow live defaults and explicit counters in containers', async () => {
+  const source = `import * as l from 'loculus';
+    export const configure=l.configure;
+    export const schema=l.object({text:l.string({trim:true,min:1,max:1}),rows:l.array(l.string({max:1})),explicit:l.string({length:s=>s.length,max:1})});
+    export const scalar=l.string({min:1,max:1});
+    export const custom=l.string({length:s=>[...s].length,max:1});`;
+  for (const objects of ['auto', 'unroll', 'loop', 'chunked', false] as const) {
+    const before = await bundle(source, false);
+    const after = await bundle(source, true, 'ts', '/loculus-test', {objects});
+    for (const length of [undefined, (s: string) => [...s].length, (s: string) => new TextEncoder().encode(s).length]) {
+      for (const module of [before, after]) module.exports.configure({stringLength:length});
+      for (const input of [
+        {text:' 😀 ',rows:['😀'],explicit:'a'}, {text:'あ',rows:['a'],explicit:'😀'},
+        {text:'',rows:[]}, {text:'a',rows:[1],explicit:'a'}, null,
+      ]) assert.deepEqual(after.exports.schema['~standard'].validate(input), before.exports.schema['~standard'].validate(input));
+      for (const value of ['😀', 'あ', '', 'ab', null, undefined]) {
+        assert.deepEqual(after.exports.scalar['~standard'].validate(value), before.exports.scalar['~standard'].validate(value));
+        assert.deepEqual(after.exports.custom['~standard'].validate(value), before.exports.custom['~standard'].validate(value));
+      }
+    }
+  }
+});

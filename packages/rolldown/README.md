@@ -171,3 +171,7 @@ schema API and the [React Hook Form example](https://github.com/toiroakr/loculus
 for a working application using this plugin. The
 [measurement protocol](https://github.com/toiroakr/loculus/blob/main/bench/ci/README.md)
 describes the performance comparisons and their limitations.
+
+String bounds honor the current application-wide `configure({ stringLength })`
+default at validation time. An explicit `string({ length: counter })` uses the
+ordinary runtime validator, including inside generated objects and arrays.

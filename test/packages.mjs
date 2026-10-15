@@ -36,8 +36,9 @@ try {
   const runtime = pack(root);
   const plugin = pack(join(root, 'packages/rolldown'));
   assert.equal(runtime.name, 'loculus');
+  assert.ok(runtime.files.some(file => file.path === 'THIRD_PARTY_NOTICES'));
   assert.equal(plugin.name, '@loculus/rolldown');
-  assert.deepEqual(runtime.files.filter(file => file.path.startsWith('dist/')).map(file => file.path).sort(), ['dist/index.d.ts', 'dist/index.js']);
+  assert.deepEqual(runtime.files.filter(file => file.path.startsWith('dist/')).map(file => file.path).sort(), ['dist/index.d.ts', 'dist/index.js', 'dist/length.d.ts', 'dist/length.js']);
   assert.deepEqual(plugin.files.filter(file => file.path.startsWith('dist/')).map(file => file.path).sort(), ['dist/index.d.ts', 'dist/index.js']);
   const runtimeOnly = await consumer('runtime', [join(work, runtime.filename)]);
   const manifest = JSON.parse(await readFile(join(runtimeOnly, 'node_modules/loculus/package.json'), 'utf8'));
@@ -47,6 +48,13 @@ try {
   await writeFile(join(runtimeOnly, 'verify.mjs'), `
 import assert from 'node:assert/strict';
 import * as l from 'loculus';
+import {graphemes,displayWidth,utf8Bytes} from 'loculus/length';
+assert.equal(graphemes('👨‍👩‍👧‍👦'),1);
+assert.equal(displayWidth('あ'),2);
+assert.equal(utf8Bytes('あ'),3);
+l.configure({stringLength:graphemes});
+assert.equal(l.parse(l.string({max:1}),'😀'),'😀');
+l.configure({stringLength:undefined});
 assert.deepEqual(l.parse(l.object({ flag: l.boolean(), count: l.number({default: 1}) }), {flag: 'false'}), {flag: false, count: 1});
 assert.equal(l.parse(l.number({nullish:true}), ''), null);
 assert.equal(l.parse(l.number({default:{null:10}}), ''), 10);
@@ -82,7 +90,7 @@ try {
 `);
   execFileSync(process.execPath, ['verify.mjs'], { cwd: optimized, stdio: 'pipe' });
   const release = join(work, 'release');
-  for (const path of ['package.json', 'pnpm-workspace.yaml', '.changeset', 'dist', 'packages/rolldown/package.json', 'packages/rolldown/dist']) {
+  for (const path of ['package.json', 'pnpm-workspace.yaml', '.changeset', 'THIRD_PARTY_NOTICES', 'dist', 'packages/rolldown/package.json', 'packages/rolldown/dist']) {
     await mkdir(join(release, path, '..'), { recursive: true });
     await cp(join(root, path), join(release, path), { recursive: true });
   }

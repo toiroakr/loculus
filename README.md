@@ -25,7 +25,7 @@ Requires Node.js 22.18.0 or newer.
 
 ## API
 
-- `string({ min, max, pattern, trim, description, optional })`
+- `string({ min, max, length, pattern, trim, description, optional })`
 - `number({ gt, gte, lt, lte, integer, description, optional })`: strings containing decimal numbers, or finite numbers. Empty strings are treated as `null` for presence and defaults: `nullable` / `nullish` preserve them as `null`, and `null` / `nullish` defaults replace them. Otherwise they are rejected. Whitespace, hexadecimal and Infinity are rejected. `integer` requires safe integers. `gt` / `lt` exclude the boundary; `gte` / `lte` include it. Multiple bounds are combined with AND.
 - `boolean({ optional })`: accepts true/false booleans and the strings `"true"`, `"false"`, `"1"`, `"0"`.
 - `enum(values, { optional })`: string choices.
@@ -60,6 +60,58 @@ Custom transforms and refinements are synchronous. Exceptions from user callback
 Non-string literals expose `meta.kind` as `"number"` or `"boolean"` and their typed choices in `meta.literalValues` (for example, `[42]` or `[true]`). Mixed-type literals expose `meta.kind: "union"`, their choices in `meta.literalValues`, and the individual literal schemas in `meta.options`. String literals and enums retain `meta.enumValues: readonly string[]`. Arrays propagate the child choices; transforms and refinements retain input metadata. CLI adapters can use the input kind for conversion and inspect `literalValues` for non-string choices.
 
 `discriminatedUnion` supports boolean and numeric literal discriminants. Exact typed matches take precedence: numeric `42` and string `"42"` select distinct branches. When no exact match exists, string inputs use the discriminator fields' scalar conversions (for example, `"42.0"` to `42` or `"true"` to `true`). If multiple branches accept the converted input, the first declared branch wins. The selected branch performs ordinary validation; a failure does not retry other branches. Inputs shared by enclosing union, xor or intersection branches are not mutated.
+
+
+## String length
+
+`min` and `max` count UTF-16 code units by default, matching JavaScript's `.length`.
+Use a counter from `loculus/length`, or supply your own `(value: string) => number`:
+
+```ts
+import * as l from 'loculus';
+import { graphemes, codeUnits, utf8Bytes } from 'loculus/length';
+
+l.configure({ stringLength: graphemes });
+
+const name = l.string({ min: 1, max: 80 });
+const payload = l.string({ length: utf8Bytes, max: 1024 });
+const legacy = l.string({ length: codeUnits, max: 80 });
+const withoutSpaces = l.string({ length: value => value.replaceAll(' ', '').length, max: 80 });
+```
+
+| Counter | Measures | `あ` | `😀` | `e` + combining accent | `👨‍👩‍👧‍👦` |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `codeUnits` | UTF-16 code units (default) | 1 | 2 | 2 | 11 |
+| `codePoints` | Unicode code points | 1 | 1 | 2 | 7 |
+| `graphemes` | Grapheme clusters using `Intl.Segmenter` | 1 | 1 | 1 | 1 |
+| `displayWidth` | Terminal display columns | 2 | 2 | 1 | 2 |
+| `utf8Bytes` | UTF-8 bytes using `TextEncoder` | 3 | 4 | 3 | 25 |
+| `utf16Bytes` | UTF-16 bytes, without a byte-order mark | 2 | 4 | 4 | 22 |
+
+`displayWidth` uses [string-width](https://github.com/sindresorhus/string-width):
+full-width characters and emoji generally occupy two columns; ambiguous characters
+occupy one. ANSI escape sequences, combining marks, and control characters do not
+add columns. Tabs are not expanded, and newlines do not reset the count: this is a
+sum of display columns, not a pixel measurement or the widest line.
+Grapheme segmentation and display-width results depend on the runtime's Unicode data.
+`utf8Bytes` encodes unpaired surrogates as the replacement character (three bytes).
+These helpers are optional; importing only `loculus` does not include them.
+
+Application defaults apply at validation time, including to schemas created before
+`configure` was called. Explicit field counters always take precedence. Set the
+application default at startup; it is shared by users of the same loaded module,
+including concurrent requests. `configure({})` leaves it unchanged, and
+`configure({ stringLength: undefined })` restores UTF-16 code units. Separately
+loaded copies of Loculus have independent defaults.
+
+Counters receive the trimmed output when `trim: true`, run once per validation
+when `min` or `max` is present, and must return a non-negative safe integer.
+They do not transform the output. Presence/default short-circuits bypass counting,
+and callback exceptions propagate. Bounds and their error messages use the chosen
+counter's units (the existing error wording still says “characters”). Arrays keep
+counting items, and literal/enum matching remains exact.
+The Rolldown plugin preserves these rules; custom counter expressions use the
+ordinary runtime validator.
 
 ## Build-time code generation
 
