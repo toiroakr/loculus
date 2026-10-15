@@ -92,6 +92,34 @@ test('generated scalar validators preserve values, issues, metadata and fresh id
   }
 });
 
+test('number empty strings follow null presence in generated scalars, objects and arrays', async () => {
+  const expressions = [
+    'l.number()', 'l.number({optional:true})', 'l.number({nullable:true})',
+    'l.number({nullish:true})', 'l.number({optional:true,nullable:true})',
+    'l.number({default:10})', 'l.number({nullable:true,default:10})',
+    'l.number({nullish:true,default:10})', 'l.number({default:{null:10}})',
+    'l.number({default:{nullish:10}})', 'l.number({default:{undefined:20,null:10}})',
+    'l.number({default:{undefined:20,null:undefined}})', 'l.number({gte:20,default:{null:10}})',
+    'l.literal(1,{nullable:true})', 'l.literal([1,2],{default:{null:1}})',
+  ];
+  const source = `import * as l from 'loculus'; export const factories=[${expressions.map(expression =>
+    `()=>({scalar:${expression},object:l.object({value:${expression}}),array:l.array(${expression})})`).join(',')}];`;
+  const ordinary = await bundle(source, false);
+  for (const objects of [false, 'auto', 'loop', 'unroll', 'chunked'] as const) {
+    const generated = await bundle(source, true, 'ts', '/loculus-test', {objects});
+    assert.match(generated.transformed, /function __loculus_/);
+    for (let i = 0; i < expressions.length; i++) {
+      const expected = ordinary.exports.factories[i]();
+      const actual = generated.exports.factories[i]();
+      for (const input of ['', null, undefined, ' ', ' 42 ', '0', '42']) {
+        for (const [kind, value] of [['scalar', input], ['object', {value:input}], ['array', [input]]])
+          assert.deepEqual(actual[kind as string]['~standard'].validate(value), expected[kind as string]['~standard'].validate(value), `${objects}: ${expressions[i]}: ${kind}: ${String(input)}`);
+      }
+      assert.deepEqual(actual.object['~standard'].validate({}), expected.object['~standard'].validate({}));
+    }
+  }
+});
+
 test('generated basic string errors have fresh results, arrays and issues on every validation', async () => {
   const built = await bundle(`import {string} from 'loculus';export const schema=string();`);
   const validate = built.exports.schema['~standard'].validate;

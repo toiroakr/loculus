@@ -26,10 +26,10 @@ Requires Node.js 22.18.0 or newer.
 ## API
 
 - `string({ min, max, pattern, trim, description, optional })`
-- `number({ gt, gte, lt, lte, integer, description, optional })`: strings containing decimal numbers, or finite numbers. Empty strings, whitespace, hexadecimal and Infinity are rejected. `integer` requires safe integers. `gt` / `lt` exclude the boundary; `gte` / `lte` include it. Multiple bounds are combined with AND.
+- `number({ gt, gte, lt, lte, integer, description, optional })`: strings containing decimal numbers, or finite numbers. Empty strings are treated as `null` for presence and defaults: `nullable` / `nullish` preserve them as `null`, and `null` / `nullish` defaults replace them. Otherwise they are rejected. Whitespace, hexadecimal and Infinity are rejected. `integer` requires safe integers. `gt` / `lt` exclude the boundary; `gte` / `lte` include it. Multiple bounds are combined with AND.
 - `boolean({ optional })`: accepts true/false booleans and the strings `"true"`, `"false"`, `"1"`, `"0"`.
 - `enum(values, { optional })`: string choices.
-- `literal(value, options)`: a string, boolean or numeric literal with its exact output type (`literal(true)` outputs `true`, `literal(42)` outputs `42`). String literals require an exact string match. Boolean literals use the `boolean` conversion rules above; numeric literals use the `number` rules above, then require equality to the literal. For example, `literal(true)` accepts `true`, `"true"` and `"1"`, but rejects `false`, numeric `1` and `"TRUE"`; `literal(42)` accepts `42`, `"42"` and `"4.2e1"`, but rejects `41`, whitespace and hexadecimal strings. Non-finite numbers never validate; `0` and `-0` compare equal. Presence and defaults use the same options as other fields.
+- `literal(value, options)`: a string, boolean or numeric literal with its exact output type (`literal(true)` outputs `true`, `literal(42)` outputs `42`). String literals require an exact string match. Boolean literals use the `boolean` conversion rules above; numeric literals use the `number` rules above, then require equality to the literal. For example, `literal(true)` accepts `true`, `"true"` and `"1"`, but rejects `false`, numeric `1` and `"TRUE"`; `literal(42)` accepts `42`, `"42"` and `"4.2e1"`, but rejects `41`, whitespace and hexadecimal strings. Non-finite numbers never validate; `0` and `-0` compare equal. Presence and defaults use the same options as other fields. Unlike `number`, numeric literals do not treat empty strings as `null`.
 - `literal([value, ...], options)`: a non-empty tuple of string, numeric or boolean choices, including mixed types. Outputs infer the union of the choices: `literal([200, 201, 204])` outputs `200 | 201 | 204`. Each choice uses the conversion rules above; the first matching choice in declaration order determines the output. For example, `literal(["1", 1])` parses `"1"` as a string, while `literal([1, "1"])` parses it as numeric `1`. Choice arrays are copied at construction. Presence and defaults use the same options as single literals.
 - `date({ optional })`: ISO calendar dates or ISO date-time strings. Returns a Date. Date-time strings permit local time, `Z`, or a colon-separated UTC offset. Hours are 00–23; `24:00` and offsets such as `+0900` are rejected, matching Zod's ISO schemas.
 - `array(fieldOrObject, { min, max, optional, wrapScalar })`: requires arrays by default; element conversion still applies. Object schemas can describe rows in a form, and nested arrays are supported. Set `wrapScalar: true` explicitly to wrap one value as an array.
@@ -109,7 +109,14 @@ l.string({ default: { undefined: 'guest', null: 'anonymous' } });
 l.array(l.string(), { default: ['general'] });
 ```
 
-Defaults take precedence over presence flags and apply before conversion. They are output values and bypass the field's constraints, outer transforms/refinements still run. Invalid non-nullish inputs and empty strings never trigger a default. `nullish` default targets cannot be combined with `undefined` or `null` targets; conflicting configurations are rejected by types and at construction.
+Defaults take precedence over presence flags and apply before conversion. They are output values and bypass the field's constraints, outer transforms/refinements still run. Invalid non-nullish inputs never trigger a default. For `number`, an empty string is treated as `null`, so it triggers `null` / `nullish` defaults but not an undefined-only default. Empty strings do not trigger defaults for other field types. `nullish` default targets cannot be combined with `undefined` or `null` targets; conflicting configurations are rejected by types and at construction.
+
+```ts
+l.parse(l.number({ nullish: true }), undefined); // undefined
+l.parse(l.number({ nullish: true }), null); // null
+l.parse(l.number({ nullish: true }), ''); // null
+l.parse(l.number({ default: { null: 10 } }), ''); // 10
+```
 
 An undefined default makes an object property optional on input and required on output. A null-only default still requires the property on input. Defaults remove null/undefined from the output type only for the targets they replace. Omitting optional/nullish object properties omits them from the output; explicit null is preserved unless a null default replaces it. Array element presence is configured on the element schema separately.
 

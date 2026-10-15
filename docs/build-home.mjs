@@ -12,9 +12,6 @@ try {
 await writeFile(output + 'rhf.html', (await readFile(root + 'examples/react-hook-form/generated/index.html', 'utf8')).replace('</head>', '<link rel="icon" href="assets/mark.svg"></head>'));
 const pkg = JSON.parse(await readFile(root + 'package.json', 'utf8'));
 const homepage = await readFile(output + 'index.html', 'utf8');
-await writeFile(output + 'index.html', homepage
-  .replace(/(data-package-version>)[^<]*/g, (_match, prefix) => prefix + pkg.version)
-  .replace(/(data-node-range>)[^<]*/g, (_match, prefix) => prefix + pkg.engines.node.replaceAll('>', '&gt;').replaceAll('<', '&lt;')));
 const files = ['src/index.ts', 'packages/rolldown/src/index.ts', 'dist/index.js'];
 const sourceHashes = {};
 for (const file of files) sourceHashes[file] = createHash('sha256').update(await readFile(root + file)).digest('hex');
@@ -23,5 +20,10 @@ const audit = JSON.parse(await readFile(root + 'docs/generated/compatibility/nod
 for (const file of files) if (sourceHashes[file] !== audit.sourceHashes[file]) throw new Error('Compatibility evidence is stale: ' + file);
 if (!audit.completed || !bunAudit.completed || audit.unmatched.length || bunAudit.unmatched.length || audit.profiles !== bunAudit.profiles || audit.cells !== bunAudit.cells) throw new Error('Incomplete compatibility evidence');
 for (const file of files) if (sourceHashes[file] !== bunAudit.sourceHashes[file]) throw new Error('Bun compatibility evidence is stale: ' + file);
+await writeFile(output + 'index.html', homepage
+  .replace(/(data-package-version>)[^<]*/g, (_match, prefix) => prefix + pkg.version)
+  .replace(/(data-node-range>)[^<]*/g, (_match, prefix) => prefix + pkg.engines.node.replaceAll('>', '&gt;').replaceAll('<', '&lt;'))
+  .replace(/(data-compat-profiles>)\d+/g, (_match, prefix) => prefix + audit.profiles)
+  .replace(/(data-compat-cells>)[\d,]+/g, (_match, prefix) => prefix + audit.cells.toLocaleString('en-US')));
 await writeFile(output + 'evidence.json', JSON.stringify({ evaluatedOn: new Date().toISOString().slice(0, 10), packageVersion: pkg.version, sourceHashes, compatibility: { profiles: audit.profiles, cellsPerRuntime: audit.cells, versions: audit.versions, runtimes: [audit.runtime, bunAudit.runtime], acceptanceAndOutputMatch: 'at least one explicitly configured/composed peer', completeInputCoverage: false }, performance: { currentContractRemeasured: false } }, null, 2) + '\n');
 console.log('Built documentation homepage with current runtime and matching compatibility evidence.');

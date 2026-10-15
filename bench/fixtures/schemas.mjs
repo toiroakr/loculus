@@ -46,7 +46,7 @@ for(const [name,opts,z,v,u,n] of presence){
  const bad=[{value:42},...(!u?[{}]:[]),...(!n?[{value:null}]:[])];
  add('presence-'+name,'FieldOptions presence/default',fieldObject([`l.string(${opts})`,z,v]),good,bad,[{value:''},{value:'null'}]);
 }
-field('number-nullish-default','number/default',["l.number({default:{nullish:0}})",`${number[1]}.nullish().transform(x=>x??0)`,`v.nullish(${number[2]},0)`],['42',null,undefined],['','oops']);
+field('number-nullish-default','number/default',["l.number({default:{nullish:0}})",`z.preprocess(x=>x===''?null:x,${number[1]}.nullish().transform(x=>x??0))`,`v.pipe(v.unknown(),v.transform(x=>x===''?null:x),v.nullish(${number[2]},0))`],['42','',null,undefined],[' ','oops']);
 field('boolean-default','boolean/default',["l.boolean({default:false})",`${boolean[1]}.default(false)`,`v.optional(${boolean[2]},false)`],['true',undefined],['yes',null]);
 field('enum-default','enum/default',["l.enum(['a','b'],{default:'a'})","z.enum(['a','b']).default('a')","v.optional(v.picklist(['a','b']),'a')"],['b',undefined],['c',null]);
 field('date-default','date/default',["l.date({default:new Date('2026-10-11T00:00:00Z')})",`${date[1]}.default(new Date('2026-10-11T00:00:00Z'))`,`v.pipe(v.optional(v.pipe(v.string(),v.check(iso)),'2026-10-11'),v.transform(x=>new Date(x)))`],['2026-10-12',undefined],['invalid',null]);

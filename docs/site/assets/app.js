@@ -9,7 +9,7 @@ const query = object({
 const samples = {
   valid: ['q=loculus&page=2&draft=false&tag=docs&tag=code', 'page becomes a number, draft becomes a boolean, and repeated tag values become an array.'],
   defaults: ['q=loculus', 'Missing page defaults to 1 and draft to false. An omitted tag is left out of the output.'],
-  empty: ['q=loculus&page=', 'An empty string is not missing. It produces a number error instead of using a default.'],
+  empty: ['q=loculus&page=', 'An empty numeric string follows the null settings. This schema defaults only undefined, so an empty page still produces an error.'],
   extra: ['q=loculus&paeg=2', 'Objects are strict by default. The misspelled paeg key is rejected.'],
   repeated: ['q=loculus&page=1&page=2', 'Repeated keys become arrays. number() rejects arrays.'],
 };
