@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import { rolldown } from 'rolldown';
 import { fileURLToPath } from 'node:url';
@@ -841,5 +842,30 @@ test('generated field errors read accessors once and pass the original value to 
     assert.deepEqual(expected.reads, ['name', 'count']);
     if (custom) assert.deepEqual(expected.seen, ['a', '0']);
     assert.deepEqual(generated.exports.run(custom), expected);
+  }
+});
+
+
+test('generated schemas keep global messages isolated between configured runtime modules', async () => {
+  const runtime = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
+  const source = `import * as a from 'loculus-a';import * as b from 'loculus-b';
+    export const first=a.object({name:a.string({min:3})});
+    export const second=b.object({count:b.number({gte:1})});
+    export const mixed=a.object({name:b.string({min:3}),own:a.string({min:3})});
+    export const setup=(left,right)=>{a.config({customError:()=>left});b.config({customError:()=>right});};`;
+  const files = { 'loculus-a': runtime, 'loculus-b': runtime };
+  const ordinary = await bundle(source, false, 'ts', '/loculus-test', {}, files);
+  const generated = await bundle(source, true, 'ts', '/loculus-test', { modules: ['loculus-a', 'loculus-b'] }, files);
+  assert.match(generated.transformed, /function __loculus_/);
+  assert.ok(generated.map?.mappings.length);
+  for (const [left,right] of [['First','Second'],['Updated first','Updated second']]) {
+    ordinary.exports.setup(left,right);
+    generated.exports.setup(left,right);
+    assert.equal(generated.exports.first['~standard'].validate({name:''}).issues[0].message,left);
+    assert.equal(generated.exports.second['~standard'].validate({count:'0'}).issues[0].message,right);
+    assert.deepEqual(generated.exports.mixed['~standard'].validate({name:'',own:''}).issues.map((issue: l.Issue)=>issue.message),[right,left]);
+    assert.equal(generated.exports.mixed['~standard'].validate(null).issues[0].message,left);
+    for (const [key,input] of [['first',{name:''}],['second',{count:'0'}]] as const)
+      assert.deepEqual(generated.exports[key]['~standard'].validate(input),ordinary.exports[key]['~standard'].validate(input));
   }
 });

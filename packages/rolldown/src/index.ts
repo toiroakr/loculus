@@ -267,23 +267,25 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
       const ast = this.parse(code, {
         lang: extension.endsWith('tsx') ? 'tsx' : extension.endsWith('jsx') ? 'jsx' : extension.includes('t') ? 'ts' : 'js',
       }) as unknown as Node;
-      const imports = new Map<string, Factory | '*'>();
-      let runtimeModule: string | undefined;
+      const allImports = new Map<string, Factory | '*'>();
+      const importSources = new Map<string, string>();
+      const runtimeModules = new Set<string>();
       let insert = /^#![^\r\n\u2028\u2029]*(?:\r\n|[\r\n\u2028\u2029]|$)/.exec(code)?.[0].length ?? 0;
       for (const statement of ast.body as Node[]) {
         if (statement.type === 'ExpressionStatement' && statement.directive) insert = statement.end;
         if (statement.type !== 'ImportDeclaration') continue;
         if (!isNode(statement.source) || !modules.has(statement.source.value as string) || statement.importKind === 'type') continue;
-        runtimeModule ??= statement.source.value as string;
+        runtimeModules.add(statement.source.value as string);
         for (const specifier of statement.specifiers as Node[]) {
           const local = name(specifier.local);
           if (!local || specifier.importKind === 'type') continue;
-          if (specifier.type === 'ImportNamespaceSpecifier') imports.set(local, '*');
+          importSources.set(local, statement.source.value as string);
+          if (specifier.type === 'ImportNamespaceSpecifier') allImports.set(local, '*');
           const imported = name(specifier.imported);
-          if (imported && factories.has(imported as Factory)) imports.set(local, imported as Factory);
+          if (imported && factories.has(imported as Factory)) allImports.set(local, imported as Factory);
         }
       }
-      if (!imports.size) return;
+      if (!allImports.size) return;
       const identifiers = new Set<string>();
       const bindings = new Set<string>();
       let unsafe = false;
@@ -300,11 +302,11 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         }
         if (node.type === 'ClassDeclaration' || node.type === 'ClassExpression') bind(node.id);
         if (node.type === 'CatchClause') bind(node.param);
-        if (node.type.startsWith('Import') && node.type.endsWith('Specifier') && !imports.has(name(node.local) ?? '')) bind(node.local);
+        if (node.type.startsWith('Import') && node.type.endsWith('Specifier') && !allImports.has(name(node.local) ?? '')) bind(node.local);
         if (node.type === 'WithStatement' || (node.type === 'CallExpression' && name(node.callee) === 'eval')) unsafe = true;
       });
       if (unsafe) return;
-      for (const binding of bindings) imports.delete(binding);
+      for (const binding of bindings) allImports.delete(binding);
       let sequence = 0;
       const unique = (): string => {
         let value: string;
@@ -312,333 +314,354 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         identifiers.add(value);
         return value;
       };
-      const decimal = unique();
-      const literalDecimal = unique();
-      const collect = unique();
-      const invalid = unique();
-      const enumMeta = unique();
-      const resolveIssue = unique();
-      const resolveResult = unique();
-      const configuration = unique();
-      let needsDecimal = false;
-      let needsLiteralDecimal = false;
-      let needsEnumMeta = false;
-      const helpers = new Map<string, { name: string; body: string }>();
-      const scalarFactories = new Map<string, string>();
       const output = new RolldownMagicString(code);
-      const factory = (node: Node): Factory | undefined => {
+      const factoryOwner = (node: Node): string | undefined => {
         node = unwrap(node);
-        if (node.type !== 'CallExpression' || node.optional) return;
+        if (node.type !== 'CallExpression') return;
         const callee = node.callee;
-        const imported = imports.get(name(callee) ?? '');
-        if (imported && imported !== '*') return imported;
-        if (isNode(callee) && callee.type === 'MemberExpression' && !callee.computed && !callee.optional && imports.get(name(callee.object) ?? '') === '*') {
-          const member = name(callee.property);
-          if (member && factories.has(member as Factory)) return member as Factory;
-        }
+        const local = name(callee);
+        if (local && allImports.get(local) && allImports.get(local) !== '*') return importSources.get(local);
+        if (isNode(callee) && callee.type === 'MemberExpression' && !callee.computed &&
+            allImports.get(name(callee.object) ?? '') === '*' && factories.has(name(callee.property) as Factory))
+          return importSources.get(name(callee.object)!);
       };
-      const scalar = (node: Node): ScalarSpec | undefined => {
-        const kind = factory(node);
-        if (kind === 'literal') {
-          if (bindings.has('undefined') || ['undefined','Object','Number','Array'].some(name => imports.has(name))) return;
-          const args = unwrap(node).arguments as Node[];
-          if (args.length < 1 || args.length > 2) return;
-          const source = unwrap(args[0]!);
-          const multiple = source.type === 'ArrayExpression';
-          const elements = multiple ? source.elements as unknown[] : [source];
-          if (!elements.length) return;
-          const values: LiteralValue[] = [];
-          for (const element of elements) {
-            const value = literal(element);
-            if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') return;
-            values.push(value);
-          }
-          if (values.length > 8 && values.every(value => typeof value === 'string')) return;
-          if ((values.some(value => typeof value === 'number') && bindings.has('Number')) ||
-              (values.some(value => typeof value === 'string') && bindings.has('Object'))) return;
-          const opts = options(args.slice(1), 'boolean');
-          if (opts) return { kind: typeof values[0] as Kind, opts, literals: { values, multiple } };
-          return;
-        }
-        if (!kind || !Object.hasOwn(keys, kind) || (kind === 'number' && bindings.has('Number')) || bindings.has('undefined')) return;
-        const opts = options(unwrap(node).arguments as unknown[], kind as Kind);
-        if (opts) return { kind: kind as Kind, opts };
-      };
-      const field = (node: Node | undefined): FieldSpec | undefined => {
-        if (!isNode(node)) return;
-        const kind = factory(node);
-        if (!kind || kind === 'object') return;
-        if ((kind === 'transform' || kind === 'refine') && !field((unwrap(node).arguments as Node[])[0]!)) return;
-        return { node, scalar: scalar(node) };
-      };
-      const arrays = new Map<Node, ArraySpec>();
-      const arraySpec = (node: Node): ArraySpec | undefined => {
-        if(factory(node)!=='array'||bindings.has('Array')||bindings.has('undefined'))return;
-        const args=node.arguments as Node[];
-        if(args.length<1||args.length>2)return;
-        const inner=scalar(args[0]!);
-        if(!inner)return;
-        const config=args.length===1||literal(args[1])===undefined?{}:properties(args[1]);
-        if(!config)return;
-        const opts:Record<string,Scalar>={};
-        for(const [key,value]of Object.entries(config)){
-          if(!['min','max','wrapScalar','description'].includes(key))return;
-          const parsed=literal(value);
-          if(parsed===unsupported)return;
-          if(parsed!==undefined&&(key==='description'?typeof parsed!=='string':key==='wrapScalar'?typeof parsed!=='boolean':typeof parsed!=='number'))return;
-          opts[key]=parsed;
-        }
-        return {inner,opts};
-      };
-      const objects = new Map<Node, ObjectSpec>();
-      const scalars = new Map<Node, ScalarSpec>();
-      walk(ast, node => {
-        if (node.type !== 'CallExpression' || node.optional) return;
-        const array=arraySpec(node);if(array)arrays.set(node,array);
-        const spec = scalar(node);
-        if (spec) scalars.set(node, spec);
-        if (opts.objects === false || factory(node) !== 'object' || bindings.has('Object') || bindings.has('Array') || bindings.has('undefined')) return;
-        const args = node.arguments as Node[];
-        const parsedOptions = objectOptions(args);
-        const props = shapeProperties(args[0]);
-        if (!parsedOptions || !props) return;
-        const fields: Record<string, FieldSpec> = Object.create(null);
-        for (const [key, value] of Object.entries(props)) {
-          const child = field(value);
-          if (!child) return;
-          fields[key] = child;
-        }
-        objects.set(node, { ...parsedOptions, fields });
-      });
-      if (!scalars.size && !objects.size && !arrays.size) return;
-      const decimalFor = (spec: ScalarSpec): string => {
-        if (spec.literals) {
-          if (spec.literals.values.some(value => typeof value === 'number')) needsLiteralDecimal = true;
-          return `${literalDecimal}()`;
-        }
-        if (spec.kind === 'number') needsDecimal = true;
-        return decimal;
-      };
-      let literalError: string | undefined;
-      const scalarExpression = (spec: ScalarSpec): string => {
-        const candidate = generate(spec, '', decimalFor(spec), enumMeta);
-        let helper = helpers.get(candidate.body);
-        if (!helper) {
-          let body = candidate.body;
-          if (spec.literals && !spec.literals.multiple && typeof spec.literals.values[0] === 'number') {
-            literalError ??= unique();
-            const errors = [
-              [`Expected one of: ${spec.literals.values[0]}`, 'invalid_value'],
-              ['Expected a decimal number', 'invalid_type'],
-              ['Expected a finite number', 'invalid_value'],
-            ] as const;
-            for (const [message, code] of errors)
-              body = body.replaceAll(failure(message,code), `return ${literalError}(${emit(message)},${emit(code)});`);
-          }
-          helper = { name: unique(), body };
-          helpers.set(candidate.body, helper);
-        }
-        const branches = spec.literals?.values.some(value => typeof value !== spec.kind)
-          ? spec.literals.values.map(value => scalarExpression({ kind: typeof value as Kind, opts: {}, literals: { values: [value], multiple: false } }))
-          : [];
-        const expression = generate(spec, helper.name, decimalFor(spec), enumMeta, branches).expression;
-        if (spec.literals?.values.some(value => typeof value === 'string')) needsEnumMeta = true;
-        let create = scalarFactories.get(expression);
-        if (!create) { create = unique(); scalarFactories.set(expression,create); }
-        return `/* @__PURE__ */ ${create}()`;
-      };
-      const write = (key: string, value: string, dynamic = false): string => {
-        const expression = dynamic ? key : emit(key);
-        const assign = `output[${expression}]=${value};`;
-        return assign;
-      };
-      const consume = (key: string, dynamic = false): string => `issues=${collect}(result,${dynamic?key:emit(key)},input,output,issues);`;
-      const inline = (spec: ScalarSpec, key: string, label: string, dynamic = false): string => {
-        const keyExpression = dynamic ? key : emit(key);
-        const body = generate(spec, '', decimalFor(spec), enumMeta, [], false).body;
-        const prefix = 'function validate(value){';
-        const parsed = this.parse(prefix + body + '}') as unknown as Node;
-        const replacements: { start: number; end: number; value: string }[] = [];
-        walk(parsed, node => {
-          if (node.type !== 'ReturnStatement' || !isNode(node.argument)) return;
-          const props = properties(node.argument)!;
-          const value = props.value;
-          const result = (prefix + body + '}').slice(node.argument.start, node.argument.end);
-          const expression = value ? (prefix+body+'}').slice(value.start,value.end) : '';
-          const defined = value && (literal(value) !== unsupported ? literal(value) !== undefined : value.type === 'Identifier' && value.name === 'value' && spec.kind === 'string' && !spec.opts.trim);
-          const assign = defined ? write(key,expression,dynamic) : `const parsed=${expression};if(parsed!==void 0||${keyExpression} in input){${write(key,'parsed',dynamic)}}`;
-          let failed = '';
-          if (!value) {
-            const list = props.issues!;
-            const src = prefix+body+'}';
-            const issueNode = (list.elements as Node[])[0]!;
-            failed = `issues=${invalid}(${keyExpression},input,output,issues,${src.slice(issueNode.start,issueNode.end)},raw);`;
-          }
-          replacements.push({ start: node.start - prefix.length, end: node.end - prefix.length,
-            value: value
-              ? `{if("issues" in {}){const result=${result};${consume(key,dynamic)}}else{${assign}}break ${label};}`
-              : `{${failed}break ${label};}` });
-        });
-        let emitted = body;
-        for (const replacement of replacements.sort((a,b)=>b.start-a.start)) emitted = emitted.slice(0,replacement.start)+replacement.value+emitted.slice(replacement.end);
-        if (spec.literals?.values.some(value => typeof value !== 'string')) {
-          scalarExpression(spec);
-          const validator = helpers.get(generate(spec,'',decimalFor(spec),enumMeta).body)!.name;
-          emitted = `if("issues" in {}){const result=${validator}(value);${consume(key,dynamic)}break ${label};}` + emitted;
-        }
-        return `${label}:{const raw=input[${keyExpression}];let value=raw;${emitted}}`;
-      };
-      const arrayValidators = new Map<Node,string>();
-      const arrayHelpers = new Map<string, {factory:string;validate:string;body:string;description:Scalar}>();
-      const groups: string[] = [];
-      const chunks: string[] = [];
-      const objectHelpers = new Map<string, { factory: string; validate: string; body: string; captures: string[]; spec: ObjectSpec }>();
-      const objectKeyIndexes = new Map<string, string>();
-      const render = (node: Node): string => {
-        const array=arrays.get(node);
-        if(array){
-          const child=scalarExpression(array.inner);
-          const validator=helpers.get(generate(array.inner,'',decimalFor(array.inner),enumMeta).body)!.name;
-          let body='';
-          if(array.opts.wrapScalar!==true)body+=`if(!Array.isArray(value)){${failure('Expected an array','invalid_type')}}`;
-          body+='const inputs=Array.isArray(value)?value:[value];';
-          body+=`const output=[];let issues;for(let i=0;i<inputs.length;i++){const result=${validator}(inputs[i]);if(result.issues)for(const issue of result.issues)(issues??=[]).push({...issue,path:issue.path?[i,...issue.path]:[i]});else output.push(result.value);}if(issues)return {issues};`;
-          if(array.opts.min!==undefined)body+=`if(inputs.length<${emit(array.opts.min)}){${failure(`Expected at least ${array.opts.min} items`, 'too_small', { origin: 'array', min: array.opts.min, inclusive: true })}}`;
-          if(array.opts.max!==undefined)body+=`if(inputs.length>${emit(array.opts.max)}){${failure(`Expected at most ${array.opts.max} items`, 'too_big', { origin: 'array', max: array.opts.max, inclusive: true })}}`;
-          body+='return {value:output};';
-          const signature=JSON.stringify([body,array.opts.description]);
-          let helper=arrayHelpers.get(signature);
-          if(!helper){helper={factory:unique(),validate:unique(),body,description:array.opts.description};arrayHelpers.set(signature,helper);}
-          arrayValidators.set(node,helper.validate);
-          return `/* @__PURE__ */ ${helper.factory}(${child})`;
-        }
-
-        const object = objects.get(node);
-        if (object) {
-          const fields = Object.entries(object.fields).filter(([key]) => key !== '__proto__');
-          const captures: string[] = [];
-          let body = `if(typeof input!=="object"||input===null||Array.isArray(input)){${failure('Expected an object','invalid_type')}}const output={};let issues;`;
-          for (let index = 0; index < fields.length; index++) {
-            const [key,child] = fields[index]!;
-            if (child.scalar) {
-              let end = index + 1;
-              const signature = generate(child.scalar,'',decimalFor(child.scalar),enumMeta).body;
-              while (end < fields.length) {
-                const next = fields[end]![1].scalar;
-                if (!next || generate(next,'',decimalFor(next),enumMeta).body !== signature) break;
-                end++;
-              }
-              const threshold = opts.objects === 'unroll' ? Infinity : opts.objects === 'loop' ? 2 : 3;
-              if ((opts.objects === 'chunked' && end-index >= 8) || (opts.objects !== 'unroll' && opts.objects !== 'loop' && end-index >= 32)) {
-                for (let start=index;start<end;start+=8) {
-                  const helper=unique();
-                  const content=fields.slice(start,Math.min(start+8,end)).map(([key,child],offset)=>inline(child.scalar!,key,`field${offset}`)).join('');
-                  chunks.push(`function ${helper}(input,output,issues){${content}return issues;}`);
-                  body+=`issues=${helper}(input,output,issues);`;
-                }
-                index=end-1;
-              } else if (end - index >= threshold) {
-                const keys = unique();
-                const values = JSON.stringify(fields.slice(index,end).map(([key])=>key));
-                if (child.scalar.literals) {
-                  groups.push(`function ${keys}(){return ${keys}.values??=${values};}`);
-                  body += `{const keys=${keys}();for(let index=0;index<keys.length;index++){const key=keys[index];${inline(child.scalar,'key',`field${index}`,true)}}}`;
-                } else {
-                  groups.push(`const ${keys}=${values};`);
-                  body += `for(let index=0;index<${keys}.length;index++){const key=${keys}[index];${inline(child.scalar,'key',`field${index}`,true)}}`;
-                }
-                index = end - 1;
-              } else body += inline(child.scalar,key,`field${index}`);
-            } else if(arrays.has(child.node)) {
-              render(child.node);
-              body+=`{const result=${arrayValidators.get(child.node)!}(input[${emit(key)}]);${consume(key)}}`;
-            } else {
-              const slot = captures.length;
-              captures.push(key);
-              body += `{const result=v${slot}(input[${emit(key)}]);${consume(key)}}`;
-            }
-          }
-          const keys = Object.keys(object.fields);
-          let unknown = keys.length ? keys.map(key => `key!==${emit(key)}`).join('&&') : 'true';
-          if (object.mode !== 'strip' && keys.length > 8) {
-            const signature = JSON.stringify(keys);
-            let index = objectKeyIndexes.get(signature);
-            if (!index) {
-              index = unique();
-              objectKeyIndexes.set(signature, index);
-              groups.push(`const ${index}={${keys.map(key => `[${emit(key)}]:true`).join(',')}};`);
-            }
-            unknown = `!Object.hasOwn(${index},key)`;
-          }
-          if (object.mode === 'strict') body += `for(const key in input)if(${unknown}){(issues??=[]).push(${resolveIssue}({message:"Unknown key: "+key,code:"unrecognized_key",path:[key]},input));break;}`;
-          if (object.mode === 'passthrough') body += `for(const key in input)if(key!=="__proto__"&&${unknown}){const value=input[key];if(key in output)Object.defineProperty(output,key,{value,enumerable:true,writable:true,configurable:true});else output[key]=value;}`;
-          body += 'return issues?{issues}:{value:output};';
-          const signature = JSON.stringify([body, captures, object.mode, object.description]);
-          let helper = objectHelpers.get(signature);
-          if (!helper) {
-            helper = { factory: unique(), validate: unique(), body, captures, spec: object };
-            objectHelpers.set(signature,helper);
-          }
-          return `/* @__PURE__ */ ${helper.factory}(${render((node.arguments as Node[])[0]!)})`;
-        }
-        const spec = scalars.get(node);
-        if (spec) return scalarExpression(spec);
-        const edits: { node: Node; value: string }[] = [];
-        const descend = (parent: Node): void => {
-          for (const [key, value] of Object.entries(parent)) {
-            if (key === 'parent' || key === 'comments') continue;
-            const children = Array.isArray(value) ? value : [value];
-            for (const child of children) if (isNode(child)) {
-              if (objects.has(child) || scalars.has(child) || arrays.has(child)) edits.push({node:child,value:render(child)});
-              else descend(child);
-            }
+      let changed = false;
+      for (const runtimeModule of runtimeModules) {
+        const imports = new Map([...allImports].filter(([local]) => importSources.get(local) === runtimeModule));
+        if (!imports.size) continue;
+        const decimal = unique();
+        const literalDecimal = unique();
+        const collect = unique();
+        const invalid = unique();
+        const enumMeta = unique();
+        const resolveIssue = unique();
+        const resolveResult = unique();
+        const configuration = unique();
+        let needsDecimal = false;
+        let needsLiteralDecimal = false;
+        let needsEnumMeta = false;
+        const helpers = new Map<string, { name: string; body: string }>();
+        const scalarFactories = new Map<string, string>();
+        const factory = (node: Node): Factory | undefined => {
+          node = unwrap(node);
+          if (node.type !== 'CallExpression' || node.optional) return;
+          const callee = node.callee;
+          const imported = imports.get(name(callee) ?? '');
+          if (imported && imported !== '*') return imported;
+          if (isNode(callee) && callee.type === 'MemberExpression' && !callee.computed && !callee.optional && imports.get(name(callee.object) ?? '') === '*') {
+            const member = name(callee.property);
+            if (member && factories.has(member as Factory)) return member as Factory;
           }
         };
-        descend(node);
-        let emitted = code.slice(node.start,node.end);
-        for (const edit of edits.sort((a,b)=>b.node.start-a.node.start)) emitted = emitted.slice(0,edit.node.start-node.start)+edit.value+emitted.slice(edit.node.end-node.start);
-        return emitted;
-      };
-      const replacements: { node: Node; value: string }[] = [];
-      const select = (node: Node): void => {
-        if (objects.has(node) || scalars.has(node) || arrays.has(node)) { replacements.push({node,value:render(node)}); return; }
-        for (const [key,value] of Object.entries(node)) {
-          if (key === 'parent' || key === 'comments') continue;
-          for (const child of Array.isArray(value)?value:[value]) if (isNode(child)) select(child);
+        const scalar = (node: Node): ScalarSpec | undefined => {
+          const kind = factory(node);
+          if (kind === 'literal') {
+            if (bindings.has('undefined') || ['undefined','Object','Number','Array'].some(name => imports.has(name))) return;
+            const args = unwrap(node).arguments as Node[];
+            if (args.length < 1 || args.length > 2) return;
+            const source = unwrap(args[0]!);
+            const multiple = source.type === 'ArrayExpression';
+            const elements = multiple ? source.elements as unknown[] : [source];
+            if (!elements.length) return;
+            const values: LiteralValue[] = [];
+            for (const element of elements) {
+              const value = literal(element);
+              if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') return;
+              values.push(value);
+            }
+            if (values.length > 8 && values.every(value => typeof value === 'string')) return;
+            if ((values.some(value => typeof value === 'number') && bindings.has('Number')) ||
+                (values.some(value => typeof value === 'string') && bindings.has('Object'))) return;
+            const opts = options(args.slice(1), 'boolean');
+            if (opts) return { kind: typeof values[0] as Kind, opts, literals: { values, multiple } };
+            return;
+          }
+          if (!kind || !Object.hasOwn(keys, kind) || (kind === 'number' && bindings.has('Number')) || bindings.has('undefined')) return;
+          const opts = options(unwrap(node).arguments as unknown[], kind as Kind);
+          if (opts) return { kind: kind as Kind, opts };
+        };
+        const field = (node: Node | undefined): FieldSpec | undefined => {
+          if (!isNode(node)) return;
+          const kind = factory(node);
+          if (!kind || kind === 'object') return;
+          if ((kind === 'transform' || kind === 'refine') && !field((unwrap(node).arguments as Node[])[0]!)) return;
+          return { node, scalar: scalar(node) };
+        };
+        const arrays = new Map<Node, ArraySpec>();
+        const arraySpec = (node: Node): ArraySpec | undefined => {
+          if(factory(node)!=='array'||bindings.has('Array')||bindings.has('undefined'))return;
+          const args=node.arguments as Node[];
+          if(args.length<1||args.length>2)return;
+          const inner=scalar(args[0]!);
+          if(!inner)return;
+          const config=args.length===1||literal(args[1])===undefined?{}:properties(args[1]);
+          if(!config)return;
+          const opts:Record<string,Scalar>={};
+          for(const [key,value]of Object.entries(config)){
+            if(!['min','max','wrapScalar','description'].includes(key))return;
+            const parsed=literal(value);
+            if(parsed===unsupported)return;
+            if(parsed!==undefined&&(key==='description'?typeof parsed!=='string':key==='wrapScalar'?typeof parsed!=='boolean':typeof parsed!=='number'))return;
+            opts[key]=parsed;
+          }
+          return {inner,opts};
+        };
+        const objects = new Map<Node, ObjectSpec>();
+        const scalars = new Map<Node, ScalarSpec>();
+        walk(ast, node => {
+          if (node.type !== 'CallExpression' || node.optional) return;
+          const array=arraySpec(node);if(array)arrays.set(node,array);
+          const spec = scalar(node);
+          if (spec) scalars.set(node, spec);
+          if (opts.objects === false || factory(node) !== 'object' || bindings.has('Object') || bindings.has('Array') || bindings.has('undefined')) return;
+          const args = node.arguments as Node[];
+          const parsedOptions = objectOptions(args);
+          const props = shapeProperties(args[0]);
+          if (!parsedOptions || !props) return;
+          const fields: Record<string, FieldSpec> = Object.create(null);
+          for (const [key, value] of Object.entries(props)) {
+            const child = field(value);
+            if (!child) return;
+            fields[key] = child;
+          }
+          let foreign = false;
+          if (runtimeModules.size > 1) walk(node, child => {
+            const owner = factoryOwner(child);
+            if (owner !== undefined && owner !== runtimeModule) foreign = true;
+          });
+          if (!foreign) objects.set(node, { ...parsedOptions, fields });
+        });
+        if (!scalars.size && !objects.size && !arrays.size) continue;
+        const decimalFor = (spec: ScalarSpec): string => {
+          if (spec.literals) {
+            if (spec.literals.values.some(value => typeof value === 'number')) needsLiteralDecimal = true;
+            return `${literalDecimal}()`;
+          }
+          if (spec.kind === 'number') needsDecimal = true;
+          return decimal;
+        };
+        let literalError: string | undefined;
+        const scalarExpression = (spec: ScalarSpec): string => {
+          const candidate = generate(spec, '', decimalFor(spec), enumMeta);
+          let helper = helpers.get(candidate.body);
+          if (!helper) {
+            let body = candidate.body;
+            if (spec.literals && !spec.literals.multiple && typeof spec.literals.values[0] === 'number') {
+              literalError ??= unique();
+              const errors = [
+                [`Expected one of: ${spec.literals.values[0]}`, 'invalid_value'],
+                ['Expected a decimal number', 'invalid_type'],
+                ['Expected a finite number', 'invalid_value'],
+              ] as const;
+              for (const [message, code] of errors)
+                body = body.replaceAll(failure(message,code), `return ${literalError}(${emit(message)},${emit(code)});`);
+            }
+            helper = { name: unique(), body };
+            helpers.set(candidate.body, helper);
+          }
+          const branches = spec.literals?.values.some(value => typeof value !== spec.kind)
+            ? spec.literals.values.map(value => scalarExpression({ kind: typeof value as Kind, opts: {}, literals: { values: [value], multiple: false } }))
+            : [];
+          const expression = generate(spec, helper.name, decimalFor(spec), enumMeta, branches).expression;
+          if (spec.literals?.values.some(value => typeof value === 'string')) needsEnumMeta = true;
+          let create = scalarFactories.get(expression);
+          if (!create) { create = unique(); scalarFactories.set(expression,create); }
+          return `/* @__PURE__ */ ${create}()`;
+        };
+        const write = (key: string, value: string, dynamic = false): string => {
+          const expression = dynamic ? key : emit(key);
+          const assign = `output[${expression}]=${value};`;
+          return assign;
+        };
+        const consume = (key: string, dynamic = false): string => `issues=${collect}(result,${dynamic?key:emit(key)},input,output,issues);`;
+        const inline = (spec: ScalarSpec, key: string, label: string, dynamic = false): string => {
+          const keyExpression = dynamic ? key : emit(key);
+          const body = generate(spec, '', decimalFor(spec), enumMeta, [], false).body;
+          const prefix = 'function validate(value){';
+          const parsed = this.parse(prefix + body + '}') as unknown as Node;
+          const replacements: { start: number; end: number; value: string }[] = [];
+          walk(parsed, node => {
+            if (node.type !== 'ReturnStatement' || !isNode(node.argument)) return;
+            const props = properties(node.argument)!;
+            const value = props.value;
+            const result = (prefix + body + '}').slice(node.argument.start, node.argument.end);
+            const expression = value ? (prefix+body+'}').slice(value.start,value.end) : '';
+            const defined = value && (literal(value) !== unsupported ? literal(value) !== undefined : value.type === 'Identifier' && value.name === 'value' && spec.kind === 'string' && !spec.opts.trim);
+            const assign = defined ? write(key,expression,dynamic) : `const parsed=${expression};if(parsed!==void 0||${keyExpression} in input){${write(key,'parsed',dynamic)}}`;
+            let failed = '';
+            if (!value) {
+              const list = props.issues!;
+              const src = prefix+body+'}';
+              const issueNode = (list.elements as Node[])[0]!;
+              failed = `issues=${invalid}(${keyExpression},input,output,issues,${src.slice(issueNode.start,issueNode.end)},raw);`;
+            }
+            replacements.push({ start: node.start - prefix.length, end: node.end - prefix.length,
+              value: value
+                ? `{if("issues" in {}){const result=${result};${consume(key,dynamic)}}else{${assign}}break ${label};}`
+                : `{${failed}break ${label};}` });
+          });
+          let emitted = body;
+          for (const replacement of replacements.sort((a,b)=>b.start-a.start)) emitted = emitted.slice(0,replacement.start)+replacement.value+emitted.slice(replacement.end);
+          if (spec.literals?.values.some(value => typeof value !== 'string')) {
+            scalarExpression(spec);
+            const validator = helpers.get(generate(spec,'',decimalFor(spec),enumMeta).body)!.name;
+            emitted = `if("issues" in {}){const result=${validator}(value);${consume(key,dynamic)}break ${label};}` + emitted;
+          }
+          return `${label}:{const raw=input[${keyExpression}];let value=raw;${emitted}}`;
+        };
+        const arrayValidators = new Map<Node,string>();
+        const arrayHelpers = new Map<string, {factory:string;validate:string;body:string;description:Scalar}>();
+        const groups: string[] = [];
+        const chunks: string[] = [];
+        const objectHelpers = new Map<string, { factory: string; validate: string; body: string; captures: string[]; spec: ObjectSpec }>();
+        const objectKeyIndexes = new Map<string, string>();
+        const render = (node: Node): string => {
+          const array=arrays.get(node);
+          if(array){
+            const child=scalarExpression(array.inner);
+            const validator=helpers.get(generate(array.inner,'',decimalFor(array.inner),enumMeta).body)!.name;
+            let body='';
+            if(array.opts.wrapScalar!==true)body+=`if(!Array.isArray(value)){${failure('Expected an array','invalid_type')}}`;
+            body+='const inputs=Array.isArray(value)?value:[value];';
+            body+=`const output=[];let issues;for(let i=0;i<inputs.length;i++){const result=${validator}(inputs[i]);if(result.issues)for(const issue of result.issues)(issues??=[]).push({...issue,path:issue.path?[i,...issue.path]:[i]});else output.push(result.value);}if(issues)return {issues};`;
+            if(array.opts.min!==undefined)body+=`if(inputs.length<${emit(array.opts.min)}){${failure(`Expected at least ${array.opts.min} items`, 'too_small', { origin: 'array', min: array.opts.min, inclusive: true })}}`;
+            if(array.opts.max!==undefined)body+=`if(inputs.length>${emit(array.opts.max)}){${failure(`Expected at most ${array.opts.max} items`, 'too_big', { origin: 'array', max: array.opts.max, inclusive: true })}}`;
+            body+='return {value:output};';
+            const signature=JSON.stringify([body,array.opts.description]);
+            let helper=arrayHelpers.get(signature);
+            if(!helper){helper={factory:unique(),validate:unique(),body,description:array.opts.description};arrayHelpers.set(signature,helper);}
+            arrayValidators.set(node,helper.validate);
+            return `/* @__PURE__ */ ${helper.factory}(${child})`;
+          }
+
+          const object = objects.get(node);
+          if (object) {
+            const fields = Object.entries(object.fields).filter(([key]) => key !== '__proto__');
+            const captures: string[] = [];
+            let body = `if(typeof input!=="object"||input===null||Array.isArray(input)){${failure('Expected an object','invalid_type')}}const output={};let issues;`;
+            for (let index = 0; index < fields.length; index++) {
+              const [key,child] = fields[index]!;
+              if (child.scalar) {
+                let end = index + 1;
+                const signature = generate(child.scalar,'',decimalFor(child.scalar),enumMeta).body;
+                while (end < fields.length) {
+                  const next = fields[end]![1].scalar;
+                  if (!next || generate(next,'',decimalFor(next),enumMeta).body !== signature) break;
+                  end++;
+                }
+                const threshold = opts.objects === 'unroll' ? Infinity : opts.objects === 'loop' ? 2 : 3;
+                if ((opts.objects === 'chunked' && end-index >= 8) || (opts.objects !== 'unroll' && opts.objects !== 'loop' && end-index >= 32)) {
+                  for (let start=index;start<end;start+=8) {
+                    const helper=unique();
+                    const content=fields.slice(start,Math.min(start+8,end)).map(([key,child],offset)=>inline(child.scalar!,key,`field${offset}`)).join('');
+                    chunks.push(`function ${helper}(input,output,issues){${content}return issues;}`);
+                    body+=`issues=${helper}(input,output,issues);`;
+                  }
+                  index=end-1;
+                } else if (end - index >= threshold) {
+                  const keys = unique();
+                  const values = JSON.stringify(fields.slice(index,end).map(([key])=>key));
+                  if (child.scalar.literals) {
+                    groups.push(`function ${keys}(){return ${keys}.values??=${values};}`);
+                    body += `{const keys=${keys}();for(let index=0;index<keys.length;index++){const key=keys[index];${inline(child.scalar,'key',`field${index}`,true)}}}`;
+                  } else {
+                    groups.push(`const ${keys}=${values};`);
+                    body += `for(let index=0;index<${keys}.length;index++){const key=${keys}[index];${inline(child.scalar,'key',`field${index}`,true)}}`;
+                  }
+                  index = end - 1;
+                } else body += inline(child.scalar,key,`field${index}`);
+              } else if(arrays.has(child.node)) {
+                render(child.node);
+                body+=`{const result=${arrayValidators.get(child.node)!}(input[${emit(key)}]);${consume(key)}}`;
+              } else {
+                const slot = captures.length;
+                captures.push(key);
+                body += `{const result=v${slot}(input[${emit(key)}]);${consume(key)}}`;
+              }
+            }
+            const keys = Object.keys(object.fields);
+            let unknown = keys.length ? keys.map(key => `key!==${emit(key)}`).join('&&') : 'true';
+            if (object.mode !== 'strip' && keys.length > 8) {
+              const signature = JSON.stringify(keys);
+              let index = objectKeyIndexes.get(signature);
+              if (!index) {
+                index = unique();
+                objectKeyIndexes.set(signature, index);
+                groups.push(`const ${index}={${keys.map(key => `[${emit(key)}]:true`).join(',')}};`);
+              }
+              unknown = `!Object.hasOwn(${index},key)`;
+            }
+            if (object.mode === 'strict') body += `for(const key in input)if(${unknown}){(issues??=[]).push(${resolveIssue}({message:"Unknown key: "+key,code:"unrecognized_key",path:[key]},input));break;}`;
+            if (object.mode === 'passthrough') body += `for(const key in input)if(key!=="__proto__"&&${unknown}){const value=input[key];if(key in output)Object.defineProperty(output,key,{value,enumerable:true,writable:true,configurable:true});else output[key]=value;}`;
+            body += 'return issues?{issues}:{value:output};';
+            const signature = JSON.stringify([body, captures, object.mode, object.description]);
+            let helper = objectHelpers.get(signature);
+            if (!helper) {
+              helper = { factory: unique(), validate: unique(), body, captures, spec: object };
+              objectHelpers.set(signature,helper);
+            }
+            return `/* @__PURE__ */ ${helper.factory}(${render((node.arguments as Node[])[0]!)})`;
+          }
+          const spec = scalars.get(node);
+          if (spec) return scalarExpression(spec);
+          const edits: { node: Node; value: string }[] = [];
+          const descend = (parent: Node): void => {
+            for (const [key, value] of Object.entries(parent)) {
+              if (key === 'parent' || key === 'comments') continue;
+              const children = Array.isArray(value) ? value : [value];
+              for (const child of children) if (isNode(child)) {
+                if (objects.has(child) || scalars.has(child) || arrays.has(child)) edits.push({node:child,value:render(child)});
+                else descend(child);
+              }
+            }
+          };
+          descend(node);
+          let emitted = code.slice(node.start,node.end);
+          for (const edit of edits.sort((a,b)=>b.node.start-a.node.start)) emitted = emitted.slice(0,edit.node.start-node.start)+edit.value+emitted.slice(edit.node.end-node.start);
+          return emitted;
+        };
+        const replacements: { node: Node; value: string }[] = [];
+        const select = (node: Node): void => {
+          if (objects.has(node) || scalars.has(node) || arrays.has(node)) { replacements.push({node,value:render(node)}); return; }
+          for (const [key,value] of Object.entries(node)) {
+            if (key === 'parent' || key === 'comments') continue;
+            for (const child of Array.isArray(value)?value:[value]) if (isNode(child)) select(child);
+          }
+        };
+        select(ast);
+        let generated = `\nimport { _resolveIssue as ${resolveIssue}, config as ${configuration} } from ${JSON.stringify(runtimeModule)};\n`;
+        generated += `function ${resolveResult}(result,input){if(${configuration}().customError===void 0)return result;return result.issues?{issues:result.issues.map(issue=>issue.path?.length?issue:${resolveIssue}(issue,input))}:result;}\n`;
+        const decimalPattern = '/^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$/';
+        if (needsDecimal) generated += `const ${decimal}=${decimalPattern};\n`;
+        if (needsLiteralDecimal) generated += `function ${literalDecimal}(){return ${literalDecimal}.pattern??=${decimalPattern};}\n`;
+        if (needsEnumMeta) generated += `function ${enumMeta}(values,description){const Metadata=${enumMeta}.Metadata??=class{#choices;constructor(values,description){this.description=description;this.kind="string";this.#choices=values;}get enumValues(){return this.#choices;}set enumValues(values){this.#choices=values;}};return new Metadata(values,description);}\n`;
+        generated += groups.join('\n')+'\n'+chunks.join('\n')+'\n';
+        if (objects.size) generated += `function ${collect}(result,key,input,output,issues){if(result.issues){issues??=[];for(const issue of result.issues)issues.push({...issue,path:issue.path?[key,...issue.path]:[key]});}else if(result.value!==void 0||key in input){output[key]=result.value;}return issues;}function ${invalid}(key,input,output,issues,issue,raw){return ${collect}({issues:[${resolveIssue}(issue,raw)]},key,input,output,issues);}\n`;
+        if (literalError) generated += `function ${literalError}(message,code){return {issues:[{message,code}]};}\n`;
+        for (const helper of helpers.values()) {
+          let body = helper.body;
+          if (body === generate({kind:'string',opts:{}}, '', decimal, enumMeta).body) {
+            const error = unique();
+            generated += `function ${error}(message,code){return {issues:[{message,code}]};}\n`;
+            body = body.replace(failure('Expected a string', 'invalid_type'), `return ${error}("Expected a string","invalid_type");`);
+          }
+          generated += `function ${helper.name}(value){const input=value;const result=(()=>{${body}})();return ${resolveResult}(result,input);}\n`;
         }
-      };
-      select(ast);
-      let generated = `\nimport { _resolveIssue as ${resolveIssue}, config as ${configuration} } from ${JSON.stringify(runtimeModule)};\n`;
-      generated += `function ${resolveResult}(result,input){if(${configuration}().customError===void 0)return result;return result.issues?{issues:result.issues.map(issue=>issue.path?.length?issue:${resolveIssue}(issue,input))}:result;}\n`;
-      const decimalPattern = '/^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$/';
-      if (needsDecimal) generated += `const ${decimal}=${decimalPattern};\n`;
-      if (needsLiteralDecimal) generated += `function ${literalDecimal}(){return ${literalDecimal}.pattern??=${decimalPattern};}\n`;
-      if (needsEnumMeta) generated += `function ${enumMeta}(values,description){const Metadata=${enumMeta}.Metadata??=class{#choices;constructor(values,description){this.description=description;this.kind="string";this.#choices=values;}get enumValues(){return this.#choices;}set enumValues(values){this.#choices=values;}};return new Metadata(values,description);}\n`;
-      generated += groups.join('\n')+'\n'+chunks.join('\n')+'\n';
-      if (objects.size) generated += `function ${collect}(result,key,input,output,issues){if(result.issues){issues??=[];for(const issue of result.issues)issues.push({...issue,path:issue.path?[key,...issue.path]:[key]});}else if(result.value!==void 0||key in input){output[key]=result.value;}return issues;}function ${invalid}(key,input,output,issues,issue,raw){return ${collect}({issues:[${resolveIssue}(issue,raw)]},key,input,output,issues);}\n`;
-      if (literalError) generated += `function ${literalError}(message,code){return {issues:[{message,code}]};}\n`;
-      for (const helper of helpers.values()) {
-        let body = helper.body;
-        if (body === generate({kind:'string',opts:{}}, '', decimal, enumMeta).body) {
-          const error = unique();
-          generated += `function ${error}(message,code){return {issues:[{message,code}]};}\n`;
-          body = body.replace(failure('Expected a string', 'invalid_type'), `return ${error}("Expected a string","invalid_type");`);
+        for (const [expression,create] of scalarFactories) generated += `/* @__NO_SIDE_EFFECTS__ */ function ${create}(){return ${expression};}\n`;
+        for(const helper of arrayHelpers.values()){
+          generated+=`function ${helper.validate}(value){const result=(()=>{${helper.body}})();return ${resolveResult}(result,value);}\n`;
+          generated+=`/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(inner){return {meta:{kind:"array",inner,enumValues:inner.meta.enumValues,...(inner.meta.literalValues?{literalValues:inner.meta.literalValues}:{}),description:${emit(helper.description)}},"~standard":{version:1,vendor:"loculus",validate:${helper.validate}},field:true};}\n`;
         }
-        generated += `function ${helper.name}(value){const input=value;const result=(()=>{${body}})();return ${resolveResult}(result,input);}\n`;
+        for (const helper of objectHelpers.values()) {
+          const args = helper.captures.map((_,index)=>`v${index}`);
+          generated += `function ${helper.validate}(input${args.length?','+args.join(','):''}){const result=(()=>{${helper.body}})();return ${resolveResult}(result,input);}\n`;
+          generated += `/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(shape){${helper.captures.map((key,index)=>`const v${index}=shape[${emit(key)}]["~standard"].validate;`).join('')}return {meta:{kind:"object",shape,unknownKeys:${emit(helper.spec.mode)},description:${emit(helper.spec.description)}},"~standard":{version:1,vendor:"loculus",validate:${args.length?`(input)=>${helper.validate}(input,${args.join(',')})`:helper.validate}},shape,field:true};}\n`;
+        }
+        for (const replacement of replacements) output.overwrite(replacement.node.start,replacement.node.end,replacement.value);
+        output.appendLeft(insert, generated);
+        changed = true;
       }
-      for (const [expression,create] of scalarFactories) generated += `/* @__NO_SIDE_EFFECTS__ */ function ${create}(){return ${expression};}\n`;
-      for(const helper of arrayHelpers.values()){
-        generated+=`function ${helper.validate}(value){const result=(()=>{${helper.body}})();return ${resolveResult}(result,value);}\n`;
-        generated+=`/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(inner){return {meta:{kind:"array",inner,enumValues:inner.meta.enumValues,...(inner.meta.literalValues?{literalValues:inner.meta.literalValues}:{}),description:${emit(helper.description)}},"~standard":{version:1,vendor:"loculus",validate:${helper.validate}},field:true};}\n`;
-      }
-      for (const helper of objectHelpers.values()) {
-        const args = helper.captures.map((_,index)=>`v${index}`);
-        generated += `function ${helper.validate}(input${args.length?','+args.join(','):''}){const result=(()=>{${helper.body}})();return ${resolveResult}(result,input);}\n`;
-        generated += `/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(shape){${helper.captures.map((key,index)=>`const v${index}=shape[${emit(key)}]["~standard"].validate;`).join('')}return {meta:{kind:"object",shape,unknownKeys:${emit(helper.spec.mode)},description:${emit(helper.spec.description)}},"~standard":{version:1,vendor:"loculus",validate:${args.length?`(input)=>${helper.validate}(input,${args.join(',')})`:helper.validate}},shape,field:true};}\n`;
-      }
-      for (const replacement of replacements) output.overwrite(replacement.node.start,replacement.node.end,replacement.value);
-      output.appendLeft(insert, generated);
-      return { code: output };
+      return changed ? { code: output } : undefined;
     },
   };
 }
