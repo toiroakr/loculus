@@ -71,7 +71,7 @@ test("fields preserve presence, conversions, bounds and issue details", () => {
     library.number({ gte: -Number.MAX_SAFE_INTEGER, lt: Number.MAX_SAFE_INTEGER + 1, integer: true }),
     library.number({ gt: -Number.MAX_SAFE_INTEGER, lte: Number.MAX_SAFE_INTEGER, integer: true }),
     library.number({ gt: -Infinity, gte: -Infinity, lt: Infinity, lte: Infinity }),
-    library.number({ default: { nullish: 1 } }), library.boolean(), library.boolean({ optional: true }),
+    library.boolean(), library.boolean({ optional: true }),
     library.enum(["a", "b"]), library.date(), library.transform(library.string(), () => undefined),
     library.array(library.string(), { wrapScalar: true }), library.array(library.number({ integer: true }), { wrapScalar: true }),
     library.array(library.boolean(), { wrapScalar: false, min: 1, max: 2 }),
@@ -91,6 +91,10 @@ test("fields preserve presence, conversions, bounds and issue details", () => {
     for (const input of [{}, ...values.map((value) => ({ value }))])
       assert.deepEqual(legacyResult(l.safeParse(normal, input)), before.safeParse(reference, input));
   }
+  const number = l.number({ default: { nullish: 1 } });
+  const referenceNumber = before.number({ default: { nullish: 1 } });
+  for (const input of values)
+    assert.deepEqual(l.safeParse(number, input), before.safeParse(referenceNumber, input === "" ? null : input));
 });
 
 test("field options and array validators are captured at construction", () => {

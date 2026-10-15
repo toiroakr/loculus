@@ -37,6 +37,44 @@ test("presence and default combinations preserve or replace only their selected 
   }
 });
 
+test("number empty strings follow null presence and defaults", () => {
+  const error = Symbol("error");
+  const cases: readonly [l.AnySchema, unknown, unknown][] = [
+    [l.number(), error, error],
+    [l.number({ optional: true }), undefined, error],
+    [l.number({ nullable: true }), error, null],
+    [l.number({ nullish: true }), undefined, null],
+    [l.number({ optional: true, nullable: true }), undefined, null],
+    [l.number({ default: 10 }), 10, error],
+    [l.number({ nullable: true, default: 10 }), 10, null],
+    [l.number({ nullish: true, default: 10 }), 10, null],
+    [l.number({ default: { null: 10 } }), error, 10],
+    [l.number({ default: { nullish: 10 } }), 10, 10],
+    [l.number({ default: { undefined: 20, null: 10 } }), 20, 10],
+    [l.number({ default: { undefined: 20, null: undefined } }), 20, undefined],
+    [l.number({ gte: 20, default: { null: 10 } }), error, 10],
+  ];
+  for (const [schema, missing, nil] of cases) {
+    for (const [input, expected] of [[undefined, missing], [null, nil], ["", nil]]) {
+      const result = l.safeParse(schema, input);
+      if (expected === error) assert.ok(result.issues);
+      else assert.deepEqual(result, { value: expected });
+    }
+    assert.equal(l.parse(schema, "42"), 42);
+    for (const input of [" ", "\t", " 42 ", "null"])
+      assert.ok(l.safeParse(schema, input).issues);
+  }
+  const schema = l.object({ count: l.number({ nullish: true }) });
+  assert.deepEqual(l.parse(schema, {}), {});
+  assert.deepEqual(l.parse(schema, { count: undefined }), { count: undefined });
+  assert.deepEqual(l.parse(schema, { count: "" }), { count: null });
+  assert.deepEqual(l.parse(l.array(l.number({ nullish: true })), ["", null, undefined, "0"]), [null, null, undefined, 0]);
+  assert.equal(l.parse(l.transform(l.number({ nullable: true }), value => value === null ? "empty" : "number"), ""), "empty");
+  assert.ok(l.safeParse(l.refine(l.number({ nullable: true }), value => value !== null, "Required"), "").issues);
+  for (const schema of [l.literal(1, { nullable: true }), l.literal([1, 2], { default: { null: 1 } })])
+    assert.ok(l.safeParse(schema, "").issues);
+});
+
 test("all field constructors support nullish values and output defaults", () => {
   const date = new Date("2026-10-11T00:00:00Z");
   const cases: readonly [l.AnySchema, unknown, unknown][] = [
@@ -72,13 +110,14 @@ test("all field constructors support nullish values and output defaults", () => 
 
 test("defaults do not replace invalid values and precede outer transformations", () => {
   const number = l.number({ gte: 1, default: { nullish: 5 } });
-  for (const input of ["", " ", "abc", "0", "Infinity"])
+  for (const input of [" ", "abc", "0", "Infinity"])
     assert.ok(l.safeParse(number, input).issues);
   const string = l.string({ min: 1, default: { nullish: "D" } });
   assert.ok(l.safeParse(string, "").issues);
   const transform = l.transform(l.number({ default: { nullish: 5 } }), (value) => value + 1);
   assert.equal(l.parse(transform, undefined), 6);
   assert.equal(l.parse(transform, null), 6);
+  assert.equal(l.parse(transform, ""), 6);
   assert.equal(l.parse(l.number({ gte: 10, default: 5 }), undefined), 5);
 });
 

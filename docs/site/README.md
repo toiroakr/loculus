@@ -22,7 +22,7 @@ Use `l.fromEntries(formData)` for FormData. Repeated keys become arrays. Scalar 
 ## API
 
 - `string({ min, max, pattern, trim, description, optional })`
-- `number({ gt, gte, lt, lte, integer, description, optional })`: strings containing decimal numbers, or finite numbers. Empty strings, whitespace, hexadecimal and Infinity are rejected. `integer` requires safe integers. `gt` / `lt` exclude the boundary; `gte` / `lte` include it. Multiple bounds are combined with AND.
+- `number({ gt, gte, lt, lte, integer, description, optional })`: strings containing decimal numbers, or finite numbers. Empty strings are treated as `null` for presence and defaults: `nullable` / `nullish` preserve them as `null`, and `null` / `nullish` defaults replace them. Otherwise they are rejected. Whitespace, hexadecimal and Infinity are rejected. `integer` requires safe integers. `gt` / `lt` exclude the boundary; `gte` / `lte` include it. Multiple bounds are combined with AND.
 - `boolean({ optional })`: accepts true/false booleans and the strings `"true"`, `"false"`, `"1"`, `"0"`.
 - `enum(values, { optional })`, `literal(value)`: string choices.
 - `date({ optional })`: ISO calendar dates or ISO date-time strings. Returns a Date. Date-time strings permit local time, `Z`, or a colon-separated UTC offset. Hours are 00–23; `24:00` and offsets such as `+0900` are rejected, matching Zod's ISO schemas.
@@ -99,7 +99,7 @@ l.string({ default: { undefined: 'guest', null: 'anonymous' } });
 l.array(l.string(), { default: ['general'] });
 ```
 
-Defaults take precedence over presence flags and apply before conversion. They are output values and bypass the field's constraints, outer transforms/refinements still run. Invalid non-nullish inputs and empty strings never trigger a default. `nullish` default targets cannot be combined with `undefined` or `null` targets; conflicting configurations are rejected by types and at construction.
+Defaults take precedence over presence flags and apply before conversion. They are output values and bypass the field's constraints, outer transforms/refinements still run. Invalid non-nullish inputs never trigger a default. For `number`, an empty string is treated as `null`, so it triggers `null` / `nullish` defaults but not an undefined-only default. Empty strings do not trigger defaults for other field types. `nullish` default targets cannot be combined with `undefined` or `null` targets; conflicting configurations are rejected by types and at construction.
 
 An undefined default makes an object property optional on input and required on output. A null-only default still requires the property on input. Defaults remove null/undefined from the output type only for the targets they replace. Omitting optional/nullish object properties omits them from the output; explicit null is preserved unless a null default replaces it. Array element presence is configured on the element schema separately.
 

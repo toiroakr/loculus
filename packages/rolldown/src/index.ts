@@ -226,7 +226,7 @@ function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta
   }
   let body = '';
   if (optional) body += `if(value===void 0)return {value:${emit(missing)}};`;
-  if (nullable) body += `if(value===null)return {value:${emit(nil)}};`;
+  if (nullable) body += `if(value===null${kind === 'number' && !literals ? '||value===""' : ''})return {value:${emit(nil)}};`;
   if (literals) {
     body += literalValidation(literals, decimal, checkIssues);
   } else if (kind === 'string') {

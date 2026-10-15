@@ -193,7 +193,7 @@ function configuredField<I, O>(
   meta: Meta,
   options: FieldOptions<O>,
   validate: (value: unknown) => Result<O>,
-  customize = true,
+  { customize = true, emptyAsNull = false }: { customize?: boolean; emptyAsNull?: boolean } = emptyOptions,
 ): Field<any, any, boolean> {
   if (options === emptyOptions) return customize ? errorField(meta, validate) : field(meta, validate);
   const value = own(options, "default") ? options.default : undefined;
@@ -220,7 +220,7 @@ function configuredField<I, O>(
     const base = validate;
     if (optional || nullable) validate = (input: unknown): Result<any> => {
       if (input === undefined && optional) return { value: missing };
-      if (input === null && nullable) return { value: defaults & 2 ? nil : null };
+      if (nullable && (input === null || (emptyAsNull && input === ""))) return { value: defaults & 2 ? nil : null };
       return base(input);
     };
     (meta as { optional: boolean }).optional = optional;
@@ -365,6 +365,7 @@ export function number(
         return fail(`Expected at most ${options.lte}`, "too_big", { origin: "number", max: options.lte, inclusive: true });
       return { value: output };
     },
+    { emptyAsNull: true },
   );
 }
 function validateBoolean(value: unknown): Result<boolean> {
@@ -644,7 +645,7 @@ function objectPresence<S extends Shape>(
   const defaultValue = own(options, "default") ? options.default : undefined;
   if (!optional && !nullable && !nullish && defaultValue === undefined) return result;
   return {
-    ...configuredField<ObjectInput<S>, ObjectOutput<S>>(result.meta, { optional, nullable, nullish, default: defaultValue }, result["~standard"].validate, false),
+    ...configuredField<ObjectInput<S>, ObjectOutput<S>>(result.meta, { optional, nullable, nullish, default: defaultValue }, result["~standard"].validate, { customize: false }),
     shape: result.shape,
   };
 }

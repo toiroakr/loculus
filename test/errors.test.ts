@@ -82,6 +82,7 @@ test('custom errors work through presence options, transforms, refinements and c
   const field = l.number({ optional: true, nullable: true, default: 2, error });
   assert.deepEqual(l.safeParse(field, undefined), { value: 2 });
   assert.deepEqual(l.safeParse(field, null), { value: null });
+  assert.deepEqual(l.safeParse(field, ''), { value: null });
   assert.deepEqual(l.safeParse(field, '3'), { value: 3 });
   assert.equal(calls, 0);
   assert.equal(l.safeParse(field, 'bad').issues?.[0]?.message, 'Invalid');
