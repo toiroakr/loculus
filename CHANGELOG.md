@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5
+
+### Patch Changes
+
+- 84075e8: Support Node.js 22.18.0 and newer for the runtime and Rolldown plugin instead of requiring Node.js 24.
+
 ## 0.2.4
 
 ### Patch Changes
