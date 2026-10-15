@@ -19,6 +19,8 @@ const value = l.parse(query, l.fromEntries(params));
 
 Use `l.fromEntries(formData)` for FormData. Repeated keys become arrays. Scalar fields reject repeated values, and text fields reject File objects. Values are not silently dropped.
 
+Requires Node.js 22.18.0 or newer.
+
 ## API
 
 - `string({ min, max, pattern, trim, description, optional })`
