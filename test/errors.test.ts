@@ -337,3 +337,25 @@ test('custom discriminator validators retain their receiver during converted sel
   const schema = l.discriminatedUnion('kind',[l.object({kind:custom}),l.object({kind:l.literal(true)})]);
   assert.deepEqual(l.safeParse(schema,{kind:'true'}),{value:{kind:true}});
 });
+
+test('received strings preserve JSON quoting for control characters and Unicode', () => {
+  for (const value of ['', 'plain', '日本語', '😀', '"', '\\', '\n', '\t', '\u0000', '\u001f', '\ud800', '\udfff']) {
+    const issue = l.safeParse(l.number(), value).issues![0]!;
+    assert.equal(issue.message, `Expected a decimal number, received ${JSON.stringify(value)}`);
+    assert.equal(issue.received,value);
+  }
+});
+
+test('standard validators ignore extra callback arguments while resolving configured messages', () => {
+  l.config({customError:()=> 'Global'});
+  try {
+    const fields: l.AnySchema[] = [l.string(),l.number(),l.boolean(),l.enum(['a']),l.literal(42),l.date(),l.array(l.string()),l.string({optional:true})];
+    for (const field of fields) {
+      const results = [{},{}].map(field['~standard'].validate);
+      assert.deepEqual(results.map(result=>result.issues?.[0]?.message),['Global','Global']);
+      const validate = field['~standard'].validate as (input:unknown,...extra:unknown[])=>l.Result<unknown>;
+      for (const extra of [false,'Unexpected',()=> 'Unexpected',{}])
+        assert.equal(validate({},extra).issues?.[0]?.message,'Global');
+    }
+  } finally {l.config({customError:undefined});}
+});
