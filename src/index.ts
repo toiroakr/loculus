@@ -188,7 +188,7 @@ function configuredField<I, O>(
 
 export type StringLength = (value: string) => number;
 export interface Config {
-  readonly stringLength?: StringLength;
+  readonly stringLength?: StringLength | undefined;
 }
 let defaultStringLength: StringLength | undefined;
 export function configure(options: Config): void {
