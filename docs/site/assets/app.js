@@ -9,7 +9,7 @@ const query = object({
 const samples = {
   valid: ['q=loculus&page=2&draft=false&tag=docs&tag=code', 'pageはnumber、draftはboolean、繰り返したtagは配列になります。'],
   defaults: ['q=loculus', 'pageは1、draftはfalseで補います。省略されたtagは出力に含みません。'],
-  empty: ['q=loculus&page=', '空文字は省略ではありません。defaultで補わず、数値のエラーになります。'],
+  empty: ['q=loculus&page=', 'numberの空文字はnullとして扱います。このdefaultはundefined専用なので補わず、数値のエラーになります。'],
   extra: ['q=loculus&paeg=2', 'objectの既定値はstrict。pageの誤字paegは未知のキーとして拒否します。'],
   repeated: ['q=loculus&page=1&page=2', '重複キーは配列になります。numberは配列を受け取らずエラーにします。'],
 };

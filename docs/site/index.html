@@ -70,7 +70,7 @@
 </section>
 <section id="design" class="section philosophy">
 <div class="wrap philosophy-grid"><div><p class="eyebrow">02 / DESIGN</p><h2>入力の形から、<br>APIを考える。</h2><p class="design-intro">多くのCLIやフォームは、名前と文字列の組み合わせです。Loculusはその形に合わせて、変換・制約・省略時の扱いをひとつの定義にまとめます。</p></div>
-<div class="principles"><article><span class="index">01</span><div><h3>文字列の意味を決める</h3><p><code>"false"</code>はfalse。空文字や空白は数値に変換しません。JavaScriptの真偽値判定やNumber()をそのまま適用せず、入力として許可する表現を決めています。</p></div></article>
+<div class="principles"><article><span class="index">01</span><div><h3>文字列の意味を決める</h3><p><code>"false"</code>はfalse。numberの空文字はnullとして扱い、nullableやnull用のdefaultに従います。空白だけの文字列はエラーです。JavaScriptの真偽値判定やNumber()をそのまま適用せず、入力として許可する表現を決めています。</p></div></article>
 <article><span class="index">02</span><div><h3>制約も省略も、オプションに</h3><p><code>string({ min: 1, optional: true })</code>のように書きます。optional・nullable・defaultをラッパーで重ねる必要はありません。数値の境界はgt / gte / lt / lteで区別します。</p></div></article>
 <article><span class="index">03</span><div><h3>余分な入力は、まずエラーに</h3><p><code>object()</code>の既定値はstrict。オプション名の誤字や想定外のキーを拒否します。不要なキーを捨てるstrip、残すpassthroughも明示して選べます。</p></div></article>
 <article><span class="index">04</span><div><h3>一度だけ使うコストも考える</h3><p>CLIや送信時の検証では、スキーマを作る時間も処理の一部です。作成と1回の検証を合わせて最適化します。繰り返しの検証には、作成済みのスキーマをそのまま使えます。</p></div></article></div></div>
