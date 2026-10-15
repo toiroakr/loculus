@@ -26,7 +26,10 @@ export function config(options?: Config): Readonly<Config> {
   return configuration;
 }
 export type Result<T> = { value: T; issues?: undefined } | { issues: readonly Issue[] };
+const rawValidate = Symbol.for("loculus.rawValidate");
+export { rawValidate as _rawValidate };
 export interface Schema<I = unknown, O = unknown> {
+  readonly [rawValidate]?: (value: unknown) => Result<O>;
   readonly _input: I;
   readonly _output: O;
   readonly "~standard": {
@@ -198,11 +201,8 @@ type ConfiguredOutput<O, P> = O | UndefinedDefault<P>
   | (PresenceFlags<P>[0] extends true ? false extends DefaultFlags<P>[0] ? undefined : never : never)
   | (PresenceFlags<P>[1] extends true ? false extends DefaultFlags<P>[1] ? null : never : never);
 type ConfiguredField<I, O, P> = Field<ConfiguredInput<I, P>, ConfiguredOutput<O, P>>;
-const rawValidators = new WeakMap<AnySchema, (value: unknown) => Result<any>>();
 function errorField(meta: Meta, validate: (value: unknown) => Result<any>, error?: ErrorCustomization): Field<any, any, boolean> {
-  const result = field(meta, withError(validate, error));
-  rawValidators.set(result, validate);
-  return result;
+  return { ...field(meta, withError(validate, error)), [rawValidate]: validate };
 }
 const emptyOptions = {};
 function validateString(value: unknown): Result<string> {
@@ -514,7 +514,7 @@ export function literal<const T extends LiteralValue>(
       options,
       input => {
         for (const branch of branches) {
-          const result = rawValidators.get(branch)!(input);
+          const result = branch[rawValidate]!(input);
           if (!result.issues) return result;
         }
         return fail(message ??= `Expected one of: ${allowed.join(", ")}`);
@@ -522,7 +522,7 @@ export function literal<const T extends LiteralValue>(
     );
   }
   let message: string;
-  const convert = typeof value === "number" ? rawValidators.get(number())!
+  const convert = typeof value === "number" ? number()[rawValidate]!
     : validateBoolean;
   return configuredField<LiteralInput<T>, T>(
     typeof value === "string" ? new EnumMeta(value, options.description)
@@ -827,7 +827,7 @@ export function discriminatedUnion<
         for (const option of branches) {
           let discriminator: AnySchema = option.shape[key]!;
           while (discriminator.meta.inner) discriminator = discriminator.meta.inner;
-          if (!(rawValidators.get(discriminator) ?? discriminator["~standard"].validate)(value).issues) {
+          if (!(discriminator[rawValidate] ?? discriminator["~standard"].validate)(value).issues) {
             selected = option;
             break;
           }

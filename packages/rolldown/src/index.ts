@@ -197,7 +197,7 @@ function literalValidation(choices: NonNullable<ScalarSpec['literals']>, decimal
   }
   return body + mismatch;
 }
-function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta: string, typeIssue: string, branches: string[] = [], checkIssues = true): { expression: string; body: string } {
+function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta: string, typeIssue: string, branches: string[] = [], checkIssues = true, rawKey = '', rawValidator = ''): { expression: string; body: string } {
   const { kind, opts, literals } = spec;
   let missing: Scalar;
   let nil: Scalar = null;
@@ -252,7 +252,7 @@ function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta
     body += failure('Expected true, false, 1 or 0', 'invalid_type', { expected: 'boolean' }, typeIssue);
   }
   return {
-    expression: `({meta:${stringChoices ? `Object.assign(${enumMeta}([${literals!.values.map(emit).join(',')}],${emit(opts.description as Scalar)}),{${meta}})` : `{${meta}}`},"~standard":{version:1,vendor:"loculus",validate:${validator}},field:true})`,
+    expression: `({meta:${stringChoices ? `Object.assign(${enumMeta}([${literals!.values.map(emit).join(',')}],${emit(opts.description as Scalar)}),{${meta}})` : `{${meta}}`},"~standard":{version:1,vendor:"loculus",validate:${validator}},field:true${rawKey ? `,[${rawKey}]:${rawValidator}` : ''}})`,
     body,
   };
 }
@@ -337,12 +337,13 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         const enumMeta = unique();
         const resolveIssue = unique();
         const typeIssue = unique();
+        const rawValidate = unique();
         const resolveResult = unique();
         const configuration = unique();
         let needsDecimal = false;
         let needsLiteralDecimal = false;
         let needsEnumMeta = false;
-        const helpers = new Map<string, { name: string; body: string }>();
+        const helpers = new Map<string, { name: string; raw: string; body: string }>();
         const scalarFactories = new Map<string, string>();
         const factory = (node: Node): Factory | undefined => {
           node = unwrap(node);
@@ -358,7 +359,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         const scalar = (node: Node): ScalarSpec | undefined => {
           const kind = factory(node);
           if (kind === 'literal') {
-            if (bindings.has('undefined') || ['undefined','Object','Number','Array'].some(name => imports.has(name))) return;
+            if (bindings.has('undefined') || ['undefined','Object','Number','Array'].some(name => allImports.has(name))) return;
             const args = unwrap(node).arguments as Node[];
             if (args.length < 1 || args.length > 2) return;
             const source = unwrap(args[0]!);
@@ -458,13 +459,13 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
               for (const [message, code] of errors)
                 body = body.replaceAll(failure(message,code,code === 'invalid_type' ? { expected: 'number' } : {},typeIssue), `return ${literalError}(${emit(message)},${emit(code)},raw);`);
             }
-            helper = { name: unique(), body };
+            helper = { name: unique(), raw: unique(), body };
             helpers.set(candidate.body, helper);
           }
           const branches = spec.literals?.values.some(value => typeof value !== spec.kind)
             ? spec.literals.values.map(value => scalarExpression({ kind: typeof value as Kind, opts: {}, literals: { values: [value], multiple: false } }))
             : [];
-          const expression = generate(spec, helper.name, decimalFor(spec), enumMeta, typeIssue, branches).expression;
+          const expression = generate(spec, helper.name, decimalFor(spec), enumMeta, typeIssue, branches, true, rawValidate, helper.raw).expression;
           if (spec.literals?.values.some(value => typeof value === 'string')) needsEnumMeta = true;
           let create = scalarFactories.get(expression);
           if (!create) { create = unique(); scalarFactories.set(expression,create); }
@@ -631,7 +632,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           }
         };
         select(ast);
-        let generated = `\nimport { _resolveIssue as ${resolveIssue}, _typeIssue as ${typeIssue}, config as ${configuration} } from ${JSON.stringify(runtimeModule)};\n`;
+        let generated = `\nimport { _resolveIssue as ${resolveIssue}, _typeIssue as ${typeIssue}, _rawValidate as ${rawValidate}, config as ${configuration} } from ${JSON.stringify(runtimeModule)};\n`;
         generated += `function ${resolveResult}(result,input){if(${configuration}().customError===void 0)return result;return result.issues?{issues:result.issues.map(issue=>issue.path?.length?issue:${resolveIssue}(issue,input))}:result;}\n`;
         const decimalPattern = '/^[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:[eE][+-]?\\d+)?$/';
         if (needsDecimal) generated += `const ${decimal}=${decimalPattern};\n`;
@@ -647,7 +648,8 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
             generated += `function ${error}(message,code,raw){return {issues:[${typeIssue}("string",raw,message)]};}\n`;
             body = body.replace(failure('Expected a string', 'invalid_type', { expected: 'string' }, typeIssue), `return ${error}("Expected a string","invalid_type",raw);`);
           }
-          generated += `function ${helper.name}(value){const raw=value;const input=value;const result=(()=>{${body}})();return ${resolveResult}(result,input);}\n`;
+          generated += `function ${helper.raw}(value){const raw=value;${body}}\n`;
+          generated += `function ${helper.name}(value){return ${resolveResult}(${helper.raw}(value),value);}\n`;
         }
         for (const [expression,create] of scalarFactories) generated += `/* @__NO_SIDE_EFFECTS__ */ function ${create}(){return ${expression};}\n`;
         for(const helper of arrayHelpers.values()){

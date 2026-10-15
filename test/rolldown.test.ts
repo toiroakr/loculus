@@ -897,3 +897,36 @@ test('generated schemas keep global messages isolated between configured runtime
       assert.deepEqual(generated.exports[key]['~standard'].validate(input),ordinary.exports[key]['~standard'].validate(input));
   }
 });
+
+test('literal generation respects builtin aliases imported from another runtime', async () => {
+  const runtime = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
+  const files = { 'loculus-a': runtime, 'loculus-b': runtime };
+  for (const source of [
+    `import * as Object from 'loculus-a';import {literal} from 'loculus-b';export const schema=literal('a');export const other=Object.string();`,
+    `import {number as Number} from 'loculus-a';import {literal} from 'loculus-b';export const schema=literal(42);export const other=Number();`,
+  ]) {
+    const generated = await bundle(source, true, 'ts', '/loculus-test', {modules:['loculus-a','loculus-b']}, files);
+    assert.deepEqual(generated.exports.schema['~standard'].validate(source.includes("literal('a')") ? 'a' : '42'), {value:source.includes("literal('a')") ? 'a' : 42});
+  }
+});
+
+test('converted discriminator probes never invoke error callbacks across generated or foreign fields', async () => {
+  const runtime = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
+  const files = { 'loculus-a': runtime, 'loculus-b': runtime };
+  for (const foreign of [false,true]) {
+    const source = `import * as a from 'loculus-a';import * as b from 'loculus-b';
+      export const schema=a.discriminatedUnion('kind',[
+        a.object({kind:${foreign?'b':'a'}.literal(42)}),a.object({kind:${foreign?'b':'a'}.literal(true)})
+      ]);
+      export let calls=0;
+      export const setup=throws=>{const customError=()=>{calls++;if(throws)throw Error('probe callback');};a.config({customError});b.config({customError});};`;
+    for (const optimized of [false,true]) {
+      for (const throws of [false,true]) {
+        const built = await bundle(source, optimized, 'ts', '/loculus-test', {modules:['loculus-a','loculus-b']}, files);
+        built.exports.setup(throws);
+        assert.deepEqual(built.exports.schema['~standard'].validate({kind:'true'}),{value:{kind:true}});
+        assert.equal(built.exports.calls,0);
+      }
+    }
+  }
+});
