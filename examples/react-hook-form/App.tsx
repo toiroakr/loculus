@@ -4,6 +4,8 @@ import { useFieldArray, useForm } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { formSchema, type FormInput, type FormOutput } from "./schema.js";
 
+declare const __FORM_SCHEMA_SOURCE__: string;
+
 const initialValues: FormInput = { title: "", items: [{ name: "", quantity: "1" }] };
 
 function App() {
@@ -14,11 +16,13 @@ function App() {
   >({ resolver: standardSchemaResolver(formSchema), defaultValues: initialValues });
   const { fields, append, remove, move } = useFieldArray({ control, name: "items" });
   const arrayError = errors.items?.root?.message ?? errors.items?.message;
+  const windowError = errors.shipping?.windows?.[0]?.root?.message ?? errors.shipping?.windows?.[0]?.message;
 
   return <main>
     <span className="eyebrow">LOCULUS × REACT HOOK FORM</span>
     <h1>Order form with line items</h1>
     <p>Add and remove rows to explore nested errors and type conversion on submission.</p>
+    <p className="hint">Validation uses Loculus with the Standard Schema resolver. <a href="#validation-schema">View the active schema</a>.</p>
     <form noValidate onSubmit={handleSubmit(data => setSubmitted(data), () => setSubmitted(null))}>
       <label htmlFor="title">Order title</label>
       <input id="title" {...register("title")} aria-invalid={!!errors.title}
@@ -32,6 +36,7 @@ function App() {
       }} />Specify delivery details</label>
       {shippingEnabled && <fieldset>
         <legend>Delivery address and time window</legend>
+        <p className="hint" id="shipping-window-hint">Same-day delivery only. Use whole hours from 0 to 23; the end must be later than the start.</p>
         <label htmlFor="shipping-zip">Postal code</label>
         <input id="shipping-zip" {...register("shipping.zip")} aria-invalid={!!errors.shipping?.zip}
           aria-describedby={errors.shipping?.zip ? "shipping-zip-error" : undefined} />
@@ -39,12 +44,14 @@ function App() {
         <div className="row">{[0, 1].map(index => <div key={index}>
           <label htmlFor={`shipping-hour-${index}`}>{index === 0 ? "Start time" : "End time"}</label>
           <input id={`shipping-hour-${index}`} type="number" {...register(`shipping.windows.0.${index}` as const)}
-            aria-invalid={!!errors.shipping?.windows?.[0]?.[index]}
-            aria-describedby={errors.shipping?.windows?.[0]?.[index] ? `shipping-hour-${index}-error` : undefined} />
+            min="0" max="23" step="1"
+            aria-invalid={!!errors.shipping?.windows?.[0]?.[index] || !!windowError}
+            aria-describedby={`shipping-window-hint${errors.shipping?.windows?.[0]?.[index] ? ` shipping-hour-${index}-error` : ""}${windowError ? " shipping-window-error" : ""}`} />
           {errors.shipping?.windows?.[0]?.[index] && <p id={`shipping-hour-${index}-error`} role="alert">
             {errors.shipping.windows[0]?.[index]?.message}
           </p>}
         </div>)}</div>
+        {windowError && <p id="shipping-window-error" role="alert">{windowError}</p>}
       </fieldset>}
       <div className="section-title"><h2>Item</h2><span>{fields.length} / 3 rows</span></div>
       <p className="hint">Use 1–3 rows. Each item needs a name and an integer quantity from 1 to 99.</p>
@@ -96,27 +103,11 @@ function App() {
       {submitted ? <pre data-testid="submitted">{JSON.stringify(submitted, null, 2)}</pre>
         : <p>No valid data submitted yet.</p>}
     </section>
-    <details>
-      <summary>Schema</summary>
-      <pre>{`const item = l.object({
-  name: l.string({ trim: true, min: 1 }),
-  quantity: l.number({ integer: true, gte: 1, lte: 99 }),
-});
-
-const form = l.object({
-  title: l.string({ trim: true, min: 1 }),
-  items: l.array(item, { min: 1, max: 3 }),
-  shipping: l.object({
-    zip: l.string({ trim: true, min: 3 }),
-    windows: l.array(l.array(l.number({ integer: true, gte: 0, lte: 23 }), {
-      min: 2, max: 2,
-    }), { min: 1, max: 1 }),
-  }, { optional: true }),
-});
-
-useForm({ resolver: standardSchemaResolver(form) });
-useFieldArray({ control, name: "items" });`}</pre>
-    </details>
+    <section id="validation-schema" aria-labelledby="schema-heading">
+      <h2 id="schema-heading">Validation schema</h2>
+      <p className="hint">The source below is included directly from <code>examples/react-hook-form/schema.ts</code> at build time. This form uses <code>standardSchemaResolver(formSchema)</code>.</p>
+      <pre data-testid="schema-source"><code>{__FORM_SCHEMA_SOURCE__}</code></pre>
+    </section>
   </main>;
 }
 

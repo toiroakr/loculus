@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 async function submitted(page: Page) {
   await expect(page.getByTestId("submitted")).toBeVisible();
@@ -134,4 +135,57 @@ test("moving a row keeps its data and error attached to the new index", async ({
     { name: "Mandarin orange", quantity: 3 }, { name: "Apple", quantity: 2 },
   ] });
   await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
+test("delivery windows reject equal and reversed hours, then recover when either endpoint changes", async ({ page }) => {
+  await page.getByLabel("Order title").fill("Delivery");
+  await page.getByLabel("Item name 1", { exact: true }).fill("Apple");
+  await page.getByLabel("Specify delivery details").check();
+  await page.getByLabel("Postal code").fill("10001");
+  for (const [start, end] of [["17", "9"], ["9", "9"]]) {
+    await page.getByLabel("Start time").fill(start!);
+    await page.getByLabel("End time").fill(end!);
+    await page.getByRole("button", { name: "Submit and validate" }).click();
+    await expect(page.getByRole("alert")).toHaveText("End time must be later than start time.");
+    await expect(page.getByTestId("submitted")).toHaveCount(0);
+  }
+  await page.getByLabel("End time").fill("17");
+  await page.getByRole("button", { name: "Submit and validate" }).click();
+  expect((await submitted(page)).shipping.windows).toEqual([[9, 17]]);
+  await page.getByLabel("Start time").fill("18");
+  await page.getByRole("button", { name: "Submit and validate" }).click();
+  await expect(page.getByRole("alert")).toHaveText("End time must be later than start time.");
+  await expect(page.getByTestId("submitted")).toHaveCount(0);
+  await page.getByLabel("Start time").fill("0");
+  await page.getByLabel("End time").fill("23");
+  await page.getByRole("button", { name: "Submit and validate" }).click();
+  expect((await submitted(page)).shipping.windows).toEqual([[0, 23]]);
+  await expect(page.getByRole("alert")).toHaveCount(0);
+});
+
+test("delivery hours reject empty, fractional and out-of-range inputs before comparing endpoints", async ({ page }) => {
+  await page.getByLabel("Order title").fill("Delivery");
+  await page.getByLabel("Item name 1", { exact: true }).fill("Apple");
+  await page.getByLabel("Specify delivery details").check();
+  await page.getByLabel("Postal code").fill("10001");
+  for (const label of ["Start time", "End time"]) {
+    for (const value of ["", "-1", "1.5", "24"]) {
+      await page.getByLabel(label).fill(value);
+      await page.getByRole("button", { name: "Submit and validate" }).click();
+      await expect(page.getByLabel(label)).toHaveAttribute("aria-invalid", "true");
+      await expect(page.getByTestId("submitted")).toHaveCount(0);
+      await expect(page.getByRole("alert")).toHaveCount(1);
+    }
+    await page.getByLabel(label).fill(label === "Start time" ? "9" : "17");
+  }
+  await page.getByRole("button", { name: "Submit and validate" }).click();
+  expect((await submitted(page)).shipping.windows).toEqual([[9, 17]]);
+});
+
+test("the visible schema is the source used by the form", async ({ page }) => {
+  await page.getByRole("link", { name: "View the active schema" }).click();
+  const source = await readFile(new URL("./schema.ts", import.meta.url), "utf8");
+  await expect(page.getByTestId("schema-source")).toBeVisible();
+  expect(await page.getByTestId("schema-source").textContent()).toBe(source);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });

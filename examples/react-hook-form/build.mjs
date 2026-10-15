@@ -5,9 +5,13 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 const dir = fileURLToPath(new URL('.', import.meta.url));
 let generatedFields = false;
+const schemaSource = await readFile(dir + 'schema.ts', 'utf8');
 const bundle = await rolldown({
   input: dir + 'App.tsx', platform: 'browser',
-  transform: { target: 'es2022', jsx: { runtime: 'automatic' }, define: { 'process.env.NODE_ENV': '"production"' } },
+  transform: { target: 'es2022', jsx: { runtime: 'automatic' }, define: {
+    'process.env.NODE_ENV': '"production"',
+    '__FORM_SCHEMA_SOURCE__': JSON.stringify(schemaSource),
+  } },
   plugins: [
     loculusPlugin({ modules: ['../../dist/index.js'], include: id => id === dir + 'schema.ts' }),
     { name: 'verify-schema-codegen', transform(code, id) {
