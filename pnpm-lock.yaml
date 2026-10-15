@@ -69,7 +69,7 @@ importers:
   packages/rolldown:
     dependencies:
       loculus:
-        specifier: ^0.2.1
+        specifier: ^0.2.3
         version: link:../..
       rolldown:
         specifier: '>=1.2.13 <2'

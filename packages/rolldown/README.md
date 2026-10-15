@@ -5,7 +5,7 @@ The `loculus` runtime has no dependency on this package or Rolldown.
 
 ## Installation
 
-Requires Node 24 or newer, Rolldown `>=1.2.13 <2`, and Loculus `^0.2.1`.
+Requires Node 24 or newer, Rolldown `>=1.2.13 <2`, and Loculus `^0.2.3`.
 The plugin and runtime have independent patch versions; use compatible versions
 from the same Loculus minor release.
 
@@ -77,6 +77,7 @@ The plugin recognizes direct named imports, aliases and namespace imports from
 | `string` | Literal `min`, `max`, `trim`, descriptions, presence flags and primitive defaults/default targets. |
 | `number` | Literal `gt`, `gte`, `lt`, `lte`, `integer`, descriptions, presence flags and primitive defaults/default targets. |
 | `boolean` | Literal descriptions, presence flags and primitive defaults/default targets. |
+| `literal` | Static string, numeric and boolean choices, including non-empty mixed tuples, with descriptions and presence/default options. All-string tuples with more than eight choices retain ordinary adaptive lookup. |
 | `array` | Direct static scalar children, with literal `min`, `max`, `wrapScalar` and `description` options. |
 | `object` | Static shapes with recognized factory calls, literal `unknownKeys` and `description` options. |
 
@@ -84,7 +85,7 @@ Arrays require array inputs by default. Set `wrapScalar: true` to accept a singl
 value as a one-element array. Array element errors are collected before length
 constraints, which run only after successful element validation.
 
-Generated objects can capture ordinary `enum`, `literal`, `date`, `transform` and
+Generated objects can capture ordinary `enum`, dynamic `literal`, `date`, `transform` and
 `refine` fields. Those fields keep their runtime validators. Object validation
 defaults to `unknownKeys: 'strict'`; `strip` and `passthrough` are also supported.
 
@@ -93,6 +94,15 @@ spreads and directly nested object fields retain ordinary validation where the
 plugin cannot specialize them. Array outer presence/default options and dynamic
 or object children also retain ordinary array construction. Eligible children
 can still be specialized inside an ordinary container.
+
+Literal specialization includes the numeric and boolean literals added in Loculus 0.2.2
+and the multiple-value tuples added in 0.2.3. Static choices and presence/default options
+generate shared validators; object fields inline their comparisons, and literal array
+elements use generated validators. Mixed choices preserve declaration order and scalar
+conversion rules, including typed discriminator metadata. Dynamic choices, spreads,
+side effects and unsupported values retain ordinary literal construction.
+String-only tuples with more than eight choices also retain ordinary construction
+so repeated validation can use the runtime's adaptive `Set` lookup.
 
 ## Plugin options
 
