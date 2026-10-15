@@ -756,7 +756,17 @@ export function discriminatedUnion<
         }
         lookup = map;
       }
-      const selected = lookup.get(value);
+      let selected = lookup.get(value);
+      if (!selected && typeof value === "string") {
+        for (const option of branches) {
+          let discriminator: AnySchema = option.shape[key]!;
+          while (discriminator.meta.inner) discriminator = discriminator.meta.inner;
+          if (!discriminator["~standard"].validate(value).issues) {
+            selected = option;
+            break;
+          }
+        }
+      }
       return selected
         ? selected["~standard"].validate(input)
         : { issues: [{ message: `Invalid discriminator: ${key}`, path: [key] }] };

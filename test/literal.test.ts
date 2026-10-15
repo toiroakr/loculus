@@ -106,7 +106,7 @@ test("multiple literals compose with arrays and discriminated object variants", 
   ]);
   for (const kind of ["a", "b"]) assert.deepEqual(l.parse(variants, { kind, value: "1" }), { kind, value: 1 });
   for (const kind of [2, true]) assert.deepEqual(l.parse(variants, { kind, value: "2" }), { kind, value: 2 });
-  assert.ok(l.safeParse(variants, { kind: "2", value: 2 }).issues);
+  assert.deepEqual(l.parse(variants, { kind: "2", value: 2 }), { kind: 2, value: 2 });
   const duplicate = l.discriminatedUnion("kind", [
     l.object({ kind: l.literal(["a", "b"]) }), l.object({ kind: l.literal(["b", "c"]) }),
   ]);
@@ -213,7 +213,7 @@ test("discriminated unions select typed boolean and numeric literals", () => {
   assert.deepEqual(l.parse(schema, { kind: false, count: 0 }), { kind: false, count: 0 });
   assert.deepEqual(l.parse(schema, { kind: 42, count: "1" }), { kind: 42, count: 1 });
   assert.deepEqual(l.parse(schema, { kind: "42", count: "2" }), { kind: "42", count: 2 });
-  assert.deepEqual(l.safeParse(schema, { kind: "true", count: 42 }).issues?.[0]?.path, ["kind"]);
+  assert.deepEqual(l.parse(schema, { kind: "true", count: 42 }), { kind: true, count: 42 });
   assert.deepEqual(l.safeParse(schema, { kind: true, count: 0 }).issues?.[0]?.path, ["count"]);
   const presence = l.discriminatedUnion("kind", [
     l.object({ kind: l.literal(true, { default: true }) }),
