@@ -187,5 +187,17 @@ test("the visible schema is the source used by the form", async ({ page }) => {
   const source = await readFile(new URL("./schema.ts", import.meta.url), "utf8");
   await expect(page.getByTestId("schema-source")).toBeVisible();
   expect(await page.getByTestId("schema-source").textContent()).toBe(source);
+  const keyword = page.getByTestId("schema-source").locator('.keyword').first();
+  const string = page.getByTestId("schema-source").locator('.string').first();
+  expect(await keyword.evaluate(el => getComputedStyle(el).color)).not.toBe(await string.evaluate(el => getComputedStyle(el).color));
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test("highlighted submission output preserves user text without creating HTML elements", async ({ page }) => {
+  await page.getByLabel("Order title").fill('<img src=x onerror="alert(1)"> & <script>');
+  await page.getByLabel("Item name 1", { exact: true }).fill("Apple");
+  await page.getByRole("button", { name: "Submit and validate" }).click();
+  expect((await submitted(page)).title).toBe('<img src=x onerror="alert(1)"> & <script>');
+  await expect(page.getByTestId("submitted").locator(".tok").first()).toBeVisible();
+  await expect(page.getByTestId("submitted").locator("img, script")).toHaveCount(0);
 });

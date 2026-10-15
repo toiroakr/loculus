@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { highlightBlock, syntaxCSS } from '../highlight.mjs';
 
 const read = file => JSON.parse(readFileSync(file, 'utf8'));
 const node = read('docs/generated/compatibility/node.json');
@@ -14,20 +15,20 @@ for (const [file, expected] of Object.entries(node.sourceHashes)) {
   assert.equal(createHash('sha256').update(readFileSync(file)).digest('hex'), expected);
 }
 const escape = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
-const code = value => `<pre><code>${escape(value)}</code></pre>`;
+const code = highlightBlock;
 const observations = rows => JSON.stringify(rows.map(({ index, jitless, input, results, matches }) => ({ index, jitless, input, results, matches })), null, 2);
 const profiles = [...new Set(node.results.map(row => row.profile))].map(id => {
   const rows = node.results.filter(row => row.profile === id);
   return `<details><summary>${escape(id)} · ${rows.length} comparisons per runtime</summary>
 <div class="codes">${['Loculus', 'Zod', 'Valibot'].map((name, index) => `<section><h3>${name}</h3>${code(rows[0].code[index])}</section>`).join('')}</div>
-<details><summary>Node inputs, outputs, and issue paths</summary>${code(observations(rows))}</details>
-<details><summary>Bun inputs, outputs, and issue paths</summary>${code(observations(bun.results.filter(row => row.profile === id)))}</details></details>`;
+<details><summary>Node inputs, outputs, and issue paths</summary>${code(observations(rows), 'json')}</details>
+<details><summary>Bun inputs, outputs, and issue paths</summary>${code(observations(bun.results.filter(row => row.profile === id)), 'json')}</details></details>`;
 }).join('\n');
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Loculus compatibility</title><link rel="icon" href="assets/mark.svg"><style>
 :root{font-family:system-ui,sans-serif;color:#1d302a;background:#f6f5ef;line-height:1.75}*{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:32px 20px 80px}h1{font-size:clamp(28px,5vw,42px);line-height:1.3}h2{margin-top:36px}a{color:#235e46}details,.summary{background:white;border:1px solid #dbdfd5;border-radius:10px;padding:16px;margin:14px 0;min-width:0}summary{cursor:pointer;font-weight:650;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.7 ui-monospace,monospace;background:#edf1e8;padding:14px;border-radius:6px}.codes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.codes section{min-width:0}small{color:#65746d}@media(max-width:700px){.codes{grid-template-columns:1fr}main{padding:20px 14px 60px}}
-</style></head><body><main>
+${syntaxCSS}</style></head><body><main>
 <a href="./">← Loculus documentation</a><h1>Compatibility with Zod and Valibot</h1>
 <p>Generated from the current runtime and shared API fixtures. Zod ${escape(node.versions.zod)} / Valibot ${escape(node.versions.valibot)}.</p>
 <div class="summary"><strong>${node.profiles} profiles · ${node.cells} comparisons per runtime · no unmatched acceptance/output cases</strong>
@@ -37,9 +38,9 @@ const html = `<!doctype html>
 <p>Issue paths are recorded, but error wording, codes, and union error structures are specific to each library. The audit does not establish equivalence for every possible input or unsupported schema mutation, and it makes no performance claim.</p>
 <p>Native comparisons and generated-mode regressions are also covered by <code>test/compatibility.test.ts</code> and <code>test/rolldown.test.ts</code>. The working form has its own desktop and mobile browser tests.</p>
 <h2>Schemas and observed results</h2>${profiles}
-<h2>Reproduce</h2>${code('pnpm test\npnpm typecheck\npnpm test:rhf\npnpm docs:build')}
+<h2>Reproduce</h2>${code('pnpm test\npnpm typecheck\npnpm test:rhf\npnpm docs:build', 'bash')}
 <p>Raw audit results are generated locally under <code>docs/generated/compatibility/</code>. The build rejects incomplete or stale evidence.</p>
-<details><summary>Source hashes</summary>${code(JSON.stringify(node.sourceHashes, null, 2))}</details>
+<details><summary>Source hashes</summary>${code(JSON.stringify(node.sourceHashes, null, 2), 'json')}</details>
 <p><a href="https://github.com/toiroakr/loculus">Source repository</a> · <a href="https://standardschema.dev/">Standard Schema</a></p>
 </main></body></html>`;
 mkdirSync('docs/site', { recursive: true });

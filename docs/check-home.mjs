@@ -19,9 +19,17 @@ try {
     const schema = page.locator('#playground-schema');
     assert.equal(await schema.isVisible(), true);
     const hero = await page.locator('#hero-code').textContent();
+    const keyword = page.locator('#hero-code .keyword').first();
+    const string = page.locator('#hero-code .string').first();
+    assert.notEqual(await keyword.evaluate(el => getComputedStyle(el).color), await string.evaluate(el => getComputedStyle(el).color));
     assert.equal((await schema.textContent()).replace(/\s/g, ''), hero.slice(0, hero.indexOf('\n\nconst params')).replace(/\s/g, ''));
     const result = async () => JSON.parse(await page.locator('#result-output').textContent());
     assert.deepEqual(await result(), { q: 'loculus', page: 2, draft: false, tag: ['docs', 'code'] });
+    assert.ok(await page.locator('#result-output .tok').count());
+    const unsafe = '<img src=x onerror="alert(1)"> & <script>';
+    await page.locator('#query-input').fill(new URLSearchParams({ q: unsafe }).toString());
+    assert.equal((await result()).q, unsafe);
+    assert.equal(await page.locator('#result-output img, #result-output script, #raw-output img, #raw-output script').count(), 0);
     await page.getByRole('button', { name: 'Defaults', exact: true }).click();
     assert.deepEqual(await result(), { q: 'loculus', page: 1, draft: false });
     for (const [label, path] of [['Empty number', ['page']], ['Unknown key', ['paeg']], ['Repeated number', ['page']]]) {
@@ -53,6 +61,9 @@ try {
     const profile = page.locator('main > details').first();
     await profile.locator('summary').first().click();
     assert.equal(await profile.locator('.codes').isVisible(), true);
+    assert.ok(await profile.locator('.codes .function').count());
+    await profile.getByText('Node inputs, outputs, and issue paths', { exact: true }).click();
+    assert.ok(await profile.locator('details .string').count());
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false);
     await page.goto(url);
     await page.waitForFunction(() => document.getElementById('result-status').textContent === 'VALID');

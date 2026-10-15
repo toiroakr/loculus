@@ -8,7 +8,8 @@
 <title>Loculus | Schemas for string inputs</title>
 <link rel="icon" type="image/svg+xml" href="assets/mark.svg">
 <link rel="stylesheet" href="assets/style.css">
-<script type="module" src="assets/app.js"></script>
+<link rel="stylesheet" href="assets/syntax.css">
+<script type="module" src="assets/playground.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -24,21 +25,21 @@
 <div class="actions"><a class="button primary" href="#playground">Try it in your browser <span aria-hidden="true">↓</span></a><a class="text-link" href="#limits">Find your use case <span aria-hidden="true">↗</span></a></div>
 <p class="hero-note">ESM / TypeScript · No runtime dependencies · Standard Schema v1</p></div>
 <div class="hero-code code-panel"><div class="code-title"><span class="dot"></span><span>query.ts</span><button class="copy" data-copy="hero-code">Copy</button></div>
-<pre><code id="hero-code"><span class="kw">import</span> * <span class="kw">as</span> l <span class="kw">from</span> <span class="str">'loculus'</span>;
+<pre><code id="hero-code">import * as l from 'loculus';
 
-<span class="kw">const</span> query = l.<span class="fn">object</span>({
-  q: l.<span class="fn">string</span>({ trim: <span class="lit">true</span>, min: <span class="lit">1</span> }),
-  page: l.<span class="fn">number</span>({
-    integer: <span class="lit">true</span>, gte: <span class="lit">1</span>, default: <span class="lit">1</span>,
+const query = l.object({
+  q: l.string({ trim: true, min: 1 }),
+  page: l.number({
+    integer: true, gte: 1, default: 1,
   }),
-  draft: l.<span class="fn">boolean</span>({ default: <span class="lit">false</span> }),
-  tag: l.<span class="fn">array</span>(l.<span class="fn">enum</span>([<span class="str">'docs'</span>, <span class="str">'code'</span>]), {
-    wrapScalar: <span class="lit">true</span>, optional: <span class="lit">true</span>,
+  draft: l.boolean({ default: false }),
+  tag: l.array(l.enum(['docs', 'code']), {
+    wrapScalar: true, optional: true,
   }),
 });
 
-<span class="kw">const</span> params = <span class="kw">new</span> URLSearchParams(location.search);
-<span class="kw">const</span> value = l.<span class="fn">parse</span>(query, l.<span class="fn">fromEntries</span>(params));</code></pre>
+const params = new URLSearchParams(location.search);
+const value = l.parse(query, l.fromEntries(params));</code></pre>
 <div class="code-footer"><span>Strings in.</span><span>Typed values out.</span></div></div>
 </section>
 <div class="boundary wrap" aria-label="From input to output"><span>CLI <i>/</i> QUERY <i>/</i> FORM</span><div class="boundary-line"></div><span class="boundary-center">VALIDATE + CONVERT</span><div class="boundary-line"></div><span>APPLICATION VALUES</span></div>
@@ -46,16 +47,16 @@
 <div class="section-heading"><div><p class="eyebrow">01 / TRY IT</p><h2>What will your input become?</h2></div><p>This runs the schema shown below.<br>Edit the input to explore conversions and errors.</p></div>
 <div class="playground">
 <div class="schema-side"><div class="pane-label"><span>Schema</span><button class="copy" data-copy="playground-schema">Copy</button></div>
-<pre><code id="playground-schema"><span class="kw">import</span> * <span class="kw">as</span> l <span class="kw">from</span> <span class="str">'loculus'</span>;
+<pre><code id="playground-schema">import * as l from 'loculus';
 
-<span class="kw">const</span> query = l.<span class="fn">object</span>({
-  q: l.<span class="fn">string</span>({ trim: <span class="lit">true</span>, min: <span class="lit">1</span> }),
-  page: l.<span class="fn">number</span>({
-    integer: <span class="lit">true</span>, gte: <span class="lit">1</span>, default: <span class="lit">1</span>,
+const query = l.object({
+  q: l.string({ trim: true, min: 1 }),
+  page: l.number({
+    integer: true, gte: 1, default: 1,
   }),
-  draft: l.<span class="fn">boolean</span>({ default: <span class="lit">false</span> }),
-  tag: l.<span class="fn">array</span>(l.<span class="fn">enum</span>([<span class="str">'docs'</span>, <span class="str">'code'</span>]), {
-    wrapScalar: <span class="lit">true</span>, optional: <span class="lit">true</span>,
+  draft: l.boolean({ default: false }),
+  tag: l.array(l.enum(['docs', 'code']), {
+    wrapScalar: true, optional: true,
   }),
 });</code></pre>
 <p class="schema-note">The same schema handles every example. Objects are strict by default.</p></div>
@@ -63,8 +64,8 @@
 <textarea id="query-input" rows="4" spellcheck="false">q=loculus&amp;page=2&amp;draft=false&amp;tag=docs&amp;tag=code</textarea>
 <div class="samples" role="group" aria-label="Sample inputs"><button data-sample="valid" aria-pressed="true">Valid</button><button data-sample="defaults" aria-pressed="false">Defaults</button><button data-sample="empty" aria-pressed="false">Empty number</button><button data-sample="extra" aria-pressed="false">Unknown key</button><button data-sample="repeated" aria-pressed="false">Repeated number</button></div>
 <p id="sample-note" class="input-note">page becomes a number, draft becomes a boolean, and repeated tag values become an array.</p>
-<details class="raw-input"><summary>View the input object</summary><pre id="raw-output"></pre></details></div>
-<div class="output-side"><div class="pane-label"><span>Validation result</span><span id="result-status" class="status" aria-live="polite">Loading</span></div><pre id="result-output" aria-live="polite" aria-atomic="true"></pre><div id="output-note" class="output-note">Validated by the Loculus JavaScript runtime.</div></div>
+<details class="raw-input"><summary>View the input object</summary><pre id="raw-output" class="twinkleplop"></pre></details></div>
+<div class="output-side"><div class="pane-label"><span>Validation result</span><span id="result-status" class="status" aria-live="polite">Loading</span></div><pre class="twinkleplop" id="result-output" aria-live="polite" aria-atomic="true"></pre><div id="output-note" class="output-note">Validated by the Loculus JavaScript runtime.</div></div>
 </div>
 <noscript><p>JavaScript is required to run the examples. The documentation and API reference remain available.</p></noscript>
 </section>

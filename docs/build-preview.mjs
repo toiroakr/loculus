@@ -24,9 +24,11 @@ try {
   javascript = generated.output[0].code.replaceAll('</script', '<\\/script');
 } finally { await bundle.close(); }
 const css = (await readFile(new URL('assets/style.css', site), 'utf8')).replaceAll('</style', '<\\/style');
+const syntaxCSS = (await readFile(new URL('assets/syntax.css', site), 'utf8')).replaceAll('</style', '<\\/style');
 let homepage = inlineIcon(await readFile(new URL('index.html', site), 'utf8'))
   .replace('<link rel="stylesheet" href="assets/style.css">', () => `<style>${css}</style>`)
-  .replace('<script type="module" src="assets/app.js"></script>', '')
+  .replace('<link rel="stylesheet" href="assets/syntax.css">', () => `<style>${syntaxCSS}</style>`)
+  .replace('<script type="module" src="assets/playground.js"></script>', '')
   .replace('</body>', () => `<script>${javascript}</script></body>`);
 for (const [file, url] of [
   ['compatibility.html', process.env.COMPATIBILITY_PREVIEW_URL],

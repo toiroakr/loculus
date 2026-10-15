@@ -2,6 +2,7 @@ import { rolldown } from 'rolldown';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { highlightPage, syntaxCSS } from './highlight.mjs';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = root + 'docs/site/';
 await mkdir(output + 'assets', { recursive: true });
@@ -9,9 +10,14 @@ const bundle = await rolldown({ input: root + 'dist/index.js', platform: 'browse
 try {
   await bundle.write({ dir: output + 'assets', entryFileNames: 'validator.js', format: 'esm', minify: true });
 } finally { await bundle.close(); }
+const playground = await rolldown({ input: output + 'assets/app.js', platform: 'browser' });
+try {
+  await playground.write({ dir: output + 'assets', entryFileNames: 'playground.js', format: 'esm', minify: true });
+} finally { await playground.close(); }
+await writeFile(output + 'assets/syntax.css', syntaxCSS);
 await writeFile(output + 'rhf.html', (await readFile(root + 'examples/react-hook-form/generated/index.html', 'utf8')).replace('</head>', '<link rel="icon" href="assets/mark.svg"></head>'));
 const pkg = JSON.parse(await readFile(root + 'package.json', 'utf8'));
-const homepage = await readFile(output + 'index.html', 'utf8');
+const homepage = await readFile(root + 'docs/home.html', 'utf8');
 const files = ['src/index.ts', 'packages/rolldown/src/index.ts', 'dist/index.js'];
 const sourceHashes = {};
 for (const file of files) sourceHashes[file] = createHash('sha256').update(await readFile(root + file)).digest('hex');
@@ -20,7 +26,7 @@ const audit = JSON.parse(await readFile(root + 'docs/generated/compatibility/nod
 for (const file of files) if (sourceHashes[file] !== audit.sourceHashes[file]) throw new Error('Compatibility evidence is stale: ' + file);
 if (!audit.completed || !bunAudit.completed || audit.unmatched.length || bunAudit.unmatched.length || audit.profiles !== bunAudit.profiles || audit.cells !== bunAudit.cells) throw new Error('Incomplete compatibility evidence');
 for (const file of files) if (sourceHashes[file] !== bunAudit.sourceHashes[file]) throw new Error('Bun compatibility evidence is stale: ' + file);
-await writeFile(output + 'index.html', homepage
+await writeFile(output + 'index.html', highlightPage(homepage)
   .replace(/(data-package-version>)[^<]*/g, (_match, prefix) => prefix + pkg.version)
   .replace(/(data-node-range>)[^<]*/g, (_match, prefix) => prefix + pkg.engines.node.replaceAll('>', '&gt;').replaceAll('<', '&lt;'))
   .replace(/(data-compat-profiles>)\d+/g, (_match, prefix) => prefix + audit.profiles)

@@ -1,6 +1,6 @@
 # Documentation homepage
 
-`site/index.html` is the English documentation homepage. Its query playground
+`home.html` is the source for the English documentation homepage. The build generates `site/index.html`. Its query playground
 runs the current JavaScript runtime, without build-time schema specialization.
 The page links to the compatibility comparison and the working React Hook Form
 example. Compatibility evidence is regenerated from the current implementation.
@@ -61,3 +61,9 @@ Build standalone previews locally after `pnpm docs:build`:
 pnpm docs:preview
 python3 -m http.server 4194 --bind 127.0.0.1 --directory docs/generated/pr-preview
 ```
+
+Code blocks use Twinkleplop for TypeScript, JSON, and shell syntax highlighting.
+Static examples are highlighted during the build; interactive JSON output is
+highlighted in the browser. The build bundles the browser modules and writes
+`site/assets/syntax.css` using the GitHub theme. PR previews inline the theme and
+bundles, so they do not require a CDN.

@@ -1,4 +1,5 @@
 import { object, string, number, boolean, array, enum_, safeParse, fromEntries } from './validator.js';
+import { highlightJson } from './highlight.js';
 
 const query = object({
   q: string({ trim: true, min: 1 }),
@@ -20,12 +21,12 @@ const note = document.querySelector('#sample-note');
 const buttons = [...document.querySelectorAll('[data-sample]')];
 function update() {
   const value = fromEntries(new URLSearchParams(input.value.replace(/^\?/, '')));
-  document.querySelector('#raw-output').textContent = JSON.stringify(value, null, 2);
+  document.querySelector('#raw-output').innerHTML = highlightJson(JSON.stringify(value, null, 2));
   const result = safeParse(query, value);
   const failed = !!result.issues;
   status.textContent = failed ? 'ERROR' : 'VALID';
   status.classList.toggle('error', failed);
-  output.textContent = JSON.stringify(failed ? { issues: result.issues } : result.value, null, 2);
+  output.innerHTML = highlightJson(JSON.stringify(failed ? { issues: result.issues } : result.value, null, 2));
   document.querySelector('#output-note').textContent = failed
     ? 'Returns the field path and reason, preserving input.'
     : 'Uses the ordinary Loculus runtime. Output numbers and booleans are no longer strings.';

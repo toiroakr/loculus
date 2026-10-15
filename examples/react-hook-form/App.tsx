@@ -3,8 +3,9 @@ import { createRoot } from "react-dom/client";
 import { useFieldArray, useForm } from "react-hook-form";
 import { standardSchemaResolver } from "@hookform/resolvers/standard-schema";
 import { formSchema, type FormInput, type FormOutput } from "./schema.js";
+import { highlightJson } from "../../docs/site/assets/highlight.js";
 
-declare const __FORM_SCHEMA_SOURCE__: string;
+declare const __FORM_SCHEMA_HTML__: string;
 
 const initialValues: FormInput = { title: "", items: [{ name: "", quantity: "1" }] };
 
@@ -100,13 +101,13 @@ function App() {
     <section className="output" aria-live="polite">
       <h2>Validated data</h2>
       <p className="hint">Quantities are strings while editing. Loculus converts them to numbers on submission.</p>
-      {submitted ? <pre data-testid="submitted">{JSON.stringify(submitted, null, 2)}</pre>
+      {submitted ? <pre data-testid="submitted" className="twinkleplop"><code dangerouslySetInnerHTML={{ __html: highlightJson(JSON.stringify(submitted, null, 2)) }} /></pre>
         : <p>No valid data submitted yet.</p>}
     </section>
     <section id="validation-schema" aria-labelledby="schema-heading">
       <h2 id="schema-heading">Validation schema</h2>
       <p className="hint">The source below is included directly from <code>examples/react-hook-form/schema.ts</code> at build time. This form uses <code>standardSchemaResolver(formSchema)</code>.</p>
-      <pre data-testid="schema-source"><code>{__FORM_SCHEMA_SOURCE__}</code></pre>
+      <pre data-testid="schema-source" className="twinkleplop"><code dangerouslySetInnerHTML={{ __html: __FORM_SCHEMA_HTML__ }} /></pre>
     </section>
   </main>;
 }

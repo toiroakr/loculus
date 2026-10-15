@@ -10,4 +10,7 @@ docs/site/compatibility.html
 docs/site/rhf.html
 docs/site/evidence.json
 docs/site/assets/validator.js
+docs/site/assets/playground.js
+docs/site/assets/syntax.css
 __pycache__/
+docs/site/index.html
