@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4
+
+### Patch Changes
+
+- e70f6fb: Accept numeric and boolean string inputs when selecting discriminated union branches. Preserve exact typed matches, resolve conversion ties in branch declaration order, and retain validation and callbacks in wrapped composites.
+
 ## 0.2.3
 
 ### Patch Changes
