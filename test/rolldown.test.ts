@@ -786,6 +786,30 @@ test('discriminator scalar conversions survive every object optimization strateg
   }
 });
 
+
+test('generated string bounds follow live defaults and explicit counters in containers', async () => {
+  const source = `import * as l from 'loculus';
+    export const configure=l.configure;
+    export const schema=l.object({text:l.string({trim:true,min:1,max:1}),rows:l.array(l.string({max:1})),explicit:l.string({length:s=>s.length,max:1})});
+    export const scalar=l.string({min:1,max:1});
+    export const custom=l.string({length:s=>[...s].length,max:1});`;
+  for (const objects of ['auto', 'unroll', 'loop', 'chunked', false] as const) {
+    const before = await bundle(source, false);
+    const after = await bundle(source, true, 'ts', '/loculus-test', {objects});
+    for (const length of [undefined, (s: string) => [...s].length, (s: string) => new TextEncoder().encode(s).length]) {
+      for (const module of [before, after]) module.exports.configure({stringLength:length});
+      for (const input of [
+        {text:' 😀 ',rows:['😀'],explicit:'a'}, {text:'あ',rows:['a'],explicit:'😀'},
+        {text:'',rows:[]}, {text:'a',rows:[1],explicit:'a'}, null,
+      ]) assert.deepEqual(after.exports.schema['~standard'].validate(input), before.exports.schema['~standard'].validate(input));
+      for (const value of ['😀', 'あ', '', 'ab', null, undefined]) {
+        assert.deepEqual(after.exports.scalar['~standard'].validate(value), before.exports.scalar['~standard'].validate(value));
+        assert.deepEqual(after.exports.custom['~standard'].validate(value), before.exports.custom['~standard'].validate(value));
+      }
+    }
+  }
+});
+
 test('custom errors preserve messages and callbacks in generated parents and runtime fallbacks', async () => {
   const source = `import * as l from 'loculus';
     export const seen=[];
@@ -1014,5 +1038,28 @@ test('generated containers preserve changing inherited issue accessors with glob
     generated.exports.setup();
     assert.equal(generated.exports.object['~standard'].validate(null).issues[0].message,'Translated');
     assert.equal(generated.exports.calls,1);
+  }
+});
+
+test('generated strings keep length settings isolated between configured runtime modules', async () => {
+  const runtime = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
+  const source = `import * as a from 'loculus-a';import * as b from 'loculus-b';
+    export const first=a.object({text:a.string({max:1})});
+    export const second=b.object({text:b.string({max:1})});
+    export const mixed=a.object({first:a.string({max:1}),second:b.string({max:1})});
+    export const setup=(left,right)=>{a.config({stringLength:left,customError:()=>"First"});b.config({stringLength:right,customError:()=>"Second"});};`;
+  const files = { 'loculus-a': runtime, 'loculus-b': runtime };
+  const ordinary = await bundle(source, false, 'ts', '/loculus-test', {}, files);
+  const generated = await bundle(source, true, 'ts', '/loculus-test', { modules: ['loculus-a', 'loculus-b'] }, files);
+  for (const [left, right] of [[undefined, (value: string) => [...value].length], [(value: string) => [...value].length, undefined]]) {
+    ordinary.exports.setup(left, right);
+    generated.exports.setup(left, right);
+    for (const key of ['first', 'second']) {
+      for (const text of ['a', '😀', 'ab'])
+        assert.deepEqual(generated.exports[key]['~standard'].validate({text}), ordinary.exports[key]['~standard'].validate({text}));
+    }
+    const input = {first:'😀', second:'😀'};
+    assert.deepEqual(generated.exports.mixed['~standard'].validate(input), ordinary.exports.mixed['~standard'].validate(input));
+    assert.deepEqual(generated.exports.mixed['~standard'].validate(input).issues.map((issue: l.Issue) => issue.message), [left ? 'Second' : 'First']);
   }
 });

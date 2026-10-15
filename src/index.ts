@@ -17,12 +17,19 @@ export type ErrorCustomization = string | ((issue: ErrorContext) => string | { r
 export interface ErrorOptions {
   readonly error?: ErrorCustomization;
 }
+export type StringLength = (value: string) => number;
 export interface Config {
+  readonly stringLength?: StringLength | undefined;
   readonly customError?: ErrorCustomization | undefined;
 }
 let configuration: Config = {};
 export function config(options?: Config): Readonly<Config> {
-  if (options !== undefined) configuration = { ...configuration, ...options };
+  if (options !== undefined) {
+    const next = { ...configuration, ...options };
+    if (next.stringLength !== undefined && typeof next.stringLength !== "function")
+      throw new TypeError("Expected stringLength to be a function");
+    configuration = next;
+  }
   return configuration;
 }
 export type Result<T> = { value: T; issues?: undefined } | { issues: readonly Issue[] };
@@ -274,7 +281,19 @@ function configuredField<I, O>(
   return customize ? errorField(meta, validate) : field(meta, validate);
 }
 
+export function configure(options: Config): void {
+  config(options);
+}
+export function countString(value: string, length: StringLength | undefined = configuration.stringLength): number {
+  if (!length) return value.length;
+  const count = length(value);
+  if (!Number.isSafeInteger(count) || count < 0)
+    throw new RangeError("Expected string length to be a non-negative safe integer");
+  return count;
+}
+
 export interface StringOptions extends ErrorOptions {
+  readonly length?: StringLength;
   readonly min?: number;
   readonly max?: number;
   readonly pattern?: RegExp;
@@ -348,9 +367,11 @@ export function string(
       const error = mode === rawMode ? false : options.error;
       if (typeof value !== "string") return typeFail("string", value, "Expected a string", error);
       const output = options.trim ? value.trim() : value;
-      if (options.min !== undefined && output.length < options.min)
+      const length = options.min !== undefined || options.max !== undefined
+        ? countString(output, options.length) : 0;
+      if (options.min !== undefined && length < options.min)
         return fieldFail(`Expected at least ${options.min} characters`, value, error, "too_small", { origin: "string", min: options.min, inclusive: true });
-      if (options.max !== undefined && output.length > options.max)
+      if (options.max !== undefined && length > options.max)
         return fieldFail(`Expected at most ${options.max} characters`, value, error, "too_big", { origin: "string", max: options.max, inclusive: true });
       if (options.pattern) {
         const pattern = options.pattern;

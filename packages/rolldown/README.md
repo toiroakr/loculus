@@ -7,7 +7,7 @@ The `loculus` runtime has no dependency on this package or Rolldown.
 
 Requires Node.js 22.18.0 or newer, Rolldown `>=1.2.13 <2`, and Loculus `^0.3.0`.
 The plugin and runtime have independent patch versions; use compatible versions
-from the same Loculus minor release.
+from the same Loculus minor release that satisfy the published peer range.
 
 ```sh
 pnpm add loculus
@@ -177,3 +177,7 @@ schema API and the [React Hook Form example](https://github.com/toiroakr/loculus
 for a working application using this plugin. The
 [measurement protocol](https://github.com/toiroakr/loculus/blob/main/bench/ci/README.md)
 describes the performance comparisons and their limitations.
+
+String bounds honor the current application-wide `configure({ stringLength })`
+default at validation time. An explicit `string({ length: counter })` uses the
+ordinary runtime validator, including inside generated objects and arrays.
