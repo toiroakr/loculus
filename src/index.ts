@@ -113,7 +113,7 @@ function formatReceived(value: unknown): string {
   if (typeof value === "number" && Object.is(value, -0)) return "-0";
   if (typeof value === "function") return "[Function]";
   if (value === null || typeof value !== "object") return String(value);
-  try { return JSON.stringify(value) ?? "[Object]"; }
+  try { return Array.isArray(value) ? "[Array]" : "[Object]"; }
   catch { return "[Object]"; }
 }
 function typeIssue(expected: string, received: unknown, message: string): Issue {
@@ -827,7 +827,9 @@ export function discriminatedUnion<
         for (const option of branches) {
           let discriminator: AnySchema = option.shape[key]!;
           while (discriminator.meta.inner) discriminator = discriminator.meta.inner;
-          if (!(discriminator[rawValidate] ?? discriminator["~standard"].validate)(value).issues) {
+          const raw = discriminator[rawValidate];
+          const result = raw ? raw(value) : discriminator["~standard"].validate(value);
+          if (!result.issues) {
             selected = option;
             break;
           }

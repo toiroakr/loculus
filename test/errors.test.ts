@@ -280,7 +280,7 @@ test('received retains original values through custom messages and nested issues
   assert.deepEqual(issue.path, ['name']);
   assert.equal(seen[0]?.received, value);
   assert.equal(seen[0]?.input, value);
-  assert.equal(seen[0]?.message, 'Expected a string, received {"id":42}');
+  assert.equal(seen[0]?.message, 'Expected a string, received [Object]');
   assert.equal(l.safeParse(l.boolean(), 'bad').issues?.[0]?.expected, 'boolean');
   assert.equal(l.safeParse(l.array(l.string()), 'bad').issues?.[0]?.expected, 'array');
   assert.equal(l.safeParse(l.object({}), []).issues?.[0]?.expected, 'object');
@@ -293,7 +293,7 @@ test('received values are readable even when JSON cannot serialize them', () => 
   const cases = [
     [null, 'null'], [undefined, 'undefined'], [NaN, 'NaN'], [Infinity, 'Infinity'],
     [-Infinity, '-Infinity'], [-0, '-0'], [42n, '42n'], [Symbol('value'), 'Symbol(value)'],
-    [[1, 2], '[1,2]'], [circular, '[Object]'], [throwing, '[Object]'],
+    [[1, 2], '[Array]'], [circular, '[Object]'], [throwing, '[Object]'],
   ] as const;
   for (const [value, rendered] of cases) {
     const issue = l.safeParse(l.string(), value).issues![0]!;
@@ -302,4 +302,38 @@ test('received values are readable even when JSON cannot serialize them', () => 
   }
   const quote = l.safeParse(l.number(), '"\n').issues![0]!;
   assert.equal(quote.message, 'Expected a decimal number, received '+JSON.stringify('"\n'));
+});
+
+test('formatting rejected union branches never reads input accessors or serialization hooks', () => {
+  let reads = 0;
+  let serializations = 0;
+  const input = {
+    get count() { return ++reads === 1 ? '1' : 'bad'; },
+  };
+  Object.defineProperty(input,'toJSON',{value:()=>{serializations++;return {count:input.count};}});
+  const schema = l.union([l.string(), l.object({count:l.number()})]);
+  assert.deepEqual(l.safeParse(schema,input),{value:{count:1}});
+  assert.equal(reads,1);
+  assert.equal(serializations,0);
+  let getterReads = 0;
+  const withGetter = {get count(){getterReads++;return '1';}};
+  assert.deepEqual(l.safeParse(schema,withGetter),{value:{count:1}});
+  assert.equal(getterReads,1);
+});
+
+test('custom discriminator validators retain their receiver during converted selection', () => {
+  const standard = {
+    version: 1 as const,
+    vendor: 'loculus' as const,
+    validate(this: unknown, _input: unknown): l.Result<42> {
+      assert.equal(this,standard);
+      return {issues:[{message:'Not 42'}]};
+    },
+  };
+  const custom: l.Field<unknown,42,false> = {
+    field:true, _input:undefined, _output:42, _optional:false,
+    meta:{kind:'number',literalValues:[42]}, '~standard':standard,
+  };
+  const schema = l.discriminatedUnion('kind',[l.object({kind:custom}),l.object({kind:l.literal(true)})]);
+  assert.deepEqual(l.safeParse(schema,{kind:'true'}),{value:{kind:true}});
 });

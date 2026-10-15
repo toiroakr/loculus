@@ -140,9 +140,9 @@ l.safeParse(l.number(), "abc");
 // message: 'Expected a decimal number, received "abc"'
 ```
 
-`received` is the value itself, not its type name. JSON-serializable objects and
-arrays are rendered as JSON; values that cannot be serialized use `[Object]` in
-the message while `issue.received` still retains the actual value. `undefined`,
+`received` is the value itself, not its type name. Messages display objects as
+`[Object]` and arrays as `[Array]` without invoking getters or `toJSON` hooks,
+while `issue.received` still retains the actual value. `undefined`,
 `NaN`, infinities, negative zero, bigints and symbols have readable representations.
 
 String limits count JavaScript string length; array limits count items; number
