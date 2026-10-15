@@ -3,11 +3,16 @@ import { rolldown } from 'rolldown';
 import { loculusPlugin } from '../../packages/rolldown/dist/index.js';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import { highlightContents, syntaxCSS } from '../../docs/highlight.mjs';
 const dir = fileURLToPath(new URL('.', import.meta.url));
 let generatedFields = false;
+const schemaSource = await readFile(dir + 'schema.ts', 'utf8');
 const bundle = await rolldown({
   input: dir + 'App.tsx', platform: 'browser',
-  transform: { target: 'es2022', jsx: { runtime: 'automatic' }, define: { 'process.env.NODE_ENV': '"production"' } },
+  transform: { target: 'es2022', jsx: { runtime: 'automatic' }, define: {
+    'process.env.NODE_ENV': '"production"',
+    '__FORM_SCHEMA_HTML__': JSON.stringify(highlightContents(schemaSource)),
+  } },
   plugins: [
     loculusPlugin({ modules: ['../../dist/index.js'], include: id => id === dir + 'schema.ts' }),
     { name: 'verify-schema-codegen', transform(code, id) {
@@ -24,7 +29,7 @@ const css = await readFile(dir + 'style.css', 'utf8');
 const code = output[0].code.replaceAll('</script', '<\\/script');
 await mkdir(dir + 'generated', { recursive: true });
 await writeFile(dir + 'generated/index.html', `<!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>loculus × React Hook Form</title><style>${css}</style></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>loculus × React Hook Form</title><style>${syntaxCSS}\n${css}</style></head>
 <body><div id="root"></div><script>${code}</script></body></html>`);
 console.log('Built standalone React Hook Form demo with Rolldown code generation.');

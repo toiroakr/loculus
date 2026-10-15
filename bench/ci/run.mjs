@@ -9,7 +9,7 @@ import {pathToFileURL} from 'node:url';
 import {gzipSync} from 'node:zlib';
 import {rolldown} from 'rolldown';
 import {loculusPlugin} from '../../packages/rolldown/dist/index.js';
-import {profiles as allProfiles, prelude} from '../single-use/fixtures.mjs';
+import {profiles as allProfiles, prelude} from '../fixtures/index.mjs';
 import {collect} from './collect.mjs';
 
 const selection = {

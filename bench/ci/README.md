@@ -1,6 +1,6 @@
 # Benchmark CI
 
-`Benchmarks` runs on pull requests, main pushes, and manual dispatch. It measures JavaScript on Node 24 and Bun 1.4.3, browser ESM bundles produced by Rolldown, and TypeScript input/output inference. MoonBit, WASM, and Perry experiments are outside this CI suite.
+`Benchmarks` runs on pull requests, main pushes, and manual dispatch. It measures JavaScript on Node 24 and Bun 1.4.3, browser ESM bundles produced by Rolldown, and TypeScript input/output inference.
 
 ```sh
 pnpm bench:ci
@@ -13,7 +13,7 @@ Install Bun on PATH or set `BUN_BIN=/absolute/path/to/bun`. The quick mode verif
 
 ## Cases and timing
 
-Twelve existing fixtures cover scalar strings, trim, numeric boundaries, boolean conversion, defaults, strict and wrapping arrays, strict and passthrough objects, git clone options, cf deploy options, and a ten-row form. The fixtures remain shared with the local benchmark suites.
+Twelve existing fixtures cover scalar strings, trim, numeric boundaries, boolean conversion, defaults, strict and wrapping arrays, strict and passthrough objects, git clone options, cf deploy options, and a ten-row form. The schemas in `bench/fixtures/` are shared with regression tests and the documentation compatibility audit.
 
 - `construct`: create the schema and validate one valid input, including Zod's lazy JIT cost.
 - `valid` / `invalid`: validate a schema created before timing. Loculus plugin generation and bundling are excluded. Zod uses its default JIT mode.
@@ -39,6 +39,6 @@ The preparation, measurement, and aggregation jobs have read-only repository acc
 
 Octocov saves the default-branch metrics as `octocov-benchmarks` artifacts and compares PRs against those reports. The first PR has no stored baseline; after merging this workflow, main runs initialize it. Metric-set keys include fixture, harness, protocol, dependency, and runtime versions, so changed experiments start a new comparison series. A missing or expired baseline cannot establish a regression.
 
-Runner CPUs, thermal state, JIT behavior, and system noise can affect even normalized ratios. There is no timing-based merge gate and no claim that CI differences are statistically significant. For a regression decision, rerun the dedicated local suites with their significance policy. Units and lower-is-better interpretation are recorded in every custom metric set.
+Runner CPUs, thermal state, JIT behavior, and system noise can affect even normalized ratios. There is no timing-based merge gate and no claim that CI differences are statistically significant. For a regression decision, repeat the measurements on consistent hardware and account for measurement noise. Units and lower-is-better interpretation are recorded in every custom metric set.
 
 Octocov custom metrics and datastore behavior follow the [upstream documentation](https://github.com/k1LoW/octocov#custom-metrics).

@@ -2,8 +2,6 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import * as l from "../src/index.js";
-import { legacyResult } from "./helpers/legacy-result.js";
-import * as before from "../bench/single-use/before/index.js";
 
 const item = l.object({
   name: l.string({ min: 1 }),
@@ -73,8 +71,8 @@ test("object arrays preserve explicit wrapping and presence defaults", () => {
   }
 });
 
-test("object arrays preserve row callbacks and results from before compiler removal", () => {
-  const create = (library: Omit<typeof before, "compile" | "discriminatedUnion">, events: string[]) => {
+test("object arrays preserve row callback order, converted values and nested errors", () => {
+  const create = (library: typeof l, events: string[]) => {
     const row = library.refine(library.object({ name: library.transform(library.string(), value => {
       events.push("transform");
       return value.toUpperCase();
@@ -82,18 +80,35 @@ test("object arrays preserve row callbacks and results from before compiler remo
     return library.object({ items: library.array(row, { wrapScalar: false }), after: library.string({ min: 1 }) });
   };
   const events: string[] = [];
-  const expectedEvents: string[] = [];
   const form = create(l, events);
-  const reference = create(before, expectedEvents);
-  for (const input of [
-    { items: [{ name: "apple", quantity: "2" }], after: "x" },
-    { items: [{ name: "apple", quantity: "0" }, { name: "forbidden", quantity: "2" }], after: "" },
-    { items: null, after: "" },
-  ]) {
+  const cases = [
+    {
+      input: { items: [{ name: "apple", quantity: "2" }], after: "x" },
+      result: { value: { items: [{ name: "APPLE", quantity: 2 }], after: "x" } },
+      events: ["transform"],
+    },
+    {
+      input: { items: [{ name: "apple", quantity: "0" }, { name: "forbidden", quantity: "2" }], after: "" },
+      result: { issues: [
+        { message: "Expected at least 1", code: "too_small", origin: "number", min: 1, inclusive: true, path: ["items", 0, "quantity"] },
+        { message: "Forbidden item", code: "custom", path: ["items", 1] },
+        { message: "Expected at least 1 characters", code: "too_small", origin: "string", min: 1, inclusive: true, path: ["after"] },
+      ] },
+      events: ["transform", "transform"],
+    },
+    {
+      input: { items: null, after: "" },
+      result: { issues: [
+        { message: "Expected an array, received null", code: "invalid_type", expected: "array", received: null, path: ["items"] },
+        { message: "Expected at least 1 characters", code: "too_small", origin: "string", min: 1, inclusive: true, path: ["after"] },
+      ] },
+      events: [],
+    },
+  ];
+  for (const fixture of cases) {
     events.length = 0;
-    expectedEvents.length = 0;
-    assert.deepEqual(legacyResult(l.safeParse(form, input)), before.safeParse(reference, input));
-    assert.deepEqual(events, expectedEvents);
+    assert.deepEqual(l.safeParse(form, fixture.input), fixture.result);
+    assert.deepEqual(events, fixture.events);
   }
   const original = globalThis.Function;
   try {

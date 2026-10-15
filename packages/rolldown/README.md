@@ -175,5 +175,5 @@ validation is the fallback for unsupported definitions.
 See the [runtime README](https://github.com/toiroakr/loculus#readme) for the full
 schema API and the [React Hook Form example](https://github.com/toiroakr/loculus/tree/main/examples/react-hook-form)
 for a working application using this plugin. The
-[measurement protocol](https://github.com/toiroakr/loculus/blob/main/bench/whole-object/README.md)
+[measurement protocol](https://github.com/toiroakr/loculus/blob/main/bench/ci/README.md)
 describes the performance comparisons and their limitations.
