@@ -18,7 +18,7 @@ export interface ErrorOptions {
   readonly error?: ErrorCustomization;
 }
 export interface Config {
-  readonly customError?: ErrorCustomization;
+  readonly customError?: ErrorCustomization | undefined;
 }
 let configuration: Config = {};
 export function config(options?: Config): Readonly<Config> {
