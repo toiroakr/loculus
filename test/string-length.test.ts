@@ -43,19 +43,19 @@ test("application defaults affect existing schemas and explicit counters take pr
   const schema = l.object({ text: l.string({ max: 1 }), rows: l.array(l.string({ max: 1 })) });
   const explicit = l.string({ length: codeUnits, max: 1 });
   try {
-    l.configure({ stringLength: graphemes });
-    l.configure({});
+    l.config({ stringLength: graphemes });
+    l.config({});
     assert.deepEqual(l.parse(schema, { text: "👨‍👩‍👧‍👦", rows: ["e\u0301"] }), { text: "👨‍👩‍👧‍👦", rows: ["e\u0301"] });
     assert.ok(l.safeParse(explicit, "😀").issues);
     assert.equal(l.countString("e\u0301"), 1);
-    l.configure({ stringLength: utf8Bytes });
+    l.config({ stringLength: utf8Bytes });
     assert.ok(l.safeParse(schema, { text: "あ", rows: [] }).issues);
     assert.equal(l.countString("あ"), 3);
-    l.configure({ stringLength: undefined });
+    l.config({ stringLength: undefined });
     assert.equal(l.countString("😀"), 2);
     assert.ok(l.safeParse(schema, { text: "😀", rows: [] }).issues);
   } finally {
-    l.configure({ stringLength: undefined });
+    l.config({ stringLength: undefined });
   }
 });
 
@@ -67,7 +67,7 @@ test("invalid custom counts fail clearly and missing values bypass the counter",
   assert.equal(l.parse(l.string({ length, max: 1, default: "guest" }), undefined), "guest");
   assert.equal(l.parse(l.string({ length, max: 1, nullable: true }), null), null);
   assert.ok(l.safeParse(l.string({ length, max: 1 }), 1).issues);
-  assert.throws(() => l.configure({ stringLength: "bad" as unknown as l.StringLength }), TypeError);
+  assert.throws(() => l.config({ stringLength: "bad" as unknown as l.StringLength }), TypeError);
 });
 
 test("string length defaults compose with error configuration", () => {
@@ -79,7 +79,7 @@ test("string length defaults compose with error configuration", () => {
     assert.equal(l.safeParse(schema, "ab").issues?.[0]?.message, "Limit: 1");
     l.config({ customError: undefined });
     assert.equal(l.parse(schema, "👨‍👩‍👧‍👦"), "👨‍👩‍👧‍👦");
-    l.configure({ stringLength: undefined });
+    l.config({ stringLength: undefined });
     assert.equal(l.config().stringLength, undefined);
     assert.ok(l.safeParse(schema, "😀").issues);
   } finally {

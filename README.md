@@ -71,7 +71,7 @@ Use a counter from `loculus/length`, or supply your own `(value: string) => numb
 import * as l from 'loculus';
 import { graphemes, codeUnits, utf8Bytes } from 'loculus/length';
 
-l.configure({ stringLength: graphemes });
+l.config({ stringLength: graphemes });
 
 const name = l.string({ min: 1, max: 80 });
 const payload = l.string({ length: utf8Bytes, max: 1024 });
@@ -97,15 +97,15 @@ Grapheme segmentation and display-width results depend on the runtime's Unicode 
 `utf8Bytes` encodes unpaired surrogates as the replacement character (three bytes).
 These helpers are optional; importing only `loculus` does not include them.
 
-`config({ stringLength })` and `configure({ stringLength })` update the same
-application configuration. `config()` reads the current settings; updates to
-`stringLength` preserve `customError`, and vice versa.
+`config({ stringLength })` updates the application configuration, and `config()`
+reads the current settings. Updates to `stringLength` preserve `customError`, and
+vice versa.
 
 Application defaults apply at validation time, including to schemas created before
-`configure` was called. Explicit field counters always take precedence. Set the
+`config` was called. Explicit field counters always take precedence. Set the
 application default at startup; it is shared by users of the same loaded module,
-including concurrent requests. `configure({})` leaves it unchanged, and
-`configure({ stringLength: undefined })` restores UTF-16 code units. Separately
+including concurrent requests. `config({})` leaves it unchanged, and
+`config({ stringLength: undefined })` restores UTF-16 code units. Separately
 loaded copies of Loculus have independent defaults.
 
 Counters receive the trimmed output when `trim: true`, run once per validation
