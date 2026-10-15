@@ -5,7 +5,7 @@ The `loculus` runtime has no dependency on this package or Rolldown.
 
 ## Installation
 
-Requires Node 24 or newer, Rolldown `>=1.2.13 <2`, and Loculus `^0.2.3`.
+Requires Node.js 22.18.0 or newer, Rolldown `>=1.2.13 <2`, and Loculus `^0.2.3`.
 The plugin and runtime have independent patch versions; use compatible versions
 from the same Loculus minor release.
 

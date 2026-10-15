@@ -14,7 +14,7 @@ async function consumer(name, archives) {
   const directory = join(work, name);
   await mkdir(directory);
   await writeFile(join(directory, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
-  execFileSync('npm', ['install', '--offline', '--ignore-scripts', '--omit=dev', '--legacy-peer-deps', '--no-audit', '--no-fund', '--package-lock=false', ...archives], { cwd: directory, stdio: 'pipe' });
+  execFileSync('npm', ['install', '--engine-strict', '--offline', '--ignore-scripts', '--omit=dev', '--legacy-peer-deps', '--no-audit', '--no-fund', '--package-lock=false', ...archives], { cwd: directory, stdio: 'pipe' });
   return directory;
 }
 function parseVersion(version) {
