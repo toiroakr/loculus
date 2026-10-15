@@ -969,3 +969,50 @@ test('generated scalar success paths leave rejected literal probes uncustomized'
     assert.equal(field['~standard'].validate({}).issues[0].message,'Translated');
   assert.equal(built.exports.seen.length,4);
 });
+
+test('generated accepted literal branches preserve inherited issue reads with global messages', async () => {
+  const source = `import * as l from 'loculus';export let calls=0;
+    export const setup=()=>{calls=0;l.config({customError:()=>{calls++;return 'Translated';}});};
+    export const fields=[l.literal([1,2]),l.literal([true,false]),l.literal(['a',1,false])];`;
+  const ordinary = await bundle(source,false), generated = await bundle(source);
+  const run = (built:typeof ordinary,index:number,input:unknown) => {
+    built.exports.setup();
+    let reads = 0;
+    const previous = Object.getOwnPropertyDescriptor(Object.prototype,'issues');
+    Object.defineProperty(Object.prototype,'issues',{configurable:true,get(){return ++reads<=2?undefined:[{message:'inherited',code:'custom'}];}});
+    try {return {result:built.exports.fields[index]['~standard'].validate(input),reads,calls:built.exports.calls};}
+    finally {if(previous)Object.defineProperty(Object.prototype,'issues',previous);else delete (Object.prototype as {issues?:unknown}).issues;}
+  };
+  for (const [index,input,value] of [[0,'1',1],[1,'true',true],[2,'a','a']] as const) {
+    const expected = run(ordinary,index,input);
+    assert.deepEqual(expected.result,{value});
+    assert.equal(expected.calls,0);
+    assert.deepEqual(run(generated,index,input),expected);
+  }
+});
+
+test('generated containers preserve changing inherited issue accessors with global messages', async () => {
+  const source = `import * as l from 'loculus';export let calls=0;
+    export const setup=()=>{calls=0;l.config({customError:()=>{calls++;return 'Translated';}});};
+    export const object=l.object({name:l.string()});export const array=l.array(l.string());`;
+  const ordinary = await bundle(source,false);
+  const run = (built:typeof ordinary,key:string,input:unknown) => {
+    built.exports.setup();
+    let reads = 0;
+    const previous = Object.getOwnPropertyDescriptor(Object.prototype,'issues');
+    Object.defineProperty(Object.prototype,'issues',{configurable:true,get(){return ++reads<=2?undefined:[{message:'inherited',code:'custom'}];}});
+    try {return {result:built.exports[key]['~standard'].validate(input),reads,calls:built.exports.calls};}
+    finally {if(previous)Object.defineProperty(Object.prototype,'issues',previous);else delete (Object.prototype as {issues?:unknown}).issues;}
+  };
+  const expected = run(ordinary,'object',{name:'ok'});
+  assert.deepEqual(expected.result,{value:{name:'ok'}});
+  assert.equal(expected.calls,0);
+  for (const objects of ['auto','unroll','loop','chunked'] as const) {
+    const generated = await bundle(source,true,'ts','/loculus-test',{objects});
+    assert.deepEqual(run(generated,'object',{name:'ok'}),expected,objects);
+    assert.deepEqual(run(generated,'array',['ok']),run(ordinary,'array',['ok']),objects);
+    generated.exports.setup();
+    assert.equal(generated.exports.object['~standard'].validate(null).issues[0].message,'Translated');
+    assert.equal(generated.exports.calls,1);
+  }
+});

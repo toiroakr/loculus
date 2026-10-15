@@ -343,7 +343,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         let needsDecimal = false;
         let needsLiteralDecimal = false;
         let needsEnumMeta = false;
-        const helpers = new Map<string, { name: string; raw: string; body: string }>();
+        const helpers = new Map<string, { name: string; raw: string; body: string; multipleLiterals: boolean }>();
         const scalarFactories = new Map<string, string>();
         const factory = (node: Node): Factory | undefined => {
           node = unwrap(node);
@@ -459,7 +459,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
               for (const [message, code] of errors)
                 body = body.replaceAll(failure(message,code,code === 'invalid_type' ? { expected: 'number' } : {},typeIssue), `return ${literalError}(${emit(message)},${emit(code)},raw);`);
             }
-            helper = { name: unique(), raw: unique(), body };
+            helper = { name: unique(), raw: unique(), body, multipleLiterals: spec.literals?.multiple === true };
             helpers.set(candidate.body, helper);
           }
           const branches = spec.literals?.values.some(value => typeof value !== spec.kind)
@@ -541,7 +541,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           if (object) {
             const fields = Object.entries(object.fields).filter(([key]) => key !== '__proto__');
             const captures: string[] = [];
-            let body = `if(typeof input!=="object"||input===null||Array.isArray(input)){${failure('Expected an object', 'invalid_type', { expected: 'object' }, typeIssue)}}const output={};let issues;`;
+            let body = `if(typeof input!=="object"||input===null||Array.isArray(input)){return ${resolveResult}(${issueResult('Expected an object', 'invalid_type', { expected: 'object' }, typeIssue)},input);}const output={};let issues;`;
             for (let index = 0; index < fields.length; index++) {
               const [key,child] = fields[index]!;
               if (child.scalar) {
@@ -641,7 +641,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         generated += groups.join('\n')+'\n'+chunks.join('\n')+'\n';
         if (objects.size) generated += `function ${collect}(result,key,input,output,issues){if(result.issues){issues??=[];for(const issue of result.issues)issues.push({...issue,path:issue.path?[key,...issue.path]:[key]});}else if(result.value!==void 0||key in input){output[key]=result.value;}return issues;}function ${invalid}(key,input,output,issues,issue,raw){return ${collect}({issues:[${resolveIssue}(issue,raw)]},key,input,output,issues);}\n`;
         if (literalError) generated += `function ${literalError}(message,code,raw){return {issues:[code==="invalid_type"?${typeIssue}("number",raw,message):{message,code}]};}\n`;
-        const resolvedBody = (body: string): string => {
+        const resolvedBody = (body: string, preserveBranches = false): string => {
           const prefix = 'function validate(value){';
           const source = prefix + body + '}';
           const parsed = this.parse(source) as unknown as Node;
@@ -649,9 +649,11 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           const visit = (node: Node): void => {
             if (node.type.includes('Function')) return;
             if (node.type === 'ReturnStatement' && isNode(node.argument)) {
+              const props = properties(node.argument);
+              if ((preserveBranches && name(node.argument) === 'branchResult') || name(props?.issues) === 'issues') return;
               const expression = source.slice(node.argument.start, node.argument.end);
               const resolved = `${resolveResult}(${expression},raw)`;
-              const success = properties(node.argument)?.value;
+              const success = props?.value;
               edits.push({ start: node.start - prefix.length, end: node.end - prefix.length,
                 value: `return ${success ? `"issues" in {}?${resolved}:${expression}` : resolved};` });
               return;
@@ -674,16 +676,16 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
             body = body.replace(failure('Expected a string', 'invalid_type', { expected: 'string' }, typeIssue), `return ${error}("Expected a string","invalid_type",raw);`);
           }
           generated += `function ${helper.raw}(value){const raw=value;${body}}\n`;
-          generated += `function ${helper.name}(value){const raw=value;${resolvedBody(body)}}\n`;
+          generated += `function ${helper.name}(value){const raw=value;${resolvedBody(body,helper.multipleLiterals)}}\n`;
         }
         for (const [expression,create] of scalarFactories) generated += `/* @__NO_SIDE_EFFECTS__ */ function ${create}(){return ${expression};}\n`;
         for(const helper of arrayHelpers.values()){
-          generated+=`function ${helper.validate}(value){const raw=value;const result=(()=>{${helper.body}})();return ${resolveResult}(result,value);}\n`;
+          generated+=`function ${helper.validate}(value){const raw=value;${resolvedBody(helper.body)}}\n`;
           generated+=`/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(inner){return {meta:{kind:"array",inner,enumValues:inner.meta.enumValues,...(inner.meta.literalValues?{literalValues:inner.meta.literalValues}:{}),description:${emit(helper.description)}},"~standard":{version:1,vendor:"loculus",validate:${helper.validate}},field:true};}\n`;
         }
         for (const helper of objectHelpers.values()) {
           const args = helper.captures.map((_,index)=>`v${index}`);
-          generated += `function ${helper.validate}(input${args.length?','+args.join(','):''}){const raw=input;const result=(()=>{${helper.body}})();return ${resolveResult}(result,input);}\n`;
+          generated += `function ${helper.validate}(input${args.length?','+args.join(','):''}){const raw=input;${helper.body}}\n`;
           generated += `/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(shape){${helper.captures.map((key,index)=>`const v${index}=shape[${emit(key)}]["~standard"].validate;`).join('')}return {meta:{kind:"object",shape,unknownKeys:${emit(helper.spec.mode)},description:${emit(helper.spec.description)}},"~standard":{version:1,vendor:"loculus",validate:${args.length?`(input)=>${helper.validate}(input,${args.join(',')})`:helper.validate}},shape,field:true};}\n`;
         }
         for (const replacement of replacements) output.overwrite(replacement.node.start,replacement.node.end,replacement.value);
