@@ -974,7 +974,12 @@ type UnflattenGroup<T, St, P extends string, H extends string> = {
   [K in keyof T as [KeyHead<K, St, P>] extends [H] ? KeyRest<K, St, H> : never]: T[K];
 };
 type UnflattenHeads<T, St, P extends string> = { [K in keyof T]-?: KeyHead<K, St, P> }[keyof T];
-type UnflattenLevel<T, St, P extends string> = string extends keyof T ? Record<string, unknown> : (
+type StringKeys<T> = { [K in keyof T as K extends number ? `${K}` : K]: T[K] };
+type IsUnion<T, U = T> = T extends unknown ? [U] extends [T] ? false : true : never;
+type UnflattenLevel<T, St, P extends string> = string extends keyof T ? Record<string, unknown>
+  : number extends keyof T ? Record<string, unknown>
+  : UnflattenKeys<StringKeys<T>, St, P>;
+type UnflattenKeys<T, St, P extends string> = (
   UnflattenHeads<T, St, P> extends infer Heads extends string ? (
     { [K in keyof T as K extends symbol ? never : [KeyHead<K, St, P>] extends [never] ? K extends Heads ? never : K : never]: T[K] }
     & { [H in Heads & keyof T]?: unknown }
@@ -989,6 +994,7 @@ export type Unflatten<T, O extends UnflattenOptions = { style: "dot" }> =
     ? A extends unknown
       ? number extends A["length"] ? Record<string, unknown>
       : string extends A[number] ? Record<string, unknown>
+      : true extends { [I in keyof A]: IsUnion<A[I]> }[number] ? Record<string, unknown>
       : St extends unknown ? UnflattenLevel<T, St, A[number]> : never
       : never
     : UnflattenLevel<T, "dot", never>;

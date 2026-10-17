@@ -126,3 +126,8 @@ test("unflatten drops symbol keys, which are not flat keys", () => {
   assert.deepEqual(value, { a: { b: "y" } });
   assert.equal(Object.getOwnPropertySymbols(value).length, 0);
 });
+
+test("unflatten splits numeric keys by their string form", () => {
+  const schema = l.unflatten(l.object({ 1.5: l.string(), 2: l.number() }));
+  assert.deepEqual(l.parse(schema, { "1.5": "x", 2: "3" }), { 1: { 5: "x" }, 2: 3 });
+});

@@ -116,6 +116,22 @@ describe("unflatten output types", () => {
     expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<{ db: { host: string } } | { dbHost: string }>();
   });
 
+  test("prefix tuples with union elements fall back to Record<string, unknown>", () => {
+    const prefixes: readonly ["db" | "log"] = ["log"];
+    const schema = l.unflatten(l.object({ dbHost: l.string() }), { style: "camel", prefixes });
+    expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<Record<string, unknown>>();
+  });
+
+  test("numeric keys are split like their string form", () => {
+    const schema = l.unflatten(l.object({ 1.5: l.string(), 2: l.number() }));
+    expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<{ "1": { "5": string }; "2": number }>();
+  });
+
+  test("numeric index signatures fall back to Record<string, unknown>", () => {
+    const schema = l.unflatten(l.transform(l.object({ a: l.string() }), value => value as unknown as Record<number, string>));
+    expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<Record<string, unknown>>();
+  });
+
   test("symbol keys are not part of the output", () => {
     const tag = Symbol("tag");
     const schema = l.unflatten(l.transform(l.object({ "a.b": l.string() }), value => ({ ...value, [tag]: "x" })));
