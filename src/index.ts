@@ -976,7 +976,7 @@ type UnflattenGroup<T, St, P extends string, H extends string> = {
 type UnflattenHeads<T, St, P extends string> = { [K in keyof T]-?: KeyHead<K, St, P> }[keyof T];
 type UnflattenLevel<T, St, P extends string> = string extends keyof T ? Record<string, unknown> : (
   UnflattenHeads<T, St, P> extends infer Heads extends string ? (
-    { [K in keyof T as [KeyHead<K, St, P>] extends [never] ? K extends Heads ? never : K : never]: T[K] }
+    { [K in keyof T as K extends symbol ? never : [KeyHead<K, St, P>] extends [never] ? K extends Heads ? never : K : never]: T[K] }
     & { [H in Heads & keyof T]?: unknown }
     & { [H in Exclude<Heads, keyof T> as {} extends UnflattenGroup<T, St, P, H & string> ? never : H]:
       UnflattenLevel<UnflattenGroup<T, St, P, H & string>, St, PrefixRest<P, St, H & string>> }
@@ -985,8 +985,10 @@ type UnflattenLevel<T, St, P extends string> = string extends keyof T ? Record<s
   ) : never
 ) extends infer X ? { [K in keyof X]: X[K] } : never;
 export type Unflatten<T, O extends UnflattenOptions = { style: "dot" }> =
-  O extends { readonly style: infer St extends "kebab" | "camel"; readonly prefixes: readonly (infer P extends string)[] }
-    ? string extends P ? Record<string, unknown> : St extends unknown ? UnflattenLevel<T, St, P> : never
+  O extends { readonly style: infer St extends "kebab" | "camel"; readonly prefixes: infer A extends readonly string[] }
+    ? number extends A["length"] ? Record<string, unknown>
+    : string extends A[number] ? Record<string, unknown>
+    : St extends unknown ? UnflattenLevel<T, St, A[number]> : never
     : UnflattenLevel<T, "dot", never>;
 function splitPrefix(key: string, style: UnflattenStyle, prefix: string): string | undefined {
   if (key.length <= prefix.length || !key.startsWith(prefix)) return undefined;
@@ -1007,33 +1009,38 @@ function splitKey(key: string, style: UnflattenStyle, prefixes: readonly string[
 function defineValue(target: Record<string, unknown>, key: string, value: unknown): void {
   Object.defineProperty(target, key, { value, enumerable: true, writable: true, configurable: true });
 }
-function unflattenLevel(
-  entries: readonly (readonly [key: string, value: unknown, source: string])[],
+function unflattenRecord(
+  value: Record<string, unknown>,
   style: UnflattenStyle,
   prefixes: readonly string[],
 ): Result<Record<string, unknown>> {
   const output: Record<string, unknown> = {};
-  const groups = new Map<string, [string, unknown, string][]>();
-  for (const [key, value, source] of entries) {
-    const split = splitKey(key, style, prefixes);
-    const name = split ? split[0] : key;
-    let group = groups.get(name);
-    if (split ? group === undefined && own(output, name) : own(output, name))
-      return { issues: [{ message: `Cannot unflatten "${source}": "${name}" is both a value and a group`, code: "invalid_key", path: [source] }] };
-    if (!split) defineValue(output, name, value);
-    else {
-      if (!group) {
-        groups.set(name, group = []);
-        defineValue(output, name, undefined);
+  const groups = new Set<object>();
+  const nestedPrefixes = new Map<object, readonly string[]>([[output, prefixes]]);
+  const conflict = (source: string, name: string): Result<never> => ({ issues: [{
+    message: `Cannot unflatten "${source}": "${name}" is both a value and a group`, code: "invalid_key", path: [source],
+  }] });
+  for (const source of Object.keys(value)) {
+    let target = output;
+    let key = source;
+    for (let split = splitKey(key, style, nestedPrefixes.get(target)!); split; split = splitKey(key, style, nestedPrefixes.get(target)!)) {
+      const [name, rest] = split;
+      if (own(target, name)) {
+        const group = target[name];
+        if (!groups.has(group as object)) return conflict(source, name);
+        target = group as Record<string, unknown>;
+      } else {
+        const group: Record<string, unknown> = {};
+        const current = nestedPrefixes.get(target)!;
+        groups.add(group);
+        nestedPrefixes.set(group, style === "dot" ? current : current.flatMap(prefix => splitPrefix(prefix, style, name) ?? []));
+        defineValue(target, name, group);
+        target = group;
       }
-      group.push([split[1], value, source]);
+      key = rest;
     }
-  }
-  for (const [name, group] of groups) {
-    const nested = style === "dot" ? prefixes : prefixes.flatMap(prefix => splitPrefix(prefix, style, name) ?? []);
-    const result = unflattenLevel(group, style, nested);
-    if (result.issues) return result;
-    defineValue(output, name, result.value);
+    if (own(target, key)) return conflict(source, key);
+    defineValue(target, key, value[source]);
   }
   return { value: output };
 }
@@ -1056,16 +1063,14 @@ export function unflatten<I, O extends UnflattenInput, const Options extends Unf
 export function unflatten(source: AnySchema, options: UnflattenOptions = {}): AnySchema {
   const style = options.style ?? "dot";
   const prefixes = "prefixes" in options ? [...options.prefixes] : [];
-  const entries = (value: Record<string, unknown>) => Object.keys(value).map(key => [key, value[key], key] as const);
-  const shape = source.meta.kind === "object" ? source.meta.shape : undefined;
-  if (shape) {
-    const declared = unflattenLevel(entries(shape), style, prefixes);
+  if ("shape" in source && isPlainObject(source.shape)) {
+    const declared = unflattenRecord(source.shape, style, prefixes);
     if (declared.issues) throw new TypeError(declared.issues[0]!.message);
   }
   const validate = (value: unknown): Result<unknown> => {
     const result = source["~standard"].validate(value);
     if (result.issues || !isPlainObject(result.value)) return result;
-    const nested = unflattenLevel(entries(result.value), style, prefixes);
+    const nested = unflattenRecord(result.value, style, prefixes);
     return nested.issues ? { issues: nested.issues.map(issue => customizeIssue(issue, value)) } : nested;
   };
   const meta = { ...source.meta, enumValues: source.meta.enumValues, inner: source };

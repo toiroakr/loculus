@@ -95,6 +95,21 @@ describe("unflatten output types", () => {
     expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<Record<string, unknown>>();
   });
 
+  test("non-tuple prefix arrays fall back to Record<string, unknown>", () => {
+    const prefixes: "db"[] = [];
+    const schema = l.unflatten(l.object({ dbHost: l.string() }), { style: "camel", prefixes });
+    expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<Record<string, unknown>>();
+    const readonlyTuple = ["db"] as const;
+    const tuple = l.unflatten(l.object({ dbHost: l.string() }), { style: "camel", prefixes: readonlyTuple });
+    expectTypeOf<l.Output<typeof tuple>>().toEqualTypeOf<{ db: { host: string } }>();
+  });
+
+  test("symbol keys are not part of the output", () => {
+    const tag = Symbol("tag");
+    const schema = l.unflatten(l.transform(l.object({ "a.b": l.string() }), value => ({ ...value, [tag]: "x" })));
+    expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<{ a: { b: string } }>();
+  });
+
   test("style unions produce a union of output shapes", () => {
     const options = { style: "camel", prefixes: ["db"] } as { style: "camel" | "kebab"; prefixes: ["db"] };
     const schema = l.unflatten(l.object({ dbHost: l.string() }), options);

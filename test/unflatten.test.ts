@@ -103,3 +103,26 @@ test("unflatten only accepts plain record outputs", () => {
   const array = l.unflatten(l.array(l.string()) as unknown as l.Schema<string[], Record<string, unknown>>);
   assert.deepEqual(l.parse(array, ["a.b"]), ["a.b"]);
 });
+
+test("unflatten builds deeply nested keys without recursion", () => {
+  const schema = l.unflatten(l.object({}, { unknownKeys: "passthrough" }));
+  const key = "a.".repeat(20000) + "b";
+  const result = l.safeParse(schema, { [key]: 1 });
+  assert.ok(!result.issues);
+  let depth = 0;
+  for (let node: any = result.value; typeof node === "object"; node = node.a ?? node.b) depth++;
+  assert.equal(depth, 20001);
+});
+
+test("unflatten checks declared conflicts only on object shapes", () => {
+  const schema = l.unflatten(l.transform(l.object({ a: l.string(), "a.b": l.string() }), value => ({ "a.b": value["a.b"] })));
+  assert.deepEqual(l.parse(schema, { a: "x", "a.b": "y" }), { a: { b: "y" } });
+});
+
+test("unflatten drops symbol keys, which are not flat keys", () => {
+  const tag = Symbol("tag");
+  const schema = l.unflatten(l.transform(l.object({ "a.b": l.string() }), value => ({ ...value, [tag]: "x" })));
+  const value = l.parse(schema, { "a.b": "y" });
+  assert.deepEqual(value, { a: { b: "y" } });
+  assert.equal(Object.getOwnPropertySymbols(value).length, 0);
+});

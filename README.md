@@ -331,8 +331,9 @@ l.parse(config, { "db.host": "localhost" });
 Null and undefined outputs of optional or nullable objects are returned unchanged.
 The wrapped schema must output plain records; Date and array schemas are rejected
 by the types, and non-plain outputs pass through unchanged at runtime. Outputs
-with a string index signature are typed as `Record<string, unknown>`, because
-their dotted keys are unknown.
+with a string index signature, or prefixes that are not a tuple (such as a
+`string[]` variable), are typed as `Record<string, unknown>`, because the split
+keys are unknown. Inline prefix arrays are inferred as tuples.
 
 Kebab-case and camelCase keys are split only after the listed `prefixes`, so that
 names such as `dry-run` and `dbx` are left alone. Nested groups list the full prefix:
@@ -358,7 +359,8 @@ are ordinary objects with own data properties (`__proto__` included). Validation
 issues keep the flat key paths.
 
 A name cannot be both a value and a group, such as `db` with `db.host`. When an
-object schema declares both, `unflatten()` throws a `TypeError` at construction.
+object schema declares both, `unflatten()` throws a `TypeError` at construction
+(transformed schemas are checked when parsing).
 When the conflict only appears in a parsed value (passthrough keys, or union
 branches), parsing returns an `invalid_key` issue at the conflicting key, which
 `customError` can translate. The output type of such a name is `unknown`.
