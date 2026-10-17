@@ -956,3 +956,86 @@ export function fromEntries(
   }
   return result;
 }
+
+export type UnflattenStyle = "dot" | "kebab" | "camel";
+export type UnflattenOptions =
+  | { readonly style?: "dot" }
+  | { readonly style: "kebab" | "camel"; readonly prefixes: readonly string[] };
+type PrefixRest<K, St, H extends string> =
+  St extends "kebab" ? K extends `${H}-${infer R}` ? R : never
+  : K extends `${H}${infer C}${infer R}` ? C extends Lowercase<C> ? never : `${Lowercase<C>}${R}` : never;
+type MatchingPrefixes<K, St, P extends string> = P extends unknown ? [PrefixRest<K, St, P>] extends [never] ? never : P : never;
+type ShortestPrefix<M extends string, St, All extends string = M> =
+  M extends unknown ? [MatchingPrefixes<M, St, Exclude<All, M>>] extends [never] ? M : never : never;
+type KeyHead<K, St, P extends string> =
+  St extends "dot" ? K extends `${infer H}.${string}` ? H : never : ShortestPrefix<MatchingPrefixes<K, St, P>, St>;
+type KeyRest<K, St, H extends string> = St extends "dot" ? K extends `${H}.${infer R}` ? R : never : PrefixRest<K, St, H>;
+type UnflattenGroup<T, St, P extends string, H extends string> = {
+  [K in keyof T as [KeyHead<K, St, P>] extends [H] ? KeyRest<K, St, H> : never]: T[K];
+};
+type UnflattenHeads<T, St, P extends string> = { [K in keyof T]-?: KeyHead<K, St, P> }[keyof T];
+type UnflattenLevel<T, St, P extends string> = (
+  { [K in keyof T as [KeyHead<K, St, P>] extends [never] ? K : never]: T[K] }
+  & { [H in UnflattenHeads<T, St, P> as {} extends UnflattenGroup<T, St, P, H> ? never : H]:
+    UnflattenLevel<UnflattenGroup<T, St, P, H>, St, PrefixRest<P, St, H>> }
+  & { [H in UnflattenHeads<T, St, P> as {} extends UnflattenGroup<T, St, P, H> ? H : never]?:
+    UnflattenLevel<UnflattenGroup<T, St, P, H>, St, PrefixRest<P, St, H>> }
+) extends infer X ? { [K in keyof X]: X[K] } : never;
+export type Unflatten<T, O extends UnflattenOptions = { style: "dot" }> =
+  O extends { readonly style: infer St extends "kebab" | "camel"; readonly prefixes: readonly (infer P extends string)[] }
+    ? string extends P ? Record<string, unknown> : UnflattenLevel<T, St, P>
+    : UnflattenLevel<T, "dot", never>;
+function splitPrefix(key: string, style: UnflattenStyle, prefix: string): string | undefined {
+  if (key.length <= prefix.length || !key.startsWith(prefix)) return undefined;
+  if (style === "kebab") return key[prefix.length] === "-" ? key.slice(prefix.length + 1) : undefined;
+  const first = key[prefix.length]!;
+  return first === first.toLowerCase() ? undefined : first.toLowerCase() + key.slice(prefix.length + 1);
+}
+function splitKey(key: string, style: UnflattenStyle, prefixes: readonly string[]): [string, string] | undefined {
+  if (style === "dot") {
+    const index = key.indexOf(".");
+    return index < 0 ? undefined : [key.slice(0, index), key.slice(index + 1)];
+  }
+  let head: string | undefined;
+  for (const prefix of prefixes)
+    if (splitPrefix(key, style, prefix) !== undefined && (head === undefined || prefix.length < head.length)) head = prefix;
+  return head === undefined ? undefined : [head, splitPrefix(key, style, head)!];
+}
+function defineValue(target: Record<string, unknown>, key: string, value: unknown): void {
+  Object.defineProperty(target, key, { value, enumerable: true, writable: true, configurable: true });
+}
+function unflattenLevel(
+  entries: readonly (readonly [key: string, value: unknown, source: string])[],
+  style: UnflattenStyle,
+  prefixes: readonly string[],
+): Record<string, unknown> {
+  const output: Record<string, unknown> = {};
+  const groups = new Map<string, [string, unknown, string][]>();
+  for (const [key, value, source] of entries) {
+    const split = splitKey(key, style, prefixes);
+    const name = split ? split[0] : key;
+    let group = groups.get(name);
+    if (split ? group === undefined && own(output, name) : own(output, name))
+      throw new TypeError(`Cannot unflatten "${source}": "${name}" is both a value and a group`);
+    if (!split) defineValue(output, name, value);
+    else {
+      if (!group) {
+        groups.set(name, group = []);
+        defineValue(output, name, undefined);
+      }
+      group.push([split[1], value, source]);
+    }
+  }
+  for (const [name, group] of groups) {
+    const nested = style === "dot" ? prefixes : prefixes.flatMap(prefix => splitPrefix(prefix, style, name) ?? []);
+    defineValue(output, name, unflattenLevel(group, style, nested));
+  }
+  return output;
+}
+export function unflatten<const T extends object>(value: T): Unflatten<T>;
+export function unflatten<const T extends object, const O extends UnflattenOptions>(value: T, options: O): Unflatten<T, O>;
+export function unflatten(value: object, options: UnflattenOptions = {}): Record<string, unknown> {
+  const style = options.style ?? "dot";
+  const prefixes = "prefixes" in options ? [...options.prefixes] : [];
+  return unflattenLevel(Object.keys(value).map(key => [key, (value as Record<string, unknown>)[key], key] as const), style, prefixes);
+}
