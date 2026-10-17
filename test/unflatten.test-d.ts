@@ -104,6 +104,18 @@ describe("unflatten output types", () => {
     expectTypeOf<l.Output<typeof tuple>>().toEqualTypeOf<{ db: { host: string } }>();
   });
 
+  test("variable-length prefix arrays fall back even when some prefixes are possible", () => {
+    const prefixes: ("db" | "log")[] = ["log"];
+    const schema = l.unflatten(l.object({ dbHost: l.string() }), { style: "camel", prefixes });
+    expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<Record<string, unknown>>();
+  });
+
+  test("alternative prefix tuples produce a union of output shapes", () => {
+    const prefixes = [] as ["db"] | [];
+    const schema = l.unflatten(l.object({ dbHost: l.string() }), { style: "camel", prefixes });
+    expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<{ db: { host: string } } | { dbHost: string }>();
+  });
+
   test("symbol keys are not part of the output", () => {
     const tag = Symbol("tag");
     const schema = l.unflatten(l.transform(l.object({ "a.b": l.string() }), value => ({ ...value, [tag]: "x" })));
