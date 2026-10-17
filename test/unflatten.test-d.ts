@@ -132,6 +132,13 @@ describe("unflatten output types", () => {
     expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<Record<string, unknown>>();
   });
 
+  test("template literal index signatures fall back to Record<string, unknown>", () => {
+    const numeric = l.unflatten(l.transform(l.object({ a: l.string() }), () => ({}) as Record<`${number}`, string>));
+    expectTypeOf<l.Output<typeof numeric>>().toEqualTypeOf<Record<string, unknown>>();
+    const prefixed = l.unflatten(l.transform(l.object({ name: l.string() }), value => value as typeof value & Record<`db.${string}`, string>));
+    expectTypeOf<l.Output<typeof prefixed>>().toEqualTypeOf<Record<string, unknown>>();
+  });
+
   test("symbol keys are not part of the output", () => {
     const tag = Symbol("tag");
     const schema = l.unflatten(l.transform(l.object({ "a.b": l.string() }), value => ({ ...value, [tag]: "x" })));

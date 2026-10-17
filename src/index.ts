@@ -976,8 +976,8 @@ type UnflattenGroup<T, St, P extends string, H extends string> = {
 type UnflattenHeads<T, St, P extends string> = { [K in keyof T]-?: KeyHead<K, St, P> }[keyof T];
 type StringKeys<T> = { [K in keyof T as K extends number ? `${K}` : K]: T[K] };
 type IsUnion<T, U = T> = T extends unknown ? [U] extends [T] ? false : true : never;
-type UnflattenLevel<T, St, P extends string> = string extends keyof T ? Record<string, unknown>
-  : number extends keyof T ? Record<string, unknown>
+type HasPatternKey<T> = true extends { [K in keyof T]-?: {} extends Record<K, 1> ? true : false }[keyof T] ? true : false;
+type UnflattenLevel<T, St, P extends string> = HasPatternKey<T> extends true ? Record<string, unknown>
   : UnflattenKeys<StringKeys<T>, St, P>;
 type UnflattenKeys<T, St, P extends string> = (
   UnflattenHeads<T, St, P> extends infer Heads extends string ? (
