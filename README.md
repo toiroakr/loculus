@@ -50,7 +50,7 @@ const item = l.object({ name: l.string({ min: 1 }), quantity: l.number({ integer
 const form = l.object({ title: l.string(), items: l.array(item, { wrapScalar: false, min: 1 }) });
 ```
 
-Use `standardSchemaResolver(form)` with React Hook Form, and distinguish `Input<typeof form>` from the converted `Output<typeof form>`. See the [working React Hook Form example](examples/react-hook-form/README.md), including `useFieldArray`, nested errors, browser tests, and a standalone mobile demo. Native `FormData` field-name parsing is separate; `fromEntries()` does not interpret dotted names. Wrap the schema with `unflatten()` to nest dotted keys in the output.
+Use `standardSchemaResolver(form)` with React Hook Form, and distinguish `Input<typeof form>` from the converted `Output<typeof form>`. See the [working React Hook Form example](examples/react-hook-form/README.md), including `useFieldArray`, nested errors, browser tests, and a standalone mobile demo. Native `FormData` field-name parsing is separate; `fromEntries()` does not interpret dotted names. `unflatten()` does not change this: it restructures the output of a schema whose keys are flat, after validation. A nested schema such as `form` above still needs nested input, so parse dotted `FormData` names separately before validating it.
 - `union([a, b, ...], options)`, `xor([a, b, ...], options)`, `discriminatedUnion(key, [a, b, ...], options)`, `intersection(a, b, options)`: compose flat object variants. Intersections merge compatible primitive, Date, array and plain-object outputs recursively; incompatible outputs return issues, matching Valibot. Inherited discriminators, optional/nullable discriminator fields and discriminator defaults are supported. Duplicate discriminator values are rejected at validation, matching Zod; ambiguous undefined discriminators match no branch. Missing discriminator fields are rejected at construction.
 - `safeParse(schema, unknown)`: `{ value }` or `{ issues }`; `parse` throws `ValidationError`. Issues carry paths, including repeated-value indices.
 - `Input<typeof schema>` and `Output<typeof schema>` infer types. `_input`, `_output`, and `_optional` are type-only markers, absent at runtime.
@@ -329,6 +329,10 @@ l.parse(config, { "db.host": "localhost" });
 
 `unflatten` is a `transform`: the input type, metadata and issue paths stay flat.
 Null and undefined outputs of optional or nullable objects are returned unchanged.
+The wrapped schema must output plain records; Date and array schemas are rejected
+by the types, and non-plain outputs pass through unchanged at runtime. Outputs
+with a string index signature are typed as `Record<string, unknown>`, because
+their dotted keys are unknown.
 
 Kebab-case and camelCase keys are split only after the listed `prefixes`, so that
 names such as `dry-run` and `dbx` are left alone. Nested groups list the full prefix:

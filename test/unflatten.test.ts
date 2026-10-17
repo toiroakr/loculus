@@ -86,3 +86,30 @@ test("unflatten defines own properties without touching prototypes", () => {
   assert.deepEqual(Object.keys(value), ["__proto__", "a"]);
   assert.equal(Object.hasOwn(value.a, "__proto__"), true);
 });
+
+test("unflatten types unknown keys and style unions conservatively", () => {
+  const indexed = l.unflatten(l.object(Object.fromEntries([["db.host", l.string()]])));
+  const indexedValue = l.parse(indexed, { "db.host": "localhost" });
+  const indexedExact: Equal<typeof indexedValue, Record<string, unknown>> = true;
+  void indexedExact;
+  assert.deepEqual(indexedValue, { db: { host: "localhost" } });
+
+  const options = { style: "camel", prefixes: ["db"] } as { style: "camel" | "kebab"; prefixes: ["db"] };
+  const either = l.parse(l.unflatten(l.object({ dbHost: l.string() }), options), { dbHost: "x" });
+  const eitherExact: Equal<typeof either, { db: { host: string } } | { dbHost: string }> = true;
+  void eitherExact;
+  assert.deepEqual(either, { db: { host: "x" } });
+});
+
+test("unflatten only accepts plain record outputs", () => {
+  if (false) {
+    // @ts-expect-error Dates are not flat records.
+    l.unflatten(l.date());
+    // @ts-expect-error Arrays are not flat records.
+    l.unflatten(l.array(l.string()));
+  }
+  const date = l.unflatten(l.date() as unknown as l.Schema<string, Record<string, unknown>>);
+  assert.ok(l.parse(date, "2026-01-01") instanceof Date);
+  const array = l.unflatten(l.array(l.string()) as unknown as l.Schema<string[], Record<string, unknown>>);
+  assert.deepEqual(l.parse(array, ["a.b"]), ["a.b"]);
+});

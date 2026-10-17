@@ -974,7 +974,7 @@ type UnflattenGroup<T, St, P extends string, H extends string> = {
   [K in keyof T as [KeyHead<K, St, P>] extends [H] ? KeyRest<K, St, H> : never]: T[K];
 };
 type UnflattenHeads<T, St, P extends string> = { [K in keyof T]-?: KeyHead<K, St, P> }[keyof T];
-type UnflattenLevel<T, St, P extends string> = (
+type UnflattenLevel<T, St, P extends string> = string extends keyof T ? Record<string, unknown> : (
   { [K in keyof T as [KeyHead<K, St, P>] extends [never] ? K : never]: T[K] }
   & { [H in UnflattenHeads<T, St, P> as {} extends UnflattenGroup<T, St, P, H> ? never : H]:
     UnflattenLevel<UnflattenGroup<T, St, P, H>, St, PrefixRest<P, St, H>> }
@@ -983,7 +983,7 @@ type UnflattenLevel<T, St, P extends string> = (
 ) extends infer X ? { [K in keyof X]: X[K] } : never;
 export type Unflatten<T, O extends UnflattenOptions = { style: "dot" }> =
   O extends { readonly style: infer St extends "kebab" | "camel"; readonly prefixes: readonly (infer P extends string)[] }
-    ? string extends P ? Record<string, unknown> : UnflattenLevel<T, St, P>
+    ? string extends P ? Record<string, unknown> : St extends unknown ? UnflattenLevel<T, St, P> : never
     : UnflattenLevel<T, "dot", never>;
 function splitPrefix(key: string, style: UnflattenStyle, prefix: string): string | undefined {
   if (key.length <= prefix.length || !key.startsWith(prefix)) return undefined;
@@ -1033,7 +1033,12 @@ function unflattenLevel(
   return output;
 }
 type UnflattenOutput<O, Options extends UnflattenOptions> = O extends object ? Unflatten<O, Options> : O;
-type UnflattenInput = object | null | undefined;
+type UnflattenInput = Record<string, unknown> | null | undefined;
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (value === null || typeof value !== "object") return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
 export function unflatten<I, O extends UnflattenInput>(schema: Field<I, O>): Field<I, UnflattenOutput<O, { style: "dot" }>>;
 export function unflatten<I, O extends UnflattenInput, const Options extends UnflattenOptions>(
   schema: Field<I, O>, options: Options,
@@ -1046,7 +1051,7 @@ export function unflatten<I, O extends UnflattenInput, const Options extends Unf
 export function unflatten(schema: AnySchema, options: UnflattenOptions = {}): AnySchema {
   const style = options.style ?? "dot";
   const prefixes = "prefixes" in options ? [...options.prefixes] : [];
-  return transform(schema, (output: unknown) => output !== null && typeof output === "object"
+  return transform(schema, (output: unknown) => isPlainObject(output)
     ? unflattenLevel(Object.keys(output).map(key => [key, (output as Record<string, unknown>)[key], key] as const), style, prefixes)
     : output);
 }
