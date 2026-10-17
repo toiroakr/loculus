@@ -313,20 +313,23 @@ can still be optimized.
 
 ## Structuring flat keys
 
-`unflatten(value, options)` turns a flat parse result into nested objects. Dotted
-keys are split at every dot:
+`unflatten(schema, options)` wraps a flat schema so that parsing returns nested
+objects. Dotted keys are split at every dot:
 
 ```ts
-const flat = l.object({
+const config = l.unflatten(l.object({
   "db.host": l.string(),
   "db.port": l.number({ default: 5432 }),
   "db.pool.max": l.number({ optional: true }),
-});
-const config = l.transform(flat, value => l.unflatten(value));
+}));
 l.parse(config, { "db.host": "localhost" });
 // { db: { host: "localhost", port: 5432 } }
 // Output: { db: { host: string; port: number; pool?: { max?: number } } }
 ```
+
+The input type, metadata and issue paths stay flat, like `transform`. Null and
+undefined outputs of optional or nullable objects are returned unchanged.
+`unflatten(value, options)` restructures an already parsed object directly.
 
 Kebab-case and camelCase keys are split only after the listed `prefixes`, so that
 names such as `dry-run` and `dbx` are left alone. Nested groups list the full prefix:

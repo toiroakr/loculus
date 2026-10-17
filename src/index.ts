@@ -1032,9 +1032,25 @@ function unflattenLevel(
   }
   return output;
 }
+type UnflattenOutput<O, Options extends UnflattenOptions> = O extends object ? Unflatten<O, Options> : O;
+type UnflattenInput = object | null | undefined;
+export function unflatten<I, O extends UnflattenInput>(schema: Field<I, O>): Field<I, UnflattenOutput<O, { style: "dot" }>>;
+export function unflatten<I, O extends UnflattenInput, const Options extends UnflattenOptions>(
+  schema: Field<I, O>, options: Options,
+): Field<I, UnflattenOutput<O, Options>>;
+export function unflatten<I, O extends UnflattenInput>(schema: Schema<I, O>): Schema<I, UnflattenOutput<O, { style: "dot" }>>;
+export function unflatten<I, O extends UnflattenInput, const Options extends UnflattenOptions>(
+  schema: Schema<I, O>, options: Options,
+): Schema<I, UnflattenOutput<O, Options>>;
 export function unflatten<const T extends object>(value: T): Unflatten<T>;
 export function unflatten<const T extends object, const O extends UnflattenOptions>(value: T, options: O): Unflatten<T, O>;
-export function unflatten(value: object, options: UnflattenOptions = {}): Record<string, unknown> {
+/* @__NO_SIDE_EFFECTS__ */
+export function unflatten(value: object, options: UnflattenOptions = {}): unknown {
+  if (typeof (value as Partial<AnySchema>)["~standard"]?.validate === "function" && "meta" in value) {
+    const snapshot = { ...options } as UnflattenOptions;
+    return transform(value as AnySchema, (output: unknown) =>
+      output !== null && typeof output === "object" ? unflatten(output, snapshot) : output);
+  }
   const style = options.style ?? "dot";
   const prefixes = "prefixes" in options ? [...options.prefixes] : [];
   return unflattenLevel(Object.keys(value).map(key => [key, (value as Record<string, unknown>)[key], key] as const), style, prefixes);

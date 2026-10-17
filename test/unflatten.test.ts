@@ -67,3 +67,27 @@ test("unflatten defines own properties without touching prototypes", () => {
   assert.deepEqual(Object.keys(value), ["__proto__", "a"]);
   assert.equal(Object.hasOwn(value.a, "__proto__"), true);
 });
+
+test("unflatten wraps schemas so parse returns nested values", () => {
+  const dotted = l.unflatten(l.object({ "db.host": l.string(), "db.port": l.number({ default: 5432 }) }));
+  const value = l.parse(dotted, { "db.host": "localhost" });
+  const exact: Equal<typeof value, { db: { host: string; port: number } }> = true;
+  void exact;
+  assert.deepEqual(value, { db: { host: "localhost", port: 5432 } });
+  assert.deepEqual(l.safeParse(dotted, { "db.port": "x" }).issues?.map(issue => issue.path), [["db.host"], ["db.port"]]);
+  assert.deepEqual(dotted.meta.kind, "object");
+
+  const camel = l.unflatten(l.object({ dbHost: l.string(), verbose: l.boolean() }), { style: "camel", prefixes: ["db"] });
+  const camelValue = l.parse(camel, { dbHost: "x", verbose: "true" });
+  const camelExact: Equal<typeof camelValue, { db: { host: string }; verbose: boolean }> = true;
+  void camelExact;
+  assert.deepEqual(camelValue, { db: { host: "x" }, verbose: true });
+
+  const optional = l.unflatten(l.object({ "a.b": l.string() }, { optional: true }));
+  const optionalValue = l.parse(optional, undefined);
+  const optionalExact: Equal<typeof optionalValue, { a: { b: string } } | undefined> = true;
+  void optionalExact;
+  assert.equal(optionalValue, undefined);
+  const nested = l.object({ config: optional });
+  assert.deepEqual(l.parse(nested, { config: { "a.b": "x" } }), { config: { a: { b: "x" } } });
+});
