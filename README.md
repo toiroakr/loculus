@@ -50,7 +50,7 @@ const item = l.object({ name: l.string({ min: 1 }), quantity: l.number({ integer
 const form = l.object({ title: l.string(), items: l.array(item, { wrapScalar: false, min: 1 }) });
 ```
 
-Use `standardSchemaResolver(form)` with React Hook Form, and distinguish `Input<typeof form>` from the converted `Output<typeof form>`. See the [working React Hook Form example](examples/react-hook-form/README.md), including `useFieldArray`, nested errors, browser tests, and a standalone mobile demo. Native `FormData` field-name parsing is separate; `fromEntries()` does not interpret dotted names.
+Use `standardSchemaResolver(form)` with React Hook Form, and distinguish `Input<typeof form>` from the converted `Output<typeof form>`. See the [working React Hook Form example](examples/react-hook-form/README.md), including `useFieldArray`, nested errors, browser tests, and a standalone mobile demo. Native `FormData` field-name parsing is separate; `fromEntries()` does not interpret dotted names. `unflatten()` does not change this: it restructures the output of a schema whose keys are flat, after validation. A nested schema such as `form` above still needs nested input, so parse dotted `FormData` names separately before validating it.
 - `union([a, b, ...], options)`, `xor([a, b, ...], options)`, `discriminatedUnion(key, [a, b, ...], options)`, `intersection(a, b, options)`: compose flat object variants. Intersections merge compatible primitive, Date, array and plain-object outputs recursively; incompatible outputs return issues, matching Valibot. Inherited discriminators, optional/nullable discriminator fields and discriminator defaults are supported. Duplicate discriminator values are rejected at validation, matching Zod; ambiguous undefined discriminators match no branch. Missing discriminator fields are rejected at construction.
 - `safeParse(schema, unknown)`: `{ value }` or `{ issues }`; `parse` throws `ValidationError`. Issues carry paths, including repeated-value indices.
 - `Input<typeof schema>` and `Output<typeof schema>` infer types. `_input`, `_output`, and `_optional` are type-only markers, absent at runtime.
@@ -310,6 +310,60 @@ are not supported. RHF supplies structured nested values directly. Nested object
 containers, multidimensional arrays, and object presence options use normal runtime
 validation when the build-time plugin cannot specialize them; eligible children
 can still be optimized.
+
+## Structuring flat keys
+
+`unflatten(schema, options)` wraps a flat schema so that parsing returns nested
+objects. Dotted keys are split at every dot:
+
+```ts
+const config = l.unflatten(l.object({
+  "db.host": l.string(),
+  "db.port": l.number({ default: 5432 }),
+  "db.pool.max": l.number({ optional: true }),
+}));
+l.parse(config, { "db.host": "localhost" });
+// { db: { host: "localhost", port: 5432 } }
+// Output: { db: { host: string; port: number; pool?: { max?: number } } }
+```
+
+`unflatten` is a `transform`: the input type, metadata and issue paths stay flat.
+Null and undefined outputs of optional or nullable objects are returned unchanged.
+The wrapped schema must output plain records; Date and array schemas are rejected
+by the types, and non-plain outputs pass through unchanged at runtime. Outputs
+with a string index signature, or prefixes that are not a tuple (such as a
+`string[]` variable), are typed as `Record<string, unknown>`, because the split
+keys are unknown. Inline prefix arrays are inferred as tuples.
+
+Kebab-case and camelCase keys are split only after the listed `prefixes`, so that
+names such as `dry-run` and `dbx` are left alone. Nested groups list the full prefix:
+
+```ts
+const kebab = l.unflatten(l.object({
+  "db-host": l.string(), "db-pool-max": l.number(), "dry-run": l.boolean(),
+}), { style: "kebab", prefixes: ["db", "db-pool"] });
+// Output: { db: { host: string; pool: { max: number } }; "dry-run": boolean }
+
+const camel = l.unflatten(l.object({
+  dbHostName: l.string(), dbPoolMax: l.number(), dbx: l.number(),
+}), { style: "camel", prefixes: ["db", "dbPool"] });
+// Output: { db: { hostName: string; pool: { max: number } }; dbx: number }
+```
+
+A kebab prefix must be followed by `-`; a camel prefix must be followed by an
+uppercase letter, which becomes lowercase. The remaining key keeps its own
+spelling. The output type follows the same rules: a group is optional when all its
+keys are optional, and at runtime a group exists only when one of its keys is
+present. Values are not copied. Own enumerable string keys are read, and outputs
+are ordinary objects with own data properties (`__proto__` included). Validation
+issues keep the flat key paths.
+
+A name cannot be both a value and a group, such as `db` with `db.host`. When an
+object schema declares both, `unflatten()` throws a `TypeError` at construction
+(transformed schemas are checked when parsing).
+When the conflict only appears in a parsed value (passthrough keys, or union
+branches), parsing returns an `invalid_key` issue at the conflicting key, which
+`customError` can translate. The output type of such a name is `unknown`.
 
 ## politty
 

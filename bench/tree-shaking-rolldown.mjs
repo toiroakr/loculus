@@ -8,7 +8,7 @@ import { sources } from './tree-shaking-fixtures.mjs';
 const report = { node: process.version, bundler: 'rolldown', results: {} };
 const entry = resolve('.loculus-tree-shaking-consumer.js');
 const built = readFileSync('dist/index.js', 'utf8');
-assert.equal((built.match(/@__NO_SIDE_EFFECTS__/g) ?? []).length, 14);
+assert.equal((built.match(/@__NO_SIDE_EFFECTS__/g) ?? []).length, 15);
 for (const minify of [false, true]) {
   const outputs = {};
   for (const [name, contents] of Object.entries(sources)) {
