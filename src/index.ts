@@ -1042,16 +1042,11 @@ export function unflatten<I, O extends UnflattenInput>(schema: Schema<I, O>): Sc
 export function unflatten<I, O extends UnflattenInput, const Options extends UnflattenOptions>(
   schema: Schema<I, O>, options: Options,
 ): Schema<I, UnflattenOutput<O, Options>>;
-export function unflatten<const T extends object>(value: T): Unflatten<T>;
-export function unflatten<const T extends object, const O extends UnflattenOptions>(value: T, options: O): Unflatten<T, O>;
 /* @__NO_SIDE_EFFECTS__ */
-export function unflatten(value: object, options: UnflattenOptions = {}): unknown {
-  if (typeof (value as Partial<AnySchema>)["~standard"]?.validate === "function" && "meta" in value) {
-    const snapshot = { ...options } as UnflattenOptions;
-    return transform(value as AnySchema, (output: unknown) =>
-      output !== null && typeof output === "object" ? unflatten(output, snapshot) : output);
-  }
+export function unflatten(schema: AnySchema, options: UnflattenOptions = {}): AnySchema {
   const style = options.style ?? "dot";
   const prefixes = "prefixes" in options ? [...options.prefixes] : [];
-  return unflattenLevel(Object.keys(value).map(key => [key, (value as Record<string, unknown>)[key], key] as const), style, prefixes);
+  return transform(schema, (output: unknown) => output !== null && typeof output === "object"
+    ? unflattenLevel(Object.keys(output).map(key => [key, (output as Record<string, unknown>)[key], key] as const), style, prefixes)
+    : output);
 }

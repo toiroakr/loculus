@@ -50,7 +50,7 @@ const item = l.object({ name: l.string({ min: 1 }), quantity: l.number({ integer
 const form = l.object({ title: l.string(), items: l.array(item, { wrapScalar: false, min: 1 }) });
 ```
 
-Use `standardSchemaResolver(form)` with React Hook Form, and distinguish `Input<typeof form>` from the converted `Output<typeof form>`. See the [working React Hook Form example](examples/react-hook-form/README.md), including `useFieldArray`, nested errors, browser tests, and a standalone mobile demo. Native `FormData` field-name parsing is separate; `fromEntries()` does not interpret dotted names. Use `unflatten()` on the parsed output to nest dotted keys.
+Use `standardSchemaResolver(form)` with React Hook Form, and distinguish `Input<typeof form>` from the converted `Output<typeof form>`. See the [working React Hook Form example](examples/react-hook-form/README.md), including `useFieldArray`, nested errors, browser tests, and a standalone mobile demo. Native `FormData` field-name parsing is separate; `fromEntries()` does not interpret dotted names. Wrap the schema with `unflatten()` to nest dotted keys in the output.
 - `union([a, b, ...], options)`, `xor([a, b, ...], options)`, `discriminatedUnion(key, [a, b, ...], options)`, `intersection(a, b, options)`: compose flat object variants. Intersections merge compatible primitive, Date, array and plain-object outputs recursively; incompatible outputs return issues, matching Valibot. Inherited discriminators, optional/nullable discriminator fields and discriminator defaults are supported. Duplicate discriminator values are rejected at validation, matching Zod; ambiguous undefined discriminators match no branch. Missing discriminator fields are rejected at construction.
 - `safeParse(schema, unknown)`: `{ value }` or `{ issues }`; `parse` throws `ValidationError`. Issues carry paths, including repeated-value indices.
 - `Input<typeof schema>` and `Output<typeof schema>` infer types. `_input`, `_output`, and `_optional` are type-only markers, absent at runtime.
@@ -327,21 +327,22 @@ l.parse(config, { "db.host": "localhost" });
 // Output: { db: { host: string; port: number; pool?: { max?: number } } }
 ```
 
-The input type, metadata and issue paths stay flat, like `transform`. Null and
-undefined outputs of optional or nullable objects are returned unchanged.
-`unflatten(value, options)` restructures an already parsed object directly.
+`unflatten` is a `transform`: the input type, metadata and issue paths stay flat.
+Null and undefined outputs of optional or nullable objects are returned unchanged.
 
 Kebab-case and camelCase keys are split only after the listed `prefixes`, so that
 names such as `dry-run` and `dbx` are left alone. Nested groups list the full prefix:
 
 ```ts
-l.unflatten({ "db-host": "x", "db-pool-max": 4, "dry-run": true },
-  { style: "kebab", prefixes: ["db", "db-pool"] });
-// { db: { host: "x", pool: { max: 4 } }, "dry-run": true }
+const kebab = l.unflatten(l.object({
+  "db-host": l.string(), "db-pool-max": l.number(), "dry-run": l.boolean(),
+}), { style: "kebab", prefixes: ["db", "db-pool"] });
+// Output: { db: { host: string; pool: { max: number } }; "dry-run": boolean }
 
-l.unflatten({ dbHostName: "x", dbPoolMax: 4, dbx: 1 },
-  { style: "camel", prefixes: ["db", "dbPool"] });
-// { db: { hostName: "x", pool: { max: 4 } }, dbx: 1 }
+const camel = l.unflatten(l.object({
+  dbHostName: l.string(), dbPoolMax: l.number(), dbx: l.number(),
+}), { style: "camel", prefixes: ["db", "dbPool"] });
+// Output: { db: { hostName: string; pool: { max: number } }; dbx: number }
 ```
 
 A kebab prefix must be followed by `-`; a camel prefix must be followed by an
@@ -350,7 +351,7 @@ spelling. The output type follows the same rules: a group is optional when all i
 keys are optional, and at runtime a group exists only when one of its keys is
 present. Values are not copied. Own enumerable string keys are read, and outputs
 are ordinary objects with own data properties (`__proto__` included). A key that is
-both a value and a group, such as `db` with `db.host`, throws a `TypeError`.
+both a value and a group, such as `db` with `db.host`, makes parsing throw a `TypeError`.
 Validation issues keep the flat key paths.
 
 ## politty
