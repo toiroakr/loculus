@@ -989,15 +989,20 @@ type UnflattenKeys<T, St, P extends string> = (
       UnflattenLevel<UnflattenGroup<T, St, P, H & string>, St, PrefixRest<P, St, H & string>> }
   ) : never
 ) extends infer X ? { [K in keyof X]: X[K] } : never;
-export type Unflatten<T, O extends UnflattenOptions = { style: "dot" }> =
-  O extends { readonly style: infer St extends "kebab" | "camel"; readonly prefixes: infer A extends readonly string[] }
-    ? A extends unknown
-      ? number extends A["length"] ? Record<string, unknown>
-      : string extends A[number] ? Record<string, unknown>
-      : true extends { [I in keyof A]: IsUnion<A[I]> }[number] ? Record<string, unknown>
-      : St extends unknown ? UnflattenLevel<T, St, A[number]> : never
-      : never
-    : UnflattenLevel<T, "dot", never>;
+type UnflattenPrefixed<T, St, A extends readonly string[]> = A extends unknown
+  ? number extends A["length"] ? Record<string, unknown>
+  : string extends A[number] ? Record<string, unknown>
+  : true extends { [I in keyof A]: IsUnion<A[I]> }[number] ? Record<string, unknown>
+  : UnflattenLevel<T, St, A[number]>
+  : never;
+type UnflattenWith<T, O> = O extends unknown
+  ? (O extends { readonly style?: infer St } ? St : "dot") extends infer St
+    ? St extends "kebab" | "camel"
+      ? O extends { readonly prefixes: infer A extends readonly string[] } ? UnflattenPrefixed<T, St, A> : Record<string, unknown>
+      : UnflattenLevel<T, "dot", never>
+    : never
+  : never;
+export type Unflatten<T, O extends UnflattenOptions = { style: "dot" }> = T extends unknown ? UnflattenWith<T, O> : never;
 function splitPrefix(key: string, style: UnflattenStyle, prefix: string): string | undefined {
   if (key.length <= prefix.length || !key.startsWith(prefix)) return undefined;
   if (style === "kebab") return key[prefix.length] === "-" ? key.slice(prefix.length + 1) : undefined;

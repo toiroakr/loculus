@@ -144,6 +144,19 @@ describe("unflatten output types", () => {
     expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<{ db: { host: string } } | { dbHost: string }>();
   });
 
+  test("style unions containing dot produce a union of output shapes", () => {
+    const options = { style: "camel", prefixes: ["db"] } as { style: "dot" | "camel"; prefixes: ["db"] };
+    const schema = l.unflatten(l.object({ dbHost: l.string() }), options);
+    expectTypeOf<l.Output<typeof schema>>().toEqualTypeOf<{ dbHost: string } | { db: { host: string } }>();
+  });
+
+  test("the exported Unflatten type distributes over union inputs", () => {
+    expectTypeOf<l.Unflatten<{ "a.x": string } | { "b.y": number }>>()
+      .toEqualTypeOf<{ a: { x: string } } | { b: { y: number } }>();
+    expectTypeOf<l.Unflatten<{ dbHost: string } | { logLevel: number }, { style: "camel"; prefixes: ["db", "log"] }>>()
+      .toEqualTypeOf<{ db: { host: string } } | { log: { level: number } }>();
+  });
+
   test("options typed as UnflattenOptions cover both branches", () => {
     const options = {} as l.UnflattenOptions;
     const schema = l.unflatten(l.object({ "a.x": l.string() }), options);
