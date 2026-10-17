@@ -69,13 +69,35 @@ test("unflatten passes null and undefined through and works as a nested field", 
   assert.deepEqual(l.parse(l.object({ config: optional }), { config: { "a.b": "x" } }), { config: { a: { b: "x" } } });
 });
 
-test("unflatten rejects keys that are both values and groups", () => {
-  const schema = l.unflatten(l.object({ db: l.string(), "db.host": l.string() }));
-  assert.throws(() => l.parse(schema, { db: "x", "db.host": "y" }), {
+test("unflatten rejects declared keys that are both values and groups", () => {
+  assert.throws(() => l.unflatten(l.object({ db: l.string(), "db.host": l.string() })), {
     name: "TypeError", message: 'Cannot unflatten "db.host": "db" is both a value and a group',
   });
-  assert.throws(() => l.parse(l.unflatten(l.object({ "db.host": l.string(), db: l.string() })), { db: "x", "db.host": "y" }), TypeError);
-  assert.throws(() => l.parse(l.unflatten(l.object({ "a.b": l.number(), "a.b.c": l.number() })), { "a.b": "1", "a.b.c": "2" }), TypeError);
+  assert.throws(() => l.unflatten(l.object({ "db.host": l.string(), db: l.string() })), TypeError);
+  assert.throws(() => l.unflatten(l.object({ "a.b": l.number(), "a.b.c": l.number() })), TypeError);
+  assert.throws(() => l.unflatten(l.object({ dbHost: l.string(), db: l.string() }), { style: "camel", prefixes: ["db"] }), TypeError);
+});
+
+test("unflatten reports runtime key conflicts as issues", () => {
+  const schema = l.unflatten(l.object({ "db.host": l.string() }, { unknownKeys: "passthrough" }));
+  assert.deepEqual(l.safeParse(schema, { "db.host": "x", db: "y" }), {
+    issues: [{ message: 'Cannot unflatten "db": "db" is both a value and a group', code: "invalid_key", path: ["db"] }],
+  });
+  const union = l.unflatten(l.union([
+    l.object({ db: l.string({ optional: true }), "db.host": l.string({ optional: true }) }, { unknownKeys: "strip" }),
+    l.object({ other: l.string() }),
+  ]));
+  const value = l.parse(union, { "db.host": "y" });
+  const exact: Equal<typeof value, { db?: unknown } | { other: string }> = true;
+  void exact;
+  assert.deepEqual(value, { db: { host: "y" } });
+  assert.equal(l.safeParse(union, { db: "x", "db.host": "y" }).issues?.[0]?.code, "invalid_key");
+  l.config({ customError: issue => issue.code === "invalid_key" ? "キーが衝突しています" : undefined });
+  try {
+    assert.equal(l.safeParse(union, { db: "x", "db.host": "y" }).issues?.[0]?.message, "キーが衝突しています");
+  } finally {
+    l.config({ customError: undefined });
+  }
 });
 
 test("unflatten defines own properties without touching prototypes", () => {

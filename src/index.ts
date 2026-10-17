@@ -975,11 +975,14 @@ type UnflattenGroup<T, St, P extends string, H extends string> = {
 };
 type UnflattenHeads<T, St, P extends string> = { [K in keyof T]-?: KeyHead<K, St, P> }[keyof T];
 type UnflattenLevel<T, St, P extends string> = string extends keyof T ? Record<string, unknown> : (
-  { [K in keyof T as [KeyHead<K, St, P>] extends [never] ? K : never]: T[K] }
-  & { [H in UnflattenHeads<T, St, P> as {} extends UnflattenGroup<T, St, P, H> ? never : H]:
-    UnflattenLevel<UnflattenGroup<T, St, P, H>, St, PrefixRest<P, St, H>> }
-  & { [H in UnflattenHeads<T, St, P> as {} extends UnflattenGroup<T, St, P, H> ? H : never]?:
-    UnflattenLevel<UnflattenGroup<T, St, P, H>, St, PrefixRest<P, St, H>> }
+  UnflattenHeads<T, St, P> extends infer Heads extends string ? (
+    { [K in keyof T as [KeyHead<K, St, P>] extends [never] ? K extends Heads ? never : K : never]: T[K] }
+    & { [H in Heads & keyof T]?: unknown }
+    & { [H in Exclude<Heads, keyof T> as {} extends UnflattenGroup<T, St, P, H & string> ? never : H]:
+      UnflattenLevel<UnflattenGroup<T, St, P, H & string>, St, PrefixRest<P, St, H & string>> }
+    & { [H in Exclude<Heads, keyof T> as {} extends UnflattenGroup<T, St, P, H & string> ? H : never]?:
+      UnflattenLevel<UnflattenGroup<T, St, P, H & string>, St, PrefixRest<P, St, H & string>> }
+  ) : never
 ) extends infer X ? { [K in keyof X]: X[K] } : never;
 export type Unflatten<T, O extends UnflattenOptions = { style: "dot" }> =
   O extends { readonly style: infer St extends "kebab" | "camel"; readonly prefixes: readonly (infer P extends string)[] }
@@ -1008,7 +1011,7 @@ function unflattenLevel(
   entries: readonly (readonly [key: string, value: unknown, source: string])[],
   style: UnflattenStyle,
   prefixes: readonly string[],
-): Record<string, unknown> {
+): Result<Record<string, unknown>> {
   const output: Record<string, unknown> = {};
   const groups = new Map<string, [string, unknown, string][]>();
   for (const [key, value, source] of entries) {
@@ -1016,7 +1019,7 @@ function unflattenLevel(
     const name = split ? split[0] : key;
     let group = groups.get(name);
     if (split ? group === undefined && own(output, name) : own(output, name))
-      throw new TypeError(`Cannot unflatten "${source}": "${name}" is both a value and a group`);
+      return { issues: [{ message: `Cannot unflatten "${source}": "${name}" is both a value and a group`, code: "invalid_key", path: [source] }] };
     if (!split) defineValue(output, name, value);
     else {
       if (!group) {
@@ -1028,9 +1031,11 @@ function unflattenLevel(
   }
   for (const [name, group] of groups) {
     const nested = style === "dot" ? prefixes : prefixes.flatMap(prefix => splitPrefix(prefix, style, name) ?? []);
-    defineValue(output, name, unflattenLevel(group, style, nested));
+    const result = unflattenLevel(group, style, nested);
+    if (result.issues) return result;
+    defineValue(output, name, result.value);
   }
-  return output;
+  return { value: output };
 }
 type UnflattenOutput<O, Options extends UnflattenOptions> = O extends object ? Unflatten<O, Options> : O;
 type UnflattenInput = Record<string, unknown> | null | undefined;
@@ -1048,10 +1053,21 @@ export function unflatten<I, O extends UnflattenInput, const Options extends Unf
   schema: Schema<I, O>, options: Options,
 ): Schema<I, UnflattenOutput<O, Options>>;
 /* @__NO_SIDE_EFFECTS__ */
-export function unflatten(schema: AnySchema, options: UnflattenOptions = {}): AnySchema {
+export function unflatten(source: AnySchema, options: UnflattenOptions = {}): AnySchema {
   const style = options.style ?? "dot";
   const prefixes = "prefixes" in options ? [...options.prefixes] : [];
-  return transform(schema, (output: unknown) => isPlainObject(output)
-    ? unflattenLevel(Object.keys(output).map(key => [key, (output as Record<string, unknown>)[key], key] as const), style, prefixes)
-    : output);
+  const entries = (value: Record<string, unknown>) => Object.keys(value).map(key => [key, value[key], key] as const);
+  const shape = source.meta.kind === "object" ? source.meta.shape : undefined;
+  if (shape) {
+    const declared = unflattenLevel(entries(shape), style, prefixes);
+    if (declared.issues) throw new TypeError(declared.issues[0]!.message);
+  }
+  const validate = (value: unknown): Result<unknown> => {
+    const result = source["~standard"].validate(value);
+    if (result.issues || !isPlainObject(result.value)) return result;
+    const nested = unflattenLevel(entries(result.value), style, prefixes);
+    return nested.issues ? { issues: nested.issues.map(issue => customizeIssue(issue, value)) } : nested;
+  };
+  const meta = { ...source.meta, enumValues: source.meta.enumValues, inner: source };
+  return "field" in source ? field(meta, validate) : schema(meta, validate);
 }

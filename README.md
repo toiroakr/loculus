@@ -354,9 +354,14 @@ uppercase letter, which becomes lowercase. The remaining key keeps its own
 spelling. The output type follows the same rules: a group is optional when all its
 keys are optional, and at runtime a group exists only when one of its keys is
 present. Values are not copied. Own enumerable string keys are read, and outputs
-are ordinary objects with own data properties (`__proto__` included). A key that is
-both a value and a group, such as `db` with `db.host`, makes parsing throw a `TypeError`.
-Validation issues keep the flat key paths.
+are ordinary objects with own data properties (`__proto__` included). Validation
+issues keep the flat key paths.
+
+A name cannot be both a value and a group, such as `db` with `db.host`. When an
+object schema declares both, `unflatten()` throws a `TypeError` at construction.
+When the conflict only appears in a parsed value (passthrough keys, or union
+branches), parsing returns an `invalid_key` issue at the conflicting key, which
+`customError` can translate. The output type of such a name is `unknown`.
 
 ## politty
 
