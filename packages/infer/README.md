@@ -105,4 +105,4 @@ MIT
 
 `pnpm bench:infer` in the repository compares a consumer that uses `l.Input` / `l.Output` with one that imports the generated types. It uses the twelve benchmark fixtures (each copied 20 times by default, `COPIES` to change) and reports `tsc --extendedDiagnostics`.
 
-With TypeScript 7.0.2 and 240 schemas, the generated types needed 64 instantiations instead of 76,839 (schemas + inference), about a sixth of the check time (0.02 s instead of 0.12 s) and less memory (29.6 MB instead of 41.3 MB).
+With TypeScript 7.0.2 and 240 schemas, the generated types needed 64 instantiations instead of 70,323 (schemas + inference), about a sixth of the check time and less memory.
