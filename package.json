@@ -51,7 +51,8 @@
     "prepublishOnly": "npm run build",
     "check:tree-shaking": "pnpm build && node bench/tree-shaking.mjs && node bench/tree-shaking-rolldown.mjs",
     "check:packages": "node test/packages.mjs",
-    "bench:ci": "pnpm build && node bench/ci/run.mjs"
+    "bench:ci": "pnpm build && node bench/ci/run.mjs",
+    "bench:infer": "pnpm build && node bench/infer-types.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
