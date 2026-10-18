@@ -140,6 +140,20 @@ test('rejects one name bound to different types', async () => {
     () => renderModule(links, { outputOnly: true, outputSuffix: '', map: { LinksSchema: 'Money' } }),
     /"Money" would refer to both the generated type Money and Money from/,
   );
+  // Same schema name from two sources: one merges to `X`, the other splits into XInput/XOutput.
+  // Each type takes its imports from its own schema, not from whichever schema shares the name.
+  const money = { name: 'Money', importedName: 'Money', from: join(root, 'test/fixtures/infer/money.ts') };
+  const tag = { name: 'Tag', importedName: 'Tag', from: fixture };
+  const base = { schemaName: 'X', filePath: fixture, warnings: [] };
+  const mixed = renderModule(
+    [
+      { ...base, input: 'Money', output: 'Money', imports: [money], inputImports: [money], outputImports: [money] },
+      { ...base, input: 'string', output: 'Tag', imports: [tag], inputImports: [], outputImports: [tag] },
+    ],
+    { mergeSame: true, outFile: join(root, 'test/fixtures/infer/out.ts') },
+  );
+  assert.match(mixed, /import type \{ Money \} from "\.\/money\.js";/);
+  assert.match(mixed, /import type \{ Tag \} from "\.\/schemas\.js";/);
   const { files } = await generate({ cwd: conflict, include: ['only-a.ts', 'only-b.ts'], outDir: 'out' });
   assert.equal(files.length, 2);
 });

@@ -80,9 +80,9 @@ export function renderModule(schemas: readonly ExtractedSchema[], options: Rende
   const imports = new Map<string, Map<string, string>>();
   const namespaces: string[] = [];
   const bindings = new Map<string, string>(types.map((type) => [type.name, `the generated type ${type.name}`]));
-  const bySchema = new Map(schemas.map((schema) => [schema.schemaName, schema]));
-  for (const type of types) {
-    const schema = bySchema.get(type.schemaName)!;
+  // Pair each emitted type with its own schema rather than looking schemas up by name.
+  const emitted = schemas.flatMap((schema) => formatTypes([schema], options).map((type) => ({ type, schema })));
+  for (const { type, schema } of emitted) {
     // A merged type is the input text, which equals the output text.
     for (const entry of type.kind === 'output' ? schema.outputImports : schema.inputImports) {
       const specifier = importSpecifier(entry, directory);
