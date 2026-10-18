@@ -14,11 +14,14 @@ npm install --save-dev @loculus/infer
 // src/query.ts
 import * as l from 'loculus';
 
-export const QuerySchema = l.object({
-  search: l.string({ trim: true, min: 1, description: 'Words to search for' }),
-  page: l.number({ integer: true, gte: 1, default: 1 }),
-  tag: l.array(l.enum(['docs', 'code']), { wrapScalar: true, optional: true }),
-}, { description: 'Search query parameters' });
+export const QuerySchema = l.object(
+  {
+    search: l.string({ trim: true, min: 1, description: 'Words to search for' }),
+    page: l.number({ integer: true, gte: 1, default: 1 }),
+    tag: l.array(l.enum(['docs', 'code']), { wrapScalar: true, optional: true }),
+  },
+  { description: 'Search query parameters' },
+);
 ```
 
 ```bash
@@ -31,7 +34,7 @@ export type QueryInput = {
   /** Words to search for */
   search: string;
   page?: string | number | undefined;
-  tag?: "docs" | "code" | readonly ("docs" | "code")[] | undefined;
+  tag?: 'docs' | 'code' | readonly ('docs' | 'code')[] | undefined;
 };
 
 /** Search query parameters */
@@ -39,7 +42,7 @@ export type QueryOutput = {
   /** Words to search for */
   search: string;
   page: number;
-  tag?: ("docs" | "code")[] | undefined;
+  tag?: ('docs' | 'code')[] | undefined;
 };
 ```
 

@@ -32,18 +32,24 @@ export function formatTypes(schemas: readonly ExtractedSchema[], options: Format
   const types: FormattedType[] = [];
   for (const schema of schemas) {
     const base = baseName(schema.schemaName, options);
-    const common = { schemaName: schema.schemaName, ...(schema.description === undefined ? {} : { description: schema.description }) };
+    const common = {
+      schemaName: schema.schemaName,
+      ...(schema.description === undefined ? {} : { description: schema.description }),
+    };
     if (options.mergeSame && !options.inputOnly && !options.outputOnly && schema.input === schema.output) {
       types.push({ ...common, name: base, kind: 'merged', text: schema.input });
       continue;
     }
-    if (!options.outputOnly) types.push({ ...common, name: base + (options.inputSuffix ?? 'Input'), kind: 'input', text: schema.input });
-    if (!options.inputOnly) types.push({ ...common, name: base + (options.outputSuffix ?? 'Output'), kind: 'output', text: schema.output });
+    if (!options.outputOnly)
+      types.push({ ...common, name: base + (options.inputSuffix ?? 'Input'), kind: 'input', text: schema.input });
+    if (!options.inputOnly)
+      types.push({ ...common, name: base + (options.outputSuffix ?? 'Output'), kind: 'output', text: schema.output });
   }
   const seen = new Map<string, string>();
   for (const type of types) {
     const previous = seen.get(type.name);
-    if (previous !== undefined) throw new Error(`Type name "${type.name}" is generated for both ${previous} and ${type.schemaName}`);
+    if (previous !== undefined)
+      throw new Error(`Type name "${type.name}" is generated for both ${previous} and ${type.schemaName}`);
     seen.set(type.name, type.schemaName);
   }
   return types;
@@ -53,7 +59,9 @@ function baseName(schemaName: string, options: FormatOptions): string {
   const mapped = options.map?.[schemaName];
   if (mapped !== undefined) return mapped;
   const { suffix } = options;
-  return suffix && schemaName.endsWith(suffix) && schemaName.length > suffix.length ? schemaName.slice(0, -suffix.length) : schemaName;
+  return suffix && schemaName.endsWith(suffix) && schemaName.length > suffix.length
+    ? schemaName.slice(0, -suffix.length)
+    : schemaName;
 }
 
 export interface RenderOptions extends FormatOptions {
@@ -69,7 +77,7 @@ export interface RenderOptions extends FormatOptions {
 export function renderModule(schemas: readonly ExtractedSchema[], options: RenderOptions = {}): string {
   const types = formatTypes(schemas, options);
   const directory = options.outFile ? dirname(options.outFile) : (options.cwd ?? process.cwd());
-  const used = types.map(type => type.text).join('\n');
+  const used = types.map((type) => type.text).join('\n');
   const imports = new Map<string, Map<string, string>>();
   const namespaces: string[] = [];
   for (const schema of schemas) {
@@ -88,7 +96,10 @@ export function renderModule(schemas: readonly ExtractedSchema[], options: Rende
   const lines: string[] = [];
   if (options.header) lines.push(options.header, '');
   const importLines = [
-    ...[...imports].map(([specifier, names]) => `import type { ${[...new Set(names.values())].sort().join(', ')} } from ${JSON.stringify(specifier)};`),
+    ...[...imports].map(
+      ([specifier, names]) =>
+        `import type { ${[...new Set(names.values())].sort().join(', ')} } from ${JSON.stringify(specifier)};`,
+    ),
     ...new Set(namespaces),
   ];
   if (importLines.length) lines.push(...importLines, '');

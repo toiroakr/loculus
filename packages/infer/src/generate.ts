@@ -41,13 +41,23 @@ export async function generate(options: GenerateOptions): Promise<GenerateResult
   const files = await resolveFiles(options.include, options.exclude, cwd);
   if (files.length === 0) throw new Error(`No files matched ${options.include.join(', ')}`);
   const extractor = new LoculusTypeExtractor(options);
-  const extracted = files.map(file => ({ file, schemas: extractor.extractAll(file, options) }));
-  const warnings = [...new Set(extracted.flatMap(({ schemas }) => schemas.flatMap(schema => schema.warnings)))];
+  const extracted = files.map((file) => ({ file, schemas: extractor.extractAll(file, options) }));
+  const warnings = [...new Set(extracted.flatMap(({ schemas }) => schemas.flatMap((schema) => schema.warnings)))];
   const withSchemas = extracted.filter(({ schemas }) => schemas.length > 0);
   if (options.outFile) {
     const path = resolve(cwd, options.outFile);
-    const schemas = withSchemas.flatMap(entry => entry.schemas);
-    return { warnings, files: [{ path, sources: withSchemas.map(entry => entry.file), schemas, content: renderModule(schemas, { ...options, outFile: path, header: GENERATED_HEADER }) }] };
+    const schemas = withSchemas.flatMap((entry) => entry.schemas);
+    return {
+      warnings,
+      files: [
+        {
+          path,
+          sources: withSchemas.map((entry) => entry.file),
+          schemas,
+          content: renderModule(schemas, { ...options, outFile: path, header: GENERATED_HEADER }),
+        },
+      ],
+    };
   }
   if (options.outDir) {
     const pattern = options.outPattern ?? (options.declaration ? '[name].types.d.ts' : '[name].types.ts');
@@ -56,13 +66,28 @@ export async function generate(options: GenerateOptions): Promise<GenerateResult
       const name = basename(file, extname(file)).replace(/\.d$/, '');
       const path = resolve(cwd, options.outDir!, pattern.replaceAll('[name]', name));
       const previous = byPath.get(path);
-      if (previous) throw new Error(`${previous} and ${file} would both be written to ${path}; use outFile or a different outPattern`);
+      if (previous)
+        throw new Error(
+          `${previous} and ${file} would both be written to ${path}; use outFile or a different outPattern`,
+        );
       byPath.set(path, file);
-      return { path, sources: [file], schemas, content: renderModule(schemas, { ...options, outFile: path, header: GENERATED_HEADER }) };
+      return {
+        path,
+        sources: [file],
+        schemas,
+        content: renderModule(schemas, { ...options, outFile: path, header: GENERATED_HEADER }),
+      };
     });
     return { warnings, files: generated };
   }
-  return { warnings, files: withSchemas.map(({ file, schemas }) => ({ sources: [file], schemas, content: renderModule(schemas, { ...options, cwd }) })) };
+  return {
+    warnings,
+    files: withSchemas.map(({ file, schemas }) => ({
+      sources: [file],
+      schemas,
+      content: renderModule(schemas, { ...options, cwd }),
+    })),
+  };
 }
 
 /** Returns the generated files whose content differs from what is on disk. */
@@ -76,7 +101,18 @@ export async function findOutdated(files: readonly GeneratedFile[]): Promise<Gen
   return outdated;
 }
 
-async function resolveFiles(include: readonly string[], exclude: readonly string[] = [], cwd: string): Promise<string[]> {
-  const matches = await glob([...include], { cwd, absolute: true, ignore: [...exclude, '**/node_modules/**'], expandDirectories: false });
-  return [...new Set(matches.map(file => resolve(file)))].filter(file => /\.[cm]?tsx?$/.test(file) && !/\.d\.[cm]?ts$/.test(file)).sort();
+async function resolveFiles(
+  include: readonly string[],
+  exclude: readonly string[] = [],
+  cwd: string,
+): Promise<string[]> {
+  const matches = await glob([...include], {
+    cwd,
+    absolute: true,
+    ignore: [...exclude, '**/node_modules/**'],
+    expandDirectories: false,
+  });
+  return [...new Set(matches.map((file) => resolve(file)))]
+    .filter((file) => /\.[cm]?tsx?$/.test(file) && !/\.d\.[cm]?ts$/.test(file))
+    .sort();
 }

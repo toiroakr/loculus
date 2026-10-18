@@ -86,11 +86,12 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     for (const file of outdated) process.stderr.write(`out of date: ${relative(process.cwd(), file.path!)}\n`);
     return outdated.length ? 1 : 0;
   }
-  const print = values['dry-run'] || files.every(file => !file.path);
+  const print = values['dry-run'] || files.every((file) => !file.path);
   for (const [index, file] of files.entries()) {
     if (print) {
       const label = file.path ?? file.sources[0]!;
-      if (files.length > 1 || file.path) process.stdout.write(`${index ? '\n' : ''}// ${relative(process.cwd(), label)}\n`);
+      if (files.length > 1 || file.path)
+        process.stdout.write(`${index ? '\n' : ''}// ${relative(process.cwd(), label)}\n`);
       process.stdout.write(file.content);
     } else {
       await mkdir(dirname(file.path!), { recursive: true });
@@ -103,13 +104,16 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
 }
 
 function list(value: string): string[] {
-  return value.split(',').map(item => item.trim()).filter(Boolean);
+  return value
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
 }
 
 function parseMap(value: string): Record<string, string> {
   const map: Record<string, string> = {};
   for (const entry of list(value)) {
-    const [from, to, extra] = entry.split(':').map(part => part.trim());
+    const [from, to, extra] = entry.split(':').map((part) => part.trim());
     if (!from || !to || extra !== undefined) throw new Error(`Invalid mapping "${entry}"; expected Schema:Type`);
     map[from] = to;
   }

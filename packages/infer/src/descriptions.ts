@@ -26,12 +26,20 @@ export function readDescriptions(expression: Expression | undefined, seen = new 
   }
   if (!Node.isCallExpression(node)) return {};
   const callee = node.getExpression();
-  const name = Node.isPropertyAccessExpression(callee) ? callee.getName() : Node.isIdentifier(callee) ? callee.getText() : '';
+  const name = Node.isPropertyAccessExpression(callee)
+    ? callee.getName()
+    : Node.isIdentifier(callee)
+      ? callee.getText()
+      : '';
   const args = node.getArguments() as Expression[];
   if (wrappers.has(name)) {
     const inner = readDescriptions(args[0], seen);
     const options = name === 'unflatten' ? undefined : readOwnDescription(args.slice(1));
-    return { ...inner, ...(options === undefined ? {} : { description: options }), ...(name === 'unflatten' ? { inputOnlyFields: true } : {}) };
+    return {
+      ...inner,
+      ...(options === undefined ? {} : { description: options }),
+      ...(name === 'unflatten' ? { inputOnlyFields: true } : {}),
+    };
   }
   const tree: DescriptionTree = {};
   if (name === 'object' && args[0] && Node.isObjectLiteralExpression(unwrap(args[0]))) {
@@ -79,7 +87,8 @@ function readOwnDescription(args: readonly Expression[]): string | undefined {
 
 function propertyKey(name: Node): string | undefined {
   if (Node.isIdentifier(name) || Node.isPrivateIdentifier(name)) return name.getText();
-  if (Node.isStringLiteral(name) || Node.isNoSubstitutionTemplateLiteral(name) || Node.isNumericLiteral(name)) return name.getLiteralText();
+  if (Node.isStringLiteral(name) || Node.isNoSubstitutionTemplateLiteral(name) || Node.isNumericLiteral(name))
+    return name.getLiteralText();
   if (Node.isComputedPropertyName(name)) {
     const inner = unwrap(name.getExpression());
     if (Node.isStringLiteral(inner) || Node.isNoSubstitutionTemplateLiteral(inner)) return inner.getLiteralValue();
@@ -94,6 +103,7 @@ function unwrap(node: Node): Node {
     current.isKind(SyntaxKind.AsExpression) ||
     current.isKind(SyntaxKind.SatisfiesExpression) ||
     current.isKind(SyntaxKind.NonNullExpression)
-  ) current = current.getExpression();
+  )
+    current = current.getExpression();
   return current;
 }
