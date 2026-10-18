@@ -25,6 +25,7 @@ jobs:
           cache: true
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
+      - run: pnpm test:types
       - run: pnpm test
       - run: pnpm build
   react-hook-form:
