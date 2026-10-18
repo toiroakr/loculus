@@ -45,3 +45,8 @@ export const FlatSchema = l.unflatten(l.object({
 export const HiddenSchema = l.object({ value: l.transform(l.string(), (secret): Hidden => ({ secret })) });
 
 export const notASchema = { _input: 1, _output: 2 };
+
+export const WrapSchema = l.object({ value: l.array(l.string(), { wrapScalar: true }) });
+export const BrandSchema = l.object({
+  id: l.transform(l.string(), value => value as string & { readonly brand: 'Id' }),
+});

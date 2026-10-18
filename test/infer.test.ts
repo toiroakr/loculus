@@ -13,7 +13,7 @@ const fixture = fileURLToPath(new URL('./fixtures/infer/schemas.ts', import.meta
 const extractor = new LoculusTypeExtractor({ cwd: root });
 
 test('lists exported Loculus schemas in declaration order', () => {
-  assert.deepEqual(extractor.listSchemas(fixture), ['QuerySchema', 'SameSchema', 'LinksSchema', 'EventSchema', 'OrderSchema', 'FlatSchema', 'HiddenSchema']);
+  assert.deepEqual(extractor.listSchemas(fixture), ['QuerySchema', 'SameSchema', 'LinksSchema', 'EventSchema', 'OrderSchema', 'FlatSchema', 'HiddenSchema', 'WrapSchema', 'BrandSchema']);
 });
 
 test('extracts input and output types in shape order', () => {
@@ -57,6 +57,17 @@ test('prints unions of object variants', () => {
 } | {
   type: "b";
   b: number;
+}`);
+});
+
+test('omits union members absorbed by distributed intersections and keeps branded primitives', () => {
+  assert.equal(extractor.extract(fixture, 'WrapSchema').input, `{
+  value: string | readonly string[];
+}`);
+  assert.equal(extractor.extract(fixture, 'BrandSchema').output, `{
+  id: string & {
+    readonly brand: "Id";
+  };
 }`);
 });
 

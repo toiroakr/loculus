@@ -227,7 +227,13 @@ class TypeNodeBuilder {
       // Print null and undefined last, like the compiler does.
       const nullish = (member: ts.Type) =>
         member.flags & ts.TypeFlags.Undefined ? 2 : member.flags & ts.TypeFlags.Null ? 1 : 0;
-      for (const member of [...type.types].sort((a, b) => nullish(a) - nullish(b))) {
+      // `A & B` adds nothing to a union that already contains `A`. Such members
+      // appear when the compiler distributes `ObjectInput`'s intersection.
+      const absorbed = (member: ts.Type) =>
+        member.isIntersection() && member.types.some((part) => type.types.includes(part));
+      for (const member of [...type.types]
+        .filter((member) => !absorbed(member))
+        .sort((a, b) => nullish(a) - nullish(b))) {
         if (member.flags & ts.TypeFlags.BooleanLiteral && booleans.length === 2) {
           if (member === booleans[0]) members.push(factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword));
           continue;
@@ -240,6 +246,15 @@ class TypeNodeBuilder {
         );
       }
       return factory.createUnionTypeNode(members);
+    }
+    if (type.isIntersection() && type.types.some((part) => !(part.flags & ts.TypeFlags.Object))) {
+      // A primitive intersected with an object, such as a branded string, is not an object shape.
+      return factory.createIntersectionTypeNode(
+        type.types.map((part) => {
+          const node = this.build(part);
+          return ts.isUnionTypeNode(node) || ts.isFunctionTypeNode(node) ? factory.createParenthesizedType(node) : node;
+        }),
+      );
     }
     if (checker.isArrayType(type)) {
       const [element] = checker.getTypeArguments(type as ts.TypeReference);
