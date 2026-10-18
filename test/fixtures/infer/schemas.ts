@@ -55,7 +55,7 @@ export const PresenceSchema = l.object({
   nullable: l.string({ nullable: true }),
   nullish: l.number({ nullish: true }),
   fallback: l.number({ default: { null: 0, undefined: 1 } }),
-  nested: l.object({ deep: l.boolean() }, { optional: true }),
+  nested: l.object({ later: l.string({ optional: true }), deep: l.boolean() }, { optional: true }),
   matrix: l.array(l.array(l.number())),
 });
 

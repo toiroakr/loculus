@@ -125,6 +125,7 @@ export type PresenceInput = {
   nullish?: string | number | null | undefined;
   fallback?: string | number | null | undefined;
   nested?: {
+    later?: string | undefined;
     deep: string | boolean;
   } | undefined;
   matrix: readonly (readonly (string | number)[])[];
@@ -135,6 +136,7 @@ export type PresenceOutput = {
   nullish?: number | null | undefined;
   fallback: number;
   nested?: {
+    later?: string | undefined;
     deep: boolean;
   } | undefined;
   matrix: number[][];

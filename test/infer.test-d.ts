@@ -75,14 +75,14 @@ describe("@loculus/infer generated types match the documented behavior", () => {
       nullable: string | null;
       nullish?: string | number | null | undefined;
       fallback?: string | number | null | undefined;
-      nested?: { deep: string | boolean } | undefined;
+      nested?: { later?: string | undefined; deep: string | boolean } | undefined;
       matrix: readonly (readonly (string | number)[])[];
     }>();
     expectTypeOf<t.PresenceOutput>().toEqualTypeOf<{
       nullable: string | null;
       nullish?: number | null | undefined;
       fallback: number;
-      nested?: { deep: boolean } | undefined;
+      nested?: { later?: string | undefined; deep: boolean } | undefined;
       matrix: number[][];
     }>();
   });

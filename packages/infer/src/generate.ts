@@ -1,6 +1,5 @@
-import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { basename, extname, resolve } from 'node:path';
+import { basename, dirname, extname, relative, resolve, sep } from 'node:path';
 import { glob } from 'tinyglobby';
 import { LoculusTypeExtractor, type ExtractOptions, type ExtractedSchema, type ExtractorOptions } from './extractor.js';
 import { renderModule, type FormatOptions } from './format.js';
@@ -23,7 +22,7 @@ export interface GenerateOptions extends ExtractorOptions, ExtractOptions, Forma
 export interface GeneratedFile {
   /** Absolute output path, or undefined when no output location was given. */
   readonly path?: string;
-  /** The file was generated before, but its source no longer exports schemas; delete it. */
+  /** A file this tool generated earlier whose source no longer exports schemas; delete it. */
   readonly obsolete?: boolean;
   readonly sources: readonly string[];
   readonly schemas: readonly ExtractedSchema[];
@@ -44,6 +43,7 @@ export async function generate(options: GenerateOptions): Promise<GenerateResult
   const files = await resolveFiles(options.include, options.exclude, cwd);
   if (files.length === 0) throw new Error(`No files matched ${options.include.join(', ')}`);
   const extractor = new LoculusTypeExtractor(options);
+  extractor.addSourceFiles(files);
   const extracted = files.map((file) => ({ file, schemas: extractor.extractAll(file, options) }));
   const warnings = [...new Set(extracted.flatMap(({ schemas }) => schemas.flatMap((schema) => schema.warnings)))];
   const withSchemas = extracted.filter(({ schemas }) => schemas.length > 0);
@@ -66,7 +66,10 @@ export async function generate(options: GenerateOptions): Promise<GenerateResult
     const pattern = options.outPattern ?? (options.declaration ? '[name].types.d.ts' : '[name].types.ts');
     const byPath = new Map<string, string>();
     const outputPath = (file: string) =>
-      resolve(cwd, options.outDir!, pattern.replaceAll('[name]', basename(file, extname(file)).replace(/\.d$/, '')));
+      resolve(cwd, options.outDir!, pattern.replaceAll('[name]', basename(file, extname(file))));
+    // Naming the source lets a later run tell which outputs belong to which file.
+    const headerFor = (file: string, path: string) =>
+      `${GENERATED_HEADER}\n// Source: ${relative(dirname(path), file).split(sep).join('/')}`;
     const generated: GeneratedFile[] = withSchemas.map(({ file, schemas }) => {
       const path = outputPath(file);
       const previous = byPath.get(path);
@@ -79,14 +82,18 @@ export async function generate(options: GenerateOptions): Promise<GenerateResult
         path,
         sources: [file],
         schemas,
-        content: renderModule(schemas, { ...options, outFile: path, header: GENERATED_HEADER }),
+        content: renderModule(schemas, { ...options, outFile: path, header: headerFor(file, path) }),
       };
     });
-    // A source that stopped exporting schemas leaves its old output behind; report it for deletion.
+    // A source that no longer exports any schema leaves its old output behind; report it for deletion.
+    // Sources that only `schemas` filtered out keep their output, and so does any file at that path
+    // that was not generated from this source.
     for (const { file, schemas } of extracted) {
-      if (schemas.length > 0) continue;
+      if (schemas.length > 0 || extractor.listSchemas(file).length > 0) continue;
       const path = outputPath(file);
-      if (!byPath.has(path) && existsSync(path))
+      if (byPath.has(path)) continue;
+      const current = await readFile(path, 'utf8').catch(() => undefined);
+      if (current?.startsWith(`${headerFor(file, path)}\n`))
         generated.push({ path, sources: [file], schemas, content: '', obsolete: true });
     }
     return { warnings, files: generated };

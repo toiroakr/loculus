@@ -1,12 +1,12 @@
 # Changesets
 
-Add a changeset when a change affects `loculus` or `@loculus/rolldown`:
+Add a changeset when a change affects `loculus`, `@loculus/rolldown` or `@loculus/infer`:
 
 ```sh
 pnpm changeset
 ```
 
-Select the affected package or both. They are independently versioned. Before 1.0,
+Select the affected packages. They are independently versioned. Before 1.0,
 use `patch` for fixes and new compatible features, and `minor` for breaking changes.
 Describe the resulting behavior for library users.
 

@@ -77,13 +77,14 @@ export interface RenderOptions extends FormatOptions {
 export function renderModule(schemas: readonly ExtractedSchema[], options: RenderOptions = {}): string {
   const types = formatTypes(schemas, options);
   const directory = options.outFile ? dirname(options.outFile) : (options.cwd ?? process.cwd());
-  const used = types.map((type) => type.text).join('\n');
   const imports = new Map<string, Map<string, string>>();
   const namespaces: string[] = [];
   const bindings = new Map<string, string>(types.map((type) => [type.name, `the generated type ${type.name}`]));
-  for (const schema of schemas) {
-    for (const entry of schema.imports) {
-      if (!new RegExp(`(?<![\\w$.])${escapeRegExp(entry.name)}(?![\\w$])`).test(used)) continue;
+  const bySchema = new Map(schemas.map((schema) => [schema.schemaName, schema]));
+  for (const type of types) {
+    const schema = bySchema.get(type.schemaName)!;
+    // A merged type is the input text, which equals the output text.
+    for (const entry of type.kind === 'output' ? schema.outputImports : schema.inputImports) {
       const specifier = importSpecifier(entry, directory);
       // One module can bind each name once; refuse to emit a file where it means two things.
       const identity = `${entry.importedName} from ${specifier}`;
@@ -122,8 +123,4 @@ function importSpecifier(entry: TypeImport, directory: string): string {
   let specifier = relative(directory, entry.from).split(sep).join('/');
   specifier = specifier.replace(/\.d\.([cm]?)ts$/, '.$1js').replace(/\.([cm]?)tsx?$/, '.$1js');
   return specifier.startsWith('.') ? specifier : `./${specifier}`;
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

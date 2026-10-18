@@ -35,6 +35,10 @@ export interface ExtractedSchema {
   readonly description?: string;
   /** Named types referenced by `input` or `output` that need an import. */
   readonly imports: readonly TypeImport[];
+  /** Named types referenced by `input`. */
+  readonly inputImports: readonly TypeImport[];
+  /** Named types referenced by `output`. */
+  readonly outputImports: readonly TypeImport[];
   /** Referenced types that cannot be imported, such as non-exported local types. */
   readonly warnings: readonly string[];
 }
@@ -96,13 +100,16 @@ export class LoculusTypeExtractor {
       const wanted = new Set(options.schemas);
       candidates = candidates.filter((candidate) => wanted.has(candidate.exportName));
     }
+    if (candidates.length === 0) return [];
+    const scope = scopeOf(sourceFile);
     return candidates.map(({ exportName, declaration }) => {
       const tree = options.withDescriptions ? readDescriptions(declaration.getInitializer()) : {};
-      const references = new References(sourceFile);
+      const inputReferences = new References(sourceFile, scope);
+      const outputReferences = new References(sourceFile, scope);
       const schemaType = declaration.getType().compilerType;
       const order = this.#shapeOrder(schemaType, declaration.compilerNode);
-      const input = this.#print(declaration, schemaType, '_input', tree, order, false, references);
-      const output = this.#print(declaration, schemaType, '_output', tree, order, true, references);
+      const input = this.#print(declaration, schemaType, '_input', tree, order, false, inputReferences);
+      const output = this.#print(declaration, schemaType, '_output', tree, order, true, outputReferences);
       const description = options.withDescriptions ? tree.description : undefined;
       return {
         schemaName: exportName,
@@ -110,8 +117,10 @@ export class LoculusTypeExtractor {
         input,
         output,
         ...(description === undefined ? {} : { description }),
-        imports: references.imports(),
-        warnings: references.warnings,
+        imports: inputReferences.merge(outputReferences),
+        inputImports: inputReferences.imports(),
+        outputImports: outputReferences.imports(),
+        warnings: [...new Set([...inputReferences.warnings, ...outputReferences.warnings])],
       };
     });
   }
@@ -123,13 +132,21 @@ export class LoculusTypeExtractor {
     return result;
   }
 
+  /** Loads several files before extraction so their dependencies are resolved once, not per file. */
+  addSourceFiles(filePaths: readonly string[]): void {
+    let added = false;
+    for (const filePath of filePaths) {
+      const absolute = resolve(this.#cwd, filePath);
+      if (this.#project.getSourceFile(absolute)) continue;
+      this.#project.addSourceFileAtPath(absolute);
+      added = true;
+    }
+    if (added) this.#project.resolveSourceFileDependencies();
+  }
+
   #sourceFile(filePath: string): SourceFile {
-    const absolute = resolve(this.#cwd, filePath);
-    const existing = this.#project.getSourceFile(absolute);
-    if (existing) return existing;
-    const sourceFile = this.#project.addSourceFileAtPath(absolute);
-    this.#project.resolveSourceFileDependencies();
-    return sourceFile;
+    this.addSourceFiles([filePath]);
+    return this.#project.getSourceFileOrThrow(resolve(this.#cwd, filePath));
   }
 
   #candidates(sourceFile: SourceFile): Candidate[] {
@@ -385,7 +402,15 @@ function memberName(member: ts.TypeElement): string | undefined {
 }
 
 function reorder(node: ts.TypeNode, order: ShapeOrder | undefined): ts.TypeNode {
-  if (!order || !ts.isTypeLiteralNode(node)) return node;
+  if (!order) return node;
+  // Optional, nullable and readonly wrappers keep the object's own field order.
+  if (ts.isUnionTypeNode(node))
+    return ts.factory.updateUnionTypeNode(
+      node,
+      ts.factory.createNodeArray(node.types.map((type) => reorder(type, order))),
+    );
+  if (ts.isParenthesizedTypeNode(node)) return ts.factory.updateParenthesizedType(node, reorder(node.type, order));
+  if (!ts.isTypeLiteralNode(node)) return node;
   const keys = [...order.keys()];
   const rank = (member: ts.TypeElement) => {
     const index = keys.indexOf(memberName(member) ?? '');
@@ -447,29 +472,40 @@ export function formatDoc(description: string, indent = ''): string {
   return `${indent}/**\n${lines.map((line) => `${indent} *${line ? ` ${line}` : ''}`).join('\n')}\n${indent} */\n`;
 }
 
+function scopeOf(sourceFile: SourceFile): Map<string, MorphSymbol> {
+  return new Map(
+    sourceFile
+      .getProject()
+      .getTypeChecker()
+      .getSymbolsInScope(
+        sourceFile,
+        ts.SymbolFlags.Type | ts.SymbolFlags.Value | ts.SymbolFlags.Namespace | ts.SymbolFlags.Alias,
+      )
+      .map((symbol) => [symbol.getName(), symbol]),
+  );
+}
+
 /** Tracks named types referenced by printed type nodes. */
 class References {
   readonly warnings: string[] = [];
   readonly #sourceFile: SourceFile;
-  readonly #scope: Map<string, MorphSymbol>;
+  readonly #scope: ReadonlyMap<string, MorphSymbol>;
   readonly #imports = new Map<string, TypeImport>();
 
-  constructor(sourceFile: SourceFile) {
+  constructor(sourceFile: SourceFile, scope: ReadonlyMap<string, MorphSymbol>) {
     this.#sourceFile = sourceFile;
-    this.#scope = new Map(
-      sourceFile
-        .getProject()
-        .getTypeChecker()
-        .getSymbolsInScope(
-          sourceFile,
-          ts.SymbolFlags.Type | ts.SymbolFlags.Value | ts.SymbolFlags.Namespace | ts.SymbolFlags.Alias,
-        )
-        .map((symbol) => [symbol.getName(), symbol]),
-    );
+    this.#scope = scope;
   }
 
   imports(): TypeImport[] {
     return [...this.#imports.values()];
+  }
+
+  /** The imports of both, rejecting one name bound to different types. */
+  merge(other: References): TypeImport[] {
+    const merged = new References(this.#sourceFile, this.#scope);
+    for (const entry of [...this.imports(), ...other.imports()]) merged.#record(entry);
+    return merged.imports();
   }
 
   collect(node: ts.Node): void {
