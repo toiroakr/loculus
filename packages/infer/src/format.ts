@@ -80,10 +80,17 @@ export function renderModule(schemas: readonly ExtractedSchema[], options: Rende
   const used = types.map((type) => type.text).join('\n');
   const imports = new Map<string, Map<string, string>>();
   const namespaces: string[] = [];
+  const bindings = new Map<string, string>(types.map((type) => [type.name, `the generated type ${type.name}`]));
   for (const schema of schemas) {
     for (const entry of schema.imports) {
       if (!new RegExp(`(?<![\\w$.])${escapeRegExp(entry.name)}(?![\\w$])`).test(used)) continue;
       const specifier = importSpecifier(entry, directory);
+      // One module can bind each name once; refuse to emit a file where it means two things.
+      const identity = `${entry.importedName} from ${specifier}`;
+      const bound = bindings.get(entry.name);
+      if (bound !== undefined && bound !== identity)
+        throw new Error(`"${entry.name}" would refer to both ${bound} and ${identity}; rename one of them`);
+      bindings.set(entry.name, identity);
       if (entry.importedName === '*') {
         namespaces.push(`import type * as ${entry.name} from ${JSON.stringify(specifier)};`);
         continue;

@@ -84,15 +84,16 @@ export interface Field<
 }
 export type Shape = Readonly<Record<string, Field<any, any, boolean>>>;
 type Simplify<T> = { [K in keyof T]: T[K] };
-// Mapping over precomputed required keys needs fewer instantiations than a key-remapping
-// `as` clause. ObjectInput keeps its `as` clause: precomputed keys there are evaluated
-// eagerly on every object() call, which costs more than it saves when the input type is unused.
+// Picking precomputed required keys needs fewer instantiations than a key-remapping `as`
+// clause, and Pick keeps the shape's readonly modifiers. ObjectInput keeps its `as` clause:
+// precomputed keys there are evaluated eagerly on every object() call, which costs more than
+// it saves when the input type is unused.
 type RequiredOutputKeys<S extends Shape> = { [K in keyof S]: S[K]["_optional"] extends true ? never : K }[keyof S];
 export type ObjectOutput<S extends Shape> =
   S extends Readonly<Record<string, { readonly _optional: false }>>
     ? { [K in keyof S]: S[K]["_output"] }
     : Simplify<
-        { [K in RequiredOutputKeys<S>]: S[K]["_output"] } & {
+        Pick<{ [K in keyof S]: S[K]["_output"] }, RequiredOutputKeys<S>> & {
           [K in keyof S]?: S[K]["_output"];
         }
       >;

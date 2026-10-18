@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { dirname, relative } from 'node:path';
 import { parseArgs } from 'node:util';
 import { findOutdated, generate, type GenerateOptions } from './generate.js';
@@ -68,8 +68,9 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     ...(values.schemas && { schemas: list(values.schemas) }),
     ...(values.map && { map: parseMap(values.map) }),
     ...(values.suffix && { suffix: values.suffix }),
-    ...(values['input-suffix'] && { inputSuffix: values['input-suffix'] }),
-    ...(values['output-suffix'] && { outputSuffix: values['output-suffix'] }),
+    // An empty suffix is meaningful: `--output-only --output-suffix ''` names types after the schema.
+    ...(values['input-suffix'] !== undefined && { inputSuffix: values['input-suffix'] }),
+    ...(values['output-suffix'] !== undefined && { outputSuffix: values['output-suffix'] }),
     ...(values.outDir && { outDir: values.outDir }),
     ...(values.outFile && { outFile: values.outFile }),
     ...(values.outPattern && { outPattern: values.outPattern }),
@@ -79,6 +80,7 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
     withDescriptions: values['with-descriptions'] ?? false,
     declaration: values.declaration ?? false,
   };
+  if (values.check && !values.outDir && !values.outFile) throw new Error('--check needs --outDir or --outFile');
   const { files, warnings } = await generate(options);
   for (const warning of warnings) process.stderr.write(`warning: ${warning}\n`);
   if (values.check) {
@@ -88,7 +90,13 @@ export async function main(argv: readonly string[] = process.argv.slice(2)): Pro
   }
   const print = values['dry-run'] || files.every((file) => !file.path);
   for (const [index, file] of files.entries()) {
-    if (print) {
+    if (file.obsolete) {
+      if (print) process.stdout.write(`${index ? '\n' : ''}// delete ${relative(process.cwd(), file.path!)}\n`);
+      else {
+        await rm(file.path!);
+        process.stderr.write(`deleted ${relative(process.cwd(), file.path!)}\n`);
+      }
+    } else if (print) {
       const label = file.path ?? file.sources[0]!;
       if (files.length > 1 || file.path)
         process.stdout.write(`${index ? '\n' : ''}// ${relative(process.cwd(), label)}\n`);

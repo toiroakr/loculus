@@ -32,6 +32,8 @@ describe("@loculus/infer generated types equal inferred types", () => {
     expectTypeOf<Flat<t.CombinedInput>>().toEqualTypeOf<Flat<l.Input<typeof s.CombinedSchema>>>();
     expectTypeOf<Flat<t.ChoiceInput>>().toEqualTypeOf<Flat<l.Input<typeof s.ChoiceSchema>>>();
     expectTypeOf<Flat<t.RefinedInput>>().toEqualTypeOf<Flat<l.Input<typeof s.RefinedSchema>>>();
+    expectTypeOf<Flat<t.ReadonlyShapeInput>>().toEqualTypeOf<Flat<l.Input<typeof s.ReadonlyShapeSchema>>>();
+    expectTypeOf<Flat<t.ReturnInput>>().toEqualTypeOf<Flat<l.Input<typeof s.ReturnSchema>>>();
   });
 
   test("Output", () => {
@@ -48,6 +50,8 @@ describe("@loculus/infer generated types equal inferred types", () => {
     expectTypeOf<Flat<t.CombinedOutput>>().toEqualTypeOf<Flat<l.Output<typeof s.CombinedSchema>>>();
     expectTypeOf<Flat<t.ChoiceOutput>>().toEqualTypeOf<Flat<l.Output<typeof s.ChoiceSchema>>>();
     expectTypeOf<Flat<t.RefinedOutput>>().toEqualTypeOf<Flat<l.Output<typeof s.RefinedSchema>>>();
+    expectTypeOf<Flat<t.ReadonlyShapeOutput>>().toEqualTypeOf<Flat<l.Output<typeof s.ReadonlyShapeSchema>>>();
+    expectTypeOf<t.ReturnOutput>().toEqualTypeOf<l.Output<typeof s.ReturnSchema>>();
   });
 });
 
@@ -89,6 +93,20 @@ describe("@loculus/infer generated types match the documented behavior", () => {
     expectTypeOf<t.LinksOutput>().toEqualTypeOf<{ home: URL; price: Money; tag: s.Tag; "status-code": 200 | 201 }>();
     expectTypeOf<t.BrandOutput>().toEqualTypeOf<{ id: string & { readonly brand: "Id" } }>();
     expectTypeOf<t.WrapInput>().toEqualTypeOf<{ value: string | readonly string[] }>();
+  });
+
+  test("readonly shapes, mapped modifiers, signatures and symbol keys", () => {
+    expectTypeOf<t.ReadonlyShapeOutput>().toEqualTypeOf<{ readonly a: string; readonly b?: string | undefined }>();
+    // ObjectOutput keeps the readonly modifiers of an `as const` shape.
+    expectTypeOf<l.Output<typeof s.ReadonlyShapeSchema>>().toEqualTypeOf<{ readonly a: string; readonly b?: string | undefined }>();
+    expectTypeOf<t.ReadonlyShapeInput>().toEqualTypeOf<{ readonly a: string; readonly b?: string | undefined }>();
+    expectTypeOf<t.ReturnOutput>().toEqualTypeOf<{
+      frozen: { readonly name: string };
+      handler: s.Handler;
+      factory: s.Factory;
+      constructor: typeof s.Model;
+      tagged: { [s.tag]: string };
+    }>();
   });
 
   test("composition", () => {

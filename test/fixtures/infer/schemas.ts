@@ -71,3 +71,19 @@ export const CombinedSchema = l.intersection(
 );
 export const ChoiceSchema = l.xor([l.object({ x: l.string() }), l.object({ y: l.date() })]);
 export const RefinedSchema = l.refine(l.object({ min: l.number(), max: l.number() }), value => value.min <= value.max, 'min > max');
+
+export const ReadonlyShapeSchema = l.object({ a: l.string(), b: l.string({ optional: true }) } as const);
+
+export const tag: unique symbol = Symbol('tag');
+export class Model {
+  value = 1;
+}
+export type Handler = (value: string) => number;
+export type Factory = new () => Model;
+export const ReturnSchema = l.object({
+  frozen: l.transform(l.string(), (name): Readonly<{ name: string }> => ({ name })),
+  handler: l.transform(l.string(), (): Handler => (value) => value.length),
+  factory: l.transform(l.string(), (): Factory => Model),
+  constructor: l.transform(l.string(), () => Model),
+  tagged: l.transform(l.string(), (value): { [tag]: string } => ({ [tag]: value })),
+});

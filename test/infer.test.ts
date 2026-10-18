@@ -12,7 +12,7 @@ const fixture = fileURLToPath(new URL('./fixtures/infer/schemas.ts', import.meta
 const extractor = new LoculusTypeExtractor({ cwd: root });
 
 test('lists exported Loculus schemas in declaration order', () => {
-  assert.deepEqual(extractor.listSchemas(fixture), ['QuerySchema', 'SameSchema', 'LinksSchema', 'EventSchema', 'OrderSchema', 'FlatSchema', 'HiddenSchema', 'WrapSchema', 'BrandSchema', 'PresenceSchema', 'LiteralSchema', 'CombinedSchema', 'ChoiceSchema', 'RefinedSchema']);
+  assert.deepEqual(extractor.listSchemas(fixture), ['QuerySchema', 'SameSchema', 'LinksSchema', 'EventSchema', 'OrderSchema', 'FlatSchema', 'HiddenSchema', 'WrapSchema', 'BrandSchema', 'PresenceSchema', 'LiteralSchema', 'CombinedSchema', 'ChoiceSchema', 'RefinedSchema', 'ReadonlyShapeSchema', 'ReturnSchema']);
 });
 
 test('extracts input and output types in shape order', () => {
@@ -46,7 +46,7 @@ test('keeps named classes and interfaces and reports their imports', () => {
     ['Money', 'Money', 'test/fixtures/infer/money.ts'],
     ['Tag', 'Tag', 'test/fixtures/infer/schemas.ts'],
   ]);
-  assert.deepEqual(extractor.extract(fixture, 'HiddenSchema').warnings, [`Type "Hidden" is used by a schema but is not exported from ${fixture}`]);
+  assert.deepEqual(extractor.extract(fixture, 'HiddenSchema').warnings, [`"Hidden" is used by a schema type but is not exported from ${fixture}`]);
 });
 
 test('prints unions of object variants', () => {
@@ -126,6 +126,22 @@ test('generated snapshot used by infer.test-d.ts is up to date', async () => {
   assert.deepEqual(outdated.map(file => file.path), [], 'Run UPDATE_SNAPSHOTS=1 node --import tsx --test test/infer.test.ts');
 });
 
+test('rejects one name bound to different types', async () => {
+  const conflict = join(root, 'test/fixtures/infer/conflict');
+  assert.throws(() => extractor.extract(join(conflict, 'schemas.ts'), 'BothSchema'), /"Result" refers to different types/);
+  await assert.rejects(
+    generate({ cwd: conflict, include: ['only-a.ts', 'only-b.ts'], outFile: 'types.ts' }),
+    /"Result" would refer to both Result from \.\/a\.js and Result from \.\/b\.js/,
+  );
+  const links = extractor.extractAll(fixture, { schemas: ['LinksSchema'] });
+  assert.throws(
+    () => renderModule(links, { outputOnly: true, outputSuffix: '', map: { LinksSchema: 'Money' } }),
+    /"Money" would refer to both the generated type Money and Money from/,
+  );
+  const { files } = await generate({ cwd: conflict, include: ['only-a.ts', 'only-b.ts'], outDir: 'out' });
+  assert.equal(files.length, 2);
+});
+
 test('CLI writes per-file modules and checks them', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'loculus-infer-'));
   const cwd = process.cwd();
@@ -149,6 +165,17 @@ export type Same = {
     const { files } = await generate({ cwd: root, include: ['test/fixtures/infer/schemas.ts'], schemas: ['SameSchema'], outDir: directory, declaration: true });
     assert.equal(files[0]!.path, join(directory, 'schemas.types.d.ts'));
     assert.equal((await findOutdated(files)).length, 1);
+    await assert.rejects(main(['test/fixtures/infer/schemas.ts', '--check']), /--check needs --outDir or --outFile/);
+    // A source without schemas makes its previous output obsolete, for both --check and writing.
+    await writeFile(join(directory, 'money.types.ts'), 'stale');
+    const moneyArgs = ['test/fixtures/infer/money.ts', '--outDir', directory];
+    assert.equal(await main([...moneyArgs, '--check']), 1);
+    assert.equal(await main(moneyArgs), 0);
+    await assert.rejects(readFile(join(directory, 'money.types.ts')), { code: 'ENOENT' });
+    assert.equal(await main([...moneyArgs, '--check']), 0);
+    const out = join(directory, 'empty-suffix.ts');
+    assert.equal(await main(['test/fixtures/infer/schemas.ts', '--schemas', 'SameSchema', '--output-only', '--suffix', 'Schema', '--output-suffix', '', '--outFile', out]), 0);
+    assert.match(await readFile(out, 'utf8'), /export type Same = \{/);
   } finally {
     process.stderr.write = write;
     process.chdir(cwd);

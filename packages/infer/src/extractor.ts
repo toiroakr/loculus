@@ -280,14 +280,13 @@ class TypeNodeBuilder {
       const tuple = factory.createTupleTypeNode(elements);
       return target.readonly ? factory.createTypeOperatorNode(ts.SyntaxKind.ReadonlyKeyword, tuple) : tuple;
     }
-    const members = checker.getPropertiesOfType(type).map((property) => {
-      const declaration = property.valueDeclaration ?? property.declarations?.[0];
+    const properties = checker.getPropertiesOfType(type);
+    // Symbol keys need a computed name such as `[tag]`, which only the compiler's printer knows.
+    if (properties.some((property) => String(property.escapedName).startsWith('__@'))) return this.#reference(type);
+    const members = properties.map((property) => {
       const propertyType = checker.getTypeOfSymbolAtLocation(property, this.#location);
-      const readonly = declaration
-        ? (ts.getCombinedModifierFlags(declaration as ts.Declaration) & ts.ModifierFlags.Readonly) !== 0
-        : false;
       return factory.createPropertySignature(
-        readonly ? [factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)] : undefined,
+        isReadonlyProperty(property) ? [factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)] : undefined,
         propertyName(property.getName()),
         property.flags & ts.SymbolFlags.Optional ? factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
         this.build(propertyType),
@@ -309,6 +308,7 @@ class TypeNodeBuilder {
   #needsExpansion(type: ts.Type, seen: Set<ts.Type>): boolean {
     if (seen.has(type)) return false;
     seen.add(type);
+    if (type.getCallSignatures().length || type.getConstructSignatures().length) return false;
     if (type.aliasSymbol && type.flags & (ts.TypeFlags.Object | ts.TypeFlags.UnionOrIntersection)) return true;
     if (type.isUnion()) return type.types.some((member) => this.#needsExpansion(member, seen));
     if (type.isIntersection()) return true;
@@ -318,9 +318,7 @@ class TypeNodeBuilder {
         .some((member) => this.#needsExpansion(member, seen));
     }
     if (!(type.flags & ts.TypeFlags.Object)) return false;
-    if (isNamed(type)) return false;
-    if (type.getCallSignatures().length || type.getConstructSignatures().length) return false;
-    return true;
+    return !isNamed(type);
   }
 
   #reference(type: ts.Type): ts.TypeNode {
@@ -330,12 +328,28 @@ class TypeNodeBuilder {
   }
 }
 
+function leftmost(name: ts.EntityName): string {
+  while (ts.isQualifiedName(name)) name = name.left;
+  return name.text;
+}
+
 function isNamed(type: ts.Type): boolean {
   const symbol = type.getSymbol();
   return (
     symbol !== undefined &&
     (symbol.flags & (ts.SymbolFlags.Class | ts.SymbolFlags.Interface | ts.SymbolFlags.Enum)) !== 0
   );
+}
+
+// Mapped types such as Readonly<T> mark their properties readonly through the symbol's check
+// flags rather than a modifier on the declaration. CheckFlags is internal; Readonly is 1 << 3.
+const readonlyCheckFlag = 1 << 3;
+
+function isReadonlyProperty(property: ts.Symbol): boolean {
+  const checkFlags = (property as { links?: { checkFlags?: number } }).links?.checkFlags ?? 0;
+  if (checkFlags & readonlyCheckFlag) return true;
+  const declaration = property.valueDeclaration ?? property.declarations?.[0];
+  return declaration !== undefined && (ts.getCombinedModifierFlags(declaration) & ts.ModifierFlags.Readonly) !== 0;
 }
 
 function isReadonlyArray(type: ts.Type): boolean {
@@ -446,7 +460,10 @@ class References {
       sourceFile
         .getProject()
         .getTypeChecker()
-        .getSymbolsInScope(sourceFile, ts.SymbolFlags.Type | ts.SymbolFlags.Namespace | ts.SymbolFlags.Alias)
+        .getSymbolsInScope(
+          sourceFile,
+          ts.SymbolFlags.Type | ts.SymbolFlags.Value | ts.SymbolFlags.Namespace | ts.SymbolFlags.Alias,
+        )
         .map((symbol) => [symbol.getName(), symbol]),
     );
   }
@@ -456,10 +473,13 @@ class References {
   }
 
   collect(node: ts.Node): void {
-    if (ts.isTypeReferenceNode(node)) {
-      let name: ts.EntityName = node.typeName;
-      while (ts.isQualifiedName(name)) name = name.left;
-      this.#add(name.text);
+    if (ts.isTypeReferenceNode(node)) this.#add(leftmost(node.typeName));
+    // `typeof Model` and computed keys such as `[tag]` refer to values; `import type` covers both.
+    else if (ts.isTypeQueryNode(node)) this.#add(leftmost(node.exprName));
+    else if (ts.isComputedPropertyName(node)) {
+      let expression = node.expression;
+      while (ts.isPropertyAccessExpression(expression)) expression = expression.expression;
+      if (ts.isIdentifier(expression)) this.#add(expression.text);
     }
     ts.forEachChild(node, (child) => this.collect(child));
   }
@@ -509,7 +529,7 @@ class References {
       if (exported) this.#record({ name, importedName: exported[0], from: this.#sourceFile.getFilePath() });
       else
         this.warnings.push(
-          `Type "${name}" is used by a schema but is not exported from ${this.#sourceFile.getFilePath()}`,
+          `"${name}" is used by a schema type but is not exported from ${this.#sourceFile.getFilePath()}`,
         );
     }
   }
@@ -527,6 +547,11 @@ class References {
   }
 
   #record(entry: TypeImport): void {
-    if (!this.#imports.has(entry.name)) this.#imports.set(entry.name, entry);
+    const existing = this.#imports.get(entry.name);
+    if (!existing) this.#imports.set(entry.name, entry);
+    else if (existing.from !== entry.from || existing.importedName !== entry.importedName)
+      throw new Error(
+        `"${entry.name}" refers to different types from ${existing.from} and ${entry.from}; rename one of them`,
+      );
   }
 }
