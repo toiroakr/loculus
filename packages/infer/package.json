@@ -1,0 +1,54 @@
+{
+  "name": "@loculus/infer",
+  "version": "0.0.0",
+  "description": "Extract input/output types from Loculus schemas as TypeScript source",
+  "keywords": [
+    "loculus",
+    "schema",
+    "type-extraction",
+    "typescript"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/toiroakr/loculus.git",
+    "directory": "packages/infer"
+  },
+  "type": "module",
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "loculus-infer": "./bin/loculus-infer.js"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "tinyglobby": "^0.2.15",
+    "ts-morph": "^28.0.0"
+  },
+  "peerDependencies": {
+    "loculus": "workspace:^"
+  },
+  "devDependencies": {
+    "tsdown": "^0.23.1"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

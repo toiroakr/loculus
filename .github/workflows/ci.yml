@@ -66,4 +66,4 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - name: Publish package previews
-        run: pnpm exec pkg-pr-new publish --pnpm --previewVersion --peerDeps --commentWithSha --packageManager=pnpm --no-template . ./packages/rolldown
+        run: pnpm exec pkg-pr-new publish --pnpm --previewVersion --peerDeps --commentWithSha --packageManager=pnpm --no-template . ./packages/rolldown ./packages/infer

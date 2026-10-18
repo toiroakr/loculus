@@ -216,6 +216,17 @@ the same global configuration to generated validators. Schemas with local
 `error` options retain runtime validation; supported surrounding schemas can
 still be specialized. Per-parse overrides and bundled locales are not provided.
 
+## Type extraction
+
+`@loculus/infer` is a separate, optional package that writes the `Input` and `Output` types of exported schemas as plain TypeScript, like [zinfer](https://github.com/toiroakr/zinfer) for Zod. It requires TypeScript sources and is meant for development, not runtime.
+
+```sh
+pnpm add -D @loculus/infer
+pnpm exec loculus-infer "src/**/*.ts" --suffix Schema --with-descriptions --outDir types
+```
+
+See the [package README](packages/infer/README.md) for options and the library API.
+
 ## Build-time code generation
 
 `@loculus/rolldown` is a separate, optional package for Rolldown 1.2.13 and tsdown. The `loculus` runtime does not include the plugin or declare a Rolldown peer dependency.
