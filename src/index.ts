@@ -1019,43 +1019,54 @@ function splitKey(key: string, style: UnflattenStyle, prefixes: readonly string[
     if (splitPrefix(key, style, prefix) !== undefined && (head === undefined || prefix.length < head.length)) head = prefix;
   return head === undefined ? undefined : [head, splitPrefix(key, style, head)!];
 }
-function defineValue(target: Record<string, unknown>, key: string, value: unknown): void {
-  Object.defineProperty(target, key, { value, enumerable: true, writable: true, configurable: true });
+function splitPath(key: string, style: UnflattenStyle, prefixes: readonly string[]): string[] {
+  if (style === "dot") return key.split(".");
+  const path: string[] = [];
+  let rest = key;
+  for (let split = splitKey(rest, style, prefixes); split; split = splitKey(rest, style, prefixes)) {
+    const name = split[0];
+    path.push(name);
+    rest = split[1];
+    prefixes = prefixes.flatMap(prefix => splitPrefix(prefix, style, name) ?? []);
+  }
+  path.push(rest);
+  return path;
+}
+function assignValue(target: Record<string, unknown>, key: string, value: unknown): void {
+  if (key === "__proto__") Object.defineProperty(target, key, { value, enumerable: true, writable: true, configurable: true });
+  else target[key] = value;
 }
 function unflattenRecord(
   value: Record<string, unknown>,
-  style: UnflattenStyle,
-  prefixes: readonly string[],
+  pathOf: (key: string) => readonly string[],
 ): Result<Record<string, unknown>> {
   const output: Record<string, unknown> = {};
-  const groups = new Set<object>();
-  const nestedPrefixes = new Map<object, readonly string[]>([[output, prefixes]]);
-  const conflict = (source: string, name: string): Result<never> => ({ issues: [{
-    message: `Cannot unflatten "${source}": "${name}" is both a value and a group`, code: "invalid_key", path: [source],
-  }] });
+  let groups: Set<unknown> | undefined;
   for (const source of Object.keys(value)) {
+    const path = pathOf(source);
+    const last = path.length - 1;
     let target = output;
-    let key = source;
-    for (let split = splitKey(key, style, nestedPrefixes.get(target)!); split; split = splitKey(key, style, nestedPrefixes.get(target)!)) {
-      const [name, rest] = split;
+    for (let index = 0; index < last; index++) {
+      const name = path[index]!;
       if (own(target, name)) {
         const group = target[name];
-        if (!groups.has(group as object)) return conflict(source, name);
+        if (!groups?.has(group)) return unflattenConflict(source, name);
         target = group as Record<string, unknown>;
       } else {
         const group: Record<string, unknown> = {};
-        const current = nestedPrefixes.get(target)!;
-        groups.add(group);
-        nestedPrefixes.set(group, style === "dot" ? current : current.flatMap(prefix => splitPrefix(prefix, style, name) ?? []));
-        defineValue(target, name, group);
+        (groups ??= new Set()).add(group);
+        assignValue(target, name, group);
         target = group;
       }
-      key = rest;
     }
-    if (own(target, key)) return conflict(source, key);
-    defineValue(target, key, value[source]);
+    const leaf = path[last]!;
+    if (own(target, leaf)) return unflattenConflict(source, leaf);
+    assignValue(target, leaf, value[source]);
   }
   return { value: output };
+}
+function unflattenConflict(source: string, name: string): Result<never> {
+  return { issues: [{ message: `Cannot unflatten "${source}": "${name}" is both a value and a group`, code: "invalid_key", path: [source] }] };
 }
 type UnflattenOutput<O, Options extends UnflattenOptions> = O extends object ? Unflatten<O, Options> : O;
 type UnflattenInput = Record<string, unknown> | null | undefined;
@@ -1076,14 +1087,17 @@ export function unflatten<I, O extends UnflattenInput, const Options extends Unf
 export function unflatten(source: AnySchema, options: UnflattenOptions = {}): AnySchema {
   const style = options.style ?? "dot";
   const prefixes = "prefixes" in options ? [...options.prefixes] : [];
+  const declared = new Map<string, readonly string[]>();
+  const pathOf = (key: string) => declared.get(key) ?? splitPath(key, style, prefixes);
   if ("shape" in source && isPlainObject(source.shape)) {
-    const declared = unflattenRecord(source.shape, style, prefixes);
-    if (declared.issues) throw new TypeError(declared.issues[0]!.message);
+    for (const key of Object.keys(source.shape)) declared.set(key, splitPath(key, style, prefixes));
+    const checked = unflattenRecord(source.shape, pathOf);
+    if (checked.issues) throw new TypeError(checked.issues[0]!.message);
   }
   const validate = (value: unknown): Result<unknown> => {
     const result = source["~standard"].validate(value);
     if (result.issues || !isPlainObject(result.value)) return result;
-    const nested = unflattenRecord(result.value, style, prefixes);
+    const nested = unflattenRecord(result.value, pathOf);
     return nested.issues ? { issues: nested.issues.map(issue => customizeIssue(issue, value)) } : nested;
   };
   const meta = { ...source.meta, enumValues: source.meta.enumValues, inner: source };
