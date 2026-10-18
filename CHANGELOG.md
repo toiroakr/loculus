@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+### Minor Changes
+
+- 006741f: Add `unflatten` to wrap flat schemas so that parsing returns nested objects, using dotted keys or kebab-case and camelCase keys with listed prefixes, with inferred output types.
+
 ## 0.3.0
 
 ### Minor Changes
