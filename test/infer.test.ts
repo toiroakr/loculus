@@ -1,10 +1,9 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { Project } from 'ts-morph';
 import { findOutdated, formatTypes, generate, LoculusTypeExtractor, renderModule } from '../packages/infer/src/index.js';
 import { main } from '../packages/infer/src/cli.js';
 
@@ -13,7 +12,7 @@ const fixture = fileURLToPath(new URL('./fixtures/infer/schemas.ts', import.meta
 const extractor = new LoculusTypeExtractor({ cwd: root });
 
 test('lists exported Loculus schemas in declaration order', () => {
-  assert.deepEqual(extractor.listSchemas(fixture), ['QuerySchema', 'SameSchema', 'LinksSchema', 'EventSchema', 'OrderSchema', 'FlatSchema', 'HiddenSchema', 'WrapSchema', 'BrandSchema']);
+  assert.deepEqual(extractor.listSchemas(fixture), ['QuerySchema', 'SameSchema', 'LinksSchema', 'EventSchema', 'OrderSchema', 'FlatSchema', 'HiddenSchema', 'WrapSchema', 'BrandSchema', 'PresenceSchema', 'LiteralSchema', 'CombinedSchema', 'ChoiceSchema', 'RefinedSchema']);
 });
 
 test('extracts input and output types in shape order', () => {
@@ -110,38 +109,21 @@ test('renders modules with relative type imports', () => {
   assert.match(text, /\/\*\*\n \* Search query\n \* from the URL\n \*\/\nexport type Query = \{/);
 });
 
-test('generated types are equal to Input and Output', async () => {
-  const directory = await mkdtemp(join(root, 'test/fixtures/infer/.generated-'));
-  try {
-    const { files, warnings } = await generate({ cwd: root, include: ['test/fixtures/infer/*.ts'], exclude: ['**/money.ts'], schemas: extractor.listSchemas(fixture).filter(name => name !== 'HiddenSchema'), outFile: join(directory, 'types.ts'), withDescriptions: true, mergeSame: true });
-    assert.equal(files.length, 1);
-    assert.deepEqual(warnings, []);
+test('generated snapshot used by infer.test-d.ts is up to date', async () => {
+  const { files } = await generate({
+    cwd: root,
+    include: ['test/fixtures/infer/schemas.ts'],
+    schemas: extractor.listSchemas(fixture).filter(name => name !== 'HiddenSchema'),
+    outFile: 'test/fixtures/infer/__generated__/schemas.types.ts',
+    suffix: 'Schema',
+    withDescriptions: true,
+  });
+  if (process.env.UPDATE_SNAPSHOTS) {
+    await mkdir(join(root, 'test/fixtures/infer/__generated__'), { recursive: true });
     await writeFile(files[0]!.path!, files[0]!.content);
-    const names = files[0]!.schemas.flatMap(schema => formatTypes([schema], { mergeSame: true }).map(type => ({ type, schema })));
-    const checks = names.map(({ type, schema }) => {
-        const helper = type.kind === 'output' ? 'Output' : 'Input';
-        const left = `l.${helper}<typeof s.${schema.schemaName}>`;
-        const lines = [`type Check${type.name} = Expect<Equal<t.${type.name}, ${left}>>;`];
-        if (type.kind === 'merged') lines.push(`type Check${type.name}Output = Expect<Equal<t.${type.name}, l.Output<typeof s.${schema.schemaName}>>>;`);
-        return lines.join('\n');
-      });
-    const checkFile = join(directory, 'check.ts');
-    await writeFile(checkFile, `import type * as l from '../../../../src/index.js';
-import type * as s from '../schemas.js';
-import type * as t from './types.js';
-// Loculus spells input types as intersections, so compare by mutual assignability and keys.
-type Equal<A, B> = [A, keyof A] extends [B, keyof B] ? ([B, keyof B] extends [A, keyof A] ? true : false) : false;
-type Expect<T extends true> = T;
-${checks.join('\n')}
-`);
-    const project = new Project({ tsConfigFilePath: join(root, 'tsconfig.json'), skipAddingFilesFromTsConfig: true });
-    project.addSourceFileAtPath(checkFile);
-    project.resolveSourceFileDependencies();
-    const diagnostics = project.getPreEmitDiagnostics().filter(diagnostic => diagnostic.getSourceFile()?.getFilePath().startsWith(directory));
-    assert.deepEqual(diagnostics.map(diagnostic => project.formatDiagnosticsWithColorAndContext([diagnostic])), []);
-  } finally {
-    await rm(directory, { recursive: true, force: true });
   }
+  const outdated = await findOutdated(files);
+  assert.deepEqual(outdated.map(file => file.path), [], 'Run UPDATE_SNAPSHOTS=1 node --import tsx --test test/infer.test.ts');
 });
 
 test('CLI writes per-file modules and checks them', async () => {

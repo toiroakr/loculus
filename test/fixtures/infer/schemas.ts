@@ -50,3 +50,24 @@ export const WrapSchema = l.object({ value: l.array(l.string(), { wrapScalar: tr
 export const BrandSchema = l.object({
   id: l.transform(l.string(), value => value as string & { readonly brand: 'Id' }),
 });
+
+export const PresenceSchema = l.object({
+  nullable: l.string({ nullable: true }),
+  nullish: l.number({ nullish: true }),
+  fallback: l.number({ default: { null: 0, undefined: 1 } }),
+  nested: l.object({ deep: l.boolean() }, { optional: true }),
+  matrix: l.array(l.array(l.number())),
+});
+
+export const LiteralSchema = l.object({
+  on: l.literal(true),
+  answer: l.literal(42),
+  mode: l.literal(['auto', 1, false]),
+});
+
+export const CombinedSchema = l.intersection(
+  l.object({ a: l.string() }, { unknownKeys: 'strip' }),
+  l.object({ b: l.number({ optional: true }) }, { unknownKeys: 'strip' }),
+);
+export const ChoiceSchema = l.xor([l.object({ x: l.string() }), l.object({ y: l.date() })]);
+export const RefinedSchema = l.refine(l.object({ min: l.number(), max: l.number() }), value => value.min <= value.max, 'min > max');
