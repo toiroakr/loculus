@@ -40,6 +40,14 @@ try {
   assert.equal(plugin.name, '@loculus/rolldown');
   assert.deepEqual(runtime.files.filter(file => file.path.startsWith('dist/')).map(file => file.path).sort(), ['dist/index.d.ts', 'dist/index.js', 'dist/length.d.ts', 'dist/length.js']);
   assert.deepEqual(plugin.files.filter(file => file.path.startsWith('dist/')).map(file => file.path).sort(), ['dist/index.d.ts', 'dist/index.js']);
+  const infer = pack(join(root, 'packages/infer'));
+  assert.equal(infer.name, '@loculus/infer');
+  assert.deepEqual(infer.files.filter(file => /^(bin|dist)\//.test(file.path) && !/^dist\/generate-.+\.js$/.test(file.path)).map(file => file.path).sort(), ['bin/loculus-infer.js', 'dist/cli.d.ts', 'dist/cli.js', 'dist/index.d.ts', 'dist/index.js']);
+  execFileSync('tar', ['-xzf', join(work, infer.filename), '-C', work, 'package/package.json']);
+  const inferManifest = JSON.parse(await readFile(join(work, 'package/package.json'), 'utf8'));
+  assertCaret(inferManifest.peerDependencies.loculus, runtime.version);
+  assert.deepEqual(inferManifest.bin, { 'loculus-infer': './bin/loculus-infer.js' });
+  await rm(join(work, 'package'), { recursive: true });
   const runtimeOnly = await consumer('runtime', [join(work, runtime.filename)]);
   const manifest = JSON.parse(await readFile(join(runtimeOnly, 'node_modules/loculus/package.json'), 'utf8'));
   assert.equal(manifest.peerDependencies, undefined);

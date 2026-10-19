@@ -35,8 +35,12 @@
     "changeset": "changeset",
     "version-packages": "changeset version && pnpm install --lockfile-only --ignore-scripts",
     "release": "changeset publish",
-    "build": "tsdown && pnpm --filter @loculus/rolldown build",
+    "build": "tsdown && pnpm --filter @loculus/rolldown build && pnpm --filter @loculus/infer build",
     "typecheck": "tsc --noEmit",
+    "lint": "pnpm --filter @loculus/infer lint",
+    "format": "pnpm --filter @loculus/infer format",
+    "format:check": "pnpm --filter @loculus/infer format:check",
+    "knip": "pnpm --filter @loculus/infer knip",
     "test:types": "vitest --typecheck.only --run",
     "test": "node --import tsx --test test/*.test.* && pnpm check:tree-shaking && pnpm check:packages",
     "docs:build": "pnpm build && node examples/react-hook-form/build.mjs && node docs/compatibility/audit.mjs && bun docs/compatibility/audit.mjs docs/generated/compatibility/bun.json && node docs/compatibility/render.mjs && node docs/build-home.mjs",
@@ -47,7 +51,8 @@
     "prepublishOnly": "npm run build",
     "check:tree-shaking": "pnpm build && node bench/tree-shaking.mjs && node bench/tree-shaking-rolldown.mjs",
     "check:packages": "node test/packages.mjs",
-    "bench:ci": "pnpm build && node bench/ci/run.mjs"
+    "bench:ci": "pnpm build && node bench/ci/run.mjs",
+    "bench:infer": "pnpm build && node bench/infer-types.mjs"
   },
   "devDependencies": {
     "@changesets/cli": "^3.0.3",
@@ -70,6 +75,7 @@
     "react-hook-form": "^7.89.0",
     "rolldown": "^1.2.13",
     "string-width": "^8.3.0",
+    "ts-morph": "^28.0.0",
     "tsdown": "^0.23.1",
     "tsx": "^4.23.12",
     "typescript": "^7.0.2",
