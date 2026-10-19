@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+### Patch Changes
+
+- f42f278: Reduce TypeScript instantiations for `object()` schemas and their `Output` types without changing the inferred types.
+
 ## 0.4.0
 
 ### Minor Changes
