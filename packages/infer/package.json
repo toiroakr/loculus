@@ -1,6 +1,6 @@
 {
   "name": "@loculus/infer",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Extract input/output types from Loculus schemas as TypeScript source",
   "keywords": [
     "loculus",
