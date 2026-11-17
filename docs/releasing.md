@@ -3,7 +3,7 @@
 This follows `toiroakr/politty`'s Changesets / GitHub App / npm trusted publishing
 workflow. `toiroakr/lines-db` is also a reference for npm OIDC setup.
 
-Use Node 24 or newer and the pinned pnpm 11.28.5 for development and release tooling.
+Use Node 24 or newer and the pinned pnpm 12.21.0 for development and release tooling.
 The published library requires Node 24 or newer; CI tests Node 24 and 26.
 
 ## Normal releases
