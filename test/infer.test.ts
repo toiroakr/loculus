@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { createRequire } from 'node:module';
 import { join, relative } from 'node:path';
 import { after, test } from 'node:test';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { findOutdated, formatTypes, generate, GENERATED_HEADER, LoculusTypeExtractor, renderModule } from '../packages/infer/src/index.js';
 import { main } from '../packages/infer/src/cli.js';
 
@@ -239,4 +240,47 @@ test('reports invalid compiler configuration and releases disposed extractors', 
   } finally {
     await rm(dir, { recursive: true, force: true });
   }
+});
+
+test('keeps descriptions on imported fields used through shorthand properties', async () => {
+  const dir = await mkdtemp(join(root, 'test/fixtures/infer-import-'));
+  try {
+    const module = relative(dir, join(root, 'src/index.js')).replaceAll('\\', '/');
+    await writeFile(join(dir, 'shared.ts'), `import * as l from ${JSON.stringify(module)}; export const shared = l.string({description: 'Imported description'});`);
+    await writeFile(join(dir, 'schema.ts'), `import * as l from ${JSON.stringify(module)}; import { shared } from './shared.js'; export const ImportedSchema = l.object({shared});`);
+    using instance = new LoculusTypeExtractor({ cwd: root });
+    const result = instance.extract(join(dir, 'schema.ts'), 'ImportedSchema', { withDescriptions: true });
+    assert.match(result.output, /\/\*\* Imported description \*\/\n {2}shared: string;/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+
+test('retries file loading after compiler program creation fails', async (context) => {
+  const require = createRequire(new URL('../packages/infer/package.json', import.meta.url));
+  const { API } = await import(pathToFileURL(require.resolve('typescript/sync')).href);
+  type Compiler = { createProgram: (...args: unknown[]) => unknown };
+  let compiler: Compiler | undefined;
+  const getter = Object.getOwnPropertyDescriptor(API.prototype, 'createProgram')?.get;
+  assert.ok(getter);
+  context.mock.getter(API.prototype, 'createProgram', function (this: Compiler) {
+    compiler = this;
+    return getter.call(this);
+  });
+  using instance = new LoculusTypeExtractor({ cwd: root });
+  instance.listSchemas(fixture);
+  assert.ok(compiler);
+  const create = compiler.createProgram;
+  let fail = true;
+  context.mock.method(compiler, 'createProgram', (...args: unknown[]) => {
+    if (fail) {
+      fail = false;
+      throw new Error('Temporary compiler failure');
+    }
+    return create(...args);
+  });
+  const extra = join(root, 'test/fixtures/infer/money.ts');
+  assert.throws(() => instance.listSchemas(extra), /Temporary compiler failure/);
+  assert.deepEqual(instance.listSchemas(extra), []);
 });

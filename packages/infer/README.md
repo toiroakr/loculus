@@ -48,6 +48,8 @@ export type QueryOutput = {
 };
 ```
 
+Glob patterns use `/` separators on every platform; Windows backslash separators in file patterns are normalized.
+
 Every exported Loculus schema in the matching files is extracted. Fields keep the order of the `object()` shape.
 
 ```

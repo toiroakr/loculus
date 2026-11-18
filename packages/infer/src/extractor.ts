@@ -175,6 +175,7 @@ export class LoculusTypeExtractor {
     for (const filePath of filePaths) this.#files.add(resolve(this.#cwd, filePath));
     if (this.#program && before === this.#files.size) return;
     this.#program?.[Symbol.dispose]();
+    this.#program = undefined;
     this.#program = this.#api.createProgram([...this.#files], this.#options);
   }
 

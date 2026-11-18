@@ -48,7 +48,8 @@ export function readDescriptions(
         const key = propertyKey(property.name);
         if (key !== undefined) tree.fields.set(key, readDescriptions(property.initializer, checker, new Set(seen)));
       } else if (ts.isShorthandPropertyAssignment(property)) {
-        const symbol = checker.getShorthandAssignmentValueSymbol(property);
+        let symbol = checker.getShorthandAssignmentValueSymbol(property);
+        if (symbol?.flags && symbol.flags & SymbolFlags.Alias) symbol = checker.getAliasedSymbol(symbol);
         const declaration = symbol?.valueDeclaration?.resolve();
         tree.fields.set(
           propertyKey(property.name) ?? property.name.getText(),

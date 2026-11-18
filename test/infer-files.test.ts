@@ -3,7 +3,8 @@ import { mkdir, mkdtemp, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { test } from 'node:test';
-import { resolveFiles } from '../packages/infer/src/generate.js';
+import { fileURLToPath } from 'node:url';
+import { generate, resolveFiles } from '../packages/infer/src/generate.js';
 
 test('selects TypeScript files with exclusions, extglobs, dotfiles and symlinks', async () => {
   const cwd = await mkdtemp(join(tmpdir(), 'loculus-infer-files-'));
@@ -68,6 +69,15 @@ test('selects TypeScript files with exclusions, extglobs, dotfiles and symlinks'
     assert.deepEqual(await selected(['src/.hidden.ts', '.hidden/*.ts']), ['.hidden/root.ts', 'src/.hidden.ts']);
     assert.deepEqual(await selected(['src/link/**/*.ts']), ['src/link/linked.ts']);
     assert.deepEqual(await selected(['src/file-link.ts']), ['src/file-link.ts']);
+    assert.deepEqual(await selected(['node_modules/**/*.ts']), []);
+    assert.deepEqual(await selected([join('src', '**', '*.ts')]), ordinary);
+    assert.deepEqual(await selected([join('src', '**', '!(*.test).ts')]), [
+      'src/.hidden.ts',
+      'src/a.ts',
+      'src/file-link.ts',
+      'src/link/linked.ts',
+      'src/nested/z.ts',
+    ]);
     assert.deepEqual(await selected(['src']), []);
     assert.deepEqual(await selected(['src/folder.ts']), []);
     assert.deepEqual(await selected(['missing/**/*.ts']), []);
@@ -91,6 +101,25 @@ test('keeps hidden directories selected by negated extglobs', async () => {
       relative(cwd, file).replaceAll('\\', '/'),
     );
     assert.deepEqual(nested, ['src/.foo/a.ts', 'src/foo/c.ts']);
+  } finally {
+    await rm(cwd, { recursive: true, force: true });
+  }
+});
+
+test('runs native type extraction on the current platform', async () => {
+  const cwd = fileURLToPath(new URL('../', import.meta.url));
+  const result = await generate({ cwd, include: ['test/fixtures/infer/schemas.ts'], schemas: ['SameSchema'] });
+  assert.equal(result.files.length, 1);
+  assert.match(result.files[0]!.content, /name: string;/);
+  assert.match(result.files[0]!.content, /kind: "a" \| "b";/);
+});
+
+test('filters root-level negated extglobs without whole-pattern negation', async () => {
+  const cwd = await mkdtemp(join(tmpdir(), 'loculus-infer-root-extglob-'));
+  try {
+    for (const name of ['a.ts', 'a.test.ts', '.hidden.ts', '.test.ts']) await writeFile(join(cwd, name), '');
+    const files = (await resolveFiles(['!(*.test).ts'], [], cwd)).map((file) => relative(cwd, file));
+    assert.deepEqual(files, ['.hidden.ts', 'a.ts']);
   } finally {
     await rm(cwd, { recursive: true, force: true });
   }

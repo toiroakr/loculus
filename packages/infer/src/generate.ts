@@ -125,10 +125,13 @@ export async function resolveFiles(
   exclude: readonly string[] = [],
   cwd: string,
 ): Promise<string[]> {
-  const negative = include
+  const normalize = (pattern: string) => (process.platform === 'win32' ? pattern.replaceAll('\\', '/') : pattern);
+  const patterns = include.map(normalize);
+  const ignored = exclude.map(normalize);
+  const negative = patterns
     .filter((pattern) => pattern.startsWith('!') && !pattern.startsWith('!('))
     .map((pattern) => pattern.slice(1));
-  const positive = include.filter((pattern) => !pattern.startsWith('!') || pattern.startsWith('!('));
+  const positive = patterns.filter((pattern) => !pattern.startsWith('!') || pattern.startsWith('!('));
   const matches = (
     await Promise.all(
       positive.map(async (pattern) => {
@@ -136,14 +139,17 @@ export async function resolveFiles(
         const paths = await glob(expanded, {
           cwd,
           absolute: true,
-          ignore: [...exclude, ...negative, '**/node_modules/**'],
+          ignore: [...ignored, ...negative, '**/node_modules/**'],
           nodir: true,
           follow: true,
         });
         return expanded === pattern
           ? paths
           : paths.filter((path) =>
-              minimatch(isAbsolute(pattern) ? path : relative(cwd, path).split(sep).join('/'), pattern, { dot: true }),
+              minimatch((isAbsolute(pattern) ? path : relative(cwd, path)).split(sep).join('/'), pattern, {
+                dot: true,
+                nonegate: true,
+              }),
             );
       }),
     )
