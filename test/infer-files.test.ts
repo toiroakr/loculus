@@ -75,3 +75,23 @@ test('selects TypeScript files with exclusions, extglobs, dotfiles and symlinks'
     await rm(cwd, { recursive: true, force: true });
   }
 });
+
+test('keeps hidden directories selected by negated extglobs', async () => {
+  const cwd = await mkdtemp(join(tmpdir(), 'loculus-infer-hidden-'));
+  try {
+    for (const name of ['src/.foo/a.ts', 'src/bar/b.ts', 'src/foo/c.ts']) {
+      await mkdir(join(cwd, name, '..'), { recursive: true });
+      await writeFile(join(cwd, name), '');
+    }
+    const paths = (await resolveFiles(['src/!(foo)/*.ts'], [], cwd)).map((file) =>
+      relative(cwd, file).replaceAll('\\', '/'),
+    );
+    assert.deepEqual(paths, ['src/.foo/a.ts', 'src/bar/b.ts']);
+    const nested = (await resolveFiles(['src/!(bar)/**/*.ts'], [], cwd)).map((file) =>
+      relative(cwd, file).replaceAll('\\', '/'),
+    );
+    assert.deepEqual(nested, ['src/.foo/a.ts', 'src/foo/c.ts']);
+  } finally {
+    await rm(cwd, { recursive: true, force: true });
+  }
+});

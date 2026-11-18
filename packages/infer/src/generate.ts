@@ -132,7 +132,7 @@ export async function resolveFiles(
   const matches = (
     await Promise.all(
       positive.map(async (pattern) => {
-        const expanded = pattern.replace(/(^|\/)(!\([^/]+)/g, '$1{$2,.$2}');
+        const expanded = pattern.replace(/(^|\/)(!\([^/]+)/g, '$1{$2,.*}');
         const paths = await glob(expanded, {
           cwd,
           absolute: true,
