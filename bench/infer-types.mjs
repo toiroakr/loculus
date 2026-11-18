@@ -73,7 +73,7 @@ const rows = Object.entries(samples).map(([name, list]) => ({
 }));
 const typescript = JSON.parse(readFileSync('node_modules/typescript/package.json', 'utf8')).version;
 console.log(`${profiles.length} fixtures x ${copies} copies = ${profiles.length * copies} schemas, TypeScript ${typescript}, median of ${passes} passes`);
-console.log(`loculus-infer extraction: ${extractMs.toFixed(0)} ms (single run, includes ts-morph startup)\n`);
+console.log(`loculus-infer extraction: ${extractMs.toFixed(0)} ms (single run, includes native TypeScript compiler startup)\n`);
 console.log('| Variant | Instantiations | Types | Check time (s) | Memory (KiB) | Wall (ms) |');
 console.log('| --- | ---: | ---: | ---: | ---: | ---: |');
 for (const row of rows) console.log(`| ${row.variant} | ${row.instantiations} | ${row.types} | ${row.checkSeconds.toFixed(2)} | ${row.memoryKiB} | ${row.wallMs.toFixed(0)} |`);

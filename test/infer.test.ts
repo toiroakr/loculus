@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
-import { test } from 'node:test';
+import { after, test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { findOutdated, formatTypes, generate, GENERATED_HEADER, LoculusTypeExtractor, renderModule } from '../packages/infer/src/index.js';
 import { main } from '../packages/infer/src/cli.js';
@@ -10,9 +10,10 @@ import { main } from '../packages/infer/src/cli.js';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const fixture = fileURLToPath(new URL('./fixtures/infer/schemas.ts', import.meta.url));
 const extractor = new LoculusTypeExtractor({ cwd: root });
+after(() => extractor.dispose());
 
 test('lists exported Loculus schemas in declaration order', () => {
-  assert.deepEqual(extractor.listSchemas(fixture), ['QuerySchema', 'SameSchema', 'LinksSchema', 'EventSchema', 'OrderSchema', 'FlatSchema', 'HiddenSchema', 'WrapSchema', 'BrandSchema', 'PresenceSchema', 'LiteralSchema', 'CombinedSchema', 'ChoiceSchema', 'RefinedSchema', 'ReadonlyShapeSchema', 'ReturnSchema']);
+  assert.deepEqual(extractor.listSchemas(fixture), ['QuerySchema', 'SameSchema', 'LinksSchema', 'EventSchema', 'OrderSchema', 'FlatSchema', 'HiddenSchema', 'WrapSchema', 'BrandSchema', 'PresenceSchema', 'LiteralSchema', 'CombinedSchema', 'ChoiceSchema', 'RefinedSchema', 'ReadonlyShapeSchema', 'ReturnSchema', 'AdvancedSchema']);
 });
 
 test('extracts input and output types in shape order', () => {
@@ -21,14 +22,14 @@ test('extracts input and output types in shape order', () => {
   search: string;
   page?: string | number | undefined;
   archived?: string | boolean | undefined;
-  tag?: "docs" | "code" | readonly ("docs" | "code")[] | undefined;
+  tag?: "code" | "docs" | readonly ("code" | "docs")[] | undefined;
   at?: string | null | undefined;
 }`);
   assert.equal(query.output, `{
   search: string;
   page: number;
   archived: boolean;
-  tag?: ("docs" | "code")[] | undefined;
+  tag?: ("code" | "docs")[] | undefined;
   at?: Date | null | undefined;
 }`);
   assert.equal(query.description, undefined);
@@ -88,8 +89,8 @@ test('emits description options as TSDoc comments', () => {
   assert.match(flat.input, /\/\*\* User name \*\/\n {2}"user\.name": string;/);
   assert.equal(flat.output, `{
   user: {
-    name: string;
     age: number;
+    name: string;
   };
 }`);
 });
@@ -208,5 +209,34 @@ export type Same = {
     process.stderr.write = write;
     process.chdir(cwd);
     await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test('extracts explicitly requested files when tsconfig has an empty files list', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'loculus-infer-config-'));
+  try {
+    const project = join(dir, 'tsconfig.json');
+    await writeFile(project, JSON.stringify({ compilerOptions: { strict: true, target: 'ES2022', module: 'NodeNext' }, files: [] }));
+    using instance = new LoculusTypeExtractor({ cwd: root, project });
+    assert.equal(instance.extract(fixture, 'SameSchema').output, '{\n  name: string;\n  kind: "a" | "b";\n}');
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+
+test('reports invalid compiler configuration and releases disposed extractors', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'loculus-infer-invalid-'));
+  try {
+    const project = join(dir, 'tsconfig.json');
+    await writeFile(project, JSON.stringify({ compilerOptions: { target: 'invalid' } }));
+    assert.throws(() => new LoculusTypeExtractor({ cwd: root, project }), /target/);
+    const instance = new LoculusTypeExtractor({ cwd: root });
+    instance.listSchemas(fixture);
+    instance.dispose();
+    assert.doesNotThrow(() => instance.dispose());
+    assert.throws(() => instance.listSchemas(fixture), /closed|disposed/i);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
   }
 });

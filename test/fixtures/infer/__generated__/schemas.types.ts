@@ -12,7 +12,7 @@ export type QueryInput = {
   search: string;
   page?: string | number | undefined;
   archived?: string | boolean | undefined;
-  tag?: "docs" | "code" | readonly ("docs" | "code")[] | undefined;
+  tag?: "code" | "docs" | readonly ("code" | "docs")[] | undefined;
   at?: string | null | undefined;
 };
 
@@ -25,7 +25,7 @@ export type QueryOutput = {
   search: string;
   page: number;
   archived: boolean;
-  tag?: ("docs" | "code")[] | undefined;
+  tag?: ("code" | "docs")[] | undefined;
   at?: Date | null | undefined;
 };
 
@@ -97,8 +97,8 @@ export type FlatInput = {
 
 export type FlatOutput = {
   user: {
-    name: string;
     age: number;
+    name: string;
   };
 };
 
@@ -151,7 +151,7 @@ export type LiteralInput = {
 export type LiteralOutput = {
   on: true;
   answer: 42;
-  mode: false | 1 | "auto";
+  mode: "auto" | 1 | false;
 };
 
 export type CombinedInput = {
@@ -213,5 +213,25 @@ export type ReturnOutput = {
   constructor: typeof Model;
   tagged: {
     [tag]: string;
+  };
+};
+
+export type AdvancedInput = {
+  tuple: string;
+  index: string;
+};
+
+export type AdvancedOutput = {
+  tuple: readonly [
+    {
+      name: string;
+    },
+    (number | undefined)?,
+    ...boolean[]
+  ];
+  index: {
+    readonly [key: string]: {
+      value: string;
+    };
   };
 };

@@ -11,11 +11,11 @@ function pack(directory) {
   const packed = JSON.parse(execFileSync('pnpm', ['pack', '--json', '--pack-destination', work], { cwd: directory, encoding: 'utf8' }));
   return { ...packed, filename: basename(packed.filename) };
 }
-async function consumer(name, archives) {
+async function consumer(name, archives, offline = true) {
   const directory = join(work, name);
   await mkdir(directory);
   await writeFile(join(directory, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
-  execFileSync('npm', ['install', '--engine-strict', '--offline', '--ignore-scripts', '--omit=dev', '--legacy-peer-deps', '--no-audit', '--no-fund', '--package-lock=false', ...archives], { cwd: directory, stdio: 'pipe' });
+  execFileSync('npm', ['install', '--engine-strict', ...(offline ? ['--offline'] : []), '--ignore-scripts', '--omit=dev', '--legacy-peer-deps', '--no-audit', '--no-fund', '--package-lock=false', ...archives], { cwd: directory, stdio: 'pipe' });
   return directory;
 }
 function parseVersion(version) {
@@ -48,6 +48,31 @@ try {
   assertCaret(inferManifest.peerDependencies.loculus, runtime.version);
   assert.deepEqual(inferManifest.bin, { 'loculus-infer': './bin/loculus-infer.js' });
   await rm(join(work, 'package'), { recursive: true });
+  const inferred = await consumer('infer', [join(work, runtime.filename), join(work, infer.filename)], false);
+  await writeFile(join(inferred, 'schema.ts'), `import * as l from 'loculus'; export const QuerySchema = l.object({ count: l.number({default: 1}) });`);
+  await writeFile(join(inferred, 'verify.mjs'), `
+import assert from 'node:assert/strict';
+import { generate, LoculusTypeExtractor } from '@loculus/infer';
+const extractor = new LoculusTypeExtractor();
+try {
+assert.deepEqual(extractor.listSchemas('schema.ts'), ['QuerySchema']);
+assert.equal(extractor.extract('schema.ts', 'QuerySchema').output, '{\\n  count: number;\\n}');
+} finally { extractor.dispose(); }
+const result = await generate({ include: ['schema.ts'] });
+assert.match(result.files[0].content, /count: number/);
+`);
+  execFileSync(process.execPath, ['verify.mjs'], { cwd: inferred, stdio: 'pipe' });
+  const cliTypes = execFileSync(process.execPath, ['node_modules/@loculus/infer/bin/loculus-infer.js', 'schema.ts', '--output-only'], { cwd: inferred, encoding: 'utf8' });
+  assert.match(cliTypes, /count: number/);
+  const installed = JSON.parse(execFileSync('npm', ['ls', '--all', '--json'], { cwd: inferred, encoding: 'utf8' }));
+  const rejectRemovedDependencies = tree => {
+    for (const [name, dependency] of Object.entries(tree.dependencies ?? {})) {
+      assert.ok(!['ts-morph', 'tinyglobby', 'picomatch'].includes(name), `Unexpected runtime dependency: ${name}`);
+      rejectRemovedDependencies(dependency);
+    }
+  };
+  rejectRemovedDependencies(installed);
+  console.log('Packed @loculus/infer runs its library and CLI without ts-morph, tinyglobby or picomatch.');
   const runtimeOnly = await consumer('runtime', [join(work, runtime.filename)]);
   const manifest = JSON.parse(await readFile(join(runtimeOnly, 'node_modules/loculus/package.json'), 'utf8'));
   assert.equal(manifest.peerDependencies, undefined);
