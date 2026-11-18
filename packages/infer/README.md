@@ -8,7 +8,7 @@ Use it to publish readable types for an API, to check generated types into a rep
 npm install --save-dev @loculus/infer
 ```
 
-Requires Node.js 22.18 or later. Type extraction uses the TypeScript 7.1 beta compiler API and its platform-specific native binary, installed with the package.
+Requires Node.js 22.18 or later. Type extraction uses the TypeScript 7.1 beta compiler API and its platform-specific native binary, installed with the package. Optional dependencies must be enabled; installs with `--omit=optional` cannot run the extractor. Reinstall with `npm install --include=optional` if the native compiler is missing.
 
 ## CLI
 

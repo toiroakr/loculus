@@ -11,11 +11,11 @@ function pack(directory) {
   const packed = JSON.parse(execFileSync('pnpm', ['pack', '--json', '--pack-destination', work], { cwd: directory, encoding: 'utf8' }));
   return { ...packed, filename: basename(packed.filename) };
 }
-async function consumer(name, archives, offline = true) {
+async function consumer(name, archives, { offline = true, omitOptional = false } = {}) {
   const directory = join(work, name);
   await mkdir(directory);
   await writeFile(join(directory, 'package.json'), JSON.stringify({ private: true, type: 'module' }));
-  execFileSync('npm', ['install', '--engine-strict', ...(offline ? ['--offline'] : []), '--ignore-scripts', '--omit=dev', '--legacy-peer-deps', '--no-audit', '--no-fund', '--package-lock=false', ...archives], { cwd: directory, stdio: 'pipe' });
+  execFileSync('npm', ['install', '--engine-strict', ...(offline ? ['--offline'] : []), ...(omitOptional ? ['--omit=optional'] : []), '--ignore-scripts', '--omit=dev', '--legacy-peer-deps', '--no-audit', '--no-fund', '--package-lock=false', ...archives], { cwd: directory, stdio: 'pipe' });
   return directory;
 }
 function parseVersion(version) {
@@ -48,7 +48,7 @@ try {
   assertCaret(inferManifest.peerDependencies.loculus, runtime.version);
   assert.deepEqual(inferManifest.bin, { 'loculus-infer': './bin/loculus-infer.js' });
   await rm(join(work, 'package'), { recursive: true });
-  const inferred = await consumer('infer', [join(work, runtime.filename), join(work, infer.filename)], false);
+  const inferred = await consumer('infer', [join(work, runtime.filename), join(work, infer.filename)], { offline: false });
   await writeFile(join(inferred, 'schema.ts'), `import * as l from 'loculus'; export const QuerySchema = l.object({ count: l.number({default: 1}) });`);
   await writeFile(join(inferred, 'verify.mjs'), `
 import assert from 'node:assert/strict';
@@ -73,6 +73,20 @@ assert.match(result.files[0].content, /count: number/);
   };
   rejectRemovedDependencies(installed);
   console.log('Packed @loculus/infer runs its library and CLI without ts-morph, tinyglobby or picomatch.');
+  const missingNative = await consumer('infer-without-optional', [join(work, runtime.filename), join(work, infer.filename)], { offline: false, omitOptional: true });
+  await writeFile(join(missingNative, 'verify.mjs'), `
+import assert from 'node:assert/strict';
+import { LoculusTypeExtractor } from '@loculus/infer';
+assert.throws(() => new LoculusTypeExtractor(), /native compiler.*optional dependencies.*--include=optional/);
+`);
+  execFileSync(process.execPath, ['verify.mjs'], { cwd: missingNative, stdio: 'pipe' });
+  await cp(join(inferred, 'schema.ts'), join(missingNative, 'schema.ts'));
+  assert.throws(
+    () => execFileSync(process.execPath, ['node_modules/@loculus/infer/bin/loculus-infer.js', 'schema.ts'], { cwd: missingNative, stdio: 'pipe' }),
+    error => error.stderr.toString().includes('npm install --include=optional'),
+  );
+
+
   const runtimeOnly = await consumer('runtime', [join(work, runtime.filename)]);
   const manifest = JSON.parse(await readFile(join(runtimeOnly, 'node_modules/loculus/package.json'), 'utf8'));
   assert.equal(manifest.peerDependencies, undefined);

@@ -85,7 +85,17 @@ export class LoculusTypeExtractor {
   constructor(options: ExtractorOptions = {}) {
     this.#cwd = resolve(options.cwd ?? process.cwd());
     const tsConfigFilePath = options.project ? resolve(this.#cwd, options.project) : findTsConfig(this.#cwd);
-    this.#api = new API({ cwd: this.#cwd });
+    try {
+      this.#api = new API({ cwd: this.#cwd });
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Unable to resolve @typescript/typescript-')) {
+        throw new Error(
+          `TypeScript native compiler is unavailable for ${process.platform}/${process.arch}. Install optional dependencies with npm install --include=optional, and use a platform supported by TypeScript 7.1.`,
+          { cause: error },
+        );
+      }
+      throw error;
+    }
     try {
       const parsed = tsConfigFilePath
         ? this.#api.parseConfigFile(tsConfigFilePath)
