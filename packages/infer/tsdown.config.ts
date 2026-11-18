@@ -2,7 +2,7 @@ import { defineConfig } from 'tsdown';
 
 export default defineConfig({
   entry: ['src/index.ts', 'src/cli.ts'],
-  deps: { neverBundle: ['ts-morph', 'tinyglobby'] },
+  deps: { neverBundle: ['typescript', 'glob', 'minimatch'] },
   format: 'esm',
   platform: 'node',
   fixedExtension: false,

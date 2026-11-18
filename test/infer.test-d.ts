@@ -34,9 +34,13 @@ describe("@loculus/infer generated types equal inferred types", () => {
     expectTypeOf<Flat<t.RefinedInput>>().toEqualTypeOf<Flat<l.Input<typeof s.RefinedSchema>>>();
     expectTypeOf<Flat<t.ReadonlyShapeInput>>().toEqualTypeOf<Flat<l.Input<typeof s.ReadonlyShapeSchema>>>();
     expectTypeOf<Flat<t.ReturnInput>>().toEqualTypeOf<Flat<l.Input<typeof s.ReturnSchema>>>();
+    expectTypeOf<Flat<t.AdvancedInput>>().toEqualTypeOf<Flat<l.Input<typeof s.AdvancedSchema>>>();
   });
 
   test("Output", () => {
+    type Advanced = l.Output<typeof s.AdvancedSchema>;
+    expectTypeOf<t.AdvancedOutput>().toEqualTypeOf<{ [K in keyof Advanced]: Advanced[K] }>();
+    expectTypeOf<t.AdvancedOutput>().toEqualTypeOf<{ tuple: readonly [{ name: string }, number?, ...boolean[]]; index: Readonly<Record<string, { value: string }>> }>();
     expectTypeOf<Flat<t.QueryOutput>>().toEqualTypeOf<Flat<l.Output<typeof s.QuerySchema>>>();
     expectTypeOf<Flat<t.SameOutput>>().toEqualTypeOf<Flat<l.Output<typeof s.SameSchema>>>();
     expectTypeOf<Flat<t.LinksOutput>>().toEqualTypeOf<Flat<l.Output<typeof s.LinksSchema>>>();

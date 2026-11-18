@@ -8,6 +8,8 @@ Use it to publish readable types for an API, to check generated types into a rep
 npm install --save-dev @loculus/infer
 ```
 
+Requires Node.js 22.18 or later. Type extraction uses the TypeScript 7.1 beta compiler API and its platform-specific native binary, installed with the package. Optional dependencies must be enabled; installs with `--omit=optional` cannot run the extractor. Reinstall with `npm install --include=optional` if the native compiler is missing.
+
 ## CLI
 
 ```ts
@@ -34,7 +36,7 @@ export type QueryInput = {
   /** Words to search for */
   search: string;
   page?: string | number | undefined;
-  tag?: 'docs' | 'code' | readonly ('docs' | 'code')[] | undefined;
+  tag?: 'code' | 'docs' | readonly ('code' | 'docs')[] | undefined;
 };
 
 /** Search query parameters */
@@ -42,9 +44,11 @@ export type QueryOutput = {
   /** Words to search for */
   search: string;
   page: number;
-  tag?: ('docs' | 'code')[] | undefined;
+  tag?: ('code' | 'docs')[] | undefined;
 };
 ```
+
+Glob patterns use `/` separators on every platform; Windows backslash separators in file patterns are normalized.
 
 Every exported Loculus schema in the matching files is extracted. Fields keep the order of the `object()` shape.
 
@@ -79,7 +83,7 @@ Without `--outDir` or `--outFile`, types are printed to standard output. Use `--
 ```ts
 import { LoculusTypeExtractor, generate, renderModule } from '@loculus/infer';
 
-const extractor = new LoculusTypeExtractor({ project: './tsconfig.json' });
+using extractor = new LoculusTypeExtractor({ project: './tsconfig.json' });
 const { input, output } = extractor.extract('src/query.ts', 'QuerySchema');
 
 const schemas = extractor.extractAll('src/query.ts', { withDescriptions: true });
@@ -88,12 +92,16 @@ const source = renderModule(schemas, { suffix: 'Schema', mergeSame: true });
 const { files } = await generate({ include: ['src/**/*.ts'], outDir: 'types' });
 ```
 
+The extractor owns a native compiler session. Use `using` as above, or call `extractor.dispose()` when finished. `generate()` releases its session automatically.
+
 ## How types are printed
 
 - Types come from the TypeScript compiler, so they match `l.Input<typeof schema>` and `l.Output<typeof schema>`. The tests check this with type-level equality.
 - Object types, intersections and Loculus helper types such as `ObjectInput` are written out in full.
 - Named interfaces and classes stay as references, such as `Date`, `URL` or an interface returned by `transform()`. The generated module imports exported types from their own modules. A type that is not exported produces a warning.
 - `--with-descriptions` reads `description` options written as string literals, including fields of nested `object()` shapes and array rows. Descriptions computed at runtime are not read. After `unflatten()`, only the input type gets field comments, because the output keys are restructured.
+
+Union members and properties of compiler-generated types may be printed in a different order than earlier releases; the types remain equivalent.
 
 The extractor uses the tsconfig.json given by `--project`, or the nearest one above the working directory. Without one, it uses strict NodeNext settings.
 

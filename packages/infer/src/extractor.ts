@@ -1,15 +1,23 @@
 import { existsSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
+import * as ts from 'typescript/ast';
 import {
-  Node,
-  Project,
-  SyntaxKind,
-  ts,
-  type SourceFile,
-  type Symbol as MorphSymbol,
+  API,
+  CheckFlags,
+  ElementFlags,
+  NodeBuilderFlags,
+  SymbolFlags,
+  TypeFlags,
+  type Checker,
+  type CompilerOptions,
+  type Program,
+  type ModuleResolver,
+  formatDiagnostics,
+  type Symbol as CompilerSymbol,
   type Type,
-  type VariableDeclaration,
-} from 'ts-morph';
+  type TypeReference,
+  type TupleTypeReference,
+} from 'typescript/sync';
 import { readDescriptions, type DescriptionTree } from './descriptions.js';
 
 /** A named type the extracted text refers to, and where to import it from. */
@@ -59,32 +67,56 @@ export interface ExtractOptions {
 
 interface Candidate {
   readonly exportName: string;
-  readonly declaration: VariableDeclaration;
+  readonly declaration: ts.VariableDeclaration;
 }
 
 const builderFlags =
-  ts.NodeBuilderFlags.NoTruncation | ts.NodeBuilderFlags.InTypeAlias | ts.NodeBuilderFlags.MultilineObjectLiterals;
-const docMarker = /^([ \t]*)\/\*\*__LOCULUS_DOC_(\d+)__\*\/\n/gm;
+  NodeBuilderFlags.NoTruncation | NodeBuilderFlags.InTypeAlias | NodeBuilderFlags.MultilineObjectLiterals;
 
 /** Reads `Input` and `Output` types of exported Loculus schemas with the TypeScript compiler. */
 export class LoculusTypeExtractor {
-  readonly #project: Project;
+  readonly #api: API;
+  readonly #options: CompilerOptions;
+  readonly #resolver: ModuleResolver;
+  readonly #files = new Set<string>();
+  #program: Program | undefined;
   readonly #cwd: string;
 
   constructor(options: ExtractorOptions = {}) {
     this.#cwd = resolve(options.cwd ?? process.cwd());
     const tsConfigFilePath = options.project ? resolve(this.#cwd, options.project) : findTsConfig(this.#cwd);
-    this.#project = tsConfigFilePath
-      ? new Project({ tsConfigFilePath, skipAddingFilesFromTsConfig: true })
-      : new Project({
-          compilerOptions: {
-            strict: true,
-            target: ts.ScriptTarget.ES2022,
-            module: ts.ModuleKind.NodeNext,
-            moduleResolution: ts.ModuleResolutionKind.NodeNext,
-            skipLibCheck: true,
-          },
-        });
+    try {
+      this.#api = new API({ cwd: this.#cwd });
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith('Unable to resolve @typescript/typescript-')) {
+        throw new Error(
+          `TypeScript native compiler is unavailable for ${process.platform}/${process.arch}. Install optional dependencies with npm install --include=optional, and use a platform supported by TypeScript 7.1.`,
+          { cause: error },
+        );
+      }
+      throw error;
+    }
+    try {
+      const parsed = tsConfigFilePath
+        ? this.#api.parseConfigFile(tsConfigFilePath)
+        : this.#api.parseCommandLine([
+            '--strict',
+            '--target',
+            'es2022',
+            '--module',
+            'nodenext',
+            '--moduleResolution',
+            'nodenext',
+            '--skipLibCheck',
+          ]);
+      const errors = parsed.errors.filter((error) => error.code !== 18002 && error.code !== 18003);
+      if (errors.length) throw new Error(formatDiagnostics(errors, this.#api));
+      this.#options = parsed.options;
+      this.#resolver = this.#api.createModuleResolver(this.#options);
+    } catch (error) {
+      this.#api[Symbol.dispose]();
+      throw error;
+    }
   }
 
   /** Lists exported Loculus schema names in a file. */
@@ -101,19 +133,24 @@ export class LoculusTypeExtractor {
       candidates = candidates.filter((candidate) => wanted.has(candidate.exportName));
     }
     if (candidates.length === 0) return [];
-    const scope = scopeOf(sourceFile);
+    const project = this.#program!.getProject();
+    const scope = new Map(
+      project.checker
+        .getSymbolsInScope(sourceFile, SymbolFlags.Type | SymbolFlags.Value | SymbolFlags.Namespace | SymbolFlags.Alias)
+        .map((symbol) => [symbol.name, symbol]),
+    );
     return candidates.map(({ exportName, declaration }) => {
-      const tree = options.withDescriptions ? readDescriptions(declaration.getInitializer()) : {};
-      const inputReferences = new References(sourceFile, scope);
-      const outputReferences = new References(sourceFile, scope);
-      const schemaType = declaration.getType().compilerType;
-      const order = this.#shapeOrder(schemaType, declaration.compilerNode);
+      const tree = options.withDescriptions ? readDescriptions(declaration.initializer, project.checker) : {};
+      const inputReferences = new References(sourceFile, scope, this.#program!, this.#resolver);
+      const outputReferences = new References(sourceFile, scope, this.#program!, this.#resolver);
+      const schemaType = project.checker.getTypeAtLocation(declaration);
+      const order = this.#shapeOrder(schemaType, declaration);
       const input = this.#print(declaration, schemaType, '_input', tree, order, false, inputReferences);
       const output = this.#print(declaration, schemaType, '_output', tree, order, true, outputReferences);
       const description = options.withDescriptions ? tree.description : undefined;
       return {
         schemaName: exportName,
-        filePath: sourceFile.getFilePath(),
+        filePath: sourceFile.fileName,
         input,
         output,
         ...(description === undefined ? {} : { description }),
@@ -134,47 +171,70 @@ export class LoculusTypeExtractor {
 
   /** Loads several files before extraction so their dependencies are resolved once, not per file. */
   addSourceFiles(filePaths: readonly string[]): void {
-    let added = false;
-    for (const filePath of filePaths) {
-      const absolute = resolve(this.#cwd, filePath);
-      if (this.#project.getSourceFile(absolute)) continue;
-      this.#project.addSourceFileAtPath(absolute);
-      added = true;
+    const before = this.#files.size;
+    for (const filePath of filePaths) this.#files.add(resolve(this.#cwd, filePath));
+    if (this.#program && before === this.#files.size) return;
+    this.#program?.[Symbol.dispose]();
+    this.#program = undefined;
+    this.#program = this.#api.createProgram([...this.#files], this.#options);
+  }
+
+  dispose(): void {
+    const program = this.#program;
+    this.#program = undefined;
+    try {
+      program?.[Symbol.dispose]();
+    } finally {
+      try {
+        this.#resolver[Symbol.dispose]();
+      } finally {
+        this.#api[Symbol.dispose]();
+      }
     }
-    if (added) this.#project.resolveSourceFileDependencies();
   }
 
-  #sourceFile(filePath: string): SourceFile {
+  [Symbol.dispose](): void {
+    this.dispose();
+  }
+
+  #sourceFile(filePath: string): ts.SourceFile {
     this.addSourceFiles([filePath]);
-    return this.#project.getSourceFileOrThrow(resolve(this.#cwd, filePath));
+    const file = this.#program!.getSourceFile(resolve(this.#cwd, filePath));
+    if (!file) throw new Error(`Source file not found: ${filePath}`);
+    return file;
   }
 
-  #candidates(sourceFile: SourceFile): Candidate[] {
+  #candidates(sourceFile: ts.SourceFile): Candidate[] {
+    const checker = this.#program!.getProject().checker;
+    const module = checker.getSymbolOfSourceFile(sourceFile.fileName);
+    if (!module) return [];
     const candidates: Candidate[] = [];
-    for (const [exportName, declarations] of sourceFile.getExportedDeclarations()) {
-      if (exportName === 'default') continue;
-      for (const declaration of declarations) {
+    for (const exported of checker.getExportsOfModule(module)) {
+      if (exported.name === 'default') continue;
+      const symbol = exported.flags & SymbolFlags.Alias ? checker.getAliasedSymbol(exported) : exported;
+      for (const handle of symbol.declarations) {
+        const declaration = handle.resolve();
         if (
-          Node.isVariableDeclaration(declaration) &&
-          declaration.getSourceFile() === sourceFile &&
-          isLoculusSchema(declaration.getType(), declaration)
-        ) {
-          candidates.push({ exportName, declaration });
-        }
+          declaration &&
+          ts.isVariableDeclaration(declaration) &&
+          declaration.getSourceFile().fileName === sourceFile.fileName &&
+          isLoculusSchema(checker.getTypeAtLocation(declaration), declaration, checker)
+        )
+          candidates.push({ exportName: exported.name, declaration });
       }
     }
     return candidates.sort((a, b) => a.declaration.getStart() - b.declaration.getStart());
   }
 
   /** Field order of `object()` shapes, which the printed intersection types do not keep. */
-  #shapeOrder(type: ts.Type, location: ts.Node, depth = 0): ShapeOrder | undefined {
-    const checker = this.#project.getTypeChecker().compilerObject;
+  #shapeOrder(type: Type, location: ts.Node, depth = 0): ShapeOrder | undefined {
+    const checker = this.#program!.getProject().checker;
     const shape = type.getProperty('shape');
     if (!shape || depth > 32) return undefined;
     const fields = new Map<string, ShapeOrder | undefined>();
     for (const property of checker.getTypeOfSymbolAtLocation(shape, location).getProperties()) {
       fields.set(
-        property.getName(),
+        property.name,
         this.#shapeOrder(checker.getTypeOfSymbolAtLocation(property, location), location, depth + 1),
       );
     }
@@ -182,30 +242,27 @@ export class LoculusTypeExtractor {
   }
 
   #print(
-    declaration: VariableDeclaration,
-    schemaType: ts.Type,
+    declaration: ts.VariableDeclaration,
+    schemaType: Type,
     marker: '_input' | '_output',
     tree: DescriptionTree,
     order: ShapeOrder | undefined,
     output: boolean,
     references: References,
   ): string {
-    const checker = this.#project.getTypeChecker().compilerObject;
-    const location = declaration.compilerNode;
+    const checker = this.#program!.getProject().checker;
+    const location = declaration;
     const property = schemaType.getProperty(marker);
-    if (!property) throw new Error(`${declaration.getName()} has no ${marker} type`);
+    if (!property) throw new Error(`${declaration.name.getText()} has no ${marker} type`);
     const node = reorder(
       new TypeNodeBuilder(checker, location).build(checker.getTypeOfSymbolAtLocation(property, location)),
       order,
     );
-    const docs: string[] = [];
-    annotate(node, tree, output, docs);
     references.collect(node);
-    const printer = ts.createPrinter({ newLine: ts.NewLineKind.LineFeed, removeComments: false });
-    let text = printer.printNode(ts.EmitHint.Unspecified, node, declaration.getSourceFile().compilerNode);
+    let text = this.#api.printer.printNode(node);
     text = text.replace(/^( {4})+/gm, (indent) => ' '.repeat(indent.length / 2));
     text = references.replaceImportTypes(text);
-    return text.replace(docMarker, (_, indent: string, index: string) => formatDoc(docs[Number(index)]!, indent));
+    return addDescriptions(text, tree, output, this.#api);
   }
 }
 
@@ -215,16 +272,16 @@ export class LoculusTypeExtractor {
  * classes (`Date`, `URL`, user interfaces) as references.
  */
 class TypeNodeBuilder {
-  readonly #checker: ts.TypeChecker;
+  readonly #checker: Checker;
   readonly #location: ts.Node;
-  readonly #visiting = new Set<ts.Type>();
+  readonly #visiting = new Set<Type>();
 
-  constructor(checker: ts.TypeChecker, location: ts.Node) {
+  constructor(checker: Checker, location: ts.Node) {
     this.#checker = checker;
     this.#location = location;
   }
 
-  build(type: ts.Type): ts.TypeNode {
+  build(type: Type): ts.TypeNode {
     if (!this.#needsExpansion(type, new Set())) return this.#reference(type);
     if (this.#visiting.has(type)) return this.#reference(type);
     this.#visiting.add(type);
@@ -235,46 +292,48 @@ class TypeNodeBuilder {
     }
   }
 
-  #expand(type: ts.Type): ts.TypeNode {
+  #expand(type: Type): ts.TypeNode {
     const checker = this.#checker;
     const { factory } = ts;
-    if (type.isUnion()) {
+    if (type.isUnionType()) {
       const members: ts.TypeNode[] = [];
-      const booleans = type.types.filter((member) => member.flags & ts.TypeFlags.BooleanLiteral);
+      const booleans = type.getTypes().filter((member) => member.flags & TypeFlags.BooleanLiteral);
       // Print null and undefined last, like the compiler does.
-      const nullish = (member: ts.Type) =>
-        member.flags & ts.TypeFlags.Undefined ? 2 : member.flags & ts.TypeFlags.Null ? 1 : 0;
+      const nullish = (member: Type) =>
+        member.flags & TypeFlags.Undefined ? 2 : member.flags & TypeFlags.Null ? 1 : 0;
       // `A & B` adds nothing to a union that already contains `A`. Such members
       // appear when the compiler distributes `ObjectInput`'s intersection.
-      const absorbed = (member: ts.Type) =>
-        member.isIntersection() && member.types.some((part) => type.types.includes(part));
-      for (const member of [...type.types]
+      const absorbed = (member: Type) =>
+        member.isIntersectionType() && member.getTypes().some((part) => type.getTypes().includes(part));
+      for (const member of [...type.getTypes()]
         .filter((member) => !absorbed(member))
         .sort((a, b) => nullish(a) - nullish(b))) {
-        if (member.flags & ts.TypeFlags.BooleanLiteral && booleans.length === 2) {
+        if (member.flags & TypeFlags.BooleanLiteral && booleans.length === 2) {
           if (member === booleans[0]) members.push(factory.createKeywordTypeNode(ts.SyntaxKind.BooleanKeyword));
           continue;
         }
         const node = this.build(member);
         members.push(
           ts.isFunctionTypeNode(node) || ts.isConstructorTypeNode(node) || ts.isConditionalTypeNode(node)
-            ? factory.createParenthesizedType(node)
+            ? factory.createParenthesizedTypeNode(node)
             : node,
         );
       }
       return factory.createUnionTypeNode(members);
     }
-    if (type.isIntersection() && type.types.some((part) => !(part.flags & ts.TypeFlags.Object))) {
+    if (type.isIntersectionType() && type.getTypes().some((part) => !(part.flags & TypeFlags.Object))) {
       // A primitive intersected with an object, such as a branded string, is not an object shape.
       return factory.createIntersectionTypeNode(
-        type.types.map((part) => {
+        type.getTypes().map((part) => {
           const node = this.build(part);
-          return ts.isUnionTypeNode(node) || ts.isFunctionTypeNode(node) ? factory.createParenthesizedType(node) : node;
+          return ts.isUnionTypeNode(node) || ts.isFunctionTypeNode(node)
+            ? factory.createParenthesizedTypeNode(node)
+            : node;
         }),
       );
     }
     if (checker.isArrayType(type)) {
-      const [element] = checker.getTypeArguments(type as ts.TypeReference);
+      const [element] = checker.getTypeArguments(type as TypeReference);
       let node = this.build(element!);
       if (
         ts.isUnionTypeNode(node) ||
@@ -282,17 +341,17 @@ class TypeNodeBuilder {
         ts.isFunctionTypeNode(node) ||
         ts.isConditionalTypeNode(node)
       )
-        node = factory.createParenthesizedType(node);
+        node = factory.createParenthesizedTypeNode(node);
       const array = factory.createArrayTypeNode(node);
       return isReadonlyArray(type) ? factory.createTypeOperatorNode(ts.SyntaxKind.ReadonlyKeyword, array) : array;
     }
     if (checker.isTupleType(type)) {
-      const target = (type as ts.TypeReference).target as ts.TupleType;
-      const elements = checker.getTypeArguments(type as ts.TypeReference).map((element, index) => {
+      const target = (type as TupleTypeReference).getTarget();
+      const elements = checker.getTypeArguments(type as TypeReference).map((element, index) => {
         const flags = target.elementFlags[index]!;
         const node = this.build(element);
-        if (flags & ts.ElementFlags.Rest) return factory.createRestTypeNode(factory.createArrayTypeNode(node));
-        return flags & ts.ElementFlags.Optional ? factory.createOptionalTypeNode(node) : node;
+        if (flags & ElementFlags.Rest) return factory.createRestTypeNode(factory.createArrayTypeNode(node));
+        return flags & ElementFlags.Optional ? factory.createOptionalTypeNode(node) : node;
       });
       const tuple = factory.createTupleTypeNode(elements);
       return target.readonly ? factory.createTypeOperatorNode(ts.SyntaxKind.ReadonlyKeyword, tuple) : tuple;
@@ -302,43 +361,50 @@ class TypeNodeBuilder {
     if (properties.some((property) => String(property.escapedName).startsWith('__@'))) return this.#reference(type);
     const members = properties.map((property) => {
       const propertyType = checker.getTypeOfSymbolAtLocation(property, this.#location);
-      return factory.createPropertySignature(
-        isReadonlyProperty(property) ? [factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)] : undefined,
-        propertyName(property.getName()),
-        property.flags & ts.SymbolFlags.Optional ? factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
+      return factory.createPropertySignatureDeclaration(
+        isReadonlyProperty(property) ? [factory.createToken(ts.SyntaxKind.ReadonlyKeyword)] : undefined,
+        propertyName(property.name),
+        property.flags & SymbolFlags.Optional ? factory.createToken(ts.SyntaxKind.QuestionToken) : undefined,
         this.build(propertyType),
+        undefined!,
       );
     });
     const indexInfos = checker
       .getIndexInfosOfType(type)
       .map((info) =>
-        factory.createIndexSignature(
-          info.isReadonly ? [factory.createModifier(ts.SyntaxKind.ReadonlyKeyword)] : undefined,
-          [factory.createParameterDeclaration(undefined, undefined, 'key', undefined, this.#reference(info.keyType))],
-          this.build(info.type),
+        factory.createIndexSignatureDeclaration(
+          info.isReadonly ? [factory.createToken(ts.SyntaxKind.ReadonlyKeyword)] : undefined,
+          [
+            factory.createParameterDeclaration(
+              undefined,
+              undefined,
+              factory.createIdentifier('key'),
+              undefined,
+              this.#reference(info.keyType),
+            ),
+          ],
+          this.build(info.valueType),
         ),
       );
     return factory.createTypeLiteralNode([...indexInfos, ...members]);
   }
 
   /** Whether the type contains an anonymous object or intersection the compiler would print by alias. */
-  #needsExpansion(type: ts.Type, seen: Set<ts.Type>): boolean {
+  #needsExpansion(type: Type, seen: Set<Type>): boolean {
     if (seen.has(type)) return false;
     seen.add(type);
     if (type.getCallSignatures().length || type.getConstructSignatures().length) return false;
-    if (type.aliasSymbol && type.flags & (ts.TypeFlags.Object | ts.TypeFlags.UnionOrIntersection)) return true;
-    if (type.isUnion()) return type.types.some((member) => this.#needsExpansion(member, seen));
-    if (type.isIntersection()) return true;
+    if (type.getAliasSymbol() && type.flags & (TypeFlags.Object | TypeFlags.UnionOrIntersection)) return true;
+    if (type.isUnionType()) return type.getTypes().some((member) => this.#needsExpansion(member, seen));
+    if (type.isIntersectionType()) return true;
     if (this.#checker.isArrayType(type) || this.#checker.isTupleType(type)) {
-      return this.#checker
-        .getTypeArguments(type as ts.TypeReference)
-        .some((member) => this.#needsExpansion(member, seen));
+      return this.#checker.getTypeArguments(type as TypeReference).some((member) => this.#needsExpansion(member, seen));
     }
-    if (!(type.flags & ts.TypeFlags.Object)) return false;
+    if (!(type.flags & TypeFlags.Object)) return false;
     return !isNamed(type);
   }
 
-  #reference(type: ts.Type): ts.TypeNode {
+  #reference(type: Type): ts.TypeNode {
     const node = this.#checker.typeToTypeNode(type, this.#location, builderFlags);
     if (!node) throw new Error(`Cannot print type ${this.#checker.typeToString(type)}`);
     return node;
@@ -350,38 +416,34 @@ function leftmost(name: ts.EntityName): string {
   return name.text;
 }
 
-function isNamed(type: ts.Type): boolean {
+function isNamed(type: Type): boolean {
   const symbol = type.getSymbol();
-  return (
-    symbol !== undefined &&
-    (symbol.flags & (ts.SymbolFlags.Class | ts.SymbolFlags.Interface | ts.SymbolFlags.Enum)) !== 0
-  );
+  return symbol !== undefined && (symbol.flags & (SymbolFlags.Class | SymbolFlags.Interface | SymbolFlags.Enum)) !== 0;
 }
 
-// Mapped types such as Readonly<T> mark their properties readonly through the symbol's check
-// flags rather than a modifier on the declaration. CheckFlags is internal; Readonly is 1 << 3.
-const readonlyCheckFlag = 1 << 3;
-
-function isReadonlyProperty(property: ts.Symbol): boolean {
-  const checkFlags = (property as { links?: { checkFlags?: number } }).links?.checkFlags ?? 0;
-  if (checkFlags & readonlyCheckFlag) return true;
-  const declaration = property.valueDeclaration ?? property.declarations?.[0];
+function isReadonlyProperty(property: CompilerSymbol): boolean {
+  if (property.checkFlags & CheckFlags.Readonly) return true;
+  const declaration = (property.valueDeclaration ?? property.declarations[0])?.resolve();
   return declaration !== undefined && (ts.getCombinedModifierFlags(declaration) & ts.ModifierFlags.Readonly) !== 0;
 }
 
-function isReadonlyArray(type: ts.Type): boolean {
-  return (type as ts.TypeReference).target?.getSymbol()?.getName() === 'ReadonlyArray';
+function isReadonlyArray(type: Type): boolean {
+  return type.isTypeReference() && type.getTarget().getSymbol()?.name === 'ReadonlyArray';
 }
 
 function propertyName(name: string): ts.PropertyName {
-  return /^[A-Za-z_$][\w$]*$/.test(name) ? ts.factory.createIdentifier(name) : ts.factory.createStringLiteral(name);
+  return /^[A-Za-z_$][\w$]*$/.test(name)
+    ? ts.factory.createIdentifier(name)
+    : ts.factory.createStringLiteral(name, ts.TokenFlags.None);
 }
 
-function isLoculusSchema(type: Type, node: Node): boolean {
+function isLoculusSchema(type: Type, node: ts.Node, checker: Checker): boolean {
   const standard = type.getProperty('~standard');
   if (!standard || !type.getProperty('_input') || !type.getProperty('_output')) return false;
-  const vendor = standard.getTypeAtLocation(node).getProperty('vendor')?.getTypeAtLocation(node);
-  return vendor?.isStringLiteral() === true && vendor.getLiteralValue() === 'loculus';
+  const standardType = checker.getTypeOfSymbolAtLocation(standard, node);
+  const property = standardType.getProperty('vendor');
+  const vendor = property && checker.getTypeOfSymbolAtLocation(property, node);
+  return vendor?.isStringLiteralType() === true && vendor.value === 'loculus';
 }
 
 function findTsConfig(from: string): string | undefined {
@@ -395,7 +457,8 @@ function findTsConfig(from: string): string | undefined {
 type ShapeOrder = Map<string, ShapeOrder | undefined>;
 
 function memberName(member: ts.TypeElement): string | undefined {
-  const name = member.name;
+  const name =
+    ts.isPropertySignatureDeclaration(member) || ts.isMethodSignatureDeclaration(member) ? member.name : undefined;
   return name && (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name))
     ? name.text
     : undefined;
@@ -409,7 +472,7 @@ function reorder(node: ts.TypeNode, order: ShapeOrder | undefined): ts.TypeNode 
       node,
       ts.factory.createNodeArray(node.types.map((type) => reorder(type, order))),
     );
-  if (ts.isParenthesizedTypeNode(node)) return ts.factory.updateParenthesizedType(node, reorder(node.type, order));
+  if (ts.isParenthesizedTypeNode(node)) return ts.factory.updateParenthesizedTypeNode(node, reorder(node.type, order));
   if (!ts.isTypeLiteralNode(node)) return node;
   const keys = [...order.keys()];
   const rank = (member: ts.TypeElement) => {
@@ -419,13 +482,14 @@ function reorder(node: ts.TypeNode, order: ShapeOrder | undefined): ts.TypeNode 
   const members = node.members.map((member, index) => {
     const child = order.get(memberName(member) ?? '');
     const updated =
-      child && ts.isPropertySignature(member) && member.type
-        ? ts.factory.updatePropertySignature(
+      child && ts.isPropertySignatureDeclaration(member) && member.type
+        ? ts.factory.updatePropertySignatureDeclaration(
             member,
             member.modifiers,
             member.name,
-            member.questionToken,
+            member.postfixToken,
             reorder(member.type, child),
+            member.initializer!,
           )
         : member;
     return { member: updated, rank: rank(member), index };
@@ -434,35 +498,44 @@ function reorder(node: ts.TypeNode, order: ShapeOrder | undefined): ts.TypeNode 
   return ts.factory.updateTypeLiteralNode(node, ts.factory.createNodeArray(members.map((entry) => entry.member)));
 }
 
-function annotate(node: ts.TypeNode, tree: DescriptionTree, output: boolean, docs: string[]): void {
-  if (tree.inputOnlyFields && output) return;
-  if (ts.isTypeOperatorNode(node)) return annotate(node.type, tree, output, docs);
-  if (ts.isArrayTypeNode(node)) {
-    if (tree.element) annotate(node.elementType, tree.element, output, docs);
-    return;
-  }
-  if (ts.isParenthesizedTypeNode(node)) return annotate(node.type, tree, output, docs);
-  if (ts.isUnionTypeNode(node)) {
-    for (const member of node.types) annotate(member, tree, output, docs);
-    return;
-  }
-  if (!ts.isTypeLiteralNode(node) || !tree.fields) return;
-  for (const member of node.members) {
-    if (!ts.isPropertySignature(member)) continue;
-    const name = memberName(member);
-    const field = name === undefined ? undefined : tree.fields.get(name);
-    if (!field) continue;
-    if (field.description !== undefined) {
-      ts.addSyntheticLeadingComment(
-        member,
-        ts.SyntaxKind.MultiLineCommentTrivia,
-        `*__LOCULUS_DOC_${docs.length}__`,
-        true,
-      );
-      docs.push(field.description);
+function addDescriptions(text: string, tree: DescriptionTree, output: boolean, api: API): string {
+  if ((!tree.fields && !tree.element) || (tree.inputOnlyFields && output)) return text;
+  const prefix = 'type __LoculusGenerated = ';
+  using parsed = api.createSourceFile('__loculus_generated.ts', prefix + text);
+  const source = parsed.sourceFile;
+  const declaration = source.statements[0];
+  if (!declaration || !ts.isTypeAliasDeclaration(declaration)) throw new Error('Cannot parse generated type');
+  const edits: { position: number; text: string }[] = [];
+  const visit = (node: ts.TypeNode, tree: DescriptionTree): void => {
+    if (tree.inputOnlyFields && output) return;
+    if (ts.isTypeOperatorNode(node) || ts.isParenthesizedTypeNode(node)) return visit(node.type, tree);
+    if (ts.isArrayTypeNode(node)) {
+      if (tree.element) visit(node.elementType, tree.element);
+      return;
     }
-    if (member.type) annotate(member.type, field, output, docs);
-  }
+    if (ts.isUnionTypeNode(node)) {
+      for (const member of node.types) visit(member, tree);
+      return;
+    }
+    if (!ts.isTypeLiteralNode(node) || !tree.fields) return;
+    for (const member of node.members) {
+      if (!ts.isPropertySignatureDeclaration(member)) continue;
+      const field = tree.fields.get(memberName(member) ?? '');
+      if (!field) continue;
+      if (field.description !== undefined) {
+        const start = member.getStart();
+        const lineStart = source.text.lastIndexOf('\n', start - 1) + 1;
+        const indent = source.text.slice(lineStart, start);
+        edits.push({ position: lineStart, text: formatDoc(field.description, indent) });
+      }
+      if (member.type) visit(member.type, field);
+    }
+  };
+  visit(declaration.type, tree);
+  let result = source.text;
+  for (const edit of edits.sort((a, b) => b.position - a.position))
+    result = result.slice(0, edit.position) + edit.text + result.slice(edit.position);
+  return result.slice(prefix.length);
 }
 
 /** Formats a TSDoc comment at the given indentation, ending with a newline. */
@@ -472,27 +545,23 @@ export function formatDoc(description: string, indent = ''): string {
   return `${indent}/**\n${lines.map((line) => `${indent} *${line ? ` ${line}` : ''}`).join('\n')}\n${indent} */\n`;
 }
 
-function scopeOf(sourceFile: SourceFile): Map<string, MorphSymbol> {
-  return new Map(
-    sourceFile
-      .getProject()
-      .getTypeChecker()
-      .getSymbolsInScope(
-        sourceFile,
-        ts.SymbolFlags.Type | ts.SymbolFlags.Value | ts.SymbolFlags.Namespace | ts.SymbolFlags.Alias,
-      )
-      .map((symbol) => [symbol.getName(), symbol]),
-  );
-}
-
 /** Tracks named types referenced by printed type nodes. */
 class References {
   readonly warnings: string[] = [];
-  readonly #sourceFile: SourceFile;
-  readonly #scope: ReadonlyMap<string, MorphSymbol>;
+  readonly #sourceFile: ts.SourceFile;
+  readonly #program: Program;
+  readonly #resolver: ModuleResolver;
+  readonly #scope: ReadonlyMap<string, CompilerSymbol>;
   readonly #imports = new Map<string, TypeImport>();
 
-  constructor(sourceFile: SourceFile, scope: ReadonlyMap<string, MorphSymbol>) {
+  constructor(
+    sourceFile: ts.SourceFile,
+    scope: ReadonlyMap<string, CompilerSymbol>,
+    program: Program,
+    resolver: ModuleResolver,
+  ) {
+    this.#resolver = resolver;
+    this.#program = program;
     this.#sourceFile = sourceFile;
     this.#scope = scope;
   }
@@ -503,7 +572,7 @@ class References {
 
   /** The imports of both, rejecting one name bound to different types. */
   merge(other: References): TypeImport[] {
-    const merged = new References(this.#sourceFile, this.#scope);
+    const merged = new References(this.#sourceFile, this.#scope, this.#program, this.#resolver);
     for (const entry of [...this.imports(), ...other.imports()]) merged.#record(entry);
     return merged.imports();
   }
@@ -517,7 +586,7 @@ class References {
       while (ts.isPropertyAccessExpression(expression)) expression = expression.expression;
       if (ts.isIdentifier(expression)) this.#add(expression.text);
     }
-    ts.forEachChild(node, (child) => this.collect(child));
+    node.forEachChild((child) => this.collect(child));
   }
 
   /** Replaces `import("./module").Name` with `Name` and records the import. */
@@ -530,55 +599,47 @@ class References {
   }
 
   #resolveModule(specifier: string): string {
-    const result = ts.resolveModuleName(
-      specifier,
-      this.#sourceFile.getFilePath(),
-      this.#sourceFile.getProject().getCompilerOptions(),
-      ts.sys,
+    return (
+      this.#resolver.resolveModuleName(specifier, dirname(this.#sourceFile.fileName)).resolvedModule
+        ?.resolvedFileName ?? resolve(dirname(this.#sourceFile.fileName), specifier)
     );
-    return result.resolvedModule?.resolvedFileName ?? resolve(this.#sourceFile.getDirectoryPath(), specifier);
   }
 
   #add(name: string): void {
     if (this.#imports.has(name)) return;
     const symbol = this.#scope.get(name);
-    if (!symbol) return;
-    const declaration = symbol.getDeclarations()[0];
+    const declaration = symbol?.declarations[0]?.resolve();
     if (!declaration) return;
-    if (Node.isImportSpecifier(declaration)) {
-      const importDeclaration = declaration.getImportDeclaration();
-      this.#record({ name, importedName: declaration.getName(), from: this.#moduleOf(importDeclaration) });
-    } else if (Node.isImportClause(declaration)) {
-      const importDeclaration = declaration.getParent();
-      if (Node.isImportDeclaration(importDeclaration))
-        this.#record({ name, importedName: 'default', from: this.#moduleOf(importDeclaration) });
-    } else if (Node.isNamespaceImport(declaration)) {
-      this.#record({
-        name,
-        importedName: '*',
-        from: this.#moduleOf(declaration.getFirstAncestorByKindOrThrow(SyntaxKind.ImportDeclaration)),
-      });
-    } else if (declaration.getSourceFile() === this.#sourceFile) {
-      const exported = [...this.#sourceFile.getExportedDeclarations()].find(([, nodes]) =>
-        nodes.includes(declaration as never),
-      );
-      if (exported) this.#record({ name, importedName: exported[0], from: this.#sourceFile.getFilePath() });
+    if (ts.isImportSpecifier(declaration)) {
+      const imported = declaration.propertyName ?? declaration.name;
+      this.#record({ name, importedName: imported.text, from: this.#moduleOf(declaration) });
+    } else if (ts.isImportClause(declaration)) {
+      this.#record({ name, importedName: 'default', from: this.#moduleOf(declaration) });
+    } else if (ts.isNamespaceImport(declaration)) {
+      this.#record({ name, importedName: '*', from: this.#moduleOf(declaration) });
+    } else if (declaration.getSourceFile().fileName === this.#sourceFile.fileName) {
+      const checker = this.#program.getProject().checker;
+      const module = checker.getSymbolOfSourceFile(this.#sourceFile.fileName);
+      const exported =
+        module &&
+        checker.getExportsOfModule(module).find((entry) => {
+          const target = entry.flags & SymbolFlags.Alias ? checker.getAliasedSymbol(entry) : entry;
+          return target.declarations.some((handle) => handle.resolve() === declaration);
+        });
+      if (exported) this.#record({ name, importedName: exported.name, from: this.#sourceFile.fileName });
       else
-        this.warnings.push(
-          `"${name}" is used by a schema type but is not exported from ${this.#sourceFile.getFilePath()}`,
-        );
+        this.warnings.push(`"${name}" is used by a schema type but is not exported from ${this.#sourceFile.fileName}`);
     }
   }
 
-  #moduleOf(importDeclaration: {
-    getModuleSpecifierValue(): string;
-    getModuleSpecifierSourceFile(): SourceFile | undefined;
-  }): string {
-    const specifier = importDeclaration.getModuleSpecifierValue();
-    if (!specifier.startsWith('.') && !isAbsolute(specifier)) return specifier;
+  #moduleOf(node: ts.Node): string {
+    while (!ts.isImportDeclaration(node)) node = node.parent;
+    const specifier = node.moduleSpecifier;
+    if (!ts.isStringLiteral(specifier)) throw new Error('Expected a string module specifier');
+    if (!specifier.text.startsWith('.') && !isAbsolute(specifier.text)) return specifier.text;
     return (
-      importDeclaration.getModuleSpecifierSourceFile()?.getFilePath() ??
-      resolve(this.#sourceFile.getDirectoryPath(), specifier)
+      this.#program.getResolvedModuleFromModuleSpecifier(specifier, this.#sourceFile.fileName)?.resolvedFileName ??
+      resolve(dirname(this.#sourceFile.fileName), specifier.text)
     );
   }
 

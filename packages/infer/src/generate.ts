@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
-import { basename, dirname, extname, relative, resolve, sep } from 'node:path';
-import { glob } from 'tinyglobby';
+import { basename, dirname, extname, isAbsolute, relative, resolve, sep } from 'node:path';
+import { glob } from 'glob';
+import { minimatch } from 'minimatch';
 import { LoculusTypeExtractor, type ExtractOptions, type ExtractedSchema, type ExtractorOptions } from './extractor.js';
 import { renderModule, type FormatOptions } from './format.js';
 
@@ -42,7 +43,7 @@ export async function generate(options: GenerateOptions): Promise<GenerateResult
   const cwd = resolve(options.cwd ?? process.cwd());
   const files = await resolveFiles(options.include, options.exclude, cwd);
   if (files.length === 0) throw new Error(`No files matched ${options.include.join(', ')}`);
-  const extractor = new LoculusTypeExtractor(options);
+  using extractor = new LoculusTypeExtractor(options);
   extractor.addSourceFiles(files);
   const extracted = files.map((file) => ({ file, schemas: extractor.extractAll(file, options) }));
   const warnings = [...new Set(extracted.flatMap(({ schemas }) => schemas.flatMap((schema) => schema.warnings)))];
@@ -119,17 +120,40 @@ export async function findOutdated(files: readonly GeneratedFile[]): Promise<Gen
   return outdated;
 }
 
-async function resolveFiles(
+export async function resolveFiles(
   include: readonly string[],
   exclude: readonly string[] = [],
   cwd: string,
 ): Promise<string[]> {
-  const matches = await glob([...include], {
-    cwd,
-    absolute: true,
-    ignore: [...exclude, '**/node_modules/**'],
-    expandDirectories: false,
-  });
+  const normalize = (pattern: string) => (process.platform === 'win32' ? pattern.replaceAll('\\', '/') : pattern);
+  const patterns = include.map(normalize);
+  const ignored = exclude.map(normalize);
+  const negative = patterns
+    .filter((pattern) => pattern.startsWith('!') && !pattern.startsWith('!('))
+    .map((pattern) => pattern.slice(1));
+  const positive = patterns.filter((pattern) => !pattern.startsWith('!') || pattern.startsWith('!('));
+  const matches = (
+    await Promise.all(
+      positive.map(async (pattern) => {
+        const expanded = pattern.replace(/(^|\/)(!\([^/]+)/g, '$1{$2,.*}');
+        const paths = await glob(expanded, {
+          cwd,
+          absolute: true,
+          ignore: [...ignored, ...negative, '**/node_modules/**'],
+          nodir: true,
+          follow: true,
+        });
+        return expanded === pattern
+          ? paths
+          : paths.filter((path) =>
+              minimatch((isAbsolute(pattern) ? path : relative(cwd, path)).split(sep).join('/'), pattern, {
+                dot: true,
+                nonegate: true,
+              }),
+            );
+      }),
+    )
+  ).flat();
   return [...new Set(matches.map((file) => resolve(file)))]
     .filter((file) => /\.[cm]?tsx?$/.test(file) && !/\.d\.[cm]?ts$/.test(file))
     .sort();

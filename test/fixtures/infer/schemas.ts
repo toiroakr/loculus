@@ -87,3 +87,8 @@ export const ReturnSchema = l.object({
   constructor: l.transform(l.string(), () => Model),
   tagged: l.transform(l.string(), (value): { [tag]: string } => ({ [tag]: value })),
 });
+
+export const AdvancedSchema = l.object({
+  tuple: l.transform(l.string(), (): readonly [{ name: string }, number?, ...boolean[]] => [{ name: 'first' }]),
+  index: l.transform(l.string(), (): Readonly<Record<string, { value: string }>> => ({})),
+});
