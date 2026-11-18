@@ -180,10 +180,17 @@ export class LoculusTypeExtractor {
   }
 
   dispose(): void {
-    this.#program?.[Symbol.dispose]();
+    const program = this.#program;
     this.#program = undefined;
-    this.#resolver[Symbol.dispose]();
-    this.#api[Symbol.dispose]();
+    try {
+      program?.[Symbol.dispose]();
+    } finally {
+      try {
+        this.#resolver[Symbol.dispose]();
+      } finally {
+        this.#api[Symbol.dispose]();
+      }
+    }
   }
 
   [Symbol.dispose](): void {

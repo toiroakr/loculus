@@ -284,3 +284,42 @@ test('retries file loading after compiler program creation fails', async (contex
   assert.throws(() => instance.listSchemas(extra), /Temporary compiler failure/);
   assert.deepEqual(instance.listSchemas(extra), []);
 });
+
+
+test('closes the compiler even when program disposal fails', async (context) => {
+  const require = createRequire(new URL('../packages/infer/package.json', import.meta.url));
+  const { API } = await import(pathToFileURL(require.resolve('typescript/sync')).href);
+  const programs: object[] = [];
+  const getter = Object.getOwnPropertyDescriptor(API.prototype, 'createProgram')?.get;
+  assert.ok(getter);
+  context.mock.getter(API.prototype, 'createProgram', function (this: object) {
+    const create = getter.call(this);
+    return (...args: unknown[]) => {
+      const program = create(...args);
+      const dispose = program[Symbol.dispose].bind(program);
+      programs.push(program);
+      Object.defineProperty(program, Symbol.dispose, { configurable: true, value: () => {
+        dispose();
+        throw new Error('Program disposal failed');
+      }});
+      return program;
+    };
+  });
+  const closeGetter = Object.getOwnPropertyDescriptor(API.prototype, 'close')?.get;
+  assert.ok(closeGetter);
+  let closed = false;
+  context.mock.getter(API.prototype, 'close', function (this: object) {
+    const close = closeGetter.call(this);
+    return () => { closed = true; return close(); };
+  });
+  const instance = new LoculusTypeExtractor({ cwd: root });
+  instance.listSchemas(fixture);
+  try {
+    assert.throws(() => instance.dispose(), /Program disposal failed/);
+    assert.equal(closed, true);
+  } finally {
+    for (const program of programs) Reflect.deleteProperty(program, Symbol.dispose);
+    context.mock.restoreAll();
+    instance.dispose();
+  }
+});
