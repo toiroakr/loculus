@@ -2,8 +2,8 @@
   "name": "loculus",
   "version": "0.4.1",
   "description": "Flat schemas for string inputs",
-  "license": "MIT",
   "homepage": "https://toiroakr.github.io/loculus/",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/toiroakr/loculus.git"
@@ -17,10 +17,6 @@
   ],
   "type": "module",
   "sideEffects": false,
-  "packageManager": "pnpm@12.21.0",
-  "publishConfig": {
-    "access": "public"
-  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -30,6 +26,9 @@
       "types": "./dist/length.d.ts",
       "import": "./dist/length.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "changeset": "changeset",
@@ -42,7 +41,7 @@
     "format:check": "pnpm --filter @loculus/infer format:check",
     "knip": "pnpm --filter @loculus/infer knip",
     "test:types": "vitest --typecheck.only --run",
-    "test": "node --import tsx --test test/*.test.* && pnpm check:tree-shaking && pnpm check:packages",
+    "test": "node --test .github/scripts/test-lockfile-runtime-diff.mjs && node --import tsx --test test/*.test.* && pnpm check:tree-shaking && pnpm check:packages",
     "docs:build": "pnpm build && node examples/react-hook-form/build.mjs && node docs/compatibility/audit.mjs && bun docs/compatibility/audit.mjs docs/generated/compatibility/bun.json && node docs/compatibility/render.mjs && node docs/build-home.mjs",
     "docs:preview": "node docs/build-preview.mjs",
     "docs:check": "node docs/check-home.mjs",
@@ -85,5 +84,6 @@
   },
   "engines": {
     "node": ">=22.18.0"
-  }
+  },
+  "packageManager": "pnpm@12.21.0"
 }
