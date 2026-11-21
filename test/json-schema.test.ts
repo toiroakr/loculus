@@ -235,3 +235,10 @@ test("a wrapped single value never matches an array even when the item schema is
   const [, single] = input(draft2020).anyOf as { allOf?: unknown[] }[];
   assert.deepEqual(single!.allOf!.at(-1), { not: { type: "array" } });
 });
+
+test("a wrapped single value never matches an array even when the item schema is an intersection of arrays", () => {
+  const items = l.intersection(l.array(l.string()), l.array(l.string()));
+  const { input } = jsonSchema(l.array(items as never, { wrapScalar: true, max: 1 }))["~standard"].jsonSchema;
+  const [, single] = input(draft2020).anyOf as { allOf?: unknown[] }[];
+  assert.deepEqual(single!.allOf!.at(-1), { not: { type: "array" } });
+});
