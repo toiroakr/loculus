@@ -179,3 +179,45 @@ test("intersection output retains strict fields that the other branch cannot mer
   assert.deepEqual(leftOutput!.properties.y, {});
   assert.deepEqual(rightOutput!.properties.unshared, {});
 });
+
+test("all configured defaults are checked for JSON representability", () => {
+  const invalid = jsonSchema(l.number({ default: { null: Infinity } }))["~standard"].jsonSchema;
+  assert.throws(() => invalid.input(draft07), /non-finite default/);
+  assert.throws(() => invalid.output(draft2020), /non-finite default/);
+
+  const valid = jsonSchema(l.number({ default: { null: 1 } }))["~standard"].jsonSchema;
+  assert.ok(valid.input(draft07).anyOf);
+  assert.ok(valid.output(draft2020).anyOf);
+});
+
+test("patterns that cannot preserve Unicode semantics are rejected", () => {
+  const schema = l.string({ pattern: /^..$/ });
+  assert.deepEqual(l.safeParse(schema, "🦊"), { value: "🦊" });
+  const { input, output } = jsonSchema(schema)["~standard"].jsonSchema;
+  assert.throws(() => input(draft07), /Unicode matching semantics/);
+  assert.throws(() => output(draft2020), /Unicode matching semantics/);
+
+  for (const pattern of [/^\w+$/, /^[.]+$/, /^\.$/, /^\u0041$/]) {
+    const standard = jsonSchema(l.string({ pattern }))["~standard"];
+    assert.equal(standard.jsonSchema.input(draft2020).pattern, pattern.source);
+  }
+});
+
+test("intersection output keeps closed branches closed when both have defaults", () => {
+  const left = l.object({ a: l.string() }, { default: { null: { a: "a" } } });
+  const right = l.object({ b: l.string() }, { default: { null: { b: "b" } } });
+  const standard = jsonSchema(l.intersection(left, right))["~standard"];
+  assert.deepEqual(standard.validate(null), { value: { a: "a", b: "b" } });
+  const output = standard.jsonSchema.output(draft07);
+  assert.equal(output.additionalProperties, false);
+  assert.deepEqual(output.properties, { a: {}, b: {} });
+});
+
+test("an optional intersection field can be supplied by the other branch", () => {
+  const left = l.object({ shared: l.number({ default: 1 }) });
+  const right = l.object({ shared: l.string({ optional: true }) });
+  const standard = jsonSchema(l.intersection(left, right))["~standard"];
+  assert.deepEqual(standard.validate({}), { value: { shared: 1 } });
+  const [, other] = standard.jsonSchema.output(draft07).allOf as { properties: Record<string, unknown> }[];
+  assert.deepEqual(other!.properties.shared, {});
+});

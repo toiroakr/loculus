@@ -70,9 +70,9 @@ function convertSchema(schema: AnySchema, conversion: Conversion): JsonSchema {
   }
   if (direction === "output" && meta.nullable && !hasNullDefault) alternatives.push({ type: "null" });
   const defaultValue = meta.defaultValue === undefined ? undefined : jsonValue(meta.defaultValue);
+  const nullDefaultValue = meta.nullDefaultValue === undefined ? undefined : jsonValue(meta.nullDefaultValue);
   if (direction === "output") {
-    const defaults = [defaultValue, meta.nullDefaultValue === undefined ? undefined : jsonValue(meta.nullDefaultValue)]
-      .filter(value => value !== undefined);
+    const defaults = [defaultValue, nullDefaultValue].filter(value => value !== undefined);
     for (const value of defaults) {
       alternatives.push(conversion.merging ? mergeableDefault(value, conversion.target) : { const: value });
     }
@@ -118,13 +118,49 @@ function mergeableDefault(value: unknown, target: Conversion["target"]): JsonSch
 function mergePeer(merging: Conversion["merging"]): Meta | undefined {
   if (!merging || merging === true) return;
   const { meta } = merging;
-  if (!meta.wrapper && meta.defaultValue === undefined && meta.nullDefaultValue === undefined) return meta;
+  if (!meta.wrapper && !Object.hasOwn(meta, "defaultValue") && !Object.hasOwn(meta, "nullDefaultValue")) return meta;
+}
+
+function closedObjectOutputKeys({ meta }: AnySchema): string[] | undefined {
+  if (meta.wrapper || meta.kind !== "object" || meta.unknownKeys === "passthrough") return;
+  const keys = Object.keys(meta.shape!).filter(key => key !== "__proto__");
+  for (const value of [meta.defaultValue, meta.nullDefaultValue]) {
+    if (value === null || value === undefined) continue;
+    if (typeof value !== "object" || Array.isArray(value)) return;
+    keys.push(...Object.keys(value));
+  }
+  return keys;
 }
 
 function lengthBounds(min: number | undefined, max: number | undefined) {
   const minimum = min !== undefined && min > 0 ? Math.ceil(min) : 0;
   const maximum = max !== undefined && max < Infinity ? Math.floor(max) : Infinity;
   return { minimum, maximum, impossible: minimum > maximum || minimum > Number.MAX_SAFE_INTEGER };
+}
+
+function convertPattern({ source, flags }: RegExp): string {
+  if (/[^dg]/.test(flags)) throw new TypeError(`Unsupported JSON Schema pattern flags: ${flags}`);
+  const syntax = source.replace(/\\u([\da-f]{4})|\\([\s\S])/gi, (_, code: string | undefined, escape: string | undefined) => {
+    if (code) {
+      const point = Number.parseInt(code, 16);
+      return point > 0x7f ? String.fromCharCode(point) : "_";
+    }
+    return /[DSW0-9u]/.test(escape!) ? "\uD800" : "_";
+  });
+  if (/\[\^|[\uD800-\uDFFF]/.test(syntax) || /\./.test(syntax.replace(/\[[^\]]*\]/g, ""))
+    || (syntax.includes("-") && /[^\x00-\x7f]/.test(syntax)))
+    throw new TypeError("Cannot convert a pattern with potentially different Unicode matching semantics to JSON Schema");
+  try {
+    new RegExp(source, "u");
+  } catch (cause) {
+    throw new TypeError("Cannot convert a pattern with unsupported Unicode syntax to JSON Schema", { cause });
+  }
+  return source;
+}
+
+function hasRequiredOutput(meta: Meta): boolean {
+  if (Object.hasOwn(meta, "nullDefaultValue") && meta.nullDefaultValue === undefined) return false;
+  return !meta.optional || meta.defaultValue !== undefined;
 }
 
 function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
@@ -158,10 +194,7 @@ function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
           conversion.approximate = true;
         }
       }
-      if (pattern) {
-        if (/[^dg]/.test(pattern.flags)) throw new TypeError(`Unsupported JSON Schema pattern flags: ${pattern.flags}`);
-        result.pattern = pattern.source;
-      }
+      if (pattern) result.pattern = convertPattern(pattern);
       return result;
     }
     case "number": {
@@ -209,11 +242,11 @@ function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
       const peerShape = peer?.kind === "object" ? peer.shape : undefined;
       const peerAllowsUnknown = !!merging && (!peerShape || peer?.unknownKeys === "passthrough");
       const properties = Object.fromEntries(fields.map(([key, field]) => {
-        const fieldConversion = merging ? {
-          ...conversion,
-          merging: peerShape && Object.hasOwn(peerShape, key) ? peerShape[key] : peerAllowsUnknown ? true as const : undefined,
-        } : conversion;
-        return [key, convertSchema(field, fieldConversion)];
+        const peerField = peerShape && Object.hasOwn(peerShape, key) ? peerShape[key] : undefined;
+        const fieldPeer: Conversion["merging"] = peerField ?? (peerAllowsUnknown ? true : undefined);
+        const fieldConversion = merging ? { ...conversion, merging: fieldPeer } : conversion;
+        const value = convertSchema(field, fieldConversion);
+        return [key, fieldPeer && !hasRequiredOutput(field.meta) ? {} : value];
       }));
       if (peerShape && !peerAllowsUnknown) {
         for (const key of Object.keys(peerShape)) {
@@ -223,11 +256,8 @@ function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
       }
       if (direction === "input" && Object.hasOwn(meta.shape!, "__proto__"))
         Object.defineProperty(properties, "__proto__", { value: {}, enumerable: true });
-      const required = fields.filter(([, { meta: field }]) => {
-        if (direction === "input") return !field.optional;
-        if (Object.hasOwn(field, "nullDefaultValue") && field.nullDefaultValue === undefined) return false;
-        return !field.optional || field.defaultValue !== undefined;
-      });
+      const required = fields.filter(([, { meta: field }]) => direction === "input"
+        ? !field.optional : hasRequiredOutput(field));
       const additionalProperties = peerAllowsUnknown || meta.unknownKeys === "passthrough"
         || (direction === "input" && meta.unknownKeys === "strip");
       return {
@@ -240,11 +270,20 @@ function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
     }
     case "intersection": {
       if (direction === "input") conversion.approximate = true;
-      const [left, right] = meta.options!;
-      return { allOf: [
-        convertSchema(left!, direction === "output" ? { direction, target, merging: merging ? true : right! } : conversion),
-        convertSchema(right!, direction === "output" ? { direction, target, merging: merging ? true : left! } : conversion),
-      ] };
+      const [left, right] = meta.options! as readonly [AnySchema, AnySchema];
+      const allOf = [
+        convertSchema(left, direction === "output" ? { direction, target, merging: merging ? true : right } : conversion),
+        convertSchema(right, direction === "output" ? { direction, target, merging: merging ? true : left } : conversion),
+      ];
+      if (direction === "input" || merging) return { allOf };
+      const leftKeys = closedObjectOutputKeys(left);
+      const rightKeys = closedObjectOutputKeys(right);
+      if (!leftKeys || !rightKeys) return { allOf };
+      return {
+        properties: Object.fromEntries([...leftKeys, ...rightKeys].map(key => [key, {}])),
+        additionalProperties: false,
+        allOf,
+      };
     }
     case "xor": {
       const branchConversion: Conversion = { direction, target, merging };
