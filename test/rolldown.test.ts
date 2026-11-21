@@ -29,7 +29,8 @@ async function bundle(source: string, optimized = true, extension = 'ts', direct
           if (module === id) return id;
           if (Object.hasOwn(files, module)) return module;
           if (importer && module.startsWith('./')) {
-            const fixture = `${importer}/${module.slice(2).replace(/\.js$/, '.ts')}`;
+            const importerDirectory = importer.includes('/') ? importer.slice(0, importer.lastIndexOf('/') + 1) : `${importer}/`;
+            const fixture = `${importerDirectory}${module.slice(2).replace(/\.js$/, '.ts')}`;
             if (Object.hasOwn(files, fixture)) return fixture;
           }
           if (module === 'loculus') return fileURLToPath(new URL('../src/index.ts', import.meta.url));

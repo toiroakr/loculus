@@ -1,5 +1,5 @@
 ---
-"loculus": minor
+"loculus": patch
 "@loculus/rolldown": patch
 ---
 

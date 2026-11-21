@@ -7,7 +7,7 @@ type Direction = "input" | "output";
 interface Conversion {
   readonly direction: Direction;
   readonly target: "draft-2020-12" | "draft-07";
-  readonly merging?: boolean;
+  readonly merging?: true | AnySchema;
   approximate?: true;
 }
 interface Options {
@@ -115,6 +115,18 @@ function mergeableDefault(value: unknown, target: Conversion["target"]): JsonSch
   return { const: value };
 }
 
+function mergePeer(merging: Conversion["merging"]): Meta | undefined {
+  if (!merging || merging === true) return;
+  const { meta } = merging;
+  if (!meta.wrapper && meta.defaultValue === undefined && meta.nullDefaultValue === undefined) return meta;
+}
+
+function lengthBounds(min: number | undefined, max: number | undefined) {
+  const minimum = min !== undefined && min > 0 ? Math.ceil(min) : 0;
+  const maximum = max !== undefined && max < Infinity ? Math.floor(max) : Infinity;
+  return { minimum, maximum, impossible: minimum > maximum || minimum > Number.MAX_SAFE_INTEGER };
+}
+
 function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
   const { direction, merging, target } = conversion;
   if (meta.kind !== "array" && (meta.literalValues || meta.enumValues)) {
@@ -130,18 +142,19 @@ function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
   switch (meta.kind) {
     case "string": {
       const { min, max, length, pattern, trim } = meta.stringOptions ?? {};
+      const { minimum, maximum, impossible } = lengthBounds(min, max);
+      if (impossible) return { not: {} };
       const result: JsonSchema = { type: "string" };
       if (direction === "input" && trim) {
         if (min !== undefined || max !== undefined || pattern) conversion.approximate = true;
         return result;
       }
       if (min !== undefined || max !== undefined) {
-        if ((min !== undefined && (min > 1 || (min > 0 && !Number.isInteger(min)))) || max !== undefined)
-          conversion.approximate = true;
         if (!length && !configuration.stringLength) {
-          if (min !== undefined && Number.isSafeInteger(min) && min >= 0) result.minLength = Math.ceil(min / 2);
-          if (max !== undefined && Number.isSafeInteger(max) && max >= 0) result.maxLength = max;
-        } else {
+          if (min !== undefined && Number.isFinite(min) && min >= 0) result.minLength = Math.ceil(minimum / 2);
+          if (Number.isFinite(maximum)) result.maxLength = maximum;
+          if (minimum > 1 || (maximum > 0 && Number.isFinite(maximum))) conversion.approximate = true;
+        } else if (minimum > 0 || Number.isFinite(maximum)) {
           conversion.approximate = true;
         }
       }
@@ -176,19 +189,38 @@ function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
       return { type: "string", pattern: isoDatePattern.source };
     case "array": {
       const { min, max, wrapScalar } = meta.arrayOptions ?? {};
-      const items = convertSchema(meta.inner!, conversion);
+      const { minimum, maximum, impossible } = lengthBounds(min, max);
+      if (impossible) return { not: {} };
+      const peer = mergePeer(merging);
+      const itemConversion = merging ? {
+        ...conversion, merging: peer?.kind === "array" ? peer.inner! : true as const,
+      } : conversion;
+      const items = convertSchema(meta.inner!, itemConversion);
       const array: JsonSchema = { type: "array", items };
-      if (min !== undefined && Number.isSafeInteger(min) && min >= 0) array.minItems = min;
-      else if (min !== undefined && min > 0) conversion.approximate = true;
-      if (max !== undefined && Number.isSafeInteger(max) && max >= 0) array.maxItems = max;
-      else if (max !== undefined && max < Infinity) conversion.approximate = true;
-      return direction === "input" && wrapScalar && !(min !== undefined && min > 1) && !(max !== undefined && max < 1)
+      if (min !== undefined && Number.isFinite(min) && min >= 0) array.minItems = minimum;
+      if (Number.isFinite(maximum)) array.maxItems = maximum;
+      return direction === "input" && wrapScalar && minimum <= 1 && maximum >= 1
         ? { anyOf: [array, meta.inner!.meta.kind === "array" ? { allOf: [items, { not: { type: "array" } }] } : items] }
         : array;
     }
     case "object": {
       const fields = Object.entries(meta.shape!).filter(([key]) => key !== "__proto__");
-      const properties = Object.fromEntries(fields.map(([key, field]) => [key, convertSchema(field, conversion)]));
+      const peer = mergePeer(merging);
+      const peerShape = peer?.kind === "object" ? peer.shape : undefined;
+      const peerAllowsUnknown = !!merging && (!peerShape || peer?.unknownKeys === "passthrough");
+      const properties = Object.fromEntries(fields.map(([key, field]) => {
+        const fieldConversion = merging ? {
+          ...conversion,
+          merging: peerShape && Object.hasOwn(peerShape, key) ? peerShape[key] : peerAllowsUnknown ? true as const : undefined,
+        } : conversion;
+        return [key, convertSchema(field, fieldConversion)];
+      }));
+      if (peerShape && !peerAllowsUnknown) {
+        for (const key of Object.keys(peerShape)) {
+          if (key !== "__proto__" && !Object.hasOwn(properties, key))
+            Object.defineProperty(properties, key, { value: {}, enumerable: true });
+        }
+      }
       if (direction === "input" && Object.hasOwn(meta.shape!, "__proto__"))
         Object.defineProperty(properties, "__proto__", { value: {}, enumerable: true });
       const required = fields.filter(([, { meta: field }]) => {
@@ -196,17 +228,23 @@ function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
         if (Object.hasOwn(field, "nullDefaultValue") && field.nullDefaultValue === undefined) return false;
         return !field.optional || field.defaultValue !== undefined;
       });
+      const additionalProperties = peerAllowsUnknown || meta.unknownKeys === "passthrough"
+        || (direction === "input" && meta.unknownKeys === "strip");
       return {
         type: "object",
         properties,
         ...(required.length ? { required: required.map(([key]) => key) } : {}),
-        additionalProperties: !!merging || meta.unknownKeys === "passthrough" || (direction === "input" && meta.unknownKeys === "strip"),
+        additionalProperties,
+        ...(direction === "output" && additionalProperties ? { propertyNames: { not: { const: "__proto__" } } } : {}),
       };
     }
     case "intersection": {
       if (direction === "input") conversion.approximate = true;
-      const branchConversion = direction === "output" ? { direction, target, merging: true } : conversion;
-      return { allOf: meta.options!.map(branch => convertSchema(branch, branchConversion)) };
+      const [left, right] = meta.options!;
+      return { allOf: [
+        convertSchema(left!, direction === "output" ? { direction, target, merging: merging ? true : right! } : conversion),
+        convertSchema(right!, direction === "output" ? { direction, target, merging: merging ? true : left! } : conversion),
+      ] };
     }
     case "xor": {
       const branchConversion: Conversion = { direction, target, merging };

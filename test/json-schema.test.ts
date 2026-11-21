@@ -140,3 +140,42 @@ test("undefined entries in array and object defaults cannot be serialized", () =
     assert.throws(() => output(draft07), /Cannot represent the default value/);
   }
 });
+
+test("impossible string and array length bounds exclude all base values", () => {
+  for (const bounds of [{ min: Infinity }, { max: -1 }, { min: 1.5, max: 1.9 }]) {
+    const string = jsonSchema(l.string({ ...bounds, trim: true }))["~standard"];
+    const array = jsonSchema(l.array(l.string(), { ...bounds, wrapScalar: true }))["~standard"];
+    assert.ok(string.validate("x").issues);
+    assert.ok(array.validate(["x"]).issues);
+    for (const converter of [string.jsonSchema, array.jsonSchema]) {
+      assert.deepEqual(converter.input(draft07).not, {});
+      assert.deepEqual(converter.output(draft2020).not, {});
+    }
+  }
+});
+
+test("passthrough objects accept but omit the own prototype key", () => {
+  const schema = l.object({}, { unknownKeys: "passthrough" });
+  const standard = jsonSchema(schema)["~standard"];
+  const input: unknown = JSON.parse('{"__proto__":{"hello":true}}');
+  assert.deepEqual(standard.validate(input), { value: {} });
+  assert.equal(standard.jsonSchema.input(draft07).propertyNames, undefined);
+  assert.deepEqual(standard.jsonSchema.output(draft07).propertyNames, { not: { const: "__proto__" } });
+});
+
+test("intersection output retains strict fields that the other branch cannot merge", () => {
+  const left = l.object({ unshared: l.object({ x: l.string() }) }, { unknownKeys: "strip" });
+  const right = l.object({ y: l.string() }, { unknownKeys: "strip" });
+  const standard = jsonSchema(l.intersection(left, right))["~standard"];
+  assert.deepEqual(standard.validate({ unshared: { x: "x" }, y: "y" }), { value: { unshared: { x: "x" }, y: "y" } });
+  const output = standard.jsonSchema.output(draft07);
+  const [leftOutput, rightOutput] = output.allOf as {
+    additionalProperties: boolean;
+    properties: Record<string, { additionalProperties?: boolean }>;
+  }[];
+  assert.equal(leftOutput!.properties.unshared!.additionalProperties, false);
+  assert.equal(leftOutput!.additionalProperties, false);
+  assert.equal(rightOutput!.additionalProperties, false);
+  assert.deepEqual(leftOutput!.properties.y, {});
+  assert.deepEqual(rightOutput!.properties.unshared, {});
+});
