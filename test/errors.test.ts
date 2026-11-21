@@ -359,3 +359,13 @@ test('standard validators ignore extra callback arguments while resolving config
     }
   } finally {l.config({customError:undefined});}
 });
+
+test('config rejects a customError that is neither a string nor a function and keeps the previous setting', () => {
+  l.config({ customError: () => 'Previous' });
+  try {
+    for (const invalid of [null, 1, {}]) {
+      assert.throws(() => l.config({ customError: invalid as never }), { name: 'TypeError', message: 'Expected customError to be a string or a function' });
+    }
+    assert.equal(l.safeParse(l.string({ min: 3 }), 'a').issues?.[0]?.message, 'Previous');
+  } finally { l.config({ customError: undefined }); }
+});

@@ -11,6 +11,8 @@ export function config(options?: Config): Readonly<Config> {
     const next = { ...configuration, ...options };
     if (next.stringLength !== undefined && typeof next.stringLength !== "function")
       throw new TypeError("Expected stringLength to be a function");
+    if (next.customError !== undefined && typeof next.customError !== "function" && typeof next.customError !== "string")
+      throw new TypeError("Expected customError to be a string or a function");
     configuration = next;
   }
   return configuration;
