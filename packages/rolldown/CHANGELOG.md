@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2
+
+### Patch Changes
+
+- a058c23: Add `loculus/json-schema` with a `jsonSchema(schema)` adapter for Standard JSON Schema. Convert input and output schemas to draft 2020-12 or draft-07, including schemas optimized by the Rolldown plugin.
+- Updated dependencies [a058c23]
+  - loculus@0.4.2
+
 ## 0.3.1
 
 ### Patch Changes
