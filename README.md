@@ -62,6 +62,24 @@ Non-string literals expose `meta.kind` as `"number"` or `"boolean"` and their ty
 `discriminatedUnion` supports boolean and numeric literal discriminants. Exact typed matches take precedence: numeric `42` and string `"42"` select distinct branches. When no exact match exists, string inputs use the discriminator fields' scalar conversions (for example, `"42.0"` to `42` or `"true"` to `true`). If multiple branches accept the converted input, the first declared branch wins. The selected branch performs ordinary validation; a failure does not retry other branches. Inputs shared by enclosing union, xor or intersection branches are not mutated.
 
 
+## Standard JSON Schema
+
+Use `jsonSchema(schema)` from `loculus/json-schema` to pass a loculus schema to tools that accept [Standard JSON Schema](https://standardschema.dev/json-schema). The wrapper preserves Standard Schema validation and the inferred input and output types.
+
+```ts
+import * as l from 'loculus';
+import { jsonSchema } from 'loculus/json-schema';
+
+const query = l.object({ page: l.number({ integer: true, gte: 1, default: 1 }) });
+const standard = jsonSchema(query);
+const { input, output } = standard['~standard'].jsonSchema;
+
+const requestSchema = input({ target: 'draft-2020-12' });
+const parsedSchema = output({ target: 'draft-07' });
+```
+
+The input schema describes values before parsing and the output schema describes parsed values. The input schema also accepts decimal strings for `page`. Bounds and literal equality after numeric coercion, calendar validity, trimming, and custom string length counters still require loculus validation. String length bounds in JSON Schema are conservative because loculus counts UTF-16 code units by default. When an XOR input branch can only be approximated, the converter uses `anyOf` and leaves exclusivity to loculus validation. The converter throws for unsupported targets, patterns with flags that affect matching, custom refinements, and outputs of `date()`, `transform()`, and `unflatten()`.
+
 ## String length
 
 `min` and `max` count UTF-16 code units by default, matching JavaScript's `.length`.
