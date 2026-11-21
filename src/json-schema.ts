@@ -69,8 +69,8 @@ function convertSchema(schema: AnySchema, conversion: Conversion): JsonSchema {
     if (meta.kind === "number" && !meta.literalValues) alternatives.push({ const: "" });
   }
   if (direction === "output" && meta.nullable && !hasNullDefault) alternatives.push({ type: "null" });
-  const defaultValue = meta.defaultValue === undefined ? undefined : jsonValue(meta.defaultValue);
-  const nullDefaultValue = meta.nullDefaultValue === undefined ? undefined : jsonValue(meta.nullDefaultValue);
+  const defaultValue = Object.hasOwn(meta, "defaultValue") ? jsonValue(meta.defaultValue) : undefined;
+  const nullDefaultValue = hasNullDefault ? jsonValue(meta.nullDefaultValue) : undefined;
   if (direction === "output") {
     const defaults = [defaultValue, nullDefaultValue].filter(value => value !== undefined);
     for (const value of defaults) {
@@ -147,8 +147,10 @@ function convertPattern({ source, flags }: RegExp): string {
     }
     return /[DSW0-9u]/.test(escape!) ? "\uD800" : "_";
   });
-  if (/\[\^|[\uD800-\uDFFF]/.test(syntax) || /\./.test(syntax.replace(/\[[^\]]*\]/g, ""))
-    || (syntax.includes("-") && /[^\x00-\x7f]/.test(syntax)))
+  const characterClass = /\[[^\]]*\]/g;
+  const rangeSpansSurrogates = (syntax.match(characterClass) ?? []).some(value =>
+    /[\u0000-\uD7FF]-[\uE000-\uFFFF]/.test(value.slice(1, -1)));
+  if (/\[\^|[\uD800-\uDFFF]/.test(syntax) || /\./.test(syntax.replace(characterClass, "")) || rangeSpansSurrogates)
     throw new TypeError("Cannot convert a pattern with potentially different Unicode matching semantics to JSON Schema");
   try {
     new RegExp(source, "u");
@@ -159,7 +161,6 @@ function convertPattern({ source, flags }: RegExp): string {
 }
 
 function hasRequiredOutput(meta: Meta): boolean {
-  if (Object.hasOwn(meta, "nullDefaultValue") && meta.nullDefaultValue === undefined) return false;
   return !meta.optional || meta.defaultValue !== undefined;
 }
 

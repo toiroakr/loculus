@@ -185,6 +185,13 @@ test("all configured defaults are checked for JSON representability", () => {
   assert.throws(() => invalid.input(draft07), /non-finite default/);
   assert.throws(() => invalid.output(draft2020), /non-finite default/);
 
+  for (const value of [{ undefined: undefined }, { null: undefined }]) {
+    const field = l.number({ default: value } as unknown as l.FieldOptions<number>);
+    const { input, output } = jsonSchema(field)["~standard"].jsonSchema;
+    assert.throws(() => input(draft07), /Cannot represent the default value/);
+    assert.throws(() => output(draft2020), /Cannot represent the default value/);
+  }
+
   const valid = jsonSchema(l.number({ default: { null: 1 } }))["~standard"].jsonSchema;
   assert.ok(valid.input(draft07).anyOf);
   assert.ok(valid.output(draft2020).anyOf);
@@ -197,7 +204,7 @@ test("patterns that cannot preserve Unicode semantics are rejected", () => {
   assert.throws(() => input(draft07), /Unicode matching semantics/);
   assert.throws(() => output(draft2020), /Unicode matching semantics/);
 
-  for (const pattern of [/^\w+$/, /^[.]+$/, /^\.$/, /^\u0041$/]) {
+  for (const pattern of [/^\w+$/, /^[.]+$/, /^\.$/, /^\u0041$/, /é-/, /[é-]/, /[-é]/, /[a-zé]/, /[é-ê]/]) {
     const standard = jsonSchema(l.string({ pattern }))["~standard"];
     assert.equal(standard.jsonSchema.input(draft2020).pattern, pattern.source);
   }
