@@ -234,7 +234,7 @@ function convertBase(meta: Meta, conversion: Conversion): JsonSchema {
       if (min !== undefined && Number.isFinite(min) && min >= 0) array.minItems = minimum;
       if (Number.isFinite(maximum)) array.maxItems = maximum;
       return direction === "input" && wrapScalar && minimum <= 1 && maximum >= 1
-        ? { anyOf: [array, meta.inner!.meta.kind === "array" ? { allOf: [items, { not: { type: "array" } }] } : items] }
+        ? { anyOf: [array, ["array", "union", "xor"].includes(meta.inner!.meta.kind) ? { allOf: [items, { not: { type: "array" } }] } : items] }
         : array;
     }
     case "object": {

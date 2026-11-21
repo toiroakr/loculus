@@ -228,3 +228,10 @@ test("an optional intersection field can be supplied by the other branch", () =>
   const [, other] = standard.jsonSchema.output(draft07).allOf as { properties: Record<string, unknown> }[];
   assert.deepEqual(other!.properties.shared, {});
 });
+
+test("a wrapped single value never matches an array even when the item schema is a union containing an array", () => {
+  const union = l.union([l.array(l.string()), l.string()]);
+  const { input } = jsonSchema(l.array(union as never, { wrapScalar: true, max: 1 }))["~standard"].jsonSchema;
+  const [, single] = input(draft2020).anyOf as { allOf?: unknown[] }[];
+  assert.deepEqual(single!.allOf!.at(-1), { not: { type: "array" } });
+});
