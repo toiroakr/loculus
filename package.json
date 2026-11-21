@@ -1,6 +1,6 @@
 {
   "name": "loculus",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Flat schemas for string inputs",
   "homepage": "https://toiroakr.github.io/loculus/",
   "license": "MIT",
