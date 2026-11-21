@@ -88,6 +88,8 @@ function jsonValue(value: unknown): unknown {
   const json = JSON.stringify(value, (_, entry: unknown) => {
     if (typeof entry === "number" && !Number.isFinite(entry))
       throw new TypeError("Cannot represent a non-finite default value in JSON Schema");
+    if (entry === undefined || typeof entry === "function" || typeof entry === "symbol" || typeof entry === "bigint")
+      throw new TypeError("Cannot represent the default value in JSON Schema");
     return entry;
   });
   if (json === undefined) throw new TypeError("Cannot represent the default value in JSON Schema");

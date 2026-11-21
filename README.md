@@ -78,7 +78,7 @@ const requestSchema = input({ target: 'draft-2020-12' });
 const parsedSchema = output({ target: 'draft-07' });
 ```
 
-The input schema describes values before parsing and the output schema describes parsed values. The input schema also accepts decimal strings for `page`. Bounds and literal equality after numeric coercion, calendar validity, trimming, and custom string length counters still require loculus validation. String length bounds in JSON Schema are conservative because loculus counts UTF-16 code units by default. When an XOR input branch can only be approximated, the converter uses `anyOf` and leaves exclusivity to loculus validation. The converter throws for unsupported targets, patterns with flags that affect matching, custom refinements, and outputs of `date()`, `transform()`, and `unflatten()`.
+The input schema describes values before parsing and the output schema describes parsed values. The input schema also accepts decimal strings for `page`. Bounds and literal equality after numeric coercion, calendar validity, trimming, and custom string length counters still require loculus validation. String length bounds in JSON Schema are conservative because loculus counts UTF-16 code units by default. When an XOR input branch can only be approximated, the converter uses `anyOf` and leaves exclusivity to loculus validation. The converter throws for unsupported targets, default values that JSON cannot represent, patterns with flags that affect matching, custom refinements, and outputs of `date()`, `transform()`, and `unflatten()`.
 
 ## String length
 

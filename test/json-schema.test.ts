@@ -130,3 +130,13 @@ test("impossible numeric bounds reject numeric values and strings", () => {
     assert.deepEqual(standard.jsonSchema.output(draft07).not, {});
   }
 });
+
+test("undefined entries in array and object defaults cannot be serialized", () => {
+  const array = l.array(l.string({ optional: true }), { default: [undefined] });
+  const object = l.object({ label: l.string({ optional: true }) }, { default: { undefined: { label: undefined } } });
+  for (const schema of [array, object]) {
+    const { input, output } = jsonSchema<unknown, unknown>(schema)["~standard"].jsonSchema;
+    assert.throws(() => input(draft07), /Cannot represent the default value/);
+    assert.throws(() => output(draft07), /Cannot represent the default value/);
+  }
+});
