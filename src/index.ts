@@ -1,3 +1,8 @@
+import { configuration, type StringLength } from "./config.js";
+import { decimalPattern, isoDatePattern } from "./patterns.js";
+
+export { config, type Config, type StringLength } from "./config.js";
+
 export interface Issue {
   readonly message: string;
   readonly path?: readonly (PropertyKey | { readonly key: PropertyKey })[];
@@ -16,21 +21,6 @@ export interface ErrorContext extends Issue {
 export type ErrorCustomization = string | ((issue: ErrorContext) => string | { readonly message: string } | undefined);
 export interface ErrorOptions {
   readonly error?: ErrorCustomization;
-}
-export type StringLength = (value: string) => number;
-export interface Config {
-  readonly stringLength?: StringLength | undefined;
-  readonly customError?: ErrorCustomization | undefined;
-}
-let configuration: Config = {};
-export function config(options?: Config): Readonly<Config> {
-  if (options !== undefined) {
-    const next = { ...configuration, ...options };
-    if (next.stringLength !== undefined && typeof next.stringLength !== "function")
-      throw new TypeError("Expected stringLength to be a function");
-    configuration = next;
-  }
-  return configuration;
 }
 export type Result<T> = { value: T; issues?: undefined } | { issues: readonly Issue[] };
 const rawValidate = Symbol.for("loculus.rawValidate");
@@ -62,6 +52,11 @@ export interface Meta {
   readonly optional?: boolean;
   readonly nullable?: boolean;
   readonly defaultValue?: unknown;
+  readonly nullDefaultValue?: unknown;
+  readonly stringOptions?: Pick<StringOptions, "min" | "max" | "length" | "pattern" | "trim">;
+  readonly numberOptions?: Pick<NumberOptions, "gt" | "gte" | "lt" | "lte" | "integer">;
+  readonly arrayOptions?: Pick<ArrayOptions, "min" | "max" | "wrapScalar">;
+  readonly wrapper?: "transform" | "refine" | "unflatten";
   readonly description?: string;
   readonly enumValues?: readonly string[];
   readonly literalValues?: readonly (string | number | boolean)[];
@@ -282,6 +277,7 @@ function configuredField<I, O>(
     (meta as { optional: boolean }).optional = optional;
     (meta as { nullable: boolean }).nullable = nullable;
     if (defaults & 1) (meta as { defaultValue?: O }).defaultValue = missing;
+    if (defaults & 2) (meta as { nullDefaultValue?: O }).nullDefaultValue = nil;
   }
   return customize ? errorField(meta, validate) : field(meta, validate);
 }
@@ -361,7 +357,18 @@ export function string(
 ): Field<any, any, boolean> {
   if (options !== emptyOptions) options = { ...options };
   return configuredField<string, string>(
-    { kind: "string", description: options.description },
+    {
+      kind: "string", description: options.description,
+      ...(options.min !== undefined || options.max !== undefined || options.length || options.pattern || options.trim ? {
+        stringOptions: {
+          ...(options.min === undefined ? {} : { min: options.min }),
+          ...(options.max === undefined ? {} : { max: options.max }),
+          ...(options.length ? { length: options.length } : {}),
+          ...(options.pattern ? { pattern: options.pattern } : {}),
+          ...(options.trim ? { trim: true } : {}),
+        },
+      } : {}),
+    },
     options,
     !options.trim && options.min === undefined && options.max === undefined && !options.pattern && options.error === undefined
       ? validateString
@@ -393,7 +400,6 @@ export interface NumberOptions extends ErrorOptions {
   readonly integer?: boolean;
   readonly description?: string;
 }
-const decimal = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 export function number(
   options: NumberOptions & BasicPresence & { optional: true },
 ): Field<string | number | undefined, number | undefined, true>;
@@ -412,13 +418,24 @@ export function number(
 ): Field<any, any, boolean> {
   if (options !== emptyOptions) options = { ...options };
   return configuredField<string | number, number>(
-    { kind: "number", description: options.description },
+    {
+      kind: "number", description: options.description,
+      ...(options.gt !== undefined || options.gte !== undefined || options.lt !== undefined || options.lte !== undefined || options.integer ? {
+        numberOptions: {
+          ...(options.gt === undefined ? {} : { gt: options.gt }),
+          ...(options.gte === undefined ? {} : { gte: options.gte }),
+          ...(options.lt === undefined ? {} : { lt: options.lt }),
+          ...(options.lte === undefined ? {} : { lte: options.lte }),
+          ...(options.integer ? { integer: true } : {}),
+        },
+      } : {}),
+    },
     options,
     (value, mode) => {
       const error = mode === rawMode ? false : options.error;
       const input = value;
       if (typeof value !== "number") {
-        if (typeof value !== "string" || !decimal.test(value))
+        if (typeof value !== "string" || !decimalPattern.test(value))
           return typeFail("number", value, "Expected a decimal number", error);
         value = Number(value);
       }
@@ -594,7 +611,7 @@ export function literal<const T extends LiteralValue>(
 }
 function validateDate(value: unknown, mode?: unknown): Result<Date> {
   const error = mode === rawMode ? false : undefined;
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}(?:T(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})?)?$/.test(value))
+  if (typeof value !== "string" || !isoDatePattern.test(value))
     return fieldFail("Expected an ISO date", value, error);
   const output = new Date(value);
   if (!Number.isFinite(output.getTime())) return fieldFail("Invalid date", value, error);
@@ -657,7 +674,17 @@ export function array<I, O>(
   if (options !== emptyOptions) options = { ...options };
   const innerValidate = s["~standard"].validate;
   return configuredField<I | readonly I[], O[]>(
-    { kind: "array", inner: s, enumValues: s.meta.enumValues, ...(s.meta.literalValues ? { literalValues: s.meta.literalValues } : {}), description: options.description },
+    {
+      kind: "array", inner: s, enumValues: s.meta.enumValues, ...(s.meta.literalValues ? { literalValues: s.meta.literalValues } : {}),
+      description: options.description,
+      ...(options.min !== undefined || options.max !== undefined || options.wrapScalar ? {
+        arrayOptions: {
+          ...(options.min === undefined ? {} : { min: options.min }),
+          ...(options.max === undefined ? {} : { max: options.max }),
+          ...(options.wrapScalar ? { wrapScalar: true } : {}),
+        },
+      } : {}),
+    },
     options,
     (value, mode) => {
       const error = mode === rawMode ? false : options.error;
@@ -690,7 +717,7 @@ export function transform<I, O, T>(s: Schema<I, O>, fn: (value: O) => T): Schema
     const result = s["~standard"].validate(value);
     return result.issues ? result : { value: fn(result.value) };
   };
-  const meta = { ...s.meta, enumValues: s.meta.enumValues, inner: s };
+  const meta = { ...s.meta, enumValues: s.meta.enumValues, inner: s, wrapper: "transform" as const };
   return "field" in s ? field(meta, validate) : schema(meta, validate);
 }
 /* @__NO_SIDE_EFFECTS__ */
@@ -703,7 +730,7 @@ export function refine<S extends AnySchema>(
     const result = s["~standard"].validate(value);
     return result.issues || check(result.value) ? result : fail(message, "custom");
   };
-  return { ...s, "~standard": { ...s["~standard"], validate }, meta: { ...s.meta, enumValues: s.meta.enumValues, inner: s } };
+  return { ...s, "~standard": { ...s["~standard"], validate }, meta: { ...s.meta, enumValues: s.meta.enumValues, inner: s, wrapper: "refine" } };
 }
 const own = Object.hasOwn;
 export interface ObjectOptions<T> extends Omit<FieldOptions<T>, "default"> {
@@ -1106,6 +1133,6 @@ export function unflatten(source: AnySchema, options: UnflattenOptions = {}): An
     const nested = unflattenRecord(result.value, pathOf);
     return nested.issues ? { issues: nested.issues.map(issue => customizeIssue(issue, value)) } : nested;
   };
-  const meta = { ...source.meta, enumValues: source.meta.enumValues, inner: source };
+  const meta = { ...source.meta, enumValues: source.meta.enumValues, inner: source, wrapper: "unflatten" as const };
   return "field" in source ? field(meta, validate) : schema(meta, validate);
 }

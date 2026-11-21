@@ -221,9 +221,15 @@ function generate(spec: ScalarSpec, validator: string, decimal: string, enumMeta
   let meta = literals && !stringChoices
     ? `kind:${emit(mixed ? 'union' : kind)},literalValues:[${literals.values.map(emit).join(',')}],${mixed ? `options:[${branches.join(',')}],` : ''}description:${emit(opts.description as Scalar)}`
     : literals ? '' : `kind:${emit(kind)},description:${emit(opts.description as Scalar)}`;
+  if (!literals && (kind === 'string' || kind === 'number')) {
+    const keys = kind === 'string' ? ['min', 'max', 'trim'] : ['gt', 'gte', 'lt', 'lte', 'integer'];
+    const entries = keys.filter(key => opts[key] !== undefined && opts[key] !== false).map(key => `${key}:${emit(opts[key] as Scalar)}`);
+    if (entries.length) meta += `,${kind}Options:{${entries.join(',')}}`;
+  }
   if (opts.optional || opts.nullable || opts.nullish || value !== undefined) {
     meta += `${meta ? ',' : ''}optional:${optional},nullable:${nullable}`;
     if (defaults & 1) meta += `,defaultValue:${emit(missing)}`;
+    if (defaults & 2) meta += `,nullDefaultValue:${emit(nil)}`;
   }
   let body = '';
   if (optional) body += `if(value===void 0)return {value:${emit(missing)}};`;
@@ -515,7 +521,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
           return `${label}:{const raw=input[${keyExpression}];let value=raw;${emitted}}`;
         };
         const arrayValidators = new Map<Node,string>();
-        const arrayHelpers = new Map<string, {factory:string;validate:string;body:string;description:Scalar}>();
+        const arrayHelpers = new Map<string, {factory:string;validate:string;body:string;options:ArraySpec["opts"]}>();
         const groups: string[] = [];
         const chunks: string[] = [];
         const objectHelpers = new Map<string, { factory: string; validate: string; body: string; captures: string[]; spec: ObjectSpec }>();
@@ -534,7 +540,7 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
             body+='return {value:output};';
             const signature=JSON.stringify([body,array.opts.description]);
             let helper=arrayHelpers.get(signature);
-            if(!helper){helper={factory:unique(),validate:unique(),body,description:array.opts.description};arrayHelpers.set(signature,helper);}
+            if(!helper){helper={factory:unique(),validate:unique(),body,options:array.opts};arrayHelpers.set(signature,helper);}
             arrayValidators.set(node,helper.validate);
             return `/* @__PURE__ */ ${helper.factory}(${child})`;
           }
@@ -683,7 +689,9 @@ export function loculusPlugin(opts: LoculusPluginOptions = {}): Plugin {
         for (const [expression,create] of scalarFactories) generated += `/* @__NO_SIDE_EFFECTS__ */ function ${create}(){return ${expression};}\n`;
         for(const helper of arrayHelpers.values()){
           generated+=`function ${helper.validate}(value){const raw=value;${resolvedBody(helper.body)}}\n`;
-          generated+=`/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(inner){return {meta:{kind:"array",inner,enumValues:inner.meta.enumValues,...(inner.meta.literalValues?{literalValues:inner.meta.literalValues}:{}),description:${emit(helper.description)}},"~standard":{version:1,vendor:"loculus",validate:${helper.validate}},field:true};}\n`;
+          const entries = ['min', 'max', 'wrapScalar'].filter(key => helper.options[key] !== undefined && helper.options[key] !== false).map(key => `${key}:${emit(helper.options[key])}`);
+          const arrayOptions = entries.length ? `,arrayOptions:{${entries.join(',')}}` : '';
+          generated+=`/* @__NO_SIDE_EFFECTS__ */ function ${helper.factory}(inner){return {meta:{kind:"array",inner,enumValues:inner.meta.enumValues,...(inner.meta.literalValues?{literalValues:inner.meta.literalValues}:{}),description:${emit(helper.options.description)}${arrayOptions}},"~standard":{version:1,vendor:"loculus",validate:${helper.validate}},field:true};}\n`;
         }
         for (const helper of objectHelpers.values()) {
           const args = helper.captures.map((_,index)=>`v${index}`);

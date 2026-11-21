@@ -8,6 +8,15 @@ import { loculusPlugin, type LoculusPluginOptions } from '../packages/rolldown/s
 import {z} from 'zod';
 import * as v from 'valibot';
 
+async function separateRuntimes() {
+  const read = (name: string) => readFile(new URL(`../src/${name}.ts`, import.meta.url), 'utf8');
+  const [index, config, patterns] = await Promise.all([read('index'), read('config'), read('patterns')]);
+  return {
+    'loculus-a': index, 'loculus-a/config.ts': config, 'loculus-a/patterns.ts': patterns,
+    'loculus-b': index, 'loculus-b/config.ts': config, 'loculus-b/patterns.ts': patterns,
+  };
+}
+
 async function bundle(source: string, optimized = true, extension = 'ts', directory = '/loculus-test', options: LoculusPluginOptions = {}, files: Record<string,string> = {}) {
   const id = `${directory}/entry.${extension}`;
   let transformed = '';
@@ -16,9 +25,14 @@ async function bundle(source: string, optimized = true, extension = 'ts', direct
     plugins: [
       {
         name: 'fixture',
-        resolveId(module) {
+        resolveId(module, importer) {
           if (module === id) return id;
           if (Object.hasOwn(files, module)) return module;
+          if (importer && module.startsWith('./')) {
+            const importerDirectory = importer.includes('/') ? importer.slice(0, importer.lastIndexOf('/') + 1) : `${importer}/`;
+            const fixture = `${importerDirectory}${module.slice(2).replace(/\.js$/, '.ts')}`;
+            if (Object.hasOwn(files, fixture)) return fixture;
+          }
           if (module === 'loculus') return fileURLToPath(new URL('../src/index.ts', import.meta.url));
         },
         load(module) {
@@ -899,13 +913,12 @@ test('generated field errors read accessors once and pass the original value to 
 
 
 test('generated schemas keep global messages isolated between configured runtime modules', async () => {
-  const runtime = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
   const source = `import * as a from 'loculus-a';import * as b from 'loculus-b';
     export const first=a.object({name:a.string({min:3})});
     export const second=b.object({count:b.number({gte:1})});
     export const mixed=a.object({name:b.string({min:3}),own:a.string({min:3})});
     export const setup=(left,right)=>{a.config({customError:()=>left});b.config({customError:()=>right});};`;
-  const files = { 'loculus-a': runtime, 'loculus-b': runtime };
+  const files = await separateRuntimes();
   const ordinary = await bundle(source, false, 'ts', '/loculus-test', {}, files);
   const generated = await bundle(source, true, 'ts', '/loculus-test', { modules: ['loculus-a', 'loculus-b'] }, files);
   assert.match(generated.transformed, /function __loculus_/);
@@ -923,8 +936,7 @@ test('generated schemas keep global messages isolated between configured runtime
 });
 
 test('literal generation respects builtin aliases imported from another runtime', async () => {
-  const runtime = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
-  const files = { 'loculus-a': runtime, 'loculus-b': runtime };
+  const files = await separateRuntimes();
   for (const source of [
     `import * as Object from 'loculus-a';import {literal} from 'loculus-b';export const schema=literal('a');export const other=Object.string();`,
     `import {number as Number} from 'loculus-a';import {literal} from 'loculus-b';export const schema=literal(42);export const other=Number();`,
@@ -935,8 +947,7 @@ test('literal generation respects builtin aliases imported from another runtime'
 });
 
 test('converted discriminator probes never invoke error callbacks across generated or foreign fields', async () => {
-  const runtime = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
-  const files = { 'loculus-a': runtime, 'loculus-b': runtime };
+  const files = await separateRuntimes();
   for (const foreign of [false,true]) {
     const source = `import * as a from 'loculus-a';import * as b from 'loculus-b';
       export const schema=a.discriminatedUnion('kind',[
@@ -1042,13 +1053,12 @@ test('generated containers preserve changing inherited issue accessors with glob
 });
 
 test('generated strings keep length settings isolated between configured runtime modules', async () => {
-  const runtime = await readFile(new URL('../src/index.ts', import.meta.url), 'utf8');
   const source = `import * as a from 'loculus-a';import * as b from 'loculus-b';
     export const first=a.object({text:a.string({max:1})});
     export const second=b.object({text:b.string({max:1})});
     export const mixed=a.object({first:a.string({max:1}),second:b.string({max:1})});
     export const setup=(left,right)=>{a.config({stringLength:left,customError:()=>"First"});b.config({stringLength:right,customError:()=>"Second"});};`;
-  const files = { 'loculus-a': runtime, 'loculus-b': runtime };
+  const files = await separateRuntimes();
   const ordinary = await bundle(source, false, 'ts', '/loculus-test', {}, files);
   const generated = await bundle(source, true, 'ts', '/loculus-test', { modules: ['loculus-a', 'loculus-b'] }, files);
   for (const [left, right] of [[undefined, (value: string) => [...value].length], [(value: string) => [...value].length, undefined]]) {

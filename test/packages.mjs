@@ -38,7 +38,9 @@ try {
   assert.equal(runtime.name, 'loculus');
   assert.ok(runtime.files.some(file => file.path === 'THIRD_PARTY_NOTICES'));
   assert.equal(plugin.name, '@loculus/rolldown');
-  assert.deepEqual(runtime.files.filter(file => file.path.startsWith('dist/')).map(file => file.path).sort(), ['dist/index.d.ts', 'dist/index.js', 'dist/length.d.ts', 'dist/length.js']);
+  assert.deepEqual(runtime.files.filter(file => file.path.startsWith('dist/') && !/^dist\/(?:patterns-.+\.js|index-.+\.d\.ts)$/.test(file.path)).map(file => file.path).sort(), [
+    'dist/index.d.ts', 'dist/index.js', 'dist/json-schema.d.ts', 'dist/json-schema.js', 'dist/length.d.ts', 'dist/length.js',
+  ]);
   assert.deepEqual(plugin.files.filter(file => file.path.startsWith('dist/')).map(file => file.path).sort(), ['dist/index.d.ts', 'dist/index.js']);
   const infer = pack(join(root, 'packages/infer'));
   assert.equal(infer.name, '@loculus/infer');
@@ -95,8 +97,13 @@ assert.throws(() => new LoculusTypeExtractor(), /native compiler.*optional depen
   await writeFile(join(runtimeOnly, 'verify.mjs'), `
 import assert from 'node:assert/strict';
 import * as l from 'loculus';
+import {jsonSchema} from 'loculus/json-schema';
 import {graphemes,displayWidth,utf8Bytes} from 'loculus/length';
 assert.equal(Object.hasOwn(l, 'configure'), false);
+const standard = jsonSchema(l.string({min: 1}))['~standard'];
+assert.deepEqual(standard.jsonSchema.output({target: 'draft-07'}), {
+  $schema: 'http://json-schema.org/draft-07/schema#', type: 'string', minLength: 1,
+});
 assert.equal(graphemes('👨‍👩‍👧‍👦'),1);
 assert.equal(displayWidth('あ'),2);
 assert.equal(utf8Bytes('あ'),3);
@@ -111,7 +118,10 @@ await assert.rejects(import('rolldown'), {code: 'ERR_MODULE_NOT_FOUND'});
 `);
   execFileSync(process.execPath, ['verify.mjs'], { cwd: runtimeOnly, stdio: 'pipe' });
   await writeFile(join(runtimeOnly, 'config.ts'), `
-import { config, type Config } from 'loculus';
+import { config, string, type Config } from 'loculus';
+import { jsonSchema } from 'loculus/json-schema';
+const converted = jsonSchema(string());
+converted['~standard'].jsonSchema.input({ target: 'draft-07' });
 const reset: Config = { stringLength: undefined };
 config({ stringLength: value => value.length });
 config({});
@@ -135,6 +145,7 @@ config({ customError: undefined });
   await writeFile(join(optimized, 'verify.mjs'), `
 import assert from 'node:assert/strict';
 import {rolldown} from 'rolldown';
+import {jsonSchema} from 'loculus/json-schema';
 import {loculusPlugin} from '@loculus/rolldown';
 let generated = false;
 let literalsGenerated = false;
@@ -144,6 +155,9 @@ try {
   assert.equal(generated,true);
   assert.equal(literalsGenerated,true);
   const {query,choices} = await import('data:text/javascript;base64,'+Buffer.from(output[0].code).toString('base64'));
+  const outputSchema = jsonSchema(query)['~standard'].jsonSchema.output({target: 'draft-07'});
+  assert.equal(outputSchema.properties.q.minLength, 1);
+  assert.deepEqual(outputSchema.required, ['q', 'draft']);
   assert.deepEqual(query['~standard'].validate({q:' hello ',draft:'false'}),{value:{q:'hello',draft:false}});
   assert.deepEqual(query['~standard'].validate({q:'hello'}),{value:{q:'hello',draft:false}});
   assert.deepEqual(query['~standard'].validate({q:'hello',count:'',fallback:''}),{value:{q:'hello',draft:false,count:null,fallback:10}});
